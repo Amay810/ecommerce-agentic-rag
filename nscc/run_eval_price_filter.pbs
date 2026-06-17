@@ -1,0 +1,29 @@
+#!/bin/bash
+#PBS -N erag_eval_pf
+#PBS -q normal
+#PBS -l select=1:ncpus=4:mem=16gb
+#PBS -l walltime=00:20:00
+#PBS -j oe
+#PBS -o eval_price_filter.log
+
+cd /scratch/users/ntu/s250045/ecommerce-agentic-rag
+
+source ~/miniforge3/etc/profile.d/conda.sh
+conda activate parkinson
+
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export TOKENIZERS_PARALLELISM=false
+export PYTHONPATH="$PWD"
+export ERAG_SUPPORT_STORE=0   # keep eval clean (no DB writes)
+
+echo "=== stdlib test: price_filter (no model) ==="
+python tests/test_price_filter.py
+
+echo ""
+echo "=== BASELINE: price filter OFF ==="
+ERAG_PRICE_FILTER=0 python -m ecommerce_rag.evaluate 2>&1 | tail -30
+
+echo ""
+echo "=== WITH FILTER: price filter ON ==="
+ERAG_PRICE_FILTER=1 python -m ecommerce_rag.evaluate 2>&1 | tail -30

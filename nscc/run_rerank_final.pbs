@@ -1,0 +1,33 @@
+#!/bin/bash
+#PBS -N erag_rerank_final
+#PBS -q normal
+#PBS -l select=1:ncpus=4:mem=16gb
+#PBS -l walltime=00:40:00
+#PBS -j oe
+#PBS -o rerank_final.log
+
+set -euo pipefail
+
+cd /scratch/users/ntu/s250045/ecommerce-agentic-rag
+
+source ~/miniforge3/etc/profile.d/conda.sh
+conda activate parkinson
+
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export TOKENIZERS_PARALLELISM=false
+
+echo "=== build index ==="
+python -m ecommerce_rag.data_loader
+
+echo ""
+echo "################  A) BASELINE: hybrid, no reranker  ################"
+ERAG_USE_RERANKER=0 python -m ecommerce_rag.evaluate
+
+echo ""
+echo "################  B) PARENT rerank, NO product dedup (per-chunk flooding)  ################"
+ERAG_USE_RERANKER=1 ERAG_RERANK_ON=parent ERAG_RERANK_DEDUP=0 python -m ecommerce_rag.evaluate
+
+echo ""
+echo "################  C) PARENT rerank + product-level DEDUP (the fix)  ################"
+ERAG_USE_RERANKER=1 ERAG_RERANK_ON=parent ERAG_RERANK_DEDUP=1 python -m ecommerce_rag.evaluate

@@ -1,0 +1,5 @@
+sentence-transformers>=2.7.0
+rank_bm25>=0.2.2
+jieba>=0.42.1
+numpy
+streamlit>=1.30.0

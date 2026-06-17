@@ -1,0 +1,29 @@
+#!/bin/bash
+#PBS -N erag_rerank_ab
+#PBS -q normal
+#PBS -l select=1:ncpus=4:mem=16gb
+#PBS -l walltime=00:30:00
+#PBS -j oe
+#PBS -o rerank_ab.log
+
+set -euo pipefail
+
+cd /scratch/users/ntu/s250045/ecommerce-agentic-rag
+
+source ~/miniforge3/etc/profile.d/conda.sh
+conda activate parkinson
+
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export TOKENIZERS_PARALLELISM=false
+
+echo "=== build index ==="
+python -m ecommerce_rag.data_loader
+
+echo ""
+echo "################  A) BASELINE: hybrid (dense+BM25+RRF), no reranker  ################"
+ERAG_USE_RERANKER=0 python -m ecommerce_rag.evaluate
+
+echo ""
+echo "################  B) RERANKED: hybrid -> bge-reranker-base top20->top5  ################"
+ERAG_USE_RERANKER=1 python -m ecommerce_rag.evaluate

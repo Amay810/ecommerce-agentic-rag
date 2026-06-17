@@ -1,0 +1,28 @@
+{"question":"扫地机器人能跨房间清扫吗？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P005"]}
+{"question":"养猫家庭适合买哪款清洁产品？","expected_intent":"recommend","expected_action_not":"handoff","gold_doc_ids":["product:P005"]}
+{"question":"预算600以内，通勤降噪耳机推荐哪款？","expected_intent":"recommend","expected_action_not":"handoff","gold_doc_ids":["product:P001"]}
+{"question":"RunBuds Clip 和 Air Pro 2 哪个更适合跑步？","expected_intent":"compare","expected_action_not":"handoff","gold_doc_ids":["product:P001","product:P007"]}
+{"question":"机械键盘支持 Mac 系统吗？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P004"]}
+{"question":"保温杯可以装碳酸饮料吗？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P006"]}
+{"question":"榨汁杯整个都能放进洗碗机吗？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P002"]}
+{"question":"商品签收后几天内可以无理由退货？","expected_intent":"policy","expected_action_not":"handoff","gold_doc_ids":["policy:POL001"]}
+{"question":"预售吹风机什么时候发货？","expected_intent":"policy","expected_action_not":"handoff","gold_doc_ids":["policy:POL003"]}
+{"question":"我的订单退款什么时候到账？","expected_intent":"handoff","expected_action":"handoff","gold_doc_ids":[]}
+{"question":"差旅长途飞行想要长续航的头戴降噪耳机，选哪款？","expected_intent":"recommend","expected_action_not":"handoff","gold_doc_ids":["product:P009"]}
+{"question":"侧睡党适合戴哪款耳机睡觉？","expected_intent":"recommend","expected_action_not":"handoff","gold_doc_ids":["product:P012"]}
+{"question":"跑步不想堵住耳朵，有不入耳的耳机吗？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P013"]}
+{"question":"打游戏想要低延迟的耳机，推荐哪款？","expected_intent":"recommend","expected_action_not":"handoff","gold_doc_ids":["product:P011"]}
+{"question":"Air Pro 2 和 QuietMax H900 哪个降噪更强？","expected_intent":"compare","expected_action_not":"handoff","gold_doc_ids":["product:P001","product:P009"]}
+{"question":"要带数字小键盘的机械键盘有吗？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P018"]}
+{"question":"经常手腕疼，有没有人体工学键盘？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P020"]}
+{"question":"想找适合iPad的轻薄蓝牙键盘，推荐哪款？","expected_intent":"recommend","expected_action_not":"handoff","gold_doc_ids":["product:P019"]}
+{"question":"破壁机能打热豆浆热汤吗？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P021"]}
+{"question":"无油的空气炸锅推荐哪款？","expected_intent":"recommend","expected_action_not":"handoff","gold_doc_ids":["product:P024"]}
+{"question":"车里用的小型吸尘器推荐哪款？","expected_intent":"recommend","expected_action_not":"handoff","gold_doc_ids":["product:P025"]}
+{"question":"地板想用高温蒸汽清洁，有什么产品？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P027"]}
+{"question":"声波电动牙刷有计时功能吗？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P030"]}
+{"question":"想要能测血氧、带GPS的智能手表，推荐哪款？","expected_intent":"recommend","expected_action_not":"handoff","gold_doc_ids":["product:P031"]}
+{"question":"家里老人量血压用什么产品？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P032"]}
+{"question":"有没有20000mAh支持PD快充的充电宝？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P034"]}
+{"question":"有2K 100Hz的显示器吗？","expected_intent":"product_qa","expected_action_not":"handoff","gold_doc_ids":["product:P036"]}
+{"question":"保温杯和焖烧罐有什么区别？","expected_intent":"compare","expected_action_not":"handoff","gold_doc_ids":["product:P006","product:P014"]}

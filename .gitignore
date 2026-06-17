@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+logs/
+.streamlit/
+ecommerce_rag/index/
+*.log

@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电商客服 Agentic RAG — 面试演示</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --bg2: #1a1d2e;
+  --bg3: #22263a;
+  --accent: #60a5fa;
+  --accent2: #34d399;
+  --accent3: #f59e0b;
+  --warn: #f87171;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --border: #2d3555;
+  --code-bg: #1e2235;
+  --highlight: #fbbf24;
+}
+
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ── Deck shell ── */
+#deck { width: 100%; height: 100vh; position: relative; }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 0;
+}
+.slide.active { display: flex; }
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 32px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  height: 44px;
+}
+.section-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(96,165,250,0.12);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.slide-counter {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.progress-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--border);
+  width: 100%;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.3s ease;
+}
+
+/* ── Content area ── */
+.content {
+  flex: 1;
+  padding: 28px 60px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.slide-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  border-left: 3px solid var(--accent);
+  padding-left: 14px;
+}
+.slide-title .sub { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 10px; }
+
+/* ── Takeaway bar ── */
+.takeaway {
+  flex-shrink: 0;
+  background: linear-gradient(90deg, rgba(96,165,250,0.12), rgba(52,211,153,0.08));
+  border-top: 1px solid rgba(96,165,250,0.25);
+  border-bottom: none;
+  padding: 10px 60px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--accent);
+}
+.takeaway::before { content: "▶ Takeaway"; font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; opacity: 0.7; white-space: nowrap; }
+
+/* ── Speaker notes ── */
+.notes {
+  display: none;
+  flex-shrink: 0;
+  background: rgba(251,191,36,0.06);
+  border-top: 1px solid rgba(251,191,36,0.2);
+  padding: 10px 60px;
+  font-size: 12px;
+  color: #fbbf24;
+  max-height: 130px;
+  overflow-y: auto;
+}
+.notes.visible { display: block; }
+.notes-label { font-weight: 700; margin-bottom: 4px; opacity: 0.7; }
+
+/* ── Nav bar ── */
+.navbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 32px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+}
+.nav-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.nav-btn:hover { background: #2d3555; }
+.nav-btn:disabled { opacity: 0.3; cursor: default; }
+.hint { font-size: 11px; color: var(--muted); }
+
+/* ── Tables ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+th {
+  background: var(--bg3);
+  color: var(--accent);
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(45,53,85,0.6);
+  vertical-align: top;
+  line-height: 1.5;
+}
+tr:hover td { background: rgba(96,165,250,0.04); }
+.highlight-row td { color: #fff; font-weight: 600; }
+.highlight-row { background: rgba(52,211,153,0.07); }
+.bold-num { color: var(--accent2); font-weight: 700; }
+.dim { color: var(--muted); }
+.bad-num { color: var(--warn); }
+
+/* ── Callout boxes ── */
+.quote-box {
+  background: var(--bg3);
+  border-left: 3px solid var(--accent);
+  padding: 12px 18px;
+  border-radius: 0 6px 6px 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #c4d0e8;
+}
+.conclusion-box {
+  background: rgba(96,165,250,0.08);
+  border: 1px solid rgba(96,165,250,0.25);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+.warning-box {
+  background: rgba(248,113,113,0.08);
+  border: 1px solid rgba(248,113,113,0.25);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #fca5a5;
+}
+.success-box {
+  background: rgba(52,211,153,0.08);
+  border: 1px solid rgba(52,211,153,0.25);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13.5px;
+}
+
+/* ── Bullets ── */
+ul.bullets { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+ul.bullets li {
+  padding-left: 18px;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.6;
+}
+ul.bullets li::before { content: "·"; position: absolute; left: 4px; color: var(--accent); font-size: 18px; top: -1px; }
+ul.bullets li b { color: #fff; }
+
+/* ── Flow diagram ── */
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: flex-start;
+  font-size: 13px;
+}
+.flow-node {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.flow-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 16px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.flow-box.new { border-color: var(--accent2); color: var(--accent2); }
+.flow-box.verify { border-color: var(--accent3); color: var(--accent3); }
+.flow-box.memory { border-color: #a78bfa; color: #c4b5fd; }
+.flow-box.decision { border-color: var(--warn); color: #fca5a5; }
+.flow-arrow {
+  color: var(--muted);
+  font-size: 16px;
+  margin-left: 28px;
+}
+.flow-indent { margin-left: 28px; }
+
+/* ── Two-column layout ── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.col-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.col-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+.col-card ul.bullets li { font-size: 13px; }
+
+/* ── Code / mono ── */
+code {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+  background: var(--code-bg);
+  color: #7dd3fc;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+pre {
+  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  background: var(--code-bg);
+  color: #cbd5e1;
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+/* ── Badges / tags ── */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin: 1px;
+}
+.tag-blue { background: rgba(96,165,250,0.15); color: var(--accent); }
+.tag-green { background: rgba(52,211,153,0.15); color: var(--accent2); }
+.tag-amber { background: rgba(245,158,11,0.15); color: var(--accent3); }
+
+/* ── Big number display ── */
+.metrics-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.metric-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 20px;
+  text-align: center;
+  flex: 1;
+  min-width: 100px;
+}
+.metric-val { font-size: 26px; font-weight: 800; color: var(--accent2); }
+.metric-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── Opening slide special ── */
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+  padding: 40px 80px;
+}
+.hero h1 { font-size: 28px; font-weight: 800; color: #fff; line-height: 1.4; }
+.hero .subtitle { font-size: 15px; color: var(--muted); }
+.hero .opening-quote {
+  background: var(--bg3);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 16px 24px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #c4d0e8;
+  text-align: left;
+  max-width: 700px;
+}
+.tags-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+/* ── Section header ── */
+.section-header {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: -8px;
+}
+
+/* ── Inline emphasis ── */
+.em-green { color: var(--accent2); font-weight: 700; }
+.em-blue { color: var(--accent); font-weight: 700; }
+.em-amber { color: var(--accent3); font-weight: 700; }
+.em-red { color: var(--warn); font-weight: 700; }
+
+/* ── Notes toggle hint ── */
+#notes-hint {
+  position: fixed;
+  bottom: 60px;
+  right: 20px;
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  z-index: 100;
+}
+</style>
+</head>
+<body>
+
+<div id="notes-hint" onclick="toggleNotes()" title="按 N 切换">N → 面试钩子</div>
+
+<div id="deck">
+
+<!-- ══════════════════════════════════════════════
+     P1  个人定位
+══════════════════════════════════════════════ -->
+<div class="slide active" data-section="开篇·定位">
+  <div class="topbar">
+    <span class="section-badge">开篇 · 定位</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:7.1%"></div>
+    </div>
+    <span class="slide-counter">1 / 14</span>
+  </div>
+
+  <div class="content" style="justify-content:center">
+    <div class="hero">
+      <div>
+        <div class="subtitle" style="margin-bottom:8px">NTU · LLM 算法 / RAG 方向</div>
+        <h1>电商客服<br>Agentic RAG 系统</h1>
+      </div>
+      <div class="tags-row">
+        <span class="tag tag-blue">Hybrid Retrieval</span>
+        <span class="tag tag-blue">Retrieval Eval</span>
+        <span class="tag tag-green">Agentic RAG</span>
+        <span class="tag tag-green">Knowledge Grounding</span>
+        <span class="tag tag-amber">Ablation Study</span>
+      </div>
+      <div class="opening-quote">
+        我这个项目不是追求堆模块，而是把<strong>科学实验流程</strong>用在 RAG 工程里：
+        先定义 gold-doc 指标，再通过<strong>负结果</strong>和 failure memory 找到真实瓶颈，
+        最后用 <strong>targeted fix 做 ablation 证明</strong>。
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">我做的是可测、可量化的检索系统，不是调包 demo。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "你说'可量化'，你怎么量化 RAG 的质量？" → 引到 P7 评测体系（28题 gold 标注 + Recall@k/MRR）
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()" disabled>← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页 &nbsp;|&nbsp; N 切换讲师注</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P2  项目定位
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="开篇·定位">
+  <div class="topbar">
+    <span class="section-badge">开篇 · 定位</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:14.3%"></div>
+    </div>
+    <span class="slide-counter">2 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">项目定位 <span class="sub">— 与普通 RAG demo 的本质区别</span></div>
+
+    <table>
+      <thead>
+        <tr><th></th><th>普通 RAG demo</th><th>传统规则客服</th><th style="color:var(--accent2)">本系统</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>召回</b></td>
+          <td class="dim">无量化评测</td>
+          <td class="dim">精确匹配</td>
+          <td class="em-green">Recall@k / MRR</td>
+        </tr>
+        <tr>
+          <td><b>回答</b></td>
+          <td class="dim">生成即发出</td>
+          <td class="dim">模板</td>
+          <td class="em-green">生成 → 验证 → 置信度决策</td>
+        </tr>
+        <tr>
+          <td><b>失败处理</b></td>
+          <td class="dim">幻觉</td>
+          <td class="dim">转人工</td>
+          <td class="em-green">grounding 闸门 → 可溯源 handoff</td>
+        </tr>
+        <tr>
+          <td><b>迭代能力</b></td>
+          <td class="dim">无</td>
+          <td class="dim">手工维护</td>
+          <td class="em-green">SupportCase 飞轮</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="quote-box">
+      系统的产物不是一句回答，而是一条可复盘的 <code>SupportCase</code>：<br>
+      意图 · 证据 · 引用 · 置信度 · 验证结果 · 失败原因 · 最终动作——全部可审计。
+    </div>
+  </div>
+
+  <div class="takeaway">我把它定位成可验证、可审计的客服决策系统，而非 RAG demo。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "你的系统和 LangGraph/普通 RAG pipeline 有什么区别？" → 我们有 gold-doc 评测闭环；每一步修改都有 ablation 数字支撑。飞轮这列很关键——失败案例会变成下次的先验。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P3  痛点 × 架构回应
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="开篇·定位">
+  <div class="topbar">
+    <span class="section-badge">开篇 · 定位</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:21.4%"></div>
+    </div>
+    <span class="slide-counter">3 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">真实痛点 × 架构回应</div>
+
+    <table>
+      <thead>
+        <tr><th>客服痛点</th><th>系统级回应</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>① 幻觉报错价格 / 参数</td>
+          <td>Grounding + 数字引用检查 + 一致性验证</td>
+        </tr>
+        <tr>
+          <td>② 答非所问</td>
+          <td>意图路由六分类 <span class="em-green">（100% accuracy on 28 eval）</span></td>
+        </tr>
+        <tr>
+          <td>③ "600以内" 买到 <span class="em-red">899元</span> 产品</td>
+          <td>价格约束解析 + post-retrieval 过滤 <span class="tag tag-green">NEW</span></td>
+        </tr>
+        <tr>
+          <td>④ "A 和 B 哪个好" 遗漏一半候选</td>
+          <td>Compound query 分解 + 双实体保底注入 <span class="tag tag-green">NEW</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="conclusion-box">
+      ③ 和 ④ 不是预先设计的——是 <strong>FailureMemory</strong> 从历史失败案例里自动挖出来的修复目标。
+      <br>这就是"科学方法论"：让失败数据驱动工程方向，而不是凭直觉猜。
+    </div>
+  </div>
+
+  <div class="takeaway">架构不是堆模块，是对客服可信度痛点的逐条工程回应。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "③④是你后来发现的问题还是预先设计的？" → 后来发现的。通过 SupportCase → FailureMemory 自动识别 pattern。这是 P9 要讲的桥梁。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P4  整体架构
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="技术深挖">
+  <div class="topbar">
+    <span class="section-badge">技术深挖</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:28.6%"></div>
+    </div>
+    <span class="slide-counter">4 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">整体架构 <span class="sub">— 端到端流程</span></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="flow">
+        <div class="flow-node"><div class="flow-box" style="border-color:var(--accent);color:var(--accent)">用户问题</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node"><div class="flow-box">意图路由（6类）</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node"><div class="flow-box">混合检索（dense + BM25 + RRF，父子文档）</div></div>
+        <div class="flow-indent" style="margin-top:4px;margin-bottom:4px;display:flex;flex-direction:column;gap:4px">
+          <div class="flow-box new" style="font-size:12px">+ 价格约束过滤 [NEW]</div>
+          <div class="flow-box new" style="font-size:12px">+ compound query 分解 [NEW]</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node"><div class="flow-box">生成（LLM / catalog 模板）</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node"><div class="flow-box verify">三层验证（grounding / 引用 / 一致性）</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node"><div class="flow-box decision">置信决策（ok / caution / handoff）</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node"><div class="flow-box memory">SupportCase 落库</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node"><div class="flow-box memory">FailureMemory 分析 → CaseMemory 建索引</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node"><div class="flow-box memory">记忆先验（advisory trace）</div></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="col-card">
+          <div class="col-card-title">三条设计原则</div>
+          <ul class="bullets">
+            <li><b>LLM propose</b> → 确定性工具 verify</li>
+            <li><b>失败不浪费</b> → SupportCase 飞轮积累</li>
+            <li><b>可测才可信</b> → 每改动都有 ablation 数字</li>
+          </ul>
+        </div>
+        <div class="col-card">
+          <div class="col-card-title">语料规模</div>
+          <ul class="bullets">
+            <li>40 商品 · 5 政策</li>
+            <li>205 chunks（NSCC 重建索引）</li>
+            <li>28 题 eval set（gold 标注）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">LLM 负责 propose，确定性工具负责 verify，记忆负责 accumulate。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "你这个 agentic 体现在哪里？" → 意图路由六分类 → 不同检索路径；retrieval 不足触发 HyDE 重试；生成后验证决策；失败案例驱动飞轮。不是单次 prompt，是多步决策链。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P5  混合检索
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="技术深挖">
+  <div class="topbar">
+    <span class="section-badge">技术深挖</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:35.7%"></div>
+    </div>
+    <span class="slide-counter">5 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">混合检索 <span class="sub">— 为什么 dense alone 不够</span></div>
+
+    <div class="two-col">
+      <div class="col-card">
+        <div class="col-card-title" style="color:var(--accent)">🔵 Dense（语义）</div>
+        <ul class="bullets">
+          <li><b>paraphrase-multilingual-MiniLM-L12-v2</b></li>
+          <li>余弦相似度闸门 <code>0.35</code></li>
+          <li>擅长：口语问题、同义改写</li>
+          <li class="dim">弱点：型号数字退化为随机位置</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <div class="col-card-title" style="color:var(--accent3)">🟡 BM25（词法）</div>
+        <ul class="bullets">
+          <li>jieba 分词</li>
+          <li>IDF 权重对精确匹配极敏感</li>
+          <li>擅长：<code>"H900"</code>、<code>"3000mAh"</code>、型号</li>
+          <li class="dim">"H900" 不在训练语料 → dense 无效</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-card">
+      <div class="col-card-title" style="color:var(--accent2)">⚡ RRF 融合 + 父子文档</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+        <ul class="bullets">
+          <li><b>RRF</b>：<code>1/(k+rank)</code> 加权，排名融合避免相似度绝对值不可比</li>
+          <li>无需调 scale 参数，对分布差异鲁棒</li>
+        </ul>
+        <ul class="bullets">
+          <li><b>父子文档</b>：检索细粒度子 chunk（desc/attr/qa/review）</li>
+          <li>喂 LLM 完整父卡，保留上下文（关键细节跨 chunk 时不丢失）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="metrics-row">
+      <div class="metric-box">
+        <div class="metric-val">40</div>
+        <div class="metric-label">商品</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-val">205</div>
+        <div class="metric-label">chunks</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-val">7</div>
+        <div class="metric-label">款降噪耳机（混淆簇）</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-val">4</div>
+        <div class="metric-label">款机械键盘（混淆簇）</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">口语问题靠 dense，型号参数靠 BM25，RRF 兼顾两者。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "有了 dense embedding，还需要 BM25 做什么？" → BM25 对精确型号/数字的 IDF 权重远高于语义相似度；"H900"不在训练语料里，dense 向量退化为随机位置，召回就靠 BM25 的精确词匹配。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P6  生成后验证
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="技术深挖">
+  <div class="topbar">
+    <span class="section-badge">技术深挖</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:42.9%"></div>
+    </div>
+    <span class="slide-counter">6 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">生成后验证 <span class="sub">— 三层可信度闸门</span></div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="col-card" style="border-left:3px solid var(--accent)">
+        <div class="col-card-title">① 句级 Grounding</div>
+        <div style="font-size:13.5px;line-height:1.7">
+          <code>encode(回答句)</code> ↔ <code>encode(context 句)</code><br>
+          余弦相似度 > <code>0.42</code> = 有支撑 &nbsp;·&nbsp; &lt;50% 支撑率 → <span class="em-amber">caution</span>
+        </div>
+      </div>
+      <div class="col-card" style="border-left:3px solid var(--accent3)">
+        <div class="col-card-title">② 数字引用检查</div>
+        <div style="font-size:13.5px;line-height:1.7">
+          regex 检测回答中的价格/规格数字，验证是否有 <code>[资料N]</code> 标注<br>
+          无引用数字 → <span class="em-amber">caution</span>
+        </div>
+      </div>
+      <div class="col-card" style="border-left:3px solid #a78bfa">
+        <div class="col-card-title">③ LLM 一致性检查</div>
+        <div style="font-size:13.5px;line-height:1.7">
+          判断回答是否"矛盾 / 资料外 / 通过"（有 API key 时启用）<br>
+          矛盾 → 直接 <span class="em-red">handoff</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="conclusion-box" style="text-align:center;font-size:14px">
+      三层 → <code>final_decision(grounding, consistency, citation)</code>
+      → <span class="em-green">ok</span> / <span class="em-amber">caution</span> / <span class="em-red">handoff</span>
+    </div>
+  </div>
+
+  <div class="takeaway">回答不是生成完就给用户，要先过可信度闸门。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "grounding 阈值 0.42 怎么定的？" → 在 eval 集上调参，过低则 caution 率过高（用户体验差），过高则错放幻觉回答。0.42 是在 28 题上 caution_rate 和 accuracy 的 tradeoff 点。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P7  评测体系
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="技术深挖">
+  <div class="topbar">
+    <span class="section-badge">技术深挖</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:50%"></div>
+    </div>
+    <span class="slide-counter">7 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">评测体系 <span class="sub">— 科学方法论的基石</span></div>
+
+    <div class="two-col">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="col-card">
+          <div class="col-card-title">评测集设计</div>
+          <ul class="bullets">
+            <li><b>28 题</b> gold 标注：<code>expected_intent</code> / <code>expected_action</code> / <code>gold_doc_ids</code></li>
+            <li>刻意构造混淆簇：7 款降噪耳机、4 款机械键盘、5 款杯类</li>
+            <li>指标为 query <b>macro-average</b>；所有 28 题均有 gold_doc_ids</li>
+          </ul>
+        </div>
+        <div class="col-card">
+          <div class="col-card-title">执行环境</div>
+          <ul class="bullets">
+            <li>NSCC PBS CPU 节点，<code>HF_HUB_OFFLINE=1</code></li>
+            <li>env flag 控制 ablation（每条件独立运行）</li>
+            <li>单 retriever 加载，5 条件共用（避免随机性）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="col-card" style="border-color:var(--accent2)">
+          <div class="col-card-title" style="color:var(--accent2)">Baseline 结果</div>
+          <div class="metrics-row" style="margin-top:4px">
+            <div class="metric-box"><div class="metric-val" style="font-size:20px">0.907</div><div class="metric-label">Recall@1</div></div>
+            <div class="metric-box"><div class="metric-val" style="font-size:20px">0.981</div><div class="metric-label">Recall@3</div></div>
+            <div class="metric-box"><div class="metric-val" style="font-size:20px">0.981</div><div class="metric-label">Recall@5</div></div>
+            <div class="metric-box"><div class="metric-val" style="font-size:20px">0.981</div><div class="metric-label">MRR</div></div>
+          </div>
+        </div>
+        <div class="quote-box" style="font-size:13px">
+          <b>为什么不用 RAGAS / faithfulness？</b><br>
+          gold doc retrieval 是一阶问题；生成质量需要 LLM key，可以加，但先把检索搞对是前提。
+          retrieval@k 是标准 IR 指标，可复现，无需 LLM 依赖。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">先有量化指标，才有资格谈"改进了多少"。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "recall@1=0.907 怎么算的？" → 28 题，每题看 retrieved_doc_ids[0] 是否在 gold_doc_ids 里，命中数/28，macro-average。不是所有题都是单 gold doc，有的题有多个 gold（如 Q28 需要 P006+P014）。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P8  Reranker 负结果
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="实验与进化">
+  <div class="topbar">
+    <span class="section-badge">实验与进化 · 高潮区</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:57.1%"></div>
+    </div>
+    <span class="slide-counter">8 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">Honest Evaluation — Reranker 负结果 <span class="sub">评测驱动决策</span></div>
+
+    <table>
+      <thead>
+        <tr><th>配置</th><th>R@1</th><th>R@3</th><th>R@5</th><th>MRR</th><th>失败模式</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>baseline hybrid</b></td>
+          <td>0.907</td><td>0.981</td><td>0.981</td><td>0.981</td>
+          <td class="dim">—</td>
+        </tr>
+        <tr>
+          <td>+reranker(chunk)</td>
+          <td>0.907</td><td>0.981</td><td>0.981</td>
+          <td class="bad-num">0.975</td>
+          <td style="font-size:12px">子 chunk 丢上下文（猫毛信号在 review，不在 desc）</td>
+        </tr>
+        <tr>
+          <td>+reranker(parent, no dedup)</td>
+          <td>0.907</td>
+          <td class="bad-num">0.907</td>
+          <td class="bad-num">0.907</td>
+          <td class="bad-num">0.963</td>
+          <td style="font-size:12px;color:var(--warn)">⚠ 同商品兄弟 chunk 刷屏，多样性崩塌</td>
+        </tr>
+        <tr>
+          <td>+reranker(parent+dedup)</td>
+          <td>0.907</td><td>0.981</td><td>0.981</td><td>0.981</td>
+          <td style="font-size:12px;color:var(--muted)">追平基线，无提升</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="warning-box">
+      一阶 hybrid recall@5 已达 <b>0.981</b>，无 headroom。<br>
+      reranker 两类失败：①子 chunk 丢上下文（MRR 0.981→0.975）；
+      ②父 chunk 无去重时同商品兄弟刷屏（R@3 <b>0.981→0.907</b>，多样性崩塌）。<br>
+      <b>评测驱动决策：不上线 reranker。</b>
+    </div>
+  </div>
+
+  <div class="takeaway">敢讲负结果 = 有评测纪律；知道为什么不上 = 比知道怎么上更难。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "那重排器什么时候有用？" → 语料扩大到 500+ 商品、query-doc 分布更复杂时；当前 40 商品 corpus 不够"难"让 reranker 发力。reranker 需要的是候选集里有多个相关但排名不对的情况——现在 recall@5 本身已经 0.981，瓶颈根本不在重排。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P9  FailureMemory
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="实验与进化">
+  <div class="topbar">
+    <span class="section-badge">实验与进化 · 高潮区</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:64.3%"></div>
+    </div>
+    <span class="slide-counter">9 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">FailureMemory <span class="sub">— 定位真正瓶颈，不靠直觉</span></div>
+
+    <div class="quote-box" style="margin-bottom:4px">
+      累积 SupportCase → <code>FailureMemory.analyze()</code> 自动挖掘模式，<b>直接产出修复优先级</b>：
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Pattern</th><th>根因诊断</th><th>产出修复目标</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>price_constraint_ignored</code></td>
+          <td>dense embedding 无法捕捉数值约束</td>
+          <td class="em-green">Q3 → price_filter</td>
+        </tr>
+        <tr>
+          <td><code>compound_query_recall_gap</code></td>
+          <td>"A和B" 遗漏一半实体</td>
+          <td class="em-green">Q28 → compound_decomp</td>
+        </tr>
+        <tr>
+          <td><code>stale_data_caution</code></td>
+          <td>KB 文档 updated_at 超期</td>
+          <td class="em-green">freshness guardrail</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="two-col" style="gap:14px">
+      <div class="col-card">
+        <div class="col-card-title">FM vs CM 的分工</div>
+        <ul class="bullets">
+          <li><b>FailureMemory</b>：离线 batch 分析，pattern detection，输出修复方向</li>
+          <li><b>CaseMemory</b>：在线 advisory，query-time 语义检索，输出先验 trace</li>
+          <li class="dim">一个诊断，一个预防</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <div class="col-card-title">其余 pattern（备注）</div>
+        <ul class="bullets" style="font-size:12px">
+          <li><code>zero_retrieval_handoff</code></li>
+          <li><code>handoff_cluster</code></li>
+          <li>KB 缺口：<code>retrieval_blind_spot</code>、<code>stale_doc</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">FailureMemory 不是日志，是修复优先级生成器；不靠直觉猜哪里坏。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "FailureMemory 和 CaseMemory 有什么区别？" → FM 是离线分析（batch pattern detection），CM 是在线 advisory（query-time semantic match）；一个诊断，一个预防。FM 的输出是"该修哪里"，CM 的输出是"这道题历史上有没有类似失败，给个 hint"。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P10  两个精准修复
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="实验与进化">
+  <div class="topbar">
+    <span class="section-badge">实验与进化 · 高潮区</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:71.4%"></div>
+    </div>
+    <span class="slide-counter">10 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">两个精准修复 <span class="sub">— 针对 embedding 的已测失效模式</span></div>
+
+    <div class="two-col">
+      <div class="col-card" style="border-color:var(--accent)">
+        <div class="col-card-title">Q3 — 价格约束过滤</div>
+        <ul class="bullets">
+          <li><b>根因</b>：embedding "预算600以内" 仍把 P009@<span class="em-red">899元</span> 排名第一<br>
+              <span style="font-size:12px;color:var(--muted)">数值约束 ≠ 语义相似度问题</span></li>
+          <li><b>修复</b>：<code>price_filter.parse_budget()</code> 解析中文预算表达<br>
+              → post-retrieval 过滤 price &gt; budget</li>
+          <li><b>结果</b>：Q3 recall@1：<span class="em-red">0</span> → <span class="em-green" style="font-size:18px">1</span></li>
+        </ul>
+      </div>
+      <div class="col-card" style="border-color:var(--accent2)">
+        <div class="col-card-title">Q28 — 复合查询分解</div>
+        <ul class="bullets">
+          <li><b>根因</b>："保温杯"子查询返回 P014（P014 Q&A 含"和普通保温杯有什么不同"→语义污染）</li>
+          <li><b>修复</b>：detect("A和B") → 分别检索各子实体 + 全量 query → doc级 RRF → <b>标题 bigram 保底注入</b></li>
+          <li style="font-size:12px">英文护栏："RunBuds Clip 和 Air Pro 2" 不截断（\s 不作 stop char；纯 CJK 才限 8 字符）</li>
+          <li><b>结果</b>：Q28 recall@5：<span class="em-amber">0.5</span> → <span class="em-green" style="font-size:18px">1.0</span>（P006 进入候选池）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="conclusion-box">
+      这些不是拍脑袋规则，而是由 <b>gold-doc evaluation</b> 和 <b>FailureMemory</b> 定位出的确定性修复层——
+      针对 embedding 的已测失效模式，可解释、可测试、可回滚。
+    </div>
+  </div>
+
+  <div class="takeaway">知道 embedding 在哪里失效，才知道用什么规则补它。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "为什么不直接微调 embedding 模型来理解价格约束？" → 微调需要带 price 标注的对比训练对，成本高、泛化性差；rule-based filter 可解释、可测试、可回滚。<br>
+    "标题 bigram 保底会不会误命中？" → 中文实体要求≥2 CJK；英文走 token overlap；多命中按分数排序。设计有三道 guardrail。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P11  Ablation Table
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="实验与进化">
+  <div class="topbar">
+    <span class="section-badge">实验与进化 · 高潮区</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:78.6%"></div>
+    </div>
+    <span class="slide-counter">11 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">Ablation Table <span class="sub">— 最终量化证明（28 eval questions）</span></div>
+
+    <table>
+      <thead>
+        <tr><th>配置</th><th>Recall@1</th><th>Recall@3</th><th>Recall@5</th><th>MRR</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>baseline</td>
+          <td>0.907</td><td>0.981</td><td>0.981</td><td>0.981</td>
+          <td class="dim">纯 hybrid (dense+BM25+RRF)</td>
+        </tr>
+        <tr>
+          <td>+price_filter</td>
+          <td class="bold-num">0.944</td><td>0.981</td><td>0.981</td>
+          <td class="bold-num">1.000</td>
+          <td style="font-size:12px"><span class="em-green">Δr@1=+0.037, ΔMRR=+0.019</span></td>
+        </tr>
+        <tr>
+          <td>+compound_decomp</td>
+          <td>0.907</td><td>0.981</td>
+          <td class="bold-num">1.000</td>
+          <td>0.981</td>
+          <td style="font-size:12px"><span class="em-green">Δr@5=+0.019</span></td>
+        </tr>
+        <tr class="highlight-row">
+          <td><b>+pf+cd (final retrieval)</b></td>
+          <td class="bold-num">0.944</td><td>0.981</td>
+          <td class="bold-num">1.000</td>
+          <td class="bold-num">1.000</td>
+          <td style="font-size:12px">两项可加，<span class="em-green">零回退</span></td>
+        </tr>
+        <tr>
+          <td>+freshness_guard</td>
+          <td>0.944</td><td>0.981</td><td>1.000</td><td>1.000</td>
+          <td style="font-size:12px;color:var(--muted)">检索不变；guardrail 在生成层</td>
+        </tr>
+        <tr>
+          <td class="dim">memory_prior</td>
+          <td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td>
+          <td style="font-size:12px;color:var(--muted)">advisory trace，非检索项</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="success-box" style="font-size:13.5px">
+      <strong>price_filter</strong> fixes a <em>ranking error</em> (wrong #1) &nbsp;·&nbsp;
+      <strong>compound_decomp</strong> fixes a <em>coverage gap</em> (missing candidate entirely)<br>
+      Two failure modes → two targeted repairs → <strong style="color:var(--accent2)">zero regression</strong>
+    </div>
+  </div>
+
+  <div class="takeaway">每个模块贡献独立可测，两项核心修复可加且无回退——这是工程可信度的来源。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "为什么 price_filter 提升的是 recall@1/MRR，compound_decomp 提升的是 recall@5？" → PF 修的是 top-1 排名错误（P009排第一），CD 修的是候选覆盖缺口（P006根本不在top-5）；两者是不同类型的召回失败。这句话很值钱。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P12  记忆飞轮
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="系统成熟度">
+  <div class="topbar">
+    <span class="section-badge">系统成熟度</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:85.7%"></div>
+    </div>
+    <span class="slide-counter">12 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">SupportCase + 记忆飞轮 <span class="sub">— 失败驱动进化</span></div>
+
+    <div class="two-col">
+      <div>
+        <pre style="font-size:12px">handoff / 低置信案例
+    ↓
+SupportCase 落库
+  (SQLite, id=sc_{ts}_{hash10})
+    ↓
+FailureMemory.analyze()
+  → pattern + KB 缺口
+    ↓
+CaseMemory.build()
+  → embed 23 cases → .npy
+  → threshold 0.70
+    ↓
+新 query 命中 (sim=0.701)
+  → 记忆先验 trace
+    ↓
+suggested_action=apply_price_filter
+  → 工程修复优先级
+  → price_filter 上线 + ablation 验证</pre>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="col-card" style="border-color:#a78bfa">
+          <div class="col-card-title" style="color:#c4b5fd">实测 trace 示例</div>
+          <code style="display:block;font-size:12px;padding:8px;background:var(--code-bg);border-radius:4px;line-height:1.7">
+            记忆先验：sim=0.701<br>
+            pattern=price_constraint_ignored<br>
+            suggested=apply_price_filter
+          </code>
+        </div>
+        <div class="col-card">
+          <div class="col-card-title">关键声明</div>
+          <ul class="bullets" style="font-size:12.5px">
+            <li>CaseMemory 是 <b>advisory trace</b>，不自动执行修复</li>
+            <li>修复由工程实现 + ablation 验证，memory 提供方向</li>
+            <li>更接近 <b>episodic memory</b> 而非 cache（语义检索，非精确命中）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">每次失败的客服请求都让下一次更聪明——这是 demo 和系统的分水岭。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "CaseMemory 是 cache 还是类似 episodic memory？" → 语义相似度检索（非精确命中）+ advisory（不覆盖检索结果）；threshold 0.70 控制误匹配。<br>
+    "飞轮的终点是什么？" → KB 补全（KB gap → 补商品/政策文档）+ pattern 消失（fix 生效后 price_constraint_ignored 频率下降）。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P13  新鲜度护栏
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="系统成熟度">
+  <div class="topbar">
+    <span class="section-badge">系统成熟度</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:92.9%"></div>
+    </div>
+    <span class="slide-counter">13 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">新鲜度护栏 <span class="sub">— 可信比"答得像"更重要</span></div>
+
+    <div class="two-col">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="col-card">
+          <div class="col-card-title">机制</div>
+          <ul class="bullets">
+            <li>answer 中的价格/库存/政策 → 追溯到 chunk 的 <code>updated_at</code></li>
+            <li>与 <code>FRESHNESS_MAX_AGE_DAYS=30</code> 对比</li>
+            <li>状态：<span class="em-green">fresh</span> / <span class="em-amber">unverified</span> / <span class="em-red">stale</span></li>
+            <li>stale/unverified → 降级 ok → <span class="em-amber">caution</span>，追加 advisory note</li>
+          </ul>
+        </div>
+        <div class="col-card">
+          <div class="col-card-title">演示</div>
+          <ul class="bullets">
+            <li>P005（<code>updated_at=2026-01-01</code>，故意留旧）→ <span class="em-red">stale caution</span></li>
+            <li>P006（<code>2026-06-10</code>）→ <span class="em-green">fresh，正常通过</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="success-box">
+          <b>Ablation 验证</b>：+freshness_guard 检索指标不变<br>
+          <span class="dim">（guardrail 在生成层，不影响召回）</span>
+        </div>
+        <div class="conclusion-box">
+          freshness 的成功指标不是 recall，<br>而是<b>避免过期价格/库存被当作确定事实输出</b>。<br><br>
+          <span style="font-size:12px;color:var(--muted)">指标不变 ≠ 这个 feature 没用；它保护的是生成层而非检索层。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">客服系统不能乱答价格和库存——可信比"答得像"更重要。</div>
+  <div class="notes">
+    <div class="notes-label">💬 面试钩子</div>
+    "ablation 里 +freshness 检索指标没变，所以这个 feature 没用？" → freshness 的成功指标不是 recall，是生成层的可信度。它拦截的是"价格正确但已过期"这类语义上合理、时效上有误的回答，recall@k 根本感知不到这类问题。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()">下一页 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     P14  总结 + 边界声明
+══════════════════════════════════════════════ -->
+<div class="slide" data-section="总结">
+  <div class="topbar">
+    <span class="section-badge">总结</span>
+    <div style="position:relative;flex:1;margin:0 20px;height:2px;background:var(--border);border-radius:2px;">
+      <div class="progress-fill" style="width:100%"></div>
+    </div>
+    <span class="slide-counter">14 / 14</span>
+  </div>
+
+  <div class="content">
+    <div class="slide-title">总结 + 边界声明</div>
+
+    <div class="two-col">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="section-header">证明了三件事</div>
+        <div class="col-card" style="border-color:var(--accent)">
+          <div style="font-size:13.5px;line-height:1.8">
+            <span class="em-blue">① 会做检索工程</span><br>
+            hybrid(dense+BM25+RRF) + 父子文档 + 复合分解<br>
+            recall@1：<b>0.907 → 0.944</b>
+          </div>
+        </div>
+        <div class="col-card" style="border-color:var(--accent2)">
+          <div style="font-size:13.5px;line-height:1.8">
+            <span class="em-green">② 会做科学评测</span><br>
+            gold 标注 + recall@k/MRR + ablation table<br>
+            每一步改动有数字支撑
+          </div>
+        </div>
+        <div class="col-card" style="border-color:var(--accent3)">
+          <div style="font-size:13.5px;line-height:1.8">
+            <span class="em-amber">③ 会做"不加某模块"的判断</span><br>
+            reranker A/B → 负结果 → 定位真瓶颈<br>
+            → 精准修复
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="section-header">边界声明（诚实是加分项）</div>
+        <div class="warning-box" style="font-size:13px;line-height:1.9">
+          · 本地 demo + NSCC 离线评测，非生产系统<br>
+          · 无 LLM key 时生成层降级为 catalog 模板<br>
+          · 语料 40 商品，测试集 28 题，corpus 规模受限<br>
+          · reranker 实测无提升，未上线
+        </div>
+        <div class="quote-box" style="font-size:13.5px">
+          我能把 RAG 从 demo 做成<br>
+          <b>可验证、可审计、会自我迭代</b>的系统。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">科学方法论驱动的 RAG 工程：量化评测 → 诚实负结果 → 定位真问题 → 修 → ablation 证明。</div>
+  <div class="notes">
+    <div class="notes-label">💬 收尾钩子</div>
+    "如果语料扩到 500+ 商品你会怎么做？" → reranker 有了用武之地（候选集竞争更激烈）；FailureMemory 会积累更多 pattern；CaseMemory 的 sim threshold 可能需要调高。当前架构所有模块都是 env flag 控制，水平扩展有设计基础。
+  </div>
+  <div class="navbar">
+    <button class="nav-btn" onclick="prev()">← 上一页</button>
+    <span class="hint">← → 方向键 / 空格 翻页</span>
+    <button class="nav-btn" onclick="next()" disabled>下一页 →</button>
+  </div>
+</div>
+
+</div><!-- #deck -->
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+let notesVisible = false;
+
+function show(n) {
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add('active');
+  // sync notes visibility
+  document.querySelectorAll('.notes').forEach(el => {
+    el.classList.toggle('visible', notesVisible);
+  });
+}
+
+function next() { show(current + 1); }
+function prev() { show(current - 1); }
+
+function toggleNotes() {
+  notesVisible = !notesVisible;
+  document.querySelectorAll('.notes').forEach(el => {
+    el.classList.toggle('visible', notesVisible);
+  });
+  document.getElementById('notes-hint').textContent = notesVisible ? 'N → 隐藏注' : 'N → 面试钩子';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+  if (e.key === 'n' || e.key === 'N') toggleNotes();
+});
+</script>
+</body>
+</html>

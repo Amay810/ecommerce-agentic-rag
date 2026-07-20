@@ -1,43 +1,62 @@
-# Implementation report
+# Credible evaluation report
 
-## Delivered architecture
+## What changed
+
+The earlier 100% harness score was an environment smoke test: its deterministic
+policy could read the complete `TaskSpec`. The v2 runner now keeps gold documents,
+allowed tools, expected state, category and hidden user behavior inside the grader.
+Normal policies receive only `AgentObservation`; the privileged policy is explicitly
+named `OraclePolicy` and reported separately.
 
 ```mermaid
 flowchart LR
-    U[User task] --> P[Next-action policy]
-    P --> T[Typed retail tools]
-    T --> C[(5k catalog index)]
-    T --> O[(10k-order SQLite state)]
-    T --> G[Identity, policy and confirmation guardrails]
-    P --> H[Human handoff]
-    T --> X[Trajectory spans]
-    G --> X
-    H --> X
-    X --> R[Replay and terminal-state grader]
-    R --> M[pass@1, pass^3, tool F1, compliance, reward]
+    S[Hidden TaskSpec] --> R[Runner]
+    R --> O[Public AgentObservation]
+    O --> P[Rule / LLM Policy]
+    P --> A[AgentAction]
+    A --> R
+    R --> T[Typed tools + guardrails]
+    T --> O
+    S --> G[Terminal-state grader]
+    R --> G
 ```
 
-`DeterministicPolicy` is the auditable baseline. A learned next-action model can
-replace it through the same `AgentPolicy.act` contract without changing tools or
-graders.
+## Locked agent results
 
-## Reproduced local results
+The locked split contains 60 unseen tasks and is repeated three times.
 
-- Amazon Reviews 2023 corpus: 5,000 products, two categories, 1,125 joined reviews.
-- Child chunks: 365 at 40, 8,770 at 1,000 and 43,953 at 5,000 products.
-- At 5,000 products Hybrid Recall@5 is 0.965 and nDCG@5 is 0.965. Price
-  constraints improve them to 0.979 and 0.976; baseline P95 is 1.06 seconds.
-- State benchmark: 60 tasks, three repeats, 180 evaluated trajectories.
-- Baseline: task success 1.000, policy compliance 1.000, handoff P/R 1.000/1.000,
-  pass@1 1.000, pass^3 1.000 and tool-call F1 0.944.
-- Tool F1 is below 1 because adversarial tasks deliberately attempt a forbidden
-  write so the environment guardrail can prove that it blocks the mutation.
+| Policy | Gold access | Task success | pass^3 | Tool F1 | Compliance | Terminal state |
+|---|---:|---:|---:|---:|---:|---:|
+| Oracle upper bound | yes | 1.000 | 1.000 | 0.944 | 1.000 | 1.000 |
+| Leakage-free rules | no | 0.950 | 0.950 | 0.917 | 1.000 | 1.000 |
+| LLM next-action | no | pending | pending | pending | pending | pending |
 
-These are deterministic environment-baseline results, not an LLM policy claim.
-Retrieval scale and reranker results come only from generated benchmark JSON.
+The rule failures are nine repeated `wrong-tool` grades over three seeds. Oracle
+results validate task feasibility; they are not presented as Agent performance.
+
+## Title-debiased retrieval v2
+
+The 300-query set has no complete-title questions: 180 corpus-unique attributes,
+40 budget/multi-constraint, 30 alias/typo, 25 multi-gold near-SKU and 25 no-answer.
+The 120 difficult rows remain `curated_unverified`, not human-verified.
+
+| Locked configuration | Recall@5 | MRR | nDCG@5 | P50 | P95 |
+|---|---:|---:|---:|---:|---:|
+| Hybrid + constraints, raw | 0.803 | 0.625 | 0.654 | 26.4ms | 33.5ms |
+| + dev-calibrated abstention threshold 0.65 | 0.496 | 0.393 | 0.409 | 25.4ms | 33.5ms |
+
+The threshold correctly abstains on 75% of locked no-answer queries but rejects too
+many answerable queries. This is a negative calibration result, not a default-on
+feature. Recall@5 also misses the 0.85 target; failures concentrate in attribute-only
+and typo queries. The previous 0.965 score is retained only as the easy regression set.
+
+The sparse inverted BM25 path reduces the 5k P95 from about 1.06s to 33.5ms locally.
+FAISS `IndexFlatIP` is enabled automatically where `faiss-cpu` is available; this
+Windows/Python 3.13 run used the exact NumPy fallback, so no FAISS speed claim is made.
 
 ## RL decision
 
-The gate is fail-closed. Training requires 60 deterministic tasks, 300 stored
-trajectories and manually reviewed reward agreement of at least 90%. Without the
-audit CSV, the project remains RL-ready and does not claim Agent RL.
+`agent_rl_gate_v2.json` fails closed. It requires 360 real `LLMPolicy` trajectories,
+40 audited rows, at least 90% grader/human agreement, 200 preference pairs and a base
+success rate below 95%. Oracle/rule trajectories do not satisfy the gate; Agent RL is
+therefore not claimed.

@@ -269,12 +269,16 @@ class HarnessRunner:
         if isinstance(self.policy, OraclePolicy): self.policy.bind(task)
         history: list[dict[str, Any]] = [{"role": "user", "content": task.user_goal}]
         messages: list[dict[str, str]] = [{"role": "user", "content": task.user_goal}]
-        observations, actions, sim_spans, model_calls = [], [], [], []
+        observations, actions, sim_spans, model_calls, retry_spans = [], [], [], [], []
         answer = ""; started = time.perf_counter()
         for step in range(self.max_steps):
             observation = AgentObservation(history[-1].get("content", ""), {"user_id": task.user_id}, copy.deepcopy(history), copy.deepcopy(TOOL_SCHEMAS), step)
             observations.append(asdict(observation))
+            retries_before = int(getattr(self.policy, "retry_count", 0))
             action_started = time.perf_counter(); action = self.policy.act(observation)
+            retries_after = int(getattr(self.policy, "retry_count", 0))
+            if retries_after > retries_before:
+                retry_spans.append({"step": step, "retries": retries_after - retries_before, "reason": "invalid_model_action"})
             model_calls.append({"step": step, "latency_ms": (time.perf_counter()-action_started)*1000, "action": asdict(action)})
             actions.append(asdict(action)); history.append({"role": "assistant", "content": action.content, "action": action.action_type})
             if action.action_type == "tool_call":
@@ -302,7 +306,7 @@ class HarnessRunner:
             messages=messages, retrievals=retrievals, model_calls=model_calls, tool_calls=copy.deepcopy(tools.calls),
             guardrail_spans=copy.deepcopy(tools.guardrails), handoff_spans=[asdict(c) for c in tools.calls if c.name == "escalate_to_human"],
             final_answer=answer, final_state=after, elapsed_ms=elapsed, observations=observations, actions=actions,
-            user_simulator_spans=sim_spans)
+            user_simulator_spans=sim_spans, retry_spans=retry_spans, policy_name=type(self.policy).__name__)
         return trajectory, grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
 
 

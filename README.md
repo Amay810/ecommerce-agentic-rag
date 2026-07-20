@@ -147,3 +147,26 @@ python -m ecommerce_rag.rl_gate --tasks ecommerce_rag/data/harness_tasks.jsonl -
 ```
 
 完整架构、指标边界与 RL 决策见 `docs/implementation_report.md`。
+
+## 防泄漏可信评测（v2）
+
+早期 100% Harness 是可读取完整 `TaskSpec` 的环境上限，现已重命名为
+`OraclePolicy`。普通规则/LLM Policy 只接收不含 category、gold、期望终态和
+隐藏验证信息的 `AgentObservation`。
+
+locked 60 题 × 3 次结果：Oracle pass^3=1.000；无泄漏 Rule Policy
+task success/pass^3=0.950、政策合规=1.000、终态正确率=1.000。两者分开报告。
+
+新的 300 题去标题检索集在 locked split 的原始 Recall@5=0.803、MRR=0.625，
+未达到 0.85 目标；稀疏倒排优化后本地 P95=33.5ms。阈值拒答虽能识别 75%
+无答案题，却令 Recall@5 降至 0.496，因此不默认启用。120 条困难题仍标记为
+`curated_unverified`，不宣称人工标注。
+
+一键复现：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/run_credible_eval.ps1
+```
+
+真实 LLM Policy 需要 API key 或 A100 上的本地 Qwen；未产生的 LLM、reranker、
+FAISS 和 Agent RL 指标均保持 pending。完整结果见 `docs/implementation_report.md`。

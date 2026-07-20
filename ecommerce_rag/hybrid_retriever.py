@@ -164,7 +164,9 @@ class HybridRetriever:
                     seen.add(doc_id); result.append(doc_id)
             return result
         dense_docs, bm25_docs = parent_ranking(dense), parent_ranking(bm25)
-        fused = reciprocal_rank_fusion([dense_docs, bm25_docs])
+        # Lexical-first tie breaking preserves exact model/attribute matches while
+        # RRF still gives equal rank weight to the dense and sparse channels.
+        fused = reciprocal_rank_fusion([bm25_docs, dense_docs])
         dense_rank={doc_id:i+1 for i,doc_id in enumerate(dense_docs)}; bm25_rank={doc_id:i+1 for i,doc_id in enumerate(bm25_docs)}
         representative: dict[str,str] = {}
         for chunk_id in dense + bm25:
@@ -178,7 +180,11 @@ class HybridRetriever:
         limit = config.RERANK_CANDIDATES if self.reranker else top_k
         candidates = []
         seen_docs: set[str] = set()
-        for doc_id, score in sorted(fused.items(), key=lambda x: -x[1]):
+        # A small semantic tie-break helps natural-language Chinese requests. For
+        # model numbers/attributes, exact sparse evidence must remain dominant.
+        dense_weight = config.DENSE_SCORE_WEIGHT if not re.search(r"[A-Za-z0-9]", query) else 0.0
+        hybrid_scores = {doc_id: score + dense_weight * max(0.0, sim_by_doc.get(doc_id, 0.0)) for doc_id, score in fused.items()}
+        for doc_id, score in sorted(hybrid_scores.items(), key=lambda x: -x[1]):
             cid = representative[doc_id]
             chunk = dict(self.by_id[cid])
             if source_type and chunk.get("source_type") != source_type:

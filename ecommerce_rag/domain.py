@@ -96,6 +96,7 @@ class Trajectory:
     final_state: dict[str, Any] = field(default_factory=dict)
     elapsed_ms: float = 0.0
     estimated_cost: float = 0.0
+    policy_name: str = "unknown"
     observations: list[dict[str, Any]] = field(default_factory=list)
     actions: list[dict[str, Any]] = field(default_factory=list)
     retry_spans: list[dict[str, Any]] = field(default_factory=list)

@@ -1,0 +1,3670 @@
+{
+  "summary": {
+    "recall@1": 0.95,
+    "recall@3": 0.9792,
+    "recall@5": 0.9792,
+    "mrr": 0.975,
+    "ndcg@5": 0.9761,
+    "queries": 250,
+    "latency_p50_ms": 648.65,
+    "latency_p95_ms": 1060.04,
+    "index_load_ms": 23033.86,
+    "index_size_bytes": 106109038,
+    "configuration": {
+      "constraints": true,
+      "reranker": false
+    }
+  },
+  "details": [
+    {
+      "id": "auto_001",
+      "ranking": [
+        "product:P00016",
+        "product:P00351",
+        "product:P01336",
+        "product:P02399"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_002",
+      "ranking": [
+        "product:P00016",
+        "product:P01031",
+        "product:P00399",
+        "product:P01145",
+        "product:P01828"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_003",
+      "ranking": [
+        "product:P00016",
+        "product:P00351",
+        "product:P01000",
+        "product:P02042",
+        "product:P01096"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_004",
+      "ranking": [
+        "product:P00016",
+        "product:P02456",
+        "product:P02250",
+        "product:P01336",
+        "product:P00351"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_005",
+      "ranking": [
+        "product:P00016",
+        "product:P01336",
+        "product:P02399",
+        "product:P00073",
+        "product:P02250"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_006",
+      "ranking": [
+        "product:P02512",
+        "product:P04758",
+        "product:P04700",
+        "product:P04827",
+        "product:P02613"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_007",
+      "ranking": [
+        "product:P02512",
+        "product:P04758",
+        "product:P04827",
+        "product:P03591",
+        "product:P03813"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_008",
+      "ranking": [
+        "product:P02512",
+        "product:P04758",
+        "product:P04827",
+        "product:P03591",
+        "product:P03813"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_009",
+      "ranking": [
+        "product:P02512",
+        "product:P04758",
+        "product:P04126",
+        "product:P03813",
+        "product:P04827"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_010",
+      "ranking": [
+        "product:P02512",
+        "product:P04758",
+        "product:P04827",
+        "product:P03813",
+        "product:P04700"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_011",
+      "ranking": [
+        "product:P02513",
+        "product:P04635",
+        "product:P03485"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_012",
+      "ranking": [
+        "product:P02513",
+        "product:P04635",
+        "product:P03485"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_013",
+      "ranking": [
+        "product:P02513",
+        "product:P04635",
+        "product:P03485",
+        "product:P04337"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_014",
+      "ranking": [
+        "product:P02513",
+        "product:P04635",
+        "product:P03485",
+        "product:P04337"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_015",
+      "ranking": [
+        "product:P02513",
+        "product:P04635",
+        "product:P03485",
+        "product:P04337"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_016",
+      "ranking": [
+        "product:P00015",
+        "product:P01352",
+        "product:P01598",
+        "product:P01107",
+        "product:P00039"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_017",
+      "ranking": [
+        "product:P00015",
+        "product:P01591",
+        "product:P00199",
+        "product:P00495",
+        "product:P01598"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_018",
+      "ranking": [
+        "product:P00015",
+        "product:P00199",
+        "product:P01591",
+        "product:P02453",
+        "product:P01352"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_019",
+      "ranking": [
+        "product:P00015",
+        "product:P01591",
+        "product:P01140",
+        "product:P02154",
+        "product:P01352"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_020",
+      "ranking": [
+        "product:P00015",
+        "product:P01591",
+        "product:P01352",
+        "product:P00199",
+        "product:P01140"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_021",
+      "ranking": [
+        "product:P02508",
+        "product:P02988",
+        "product:P04753",
+        "product:P04161",
+        "product:P00467"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_022",
+      "ranking": [
+        "product:P02508",
+        "product:P04161",
+        "product:P04753",
+        "product:P04852",
+        "product:P02514"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_023",
+      "ranking": [
+        "product:P02508",
+        "product:P04161",
+        "product:P04753",
+        "product:P04249",
+        "product:P03827"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_024",
+      "ranking": [
+        "product:P02508",
+        "product:P04745",
+        "product:P04161",
+        "product:P04698",
+        "product:P02826"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_025",
+      "ranking": [
+        "product:P02508",
+        "product:P04161",
+        "product:P04753",
+        "product:P04852",
+        "product:P02984"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_026",
+      "ranking": [
+        "product:P02504",
+        "product:P02677",
+        "product:P04128"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_027",
+      "ranking": [
+        "product:P02504",
+        "product:P02677",
+        "product:P04128"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_028",
+      "ranking": [
+        "product:P02504",
+        "product:P02677",
+        "product:P03240",
+        "product:P04128",
+        "product:P03834"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_029",
+      "ranking": [
+        "product:P02504",
+        "product:P02677",
+        "product:P04652",
+        "product:P04814"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_030",
+      "ranking": [
+        "product:P02504",
+        "product:P04115",
+        "product:P02677",
+        "product:P03908"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_031",
+      "ranking": [
+        "product:P02516",
+        "product:P04060",
+        "product:P03476",
+        "product:P02953",
+        "product:P04079"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_032",
+      "ranking": [
+        "product:P02516",
+        "product:P03373",
+        "product:P04065",
+        "product:P02581",
+        "product:P03981"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_033",
+      "ranking": [
+        "product:P02516",
+        "product:P03373",
+        "product:P02581",
+        "product:P03115",
+        "product:P04065"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_034",
+      "ranking": [
+        "product:P02516",
+        "product:P03373",
+        "product:P04065"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_035",
+      "ranking": [
+        "product:P02516",
+        "product:P03373",
+        "product:P04065",
+        "product:P03836",
+        "product:P02593"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_036",
+      "ranking": [
+        "product:P00008",
+        "product:P01205",
+        "product:P03758",
+        "product:P00012",
+        "product:P01756"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_037",
+      "ranking": [
+        "product:P00008",
+        "product:P01756",
+        "product:P01796",
+        "policy:POL001",
+        "product:P00181"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_038",
+      "ranking": [
+        "product:P00008",
+        "product:P01756",
+        "product:P00602",
+        "product:P01677",
+        "policy:POL001"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_039",
+      "ranking": [
+        "product:P00008",
+        "product:P01955",
+        "product:P00826",
+        "product:P01776",
+        "product:P00723"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_040",
+      "ranking": [
+        "product:P00008",
+        "product:P01756",
+        "policy:POL001",
+        "policy:POL003",
+        "product:P01655"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_041",
+      "ranking": [
+        "product:P02510",
+        "product:P04885",
+        "product:P03531",
+        "product:P04379",
+        "product:P04219"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_042",
+      "ranking": [
+        "product:P02510",
+        "product:P04885",
+        "product:P02662",
+        "product:P03299",
+        "product:P02769"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_043",
+      "ranking": [
+        "product:P02510",
+        "product:P02752",
+        "product:P03033",
+        "product:P03834",
+        "product:P02702"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_044",
+      "ranking": [
+        "product:P02510",
+        "product:P03506",
+        "product:P02702",
+        "product:P03277",
+        "product:P03444"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_045",
+      "ranking": [
+        "product:P02510",
+        "product:P03277",
+        "product:P02702",
+        "product:P03506",
+        "product:P03444"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_046",
+      "ranking": [
+        "product:P00002",
+        "product:P01155",
+        "product:P01082",
+        "product:P00708",
+        "product:P01684"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_047",
+      "ranking": [
+        "product:P00002",
+        "product:P00236",
+        "product:P00001",
+        "product:P01763",
+        "product:P00039"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_048",
+      "ranking": [
+        "product:P00002",
+        "product:P01383",
+        "product:P00740",
+        "product:P00001",
+        "product:P02282"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_049",
+      "ranking": [
+        "product:P00002",
+        "product:P01383",
+        "product:P02302",
+        "product:P01356",
+        "product:P00043"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_050",
+      "ranking": [
+        "product:P00002",
+        "product:P01383",
+        "product:P00410",
+        "product:P01356",
+        "product:P01763"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_051",
+      "ranking": [
+        "product:P02514",
+        "product:P03404",
+        "product:P03923",
+        "product:P02598",
+        "product:P04887"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_052",
+      "ranking": [
+        "product:P02514",
+        "product:P03576",
+        "product:P03962",
+        "product:P02598",
+        "product:P04161"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_053",
+      "ranking": [
+        "product:P02514",
+        "product:P04161",
+        "product:P03962",
+        "product:P04887",
+        "product:P04240"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_054",
+      "ranking": [
+        "product:P02514",
+        "product:P02598",
+        "product:P02739",
+        "product:P04887",
+        "product:P02568"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_055",
+      "ranking": [
+        "product:P02514",
+        "product:P04887",
+        "product:P04760",
+        "product:P04240",
+        "product:P04161"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_056",
+      "ranking": [
+        "product:P02505",
+        "product:P02909",
+        "product:P02884",
+        "product:P04828",
+        "product:P03630"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_057",
+      "ranking": [
+        "product:P02505",
+        "product:P02884",
+        "product:P04255",
+        "product:P02909",
+        "product:P04565"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_058",
+      "ranking": [
+        "product:P02505",
+        "product:P02909",
+        "product:P04255",
+        "product:P04828",
+        "product:P02884"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_059",
+      "ranking": [
+        "product:P02505",
+        "product:P04255",
+        "product:P02909",
+        "product:P02884",
+        "product:P04828"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_060",
+      "ranking": [
+        "product:P02505",
+        "product:P04255",
+        "product:P02909",
+        "product:P02884",
+        "product:P04828"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_061",
+      "ranking": [
+        "product:P00014",
+        "product:P02084",
+        "product:P00426",
+        "product:P00106",
+        "product:P02330"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_062",
+      "ranking": [
+        "product:P00039",
+        "product:P02332",
+        "product:P00862",
+        "product:P00902",
+        "product:P00778"
+      ],
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr": 0.0,
+      "ndcg@5": 0.0
+    },
+    {
+      "id": "auto_063",
+      "ranking": [
+        "product:P00014",
+        "product:P02084",
+        "product:P02330",
+        "product:P00799",
+        "product:P01201"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_064",
+      "ranking": [
+        "product:P00014",
+        "product:P02330",
+        "product:P00426",
+        "product:P02084",
+        "product:P01849"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_065",
+      "ranking": [
+        "product:P00014",
+        "product:P02330",
+        "product:P01216",
+        "product:P02084",
+        "product:P00753"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_066",
+      "ranking": [
+        "product:P02518",
+        "product:P04915",
+        "product:P04551",
+        "product:P03087",
+        "product:P03238"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_067",
+      "ranking": [
+        "product:P02518",
+        "product:P04915",
+        "product:P03179",
+        "product:P03087",
+        "product:P04025"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_068",
+      "ranking": [
+        "product:P02518",
+        "product:P04915",
+        "product:P03241",
+        "product:P04025",
+        "product:P03087"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_069",
+      "ranking": [
+        "product:P02518",
+        "product:P04915",
+        "product:P03241",
+        "product:P03087",
+        "product:P04080"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_070",
+      "ranking": [
+        "product:P02518",
+        "product:P04915",
+        "product:P04025",
+        "product:P03087",
+        "product:P03437"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_071",
+      "ranking": [
+        "product:P00017",
+        "product:P02208",
+        "product:P01590",
+        "product:P01568",
+        "product:P00453"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_072",
+      "ranking": [
+        "product:P00017",
+        "product:P01568",
+        "product:P00453",
+        "product:P02493",
+        "product:P00733"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_073",
+      "ranking": [
+        "product:P00017",
+        "product:P01568",
+        "product:P01819",
+        "product:P00635",
+        "product:P00824"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_074",
+      "ranking": [
+        "product:P00017",
+        "product:P01568",
+        "product:P00453",
+        "product:P02111"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_075",
+      "ranking": [
+        "product:P00017",
+        "product:P01568",
+        "product:P00453",
+        "product:P01229",
+        "product:P00733"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_076",
+      "ranking": [
+        "product:P02502",
+        "product:P04986",
+        "product:P04941",
+        "product:P02539",
+        "product:P03258"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_077",
+      "ranking": [
+        "product:P02502",
+        "product:P04941",
+        "product:P03973",
+        "product:P04986",
+        "product:P03431"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_078",
+      "ranking": [
+        "product:P02502",
+        "product:P04941",
+        "product:P03973",
+        "product:P04986"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_079",
+      "ranking": [
+        "product:P02502",
+        "product:P04941",
+        "product:P03973",
+        "product:P04986",
+        "product:P03835"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_080",
+      "ranking": [
+        "product:P02502",
+        "product:P04941",
+        "product:P04986",
+        "product:P03973",
+        "product:P03493"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_081",
+      "ranking": [
+        "product:P00013",
+        "product:P02147",
+        "product:P02405",
+        "product:P00519",
+        "product:P01482"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_082",
+      "ranking": [
+        "product:P00013",
+        "product:P00270",
+        "product:P02405",
+        "product:P02147",
+        "product:P00814"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_083",
+      "ranking": [
+        "product:P00013",
+        "product:P00270",
+        "product:P02405",
+        "product:P00252",
+        "product:P00519"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_084",
+      "ranking": [
+        "product:P00013",
+        "product:P02147",
+        "product:P02405",
+        "product:P01283",
+        "product:P01482"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_085",
+      "ranking": [
+        "product:P00013",
+        "product:P00270",
+        "product:P02405",
+        "product:P02147",
+        "product:P00252"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_086",
+      "ranking": [
+        "product:P02517",
+        "product:P03304",
+        "product:P03321",
+        "product:P03786",
+        "product:P04458"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_087",
+      "ranking": [
+        "product:P02517",
+        "product:P03495",
+        "product:P03181",
+        "product:P03321",
+        "product:P04061"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_088",
+      "ranking": [
+        "product:P02517",
+        "product:P03495",
+        "product:P03321",
+        "product:P04503",
+        "product:P04061"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_089",
+      "ranking": [
+        "product:P02517",
+        "product:P03495",
+        "product:P04061",
+        "product:P04503"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_090",
+      "ranking": [
+        "product:P02517",
+        "product:P03495",
+        "product:P04061",
+        "product:P04503"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_091",
+      "ranking": [
+        "product:P02507",
+        "product:P04903",
+        "product:P03388",
+        "product:P02893",
+        "product:P03839"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_092",
+      "ranking": [
+        "product:P02507",
+        "product:P03650",
+        "product:P04285",
+        "product:P03023",
+        "product:P03125"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_093",
+      "ranking": [
+        "product:P02507",
+        "product:P03447",
+        "product:P03023",
+        "product:P04761",
+        "product:P02893"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_094",
+      "ranking": [
+        "product:P02507",
+        "product:P03388",
+        "product:P02893",
+        "product:P04761"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_095",
+      "ranking": [
+        "product:P02507",
+        "product:P03388",
+        "product:P02893",
+        "product:P04538"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_096",
+      "ranking": [
+        "product:P00009",
+        "product:P01145",
+        "product:P02026",
+        "product:P02324",
+        "product:P01980"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_097",
+      "ranking": [
+        "product:P00009",
+        "product:P00337",
+        "product:P01194",
+        "product:P00445",
+        "product:P01104"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_098",
+      "ranking": [
+        "product:P00009",
+        "product:P00337",
+        "product:P01194",
+        "product:P00445",
+        "product:P01104"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_099",
+      "ranking": [
+        "product:P00009",
+        "product:P00337",
+        "product:P00445",
+        "product:P00107",
+        "product:P01502"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_100",
+      "ranking": [
+        "product:P00009",
+        "product:P00337",
+        "product:P00062",
+        "product:P01502"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_101",
+      "ranking": [
+        "product:P01479",
+        "product:P01352",
+        "product:P00759",
+        "product:P01097",
+        "product:P00039"
+      ],
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr": 0.0,
+      "ndcg@5": 0.0
+    },
+    {
+      "id": "auto_102",
+      "ranking": [
+        "product:P00018",
+        "product:P02216",
+        "product:P01250",
+        "product:P00467",
+        "product:P00141"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_103",
+      "ranking": [
+        "product:P00018",
+        "product:P00197",
+        "product:P00590",
+        "product:P00467",
+        "product:P01927"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_104",
+      "ranking": [
+        "product:P00018",
+        "product:P00197",
+        "product:P02092",
+        "product:P01379",
+        "product:P00590"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_105",
+      "ranking": [
+        "product:P00018",
+        "product:P00141",
+        "product:P02092",
+        "product:P02216",
+        "product:P00197"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_106",
+      "ranking": [
+        "product:P00012",
+        "product:P01655",
+        "product:P02211",
+        "product:P01191",
+        "product:P00224"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_107",
+      "ranking": [
+        "product:P00012",
+        "product:P00039",
+        "product:P00005",
+        "product:P02324",
+        "product:P00399"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_108",
+      "ranking": [
+        "product:P00012",
+        "product:P01191",
+        "product:P01655",
+        "product:P00548",
+        "product:P00063"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_109",
+      "ranking": [
+        "product:P00012",
+        "product:P01191",
+        "product:P02472",
+        "product:P01655",
+        "product:P00224"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_110",
+      "ranking": [
+        "product:P00012",
+        "product:P00644",
+        "product:P01655",
+        "product:P01914",
+        "product:P00948"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_111",
+      "ranking": [
+        "product:P00001",
+        "product:P00039",
+        "product:P00002",
+        "product:P01763",
+        "product:P02488"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_112",
+      "ranking": [
+        "product:P00001",
+        "product:P00002",
+        "product:P00129",
+        "product:P00236",
+        "product:P00628"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_113",
+      "ranking": [
+        "product:P00001",
+        "product:P04173",
+        "product:P04698",
+        "product:P00575",
+        "product:P03834"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_114",
+      "ranking": [
+        "product:P00001",
+        "product:P01356",
+        "policy:POL001",
+        "product:P00419",
+        "policy:POL003"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_115",
+      "ranking": [
+        "product:P02520",
+        "product:P04995",
+        "product:P03286",
+        "product:P03787",
+        "product:P03270"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_116",
+      "ranking": [
+        "product:P02520",
+        "product:P04895",
+        "product:P04868",
+        "product:P02845",
+        "product:P04793"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_117",
+      "ranking": [
+        "product:P02520",
+        "product:P03569",
+        "product:P03423",
+        "product:P03772",
+        "product:P04793"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_118",
+      "ranking": [
+        "product:P02520",
+        "product:P03569",
+        "product:P02996",
+        "product:P03787",
+        "product:P04793"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_119",
+      "ranking": [
+        "product:P02520",
+        "product:P04892",
+        "product:P04793",
+        "product:P03349"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_120",
+      "ranking": [
+        "product:P00280",
+        "product:P00011",
+        "product:P00675",
+        "product:P01176",
+        "product:P02120"
+      ],
+      "recall@1": 0.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575
+    },
+    {
+      "id": "auto_121",
+      "ranking": [
+        "product:P00039",
+        "product:P02324",
+        "product:P00399",
+        "product:P01989",
+        "product:P00005"
+      ],
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr": 0.0,
+      "ndcg@5": 0.0
+    },
+    {
+      "id": "auto_122",
+      "ranking": [
+        "product:P00011",
+        "policy:POL001",
+        "product:P01948",
+        "product:P01728",
+        "product:P01506"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_123",
+      "ranking": [
+        "product:P00011",
+        "product:P04238",
+        "policy:POL001",
+        "product:P01684",
+        "product:P01577"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_124",
+      "ranking": [
+        "product:P01676",
+        "product:P00011",
+        "product:P01796",
+        "product:P01153",
+        "product:P01828"
+      ],
+      "recall@1": 0.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575
+    },
+    {
+      "id": "auto_125",
+      "ranking": [
+        "product:P00003",
+        "product:P00248",
+        "product:P00049",
+        "product:P01043",
+        "product:P01408"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_126",
+      "ranking": [
+        "product:P00003",
+        "product:P00950",
+        "product:P00895",
+        "product:P00639",
+        "product:P02288"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_127",
+      "ranking": [
+        "product:P00003",
+        "product:P02455",
+        "product:P00248",
+        "product:P01043",
+        "product:P00049"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_128",
+      "ranking": [
+        "product:P00003",
+        "product:P01043",
+        "product:P02455",
+        "product:P00798",
+        "product:P00248"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_129",
+      "ranking": [
+        "product:P00003",
+        "product:P02455",
+        "product:P01043",
+        "product:P00248",
+        "product:P00798"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_130",
+      "ranking": [
+        "product:P00005",
+        "product:P00039",
+        "product:P01989",
+        "product:P02324",
+        "product:P00909"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_131",
+      "ranking": [
+        "product:P00005",
+        "product:P02064",
+        "product:P01910",
+        "product:P00731",
+        "product:P00413"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_132",
+      "ranking": [
+        "product:P00005",
+        "product:P02023",
+        "product:P01796",
+        "product:P01776",
+        "product:P00932"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_133",
+      "ranking": [
+        "product:P00005",
+        "product:P02064",
+        "product:P00902",
+        "product:P00014",
+        "product:P00413"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_134",
+      "ranking": [
+        "product:P00005",
+        "product:P02064",
+        "product:P01145",
+        "policy:POL001",
+        "product:P01914"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_135",
+      "ranking": [
+        "product:P00004",
+        "product:P02389",
+        "product:P02283",
+        "product:P00967",
+        "product:P02147"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_136",
+      "ranking": [
+        "product:P00004",
+        "product:P02280",
+        "product:P02389",
+        "product:P00033",
+        "product:P00519"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_137",
+      "ranking": [
+        "product:P00004",
+        "product:P02280",
+        "product:P02389"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_138",
+      "ranking": [
+        "product:P00004",
+        "product:P02280",
+        "product:P02389",
+        "product:P00967",
+        "product:P01560"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_139",
+      "ranking": [
+        "product:P02509",
+        "product:P04597",
+        "product:P03328",
+        "product:P04313"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_140",
+      "ranking": [
+        "product:P02509",
+        "product:P04597",
+        "product:P03571",
+        "product:P04905"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_141",
+      "ranking": [
+        "product:P02509",
+        "product:P04597",
+        "product:P04905",
+        "product:P03328",
+        "product:P04266"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_142",
+      "ranking": [
+        "product:P02509",
+        "product:P04597",
+        "product:P03328",
+        "product:P04905"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_143",
+      "ranking": [
+        "product:P02509",
+        "product:P04597",
+        "product:P04011",
+        "product:P04615",
+        "product:P04746"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_144",
+      "ranking": [
+        "product:P00007",
+        "product:P00693",
+        "product:P00185",
+        "product:P00206",
+        "product:P00013"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_145",
+      "ranking": [
+        "product:P00007",
+        "product:P00206",
+        "product:P00693",
+        "product:P01792",
+        "product:P00765"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_146",
+      "ranking": [
+        "product:P00007",
+        "product:P00206",
+        "product:P00693"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_147",
+      "ranking": [
+        "product:P00007",
+        "product:P00206",
+        "product:P00905"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_148",
+      "ranking": [
+        "product:P00007",
+        "product:P00206",
+        "product:P02369",
+        "product:P00905"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_149",
+      "ranking": [
+        "product:P02515",
+        "product:P02912",
+        "product:P03254",
+        "product:P04223",
+        "product:P03938"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_150",
+      "ranking": [
+        "product:P02515",
+        "product:P02659",
+        "product:P04157",
+        "product:P03447",
+        "product:P03031"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_151",
+      "ranking": [
+        "product:P02515",
+        "product:P03856",
+        "product:P01720",
+        "product:P03666",
+        "product:P00934"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_152",
+      "ranking": [
+        "product:P02515",
+        "product:P02912",
+        "product:P04563",
+        "product:P04309",
+        "product:P03924"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_153",
+      "ranking": [
+        "product:P04172",
+        "product:P03002",
+        "product:P02683",
+        "product:P03457",
+        "product:P02696"
+      ],
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr": 0.0,
+      "ndcg@5": 0.0
+    },
+    {
+      "id": "auto_154",
+      "ranking": [
+        "product:P02511",
+        "product:P04137",
+        "product:P03646",
+        "product:P03893",
+        "product:P02781"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_155",
+      "ranking": [
+        "product:P02511",
+        "product:P04137",
+        "product:P04258",
+        "product:P03186",
+        "product:P03436"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_156",
+      "ranking": [
+        "product:P02511",
+        "product:P04137",
+        "product:P03893",
+        "product:P03434",
+        "product:P04258"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_157",
+      "ranking": [
+        "product:P02511",
+        "product:P04137",
+        "product:P04604",
+        "product:P03646",
+        "product:P04837"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_158",
+      "ranking": [
+        "product:P02511",
+        "product:P04172",
+        "product:P03457",
+        "product:P03533",
+        "product:P02550"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_159",
+      "ranking": [
+        "product:P00006",
+        "product:P01728",
+        "product:P00749",
+        "product:P00307",
+        "product:P00167"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_160",
+      "ranking": [
+        "product:P00006",
+        "product:P00749",
+        "product:P01832",
+        "product:P01892",
+        "product:P00887"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_161",
+      "ranking": [
+        "product:P00006",
+        "product:P00749",
+        "product:P02281",
+        "product:P01892",
+        "product:P02040"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_162",
+      "ranking": [
+        "product:P00006",
+        "product:P00001",
+        "product:P00129",
+        "product:P01711",
+        "product:P01828"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_163",
+      "ranking": [
+        "product:P00006",
+        "product:P02433",
+        "product:P00749",
+        "product:P01709",
+        "product:P00414"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_164",
+      "ranking": [
+        "product:P02501",
+        "product:P03275",
+        "product:P03649",
+        "product:P03666",
+        "product:P04098"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_165",
+      "ranking": [
+        "product:P02501",
+        "product:P03237",
+        "product:P03507",
+        "product:P03275",
+        "product:P03649"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_166",
+      "ranking": [
+        "product:P02501",
+        "product:P03275",
+        "product:P03507",
+        "product:P03916",
+        "product:P02622"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_167",
+      "ranking": [
+        "product:P02501",
+        "product:P03237",
+        "product:P03250",
+        "product:P02622",
+        "product:P03186"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_168",
+      "ranking": [
+        "product:P02501",
+        "product:P03275",
+        "product:P03443",
+        "product:P04522",
+        "product:P04422"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_169",
+      "ranking": [
+        "product:P02506",
+        "product:P03661",
+        "product:P03484",
+        "product:P04228"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_170",
+      "ranking": [
+        "product:P02506",
+        "product:P03661",
+        "product:P03484",
+        "product:P04228"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_171",
+      "ranking": [
+        "product:P02506",
+        "product:P03484",
+        "product:P04228"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_172",
+      "ranking": [
+        "product:P02506",
+        "product:P03484",
+        "product:P03661"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_173",
+      "ranking": [
+        "product:P02506",
+        "product:P03484",
+        "product:P03661"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_174",
+      "ranking": [
+        "product:P00039",
+        "product:P01479",
+        "product:P02324",
+        "product:P00005",
+        "product:P02486"
+      ],
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr": 0.0,
+      "ndcg@5": 0.0
+    },
+    {
+      "id": "auto_175",
+      "ranking": [
+        "product:P00019",
+        "product:P00685",
+        "product:P02192",
+        "product:P00829",
+        "product:P01796"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_176",
+      "ranking": [
+        "product:P00019",
+        "product:P00685",
+        "product:P02192",
+        "product:P01796",
+        "product:P00467"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_177",
+      "ranking": [
+        "product:P00019",
+        "product:P02216",
+        "product:P00166",
+        "policy:POL001",
+        "product:P00467"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_178",
+      "ranking": [
+        "product:P00019",
+        "product:P02216",
+        "product:P00166",
+        "policy:POL001",
+        "product:P00869"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_179",
+      "ranking": [
+        "product:P00020",
+        "product:P01921",
+        "product:P00390",
+        "product:P00748",
+        "product:P01408"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_180",
+      "ranking": [
+        "product:P00020",
+        "product:P00039",
+        "product:P00390",
+        "product:P01989",
+        "product:P02125"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_181",
+      "ranking": [
+        "product:P00020",
+        "product:P00390",
+        "product:P00409"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_182",
+      "ranking": [
+        "product:P00020",
+        "product:P00409",
+        "product:P00261",
+        "product:P00390"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_183",
+      "ranking": [
+        "product:P00020",
+        "product:P00409",
+        "product:P00390",
+        "product:P00194"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_184",
+      "ranking": [
+        "product:P02519",
+        "product:P03033",
+        "product:P02702",
+        "product:P04519",
+        "product:P03350"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_185",
+      "ranking": [
+        "product:P02519",
+        "product:P03033",
+        "product:P03350",
+        "product:P02702"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_186",
+      "ranking": [
+        "product:P02519",
+        "product:P02702",
+        "product:P03033",
+        "product:P04519"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_187",
+      "ranking": [
+        "product:P02519",
+        "product:P02702",
+        "product:P03033",
+        "product:P04519"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_188",
+      "ranking": [
+        "product:P02519",
+        "product:P02702",
+        "product:P03033",
+        "product:P04519"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_189",
+      "ranking": [
+        "product:P02503",
+        "product:P04330",
+        "product:P02988",
+        "product:P03659",
+        "policy:POL001"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_190",
+      "ranking": [
+        "product:P02503",
+        "product:P04742",
+        "product:P02988",
+        "product:P04330",
+        "policy:POL001"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_191",
+      "ranking": [
+        "product:P02503",
+        "product:P04330",
+        "product:P02802",
+        "product:P03834",
+        "product:P03659"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_192",
+      "ranking": [
+        "product:P02503",
+        "product:P03659",
+        "product:P02596",
+        "product:P04742",
+        "product:P04159"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_193",
+      "ranking": [
+        "product:P02503",
+        "product:P03822",
+        "product:P04970",
+        "product:P04742",
+        "product:P03555"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_194",
+      "ranking": [
+        "product:P00010",
+        "product:P02346",
+        "product:P01454",
+        "product:P01449",
+        "product:P00248"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_195",
+      "ranking": [
+        "product:P00010",
+        "product:P00477",
+        "product:P00749",
+        "product:P04542",
+        "product:P00887"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_196",
+      "ranking": [
+        "product:P00010",
+        "product:P00248",
+        "product:P00602",
+        "product:P01076",
+        "product:P04368"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_197",
+      "ranking": [
+        "product:P00010",
+        "product:P01454",
+        "product:P02703",
+        "product:P00248",
+        "product:P00602"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_198",
+      "ranking": [
+        "product:P00010",
+        "product:P03123",
+        "product:P00602",
+        "product:P00248",
+        "product:P00568"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_199",
+      "ranking": [
+        "product:P00016",
+        "product:P00351",
+        "product:P01336",
+        "product:P02399"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "auto_200",
+      "ranking": [
+        "product:P00016",
+        "product:P01031",
+        "product:P00399",
+        "product:P01145",
+        "product:P01828"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_001",
+      "ranking": [
+        "product:P00016",
+        "product:P02512",
+        "product:P01336",
+        "product:P01797"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_002",
+      "ranking": [
+        "product:P02516",
+        "product:P03307"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_003",
+      "ranking": [
+        "product:P02508",
+        "product:P04161",
+        "product:P04355",
+        "product:P04249",
+        "product:P03058"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_004",
+      "ranking": [
+        "product:P02516",
+        "product:P03373",
+        "product:P03307",
+        "product:P03981",
+        "product:P04065"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_005",
+      "ranking": [
+        "product:P01701",
+        "policy:POL001",
+        "policy:POL002",
+        "product:P00420",
+        "product:P03497"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    },
+    {
+      "id": "hard_006",
+      "ranking": [
+        "product:P02514",
+        "product:P02505",
+        "product:P04565",
+        "product:P02909"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_007",
+      "ranking": [
+        "product:P02502"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_008",
+      "ranking": [
+        "product:P00017",
+        "product:P02111",
+        "product:P00453",
+        "product:P01568",
+        "product:P01229"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_009",
+      "ranking": [
+        "product:P00013",
+        "product:P00270",
+        "product:P02405",
+        "product:P02147",
+        "product:P00519"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_010",
+      "ranking": [
+        "product:P02868",
+        "policy:POL001",
+        "product:P00420",
+        "policy:POL002",
+        "product:P02862"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    },
+    {
+      "id": "hard_011",
+      "ranking": [
+        "product:P00012",
+        "product:P00018",
+        "product:P01259"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_012",
+      "ranking": [
+        "product:P00005"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_013",
+      "ranking": [
+        "product:P00011",
+        "product:P01203",
+        "product:P03904",
+        "product:P04988",
+        "product:P03162"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_014",
+      "ranking": [
+        "product:P00005",
+        "product:P00910",
+        "product:P02417",
+        "product:P02023",
+        "product:P01810"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_015",
+      "ranking": [
+        "product:P02862",
+        "policy:POL001",
+        "policy:POL002",
+        "product:P00420",
+        "product:P03497"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    },
+    {
+      "id": "hard_016",
+      "ranking": [
+        "product:P02511",
+        "product:P02515",
+        "product:P04309"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_017",
+      "ranking": [
+        "product:P02519",
+        "product:P02702"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_018",
+      "ranking": [
+        "product:P02506",
+        "product:P03484",
+        "product:P03661"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_019",
+      "ranking": [
+        "product:P00020",
+        "product:P00409",
+        "product:P00261",
+        "product:P00390"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_020",
+      "ranking": [
+        "product:P00420",
+        "policy:POL001",
+        "product:P02862",
+        "policy:POL002",
+        "product:P01701"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    },
+    {
+      "id": "hard_021",
+      "ranking": [
+        "product:P00016",
+        "product:P02512",
+        "product:P01336",
+        "product:P01797"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_022",
+      "ranking": [
+        "product:P02514",
+        "product:P04887"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_023",
+      "ranking": [
+        "product:P02508",
+        "product:P04161",
+        "product:P04355",
+        "product:P04249",
+        "product:P03058"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_024",
+      "ranking": [
+        "product:P02516",
+        "product:P03373",
+        "product:P03307",
+        "product:P03981",
+        "product:P04065"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_025",
+      "ranking": [
+        "product:P00420",
+        "policy:POL001",
+        "product:P01701",
+        "policy:POL002",
+        "product:P03497"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    },
+    {
+      "id": "hard_026",
+      "ranking": [
+        "product:P02514",
+        "product:P02505",
+        "product:P04565",
+        "product:P02909"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_027",
+      "ranking": [
+        "product:P02517",
+        "product:P04503"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_028",
+      "ranking": [
+        "product:P00017",
+        "product:P02111",
+        "product:P00453",
+        "product:P01568",
+        "product:P01229"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_029",
+      "ranking": [
+        "product:P00013",
+        "product:P00270",
+        "product:P02405",
+        "product:P02147",
+        "product:P00519"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_030",
+      "ranking": [
+        "product:P00420",
+        "policy:POL001",
+        "product:P01701",
+        "policy:POL002",
+        "product:P02862"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    },
+    {
+      "id": "hard_031",
+      "ranking": [
+        "product:P00012",
+        "product:P00018",
+        "product:P01259"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_032",
+      "ranking": [
+        "product:P00004",
+        "product:P02389",
+        "product:P00967"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_033",
+      "ranking": [
+        "product:P00011",
+        "product:P01203",
+        "product:P03904",
+        "product:P04988",
+        "product:P03162"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_034",
+      "ranking": [
+        "product:P00005",
+        "product:P00910",
+        "product:P02417",
+        "product:P02023",
+        "product:P01810"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_035",
+      "ranking": [
+        "product:P03634",
+        "product:P03892",
+        "policy:POL001",
+        "product:P00420",
+        "policy:POL002"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    },
+    {
+      "id": "hard_036",
+      "ranking": [
+        "product:P02511",
+        "product:P02515",
+        "product:P04309"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_037",
+      "ranking": [
+        "product:P02503",
+        "product:P03659",
+        "product:P02988",
+        "product:P04970"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_038",
+      "ranking": [
+        "product:P02506",
+        "product:P03484",
+        "product:P03661"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_039",
+      "ranking": [
+        "product:P00020",
+        "product:P00409",
+        "product:P00261",
+        "product:P00390"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_040",
+      "ranking": [
+        "product:P02862",
+        "policy:POL001",
+        "policy:POL002",
+        "product:P00420",
+        "product:P03497"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    },
+    {
+      "id": "hard_041",
+      "ranking": [
+        "product:P00016",
+        "product:P02512",
+        "product:P01336",
+        "product:P01797"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_042",
+      "ranking": [
+        "product:P02505",
+        "product:P04828"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_043",
+      "ranking": [
+        "product:P02508",
+        "product:P04161",
+        "product:P04355",
+        "product:P04249",
+        "product:P03058"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_044",
+      "ranking": [
+        "product:P02516",
+        "product:P03373",
+        "product:P03307",
+        "product:P03981",
+        "product:P04065"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_045",
+      "ranking": [
+        "product:P03892",
+        "policy:POL001",
+        "product:P03634",
+        "policy:POL002",
+        "product:P03497"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    },
+    {
+      "id": "hard_046",
+      "ranking": [
+        "product:P02514",
+        "product:P02505",
+        "product:P04565",
+        "product:P02909"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_047",
+      "ranking": [
+        "product:P02507",
+        "product:P03388"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_048",
+      "ranking": [
+        "product:P00017",
+        "product:P02111",
+        "product:P00453",
+        "product:P01568",
+        "product:P01229"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_049",
+      "ranking": [
+        "product:P00013",
+        "product:P00270",
+        "product:P02405",
+        "product:P02147",
+        "product:P00519"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
+    },
+    {
+      "id": "hard_050",
+      "ranking": [
+        "product:P03394",
+        "policy:POL001",
+        "product:P01365",
+        "policy:POL002",
+        "product:P00420"
+      ],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "mrr": null,
+      "ndcg@5": null
+    }
+  ]
+}

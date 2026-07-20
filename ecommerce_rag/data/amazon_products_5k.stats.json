@@ -1,0 +1,16 @@
+{
+  "dataset": "McAuley-Lab/Amazon-Reviews-2023",
+  "revision": "2b6d039ed471f2ba5fd2acb718bf33b0a7e5598e",
+  "products": 5000,
+  "reviews": 1125,
+  "categories": {
+    "Electronics": {
+      "products": 2500,
+      "reviews": 580
+    },
+    "Home_and_Kitchen": {
+      "products": 2500,
+      "reviews": 545
+    }
+  }
+}

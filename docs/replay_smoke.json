@@ -1,0 +1,22 @@
+{
+  "original_id": "tr_product_qa_01_20260721_a01a8260",
+  "replay_id": "tr_product_qa_01_20260721_daccdd7f",
+  "same_tool_sequence": true,
+  "same_grade": true,
+  "grade": {
+    "task_id": "product_qa_01",
+    "success": true,
+    "policy_compliant": true,
+    "tool_precision": 1.0,
+    "tool_recall": 1.0,
+    "tool_f1": 1.0,
+    "handoff_expected": false,
+    "handoff_observed": false,
+    "terminal_state_match": true,
+    "state_diff": {},
+    "turns": 2,
+    "latency_ms": 195.87529999989783,
+    "reward": 8.0,
+    "failure_type": null
+  }
+}

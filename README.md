@@ -125,3 +125,25 @@ qsub nscc/run_eval.pbs
 5. 生成后用引用、grounding 和事实核查约束幻觉。
 6. 每次回答沉淀为 SupportCase，包含证据、快照、验证和 trace，可复盘、可审计。
 7. 通过 Honest Evaluation 决定不上线无净收益的 reranker，把下一步优化集中到 metadata filtering 和一阶召回。
+
+## 5k 数据、工具环境与 Harness（2026-07）
+
+新增实现将项目从只读 RAG 扩展为可评分的客服环境：
+
+- `scripts.build_amazon_5k` 流式构建 Amazon Reviews 2023 双类别 5,000 商品语料；
+- `search_catalog` 到 `escalate_to_human` 共八个统一工具；
+- 1,000 用户、10,000 订单以及身份、政策、确认三层写入保护；
+- `TaskSpec`、`ToolCall`、`Trajectory`、`GradeResult` 公共契约；
+- `run/replay/compare`、终态 diff、失败分类、pass@1 和 pass³；
+- fail-closed Agent RL 门槛，未完成人工奖励审计时不会宣称已做 RL。
+
+快速复现（索引目录与大体积原始数据不提交 Git）：
+
+```bash
+python -m scripts.build_amazon_5k
+python -m scripts.generate_harness_tasks --db logs/harness_env.db --output ecommerce_rag/data/harness_tasks.jsonl
+python -m ecommerce_rag.harness run --tasks ecommerce_rag/data/harness_tasks.jsonl --db logs/harness_env.db --store logs/trajectories.db --index ecommerce_rag/index_5000 --repeats 3 --output docs/harness_baseline.json
+python -m ecommerce_rag.rl_gate --tasks ecommerce_rag/data/harness_tasks.jsonl --store logs/trajectories.db --output docs/agent_rl_gate.json
+```
+
+完整架构、指标边界与 RL 决策见 `docs/implementation_report.md`。

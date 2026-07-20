@@ -274,7 +274,7 @@ class CustomerSupportAgent:
                 answer = "已找到相关资料，但当前未配置大模型 API，无法生成完整自然语言回答。请查看下方来源或配置 ERAG_LLM_API_KEY。"
 
         grounding = self.grounder.check(answer, [c["text"] for c in chunks])
-        citations = verifier.citation_check(answer)
+        citations = verifier.citation_check(answer, len({c.get("doc_id") for c in chunks}))
         consistency = verifier.consistency_check(answer, context) if config.LLM_API_KEY else {"verdict": "跳过", "problems": [], "raw": ""}
         decision = final_decision(grounding["ratio"], consistency["verdict"], citations["ok"])
         trace.append(

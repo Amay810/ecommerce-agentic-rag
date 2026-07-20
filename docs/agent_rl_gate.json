@@ -1,0 +1,14 @@
+{
+  "eligible": false,
+  "checks": {
+    "tasks_at_least_60": true,
+    "deterministic_graders": true,
+    "trajectories_at_least_300": true,
+    "human_reward_agreement_at_least_90pct": false
+  },
+  "task_count": 60,
+  "trajectory_count": 900,
+  "human_audit_rows": 0,
+  "human_reward_agreement": null,
+  "decision": "stop at RL-ready harness; do not claim Agent RL"
+}

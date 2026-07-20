@@ -1,0 +1,550 @@
+{
+  "summary": {
+    "n": 28,
+    "route_accuracy": 1.0,
+    "action_accuracy": 1.0,
+    "retrieval_coverage": 1.0,
+    "recall@1": 0.944,
+    "recall@3": 0.981,
+    "recall@5": 1.0,
+    "mrr": 1.0
+  },
+  "details": [
+    {
+      "question": "扫地机器人能跨房间清扫吗？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P005"
+      ],
+      "retrieved_doc_ids": [
+        "product:P005"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "养猫家庭适合买哪款清洁产品？",
+      "intent": "recommend",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P005"
+      ],
+      "retrieved_doc_ids": [
+        "product:P005",
+        "product:P026",
+        "product:P015",
+        "product:P003"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "预算600以内，通勤降噪耳机推荐哪款？",
+      "intent": "recommend",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P001"
+      ],
+      "retrieved_doc_ids": [
+        "product:P001"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "RunBuds Clip 和 Air Pro 2 哪个更适合跑步？",
+      "intent": "compare",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P001",
+        "product:P007"
+      ],
+      "retrieved_doc_ids": [
+        "product:P007",
+        "product:P001"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "机械键盘支持 Mac 系统吗？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P004"
+      ],
+      "retrieved_doc_ids": [
+        "product:P004",
+        "product:P018"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "保温杯可以装碳酸饮料吗？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P006"
+      ],
+      "retrieved_doc_ids": [
+        "product:P006",
+        "product:P023",
+        "product:P016",
+        "product:P002"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "榨汁杯整个都能放进洗碗机吗？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P002"
+      ],
+      "retrieved_doc_ids": [
+        "product:P002",
+        "product:P016"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "商品签收后几天内可以无理由退货？",
+      "intent": "policy",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "policy:POL001"
+      ],
+      "retrieved_doc_ids": [
+        "policy:POL001",
+        "policy:POL002",
+        "policy:POL003",
+        "policy:POL005",
+        "policy:POL004"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "预售吹风机什么时候发货？",
+      "intent": "policy",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "policy:POL003"
+      ],
+      "retrieved_doc_ids": [
+        "policy:POL003",
+        "policy:POL001"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "我的订单退款什么时候到账？",
+      "intent": "handoff",
+      "action": "handoff",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [],
+      "retrieved_doc_ids": [],
+      "recall@1": null,
+      "recall@3": null,
+      "recall@5": null,
+      "rr": null
+    },
+    {
+      "question": "差旅长途飞行想要长续航的头戴降噪耳机，选哪款？",
+      "intent": "recommend",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P009"
+      ],
+      "retrieved_doc_ids": [
+        "product:P009",
+        "product:P001"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "侧睡党适合戴哪款耳机睡觉？",
+      "intent": "recommend",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P012"
+      ],
+      "retrieved_doc_ids": [
+        "product:P012",
+        "product:P009"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "跑步不想堵住耳朵，有不入耳的耳机吗？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P013"
+      ],
+      "retrieved_doc_ids": [
+        "product:P013",
+        "product:P007",
+        "product:P010"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "打游戏想要低延迟的耳机，推荐哪款？",
+      "intent": "recommend",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P011"
+      ],
+      "retrieved_doc_ids": [
+        "product:P011",
+        "product:P009"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "Air Pro 2 和 QuietMax H900 哪个降噪更强？",
+      "intent": "compare",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P001",
+        "product:P009"
+      ],
+      "retrieved_doc_ids": [
+        "product:P001",
+        "product:P009"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "要带数字小键盘的机械键盘有吗？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P018"
+      ],
+      "retrieved_doc_ids": [
+        "product:P018",
+        "product:P019"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "经常手腕疼，有没有人体工学键盘？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P020"
+      ],
+      "retrieved_doc_ids": [
+        "product:P020",
+        "product:P019"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "想找适合iPad的轻薄蓝牙键盘，推荐哪款？",
+      "intent": "recommend",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P019"
+      ],
+      "retrieved_doc_ids": [
+        "product:P019",
+        "product:P018",
+        "product:P004"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "破壁机能打热豆浆热汤吗？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P021"
+      ],
+      "retrieved_doc_ids": [
+        "product:P021",
+        "product:P016"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "无油的空气炸锅推荐哪款？",
+      "intent": "recommend",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P024"
+      ],
+      "retrieved_doc_ids": [
+        "product:P024"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "车里用的小型吸尘器推荐哪款？",
+      "intent": "recommend",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P025"
+      ],
+      "retrieved_doc_ids": [
+        "product:P025",
+        "product:P026"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "地板想用高温蒸汽清洁，有什么产品？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P027"
+      ],
+      "retrieved_doc_ids": [
+        "product:P027"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "声波电动牙刷有计时功能吗？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P030"
+      ],
+      "retrieved_doc_ids": [
+        "product:P030"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "想要能测血氧、带GPS的智能手表，推荐哪款？",
+      "intent": "recommend",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P031"
+      ],
+      "retrieved_doc_ids": [
+        "product:P031"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "家里老人量血压用什么产品？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P032"
+      ],
+      "retrieved_doc_ids": [
+        "product:P032",
+        "product:P003",
+        "product:P022"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "有没有20000mAh支持PD快充的充电宝？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P034"
+      ],
+      "retrieved_doc_ids": [
+        "product:P034",
+        "product:P039"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "有2K 100Hz的显示器吗？",
+      "intent": "product_qa",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P036"
+      ],
+      "retrieved_doc_ids": [
+        "product:P036",
+        "product:P039"
+      ],
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "rr": 1.0
+    },
+    {
+      "question": "保温杯和焖烧罐有什么区别？",
+      "intent": "compare",
+      "action": "caution",
+      "route_ok": true,
+      "action_ok": true,
+      "retrieval_ok": true,
+      "gold_doc_ids": [
+        "product:P006",
+        "product:P014"
+      ],
+      "retrieved_doc_ids": [
+        "product:P014",
+        "product:P002",
+        "product:P017",
+        "product:P006"
+      ],
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 1.0,
+      "rr": 1.0
+    }
+  ]
+}

@@ -4,4 +4,8 @@ __pycache__/
 logs/
 .streamlit/
 ecommerce_rag/index/
+ecommerce_rag/index_*/
+ecommerce_rag/data/amazon_products_*.jsonl
+ecommerce_rag/data/amazon_smoke_*.jsonl
+ecommerce_rag/data/amazon_smoke_*.stats.json
 *.log

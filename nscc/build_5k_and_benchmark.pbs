@@ -1,0 +1,37 @@
+#!/bin/bash
+#PBS -N erag-5k
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=1:mem=64gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o output_erag_5k.log
+set -euo pipefail
+cd /scratch/users/ntu/s250045/ecommerce-agentic-rag
+module load cuda/11.8.0
+source ~/miniforge3/etc/profile.d/conda.sh
+conda activate parkinson
+
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export TOKENIZERS_PARALLELISM=false
+
+# Dataset must be materialised on the internet-enabled login node first.
+if [ ! -s ecommerce_rag/data/amazon_products_5k.jsonl ]; then
+  echo "ERROR: amazon_products_5k.jsonl is missing. Run python -m scripts.build_amazon_5k on the login node first."
+  exit 1
+fi
+for n in 40 1000 5000; do
+  python -m scripts.slice_products --input ecommerce_rag/data/amazon_products_5k.jsonl --limit "${n}" --stratify-field amazon_category_config --output "ecommerce_rag/data/amazon_products_${n}.jsonl"
+  python -m ecommerce_rag.data_loader --products "ecommerce_rag/data/amazon_products_${n}.jsonl" --index-dir "ecommerce_rag/index_${n}"
+done
+python -m scripts.generate_retrieval_eval --products ecommerce_rag/data/amazon_products_40.jsonl --output ecommerce_rag/data/retrieval_eval_250.jsonl
+for n in 40 1000 5000; do python -m ecommerce_rag.benchmark --testset ecommerce_rag/data/retrieval_eval_250.jsonl --index "ecommerce_rag/index_${n}" --output "docs/retrieval_${n}.json"; done
+python -m ecommerce_rag.benchmark --testset ecommerce_rag/data/retrieval_eval_250.jsonl --index ecommerce_rag/index_5000 --constraints --output docs/retrieval_5000_constraints.json
+python -m ecommerce_rag.benchmark --testset ecommerce_rag/data/retrieval_eval_250.jsonl --index ecommerce_rag/index_5000 --constraints --reranker --output docs/retrieval_5000_constraints_reranker.json
+
+python -m scripts.generate_harness_tasks --db logs/harness_env.db --output ecommerce_rag/data/harness_tasks.jsonl --products ecommerce_rag/data/amazon_products_5k.jsonl
+python -m ecommerce_rag.harness run --tasks ecommerce_rag/data/harness_tasks.jsonl --db logs/harness_env.db --store logs/trajectories.db --index ecommerce_rag/index_5000 --repeats 5 --output docs/harness_nscc.json
+python -m ecommerce_rag.rl_gate --tasks ecommerce_rag/data/harness_tasks.jsonl --store logs/trajectories.db --output docs/agent_rl_gate_nscc.json
+python -m ecommerce_rag.evaluate --output docs/original_28_regression_nscc.json
+python -m unittest discover -s tests -v

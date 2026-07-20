@@ -1,0 +1,131 @@
+"""Public, serialisable contracts shared by tools and the agent harness."""
+
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass, field
+from typing import Any
+
+
+@dataclass(frozen=True)
+class CatalogRecord:
+    record_id: str
+    source_type: str
+    title: str
+    text: str
+    category: str = ""
+    product_id: str | None = None
+    price: float | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class TaskSpec:
+    task_id: str
+    category: str
+    user_id: str
+    user_goal: str
+    seed: int
+    gold_doc_ids: list[str] = field(default_factory=list)
+    allowed_tools: list[str] = field(default_factory=list)
+    forbidden_tools: list[str] = field(default_factory=list)
+    expected_state: dict[str, Any] = field(default_factory=dict)
+    initial_state: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    split: str = "smoke"
+
+
+@dataclass(frozen=True)
+class AgentObservation:
+    """The complete policy-visible state.
+
+    Gold documents, expected tools, terminal state and task category deliberately
+    live only on :class:`TaskSpec` and must never be copied here.
+    """
+
+    current_message: str
+    session: dict[str, Any]
+    history: list[dict[str, Any]] = field(default_factory=list)
+    tool_schemas: list[dict[str, Any]] = field(default_factory=list)
+    step: int = 0
+
+
+@dataclass(frozen=True)
+class AgentAction:
+    action_type: str  # tool_call | final_answer | handoff
+    tool_name: str | None = None
+    arguments: dict[str, Any] = field(default_factory=dict)
+    content: str = ""
+    requires_user_response: bool = False
+
+    @classmethod
+    def tool_call(cls, name: str, **arguments: Any) -> "AgentAction":
+        return cls("tool_call", tool_name=name, arguments=arguments)
+
+    @classmethod
+    def answer(cls, content: str, *, requires_user_response: bool = False) -> "AgentAction":
+        return cls("final_answer", content=content, requires_user_response=requires_user_response)
+
+    @classmethod
+    def handoff(cls, reason: str, **arguments: Any) -> "AgentAction":
+        return cls("handoff", arguments={"reason": reason, **arguments})
+
+
+@dataclass
+class ToolCall:
+    name: str
+    arguments: dict[str, Any]
+    call_id: str
+    result: dict[str, Any]
+    started_at: str
+    latency_ms: float = 0.0
+    error: str | None = None
+
+
+@dataclass
+class Trajectory:
+    trajectory_id: str
+    task_id: str
+    seed: int
+    messages: list[dict[str, str]] = field(default_factory=list)
+    retrievals: list[dict[str, Any]] = field(default_factory=list)
+    model_calls: list[dict[str, Any]] = field(default_factory=list)
+    tool_calls: list[ToolCall] = field(default_factory=list)
+    guardrail_spans: list[dict[str, Any]] = field(default_factory=list)
+    handoff_spans: list[dict[str, Any]] = field(default_factory=list)
+    final_answer: str = ""
+    final_state: dict[str, Any] = field(default_factory=dict)
+    elapsed_ms: float = 0.0
+    estimated_cost: float = 0.0
+    observations: list[dict[str, Any]] = field(default_factory=list)
+    actions: list[dict[str, Any]] = field(default_factory=list)
+    retry_spans: list[dict[str, Any]] = field(default_factory=list)
+    user_simulator_spans: list[dict[str, Any]] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class GradeResult:
+    task_id: str
+    success: bool
+    policy_compliant: bool
+    tool_precision: float
+    tool_recall: float
+    tool_f1: float
+    handoff_expected: bool
+    handoff_observed: bool
+    terminal_state_match: bool
+    state_diff: dict[str, Any]
+    turns: int
+    latency_ms: float
+    reward: float
+    failure_type: str | None = None
+    split: str = "smoke"
+    abstention_expected: bool = False
+    abstention_observed: bool = False
+    recovered: bool = False
+    leakage_checked: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)

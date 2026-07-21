@@ -7,20 +7,37 @@
 #PBS -j oe
 #PBS -o output_erag_5k.log
 set -euo pipefail
-cd /scratch/users/ntu/s250045/ecommerce-agentic-rag
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
 module load cuda/11.8.0
-source ~/miniforge3/etc/profile.d/conda.sh
-conda activate parkinson
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
 
+export HF_HOME=/scratch/users/ntu/s250045/cache/huggingface-ecommerce
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 export TOKENIZERS_PARALLELISM=false
+export ERAG_EMBED_MODEL=/scratch/users/ntu/s250045/cache/huggingface-ecommerce/hub/models--sentence-transformers--paraphrase-multilingual-MiniLM-L12-v2/snapshots/e8f8c211226b894fcb81acc59f3b34ba3efd5f42
+export ERAG_RERANKER_MODEL=/scratch/users/ntu/s250045/cache/huggingface-ecommerce/hub/models--BAAI--bge-reranker-base/snapshots/2cfc18c9415c912f9d8155881c133215df768a70
 
-# Dataset must be materialised on the internet-enabled login node first.
-if [ ! -s ecommerce_rag/data/amazon_products_5k.jsonl ]; then
-  echo "ERROR: amazon_products_5k.jsonl is missing. Run python -m scripts.build_amazon_5k on the login node first."
+echo "Working directory: $(pwd)"
+echo "Python: $(which python)"
+echo "Embed model: $ERAG_EMBED_MODEL"
+echo "Reranker: $ERAG_RERANKER_MODEL"
+
+# Dataset is uploaded/materialised on the login node before submission.
+DATASET=ecommerce_rag/data/amazon_products_5k.jsonl
+EXPECTED_SHA256=87e0f8a63a314d550dd6e68fa36ee8ae0cca492d037419215a5c9a702018c6a1
+if [ ! -s "$DATASET" ]; then
+  echo "ERROR: $DATASET is missing. Upload it before submitting this job."
   exit 1
 fi
+ACTUAL_LINES=$(wc -l < "$DATASET")
+ACTUAL_SHA256=$(sha256sum "$DATASET" | awk '{print $1}')
+if [ "$ACTUAL_LINES" -ne 5000 ] || [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+  echo "ERROR: dataset validation failed: lines=$ACTUAL_LINES sha256=$ACTUAL_SHA256"
+  exit 1
+fi
+echo "Dataset validated: lines=$ACTUAL_LINES sha256=$ACTUAL_SHA256"
 for n in 40 1000 5000; do
   python -m scripts.slice_products --input ecommerce_rag/data/amazon_products_5k.jsonl --limit "${n}" --stratify-field amazon_category_config --output "ecommerce_rag/data/amazon_products_${n}.jsonl"
   python -m ecommerce_rag.data_loader --products "ecommerce_rag/data/amazon_products_${n}.jsonl" --index-dir "ecommerce_rag/index_${n}"

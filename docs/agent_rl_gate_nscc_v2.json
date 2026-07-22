@@ -1,0 +1,21 @@
+{
+  "eligible": false,
+  "checks": {
+    "hidden_tasks_at_least_120": true,
+    "policy_input_isolated": false,
+    "deterministic_graders": false,
+    "real_llm_trajectories_at_least_360": false,
+    "human_audit_at_least_40": false,
+    "human_reward_agreement_at_least_90pct": false,
+    "preference_pairs_at_least_200": false,
+    "base_llm_success_below_95pct": false
+  },
+  "task_count": 120,
+  "all_trajectory_count": 180,
+  "real_llm_trajectory_count": 0,
+  "base_llm_success": null,
+  "preference_pairs": 0,
+  "human_audit_rows": 0,
+  "human_reward_agreement": null,
+  "decision": "stop at RL-ready harness; do not claim Agent RL"
+}

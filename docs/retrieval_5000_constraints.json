@@ -1,29 +1,48 @@
 {
   "summary": {
-    "recall@1": 0.95,
+    "recall@1": 0.9542,
     "recall@3": 0.9792,
-    "recall@5": 0.9792,
-    "mrr": 0.975,
-    "ndcg@5": 0.9761,
+    "recall@5": 0.9917,
+    "mrr": 0.9798,
+    "ndcg@5": 0.9826,
     "queries": 250,
-    "latency_p50_ms": 648.65,
-    "latency_p95_ms": 1060.04,
-    "index_load_ms": 23033.86,
-    "index_size_bytes": 106109038,
+    "answerable_queries": 240,
+    "no_answer_queries": 10,
+    "no_answer_accuracy": 0.0,
+    "false_positive_rate": 1.0,
+    "latency_p50_ms": 66.72,
+    "latency_p95_ms": 108.37,
+    "no_answer_threshold": null,
+    "latency_breakdown_p50_ms": {
+      "dense_ms": 11.0,
+      "bm25_ms": 55.47,
+      "fusion_filter_ms": 0.07,
+      "rerank_ms": 0.0,
+      "total_ms": 66.7
+    },
+    "dense_backend": "faiss_indexflatip",
+    "index_load_ms": 10392.68,
+    "index_size_bytes": 185524164,
     "configuration": {
       "constraints": true,
-      "reranker": false
+      "reranker": false,
+      "split": null
     }
   },
   "details": [
     {
       "id": "auto_001",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00016",
         "product:P00351",
         "product:P01336",
+        "product:P02250",
         "product:P02399"
       ],
+      "top_dense_sim": 0.8935741186141968,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -32,13 +51,17 @@
     },
     {
       "id": "auto_002",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00016",
-        "product:P01031",
         "product:P00399",
         "product:P01145",
-        "product:P01828"
+        "product:P01031",
+        "product:P01980"
       ],
+      "top_dense_sim": 0.8221056461334229,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -47,13 +70,17 @@
     },
     {
       "id": "auto_003",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00016",
         "product:P00351",
+        "product:P02399",
         "product:P01000",
-        "product:P02042",
-        "product:P01096"
+        "product:P02042"
       ],
+      "top_dense_sim": 0.9757625460624695,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -62,13 +89,17 @@
     },
     {
       "id": "auto_004",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00016",
-        "product:P02456",
-        "product:P02250",
         "product:P01336",
-        "product:P00351"
+        "product:P00351",
+        "product:P02456",
+        "product:P02250"
       ],
+      "top_dense_sim": 0.9690811634063721,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -77,13 +108,17 @@
     },
     {
       "id": "auto_005",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00016",
         "product:P01336",
         "product:P02399",
-        "product:P00073",
-        "product:P02250"
+        "product:P02250",
+        "product:P00073"
       ],
+      "top_dense_sim": 0.965023398399353,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -92,13 +127,17 @@
     },
     {
       "id": "auto_006",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02512",
         "product:P04758",
+        "product:P03962",
         "product:P04700",
-        "product:P04827",
-        "product:P02613"
+        "product:P03358"
       ],
+      "top_dense_sim": 0.9319467544555664,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -107,13 +146,17 @@
     },
     {
       "id": "auto_007",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02512",
         "product:P04758",
+        "product:P04126",
         "product:P04827",
-        "product:P03591",
-        "product:P03813"
+        "product:P02676"
       ],
+      "top_dense_sim": 0.9609951972961426,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -122,13 +165,17 @@
     },
     {
       "id": "auto_008",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02512",
         "product:P04758",
+        "product:P04651",
         "product:P04827",
-        "product:P03591",
-        "product:P03813"
+        "product:P04126"
       ],
+      "top_dense_sim": 0.9613050222396851,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -137,13 +184,17 @@
     },
     {
       "id": "auto_009",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02512",
         "product:P04758",
         "product:P04126",
         "product:P03813",
-        "product:P04827"
+        "product:P04651"
       ],
+      "top_dense_sim": 0.9678428769111633,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -152,13 +203,17 @@
     },
     {
       "id": "auto_010",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02512",
         "product:P04758",
+        "product:P04651",
         "product:P04827",
-        "product:P03813",
-        "product:P04700"
+        "product:P04126"
       ],
+      "top_dense_sim": 0.9657177925109863,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -167,11 +222,16 @@
     },
     {
       "id": "auto_011",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02513",
         "product:P04635",
-        "product:P03485"
+        "product:P03485",
+        "product:P04337"
       ],
+      "top_dense_sim": 0.8793171644210815,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -180,11 +240,16 @@
     },
     {
       "id": "auto_012",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02513",
         "product:P04635",
-        "product:P03485"
+        "product:P03485",
+        "product:P04337"
       ],
+      "top_dense_sim": 0.9530986547470093,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -193,12 +258,16 @@
     },
     {
       "id": "auto_013",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02513",
         "product:P04635",
         "product:P03485",
         "product:P04337"
       ],
+      "top_dense_sim": 0.9216612577438354,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -207,12 +276,17 @@
     },
     {
       "id": "auto_014",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02513",
         "product:P04635",
+        "product:P04337",
         "product:P03485",
-        "product:P04337"
+        "product:P02665"
       ],
+      "top_dense_sim": 0.9712362289428711,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -221,12 +295,16 @@
     },
     {
       "id": "auto_015",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02513",
         "product:P04635",
         "product:P03485",
         "product:P04337"
       ],
+      "top_dense_sim": 0.9730703234672546,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -235,6 +313,8 @@
     },
     {
       "id": "auto_016",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00015",
         "product:P01352",
@@ -242,6 +322,8 @@
         "product:P01107",
         "product:P00039"
       ],
+      "top_dense_sim": 0.768714427947998,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -250,13 +332,17 @@
     },
     {
       "id": "auto_017",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00015",
         "product:P01591",
         "product:P00199",
         "product:P00495",
-        "product:P01598"
+        "product:P01140"
       ],
+      "top_dense_sim": 0.9601795673370361,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -265,13 +351,17 @@
     },
     {
       "id": "auto_018",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00015",
-        "product:P00199",
         "product:P01591",
-        "product:P02453",
-        "product:P01352"
+        "product:P00199",
+        "product:P01748",
+        "product:P02453"
       ],
+      "top_dense_sim": 0.9799462556838989,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -280,13 +370,17 @@
     },
     {
       "id": "auto_019",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00015",
         "product:P01591",
         "product:P01140",
-        "product:P02154",
-        "product:P01352"
+        "product:P01352",
+        "product:P01515"
       ],
+      "top_dense_sim": 0.956375002861023,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -295,13 +389,17 @@
     },
     {
       "id": "auto_020",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00015",
         "product:P01591",
-        "product:P01352",
         "product:P00199",
+        "product:P01352",
         "product:P01140"
       ],
+      "top_dense_sim": 0.8970161080360413,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -310,13 +408,17 @@
     },
     {
       "id": "auto_021",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02508",
-        "product:P02988",
         "product:P04753",
-        "product:P04161",
-        "product:P00467"
+        "product:P02988",
+        "product:P03058",
+        "product:P04161"
       ],
+      "top_dense_sim": 0.9547423124313354,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -325,13 +427,17 @@
     },
     {
       "id": "auto_022",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02508",
-        "product:P04161",
         "product:P04753",
-        "product:P04852",
-        "product:P02514"
+        "product:P04161",
+        "product:P04355",
+        "product:P04852"
       ],
+      "top_dense_sim": 0.9349108934402466,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -340,13 +446,17 @@
     },
     {
       "id": "auto_023",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02508",
-        "product:P04161",
         "product:P04753",
-        "product:P04249",
-        "product:P03827"
+        "product:P04161",
+        "product:P03058",
+        "product:P04249"
       ],
+      "top_dense_sim": 0.9813840985298157,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -355,13 +465,17 @@
     },
     {
       "id": "auto_024",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02508",
         "product:P04745",
-        "product:P04161",
         "product:P04698",
+        "product:P04161",
         "product:P02826"
       ],
+      "top_dense_sim": 0.900955855846405,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -370,13 +484,17 @@
     },
     {
       "id": "auto_025",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02508",
-        "product:P04161",
         "product:P04753",
-        "product:P04852",
-        "product:P02984"
+        "product:P04161",
+        "product:P04355",
+        "product:P04852"
       ],
+      "top_dense_sim": 0.9454541206359863,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -385,11 +503,16 @@
     },
     {
       "id": "auto_026",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02504",
         "product:P02677",
-        "product:P04128"
+        "product:P04115",
+        "product:P03908"
       ],
+      "top_dense_sim": 0.9195559024810791,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -398,11 +521,17 @@
     },
     {
       "id": "auto_027",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02504",
         "product:P02677",
-        "product:P04128"
+        "product:P04115",
+        "product:P04935",
+        "product:P04504"
       ],
+      "top_dense_sim": 0.9252147674560547,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -411,13 +540,17 @@
     },
     {
       "id": "auto_028",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02504",
         "product:P02677",
         "product:P03240",
-        "product:P04128",
-        "product:P03834"
+        "product:P04504",
+        "product:P04115"
       ],
+      "top_dense_sim": 0.9649643898010254,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -426,12 +559,17 @@
     },
     {
       "id": "auto_029",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02504",
         "product:P02677",
         "product:P04652",
+        "product:P00658",
         "product:P04814"
       ],
+      "top_dense_sim": 0.9340883493423462,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -440,12 +578,16 @@
     },
     {
       "id": "auto_030",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02504",
         "product:P04115",
         "product:P02677",
         "product:P03908"
       ],
+      "top_dense_sim": 0.9567904472351074,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -454,13 +596,17 @@
     },
     {
       "id": "auto_031",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02516",
         "product:P04060",
-        "product:P03476",
+        "product:P03212",
         "product:P02953",
         "product:P04079"
       ],
+      "top_dense_sim": 0.8514673709869385,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -469,13 +615,17 @@
     },
     {
       "id": "auto_032",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02516",
-        "product:P03373",
         "product:P04065",
+        "product:P03373",
         "product:P02581",
-        "product:P03981"
+        "product:P03689"
       ],
+      "top_dense_sim": 0.9457279443740845,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -484,13 +634,17 @@
     },
     {
       "id": "auto_033",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02516",
-        "product:P03373",
         "product:P02581",
+        "product:P03373",
         "product:P03115",
         "product:P04065"
       ],
+      "top_dense_sim": 0.9730492830276489,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -499,11 +653,17 @@
     },
     {
       "id": "auto_034",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02516",
+        "product:P03960",
+        "product:P04065",
         "product:P03373",
-        "product:P04065"
+        "product:P03918"
       ],
+      "top_dense_sim": 0.9714059829711914,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -512,13 +672,17 @@
     },
     {
       "id": "auto_035",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02516",
+        "product:P03981",
         "product:P03373",
-        "product:P04065",
         "product:P03836",
-        "product:P02593"
+        "product:P02953"
       ],
+      "top_dense_sim": 0.96335768699646,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -527,13 +691,17 @@
     },
     {
       "id": "auto_036",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00008",
-        "product:P01205",
-        "product:P03758",
         "product:P00012",
-        "product:P01756"
+        "product:P01205",
+        "product:P02211",
+        "product:P03758"
       ],
+      "top_dense_sim": 0.9278671741485596,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -542,13 +710,17 @@
     },
     {
       "id": "auto_037",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00008",
+        "product:P00181",
         "product:P01756",
-        "product:P01796",
-        "policy:POL001",
-        "product:P00181"
+        "product:P04484",
+        "product:P00325"
       ],
+      "top_dense_sim": 0.9554676413536072,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -557,13 +729,17 @@
     },
     {
       "id": "auto_038",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00008",
-        "product:P01756",
-        "product:P00602",
         "product:P01677",
-        "policy:POL001"
+        "product:P01756",
+        "product:P04011",
+        "product:P01588"
       ],
+      "top_dense_sim": 0.9066283106803894,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -572,6 +748,8 @@
     },
     {
       "id": "auto_039",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00008",
         "product:P01955",
@@ -579,6 +757,8 @@
         "product:P01776",
         "product:P00723"
       ],
+      "top_dense_sim": 0.8080636262893677,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -587,13 +767,17 @@
     },
     {
       "id": "auto_040",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00008",
-        "product:P01756",
-        "policy:POL001",
         "policy:POL003",
-        "product:P01655"
+        "product:P01756",
+        "product:P01897",
+        "product:P01671"
       ],
+      "top_dense_sim": 0.9711674451828003,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -602,13 +786,17 @@
     },
     {
       "id": "auto_041",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02510",
         "product:P04885",
-        "product:P03531",
+        "product:P04670",
         "product:P04379",
-        "product:P04219"
+        "product:P03588"
       ],
+      "top_dense_sim": 0.8876506090164185,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -617,13 +805,17 @@
     },
     {
       "id": "auto_042",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02510",
         "product:P04885",
+        "product:P04670",
         "product:P02662",
-        "product:P03299",
-        "product:P02769"
+        "product:P03834"
       ],
+      "top_dense_sim": 0.915094256401062,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -632,13 +824,17 @@
     },
     {
       "id": "auto_043",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02510",
+        "product:P02847",
         "product:P02752",
-        "product:P03033",
-        "product:P03834",
-        "product:P02702"
+        "product:P04670",
+        "product:P03033"
       ],
+      "top_dense_sim": 0.9579988718032837,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -647,13 +843,17 @@
     },
     {
       "id": "auto_044",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02510",
+        "product:P03444",
         "product:P03506",
-        "product:P02702",
-        "product:P03277",
-        "product:P03444"
+        "product:P03130",
+        "product:P03277"
       ],
+      "top_dense_sim": 0.9593768119812012,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -662,13 +862,17 @@
     },
     {
       "id": "auto_045",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02510",
+        "product:P03444",
+        "product:P03130",
         "product:P03277",
-        "product:P02702",
-        "product:P03506",
-        "product:P03444"
+        "product:P02702"
       ],
+      "top_dense_sim": 0.9667549133300781,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -677,13 +881,17 @@
     },
     {
       "id": "auto_046",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00002",
+        "product:P02282",
         "product:P01155",
-        "product:P01082",
-        "product:P00708",
-        "product:P01684"
+        "policy:POL003",
+        "product:P01082"
       ],
+      "top_dense_sim": 0.8902942538261414,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -692,13 +900,17 @@
     },
     {
       "id": "auto_047",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00002",
+        "product:P00628",
+        "product:P01776",
         "product:P00236",
-        "product:P00001",
-        "product:P01763",
-        "product:P00039"
+        "product:P00129"
       ],
+      "top_dense_sim": 0.8649501800537109,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -707,13 +919,17 @@
     },
     {
       "id": "auto_048",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00002",
+        "product:P01323",
         "product:P01383",
-        "product:P00740",
-        "product:P00001",
-        "product:P02282"
+        "product:P00279",
+        "product:P00740"
       ],
+      "top_dense_sim": 0.8815520405769348,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -722,13 +938,17 @@
     },
     {
       "id": "auto_049",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00002",
+        "product:P00043",
         "product:P01383",
-        "product:P02302",
-        "product:P01356",
-        "product:P00043"
+        "policy:POL003",
+        "product:P02302"
       ],
+      "top_dense_sim": 0.8792262077331543,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -737,13 +957,17 @@
     },
     {
       "id": "auto_050",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00002",
+        "product:P03938",
         "product:P01383",
-        "product:P00410",
-        "product:P01356",
-        "product:P01763"
+        "policy:POL003",
+        "product:P00410"
       ],
+      "top_dense_sim": 0.9055788516998291,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -752,13 +976,17 @@
     },
     {
       "id": "auto_051",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02514",
+        "product:P04887",
         "product:P03404",
-        "product:P03923",
         "product:P02598",
-        "product:P04887"
+        "product:P03923"
       ],
+      "top_dense_sim": 0.9730138778686523,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -767,13 +995,17 @@
     },
     {
       "id": "auto_052",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02514",
-        "product:P03576",
         "product:P03962",
-        "product:P02598",
-        "product:P04161"
+        "product:P03576",
+        "product:P04760",
+        "product:P02598"
       ],
+      "top_dense_sim": 0.935263991355896,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -782,13 +1014,17 @@
     },
     {
       "id": "auto_053",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02514",
-        "product:P04161",
         "product:P03962",
-        "product:P04887",
-        "product:P04240"
+        "product:P04161",
+        "product:P04240",
+        "product:P04887"
       ],
+      "top_dense_sim": 0.9623439311981201,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -797,13 +1033,17 @@
     },
     {
       "id": "auto_054",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02514",
-        "product:P02598",
         "product:P02739",
-        "product:P04887",
-        "product:P02568"
+        "product:P02598",
+        "product:P02568",
+        "product:P04887"
       ],
+      "top_dense_sim": 0.9053546786308289,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -812,13 +1052,17 @@
     },
     {
       "id": "auto_055",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02514",
-        "product:P04887",
         "product:P04760",
+        "product:P04887",
         "product:P04240",
         "product:P04161"
       ],
+      "top_dense_sim": 0.9523879289627075,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -827,13 +1071,17 @@
     },
     {
       "id": "auto_056",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02505",
         "product:P02909",
         "product:P02884",
         "product:P04828",
-        "product:P03630"
+        "product:P04255"
       ],
+      "top_dense_sim": 0.9788622856140137,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -842,13 +1090,17 @@
     },
     {
       "id": "auto_057",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02505",
-        "product:P02884",
-        "product:P04255",
         "product:P02909",
-        "product:P04565"
+        "product:P04255",
+        "product:P04828",
+        "product:P02884"
       ],
+      "top_dense_sim": 0.9838573932647705,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -857,6 +1109,8 @@
     },
     {
       "id": "auto_058",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02505",
         "product:P02909",
@@ -864,6 +1118,8 @@
         "product:P04828",
         "product:P02884"
       ],
+      "top_dense_sim": 0.9803318977355957,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -872,13 +1128,17 @@
     },
     {
       "id": "auto_059",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02505",
-        "product:P04255",
         "product:P02909",
-        "product:P02884",
-        "product:P04828"
+        "product:P04255",
+        "product:P04828",
+        "product:P02884"
       ],
+      "top_dense_sim": 0.9793959856033325,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -887,13 +1147,17 @@
     },
     {
       "id": "auto_060",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02505",
-        "product:P04255",
         "product:P02909",
-        "product:P02884",
-        "product:P04828"
+        "product:P04255",
+        "product:P04828",
+        "product:P02884"
       ],
+      "top_dense_sim": 0.9828174114227295,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -902,13 +1166,17 @@
     },
     {
       "id": "auto_061",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00014",
         "product:P02084",
         "product:P00426",
-        "product:P00106",
-        "product:P02330"
+        "product:P00753",
+        "product:P00106"
       ],
+      "top_dense_sim": 0.9315391778945923,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -917,28 +1185,36 @@
     },
     {
       "id": "auto_062",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00039",
-        "product:P02332",
+        "product:P00014",
         "product:P00862",
-        "product:P00902",
-        "product:P00778"
+        "product:P02332",
+        "product:P00778",
+        "product:P02026"
       ],
-      "recall@1": 0.0,
-      "recall@3": 0.0,
-      "recall@5": 0.0,
-      "mrr": 0.0,
-      "ndcg@5": 0.0
+      "top_dense_sim": 0.7860050201416016,
+      "predicted_abstain": false,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "ndcg@5": 1.0
     },
     {
       "id": "auto_063",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00014",
         "product:P02084",
-        "product:P02330",
-        "product:P00799",
-        "product:P01201"
+        "product:P00426",
+        "product:P00044",
+        "product:P02330"
       ],
+      "top_dense_sim": 0.977872371673584,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -947,13 +1223,17 @@
     },
     {
       "id": "auto_064",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00014",
         "product:P02330",
         "product:P00426",
-        "product:P02084",
-        "product:P01849"
+        "product:P01849",
+        "product:P02084"
       ],
+      "top_dense_sim": 0.9248995780944824,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -962,6 +1242,8 @@
     },
     {
       "id": "auto_065",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00014",
         "product:P02330",
@@ -969,6 +1251,8 @@
         "product:P02084",
         "product:P00753"
       ],
+      "top_dense_sim": 0.9807685613632202,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -977,13 +1261,17 @@
     },
     {
       "id": "auto_066",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02518",
         "product:P04915",
-        "product:P04551",
-        "product:P03087",
-        "product:P03238"
+        "product:P04631",
+        "product:P04105",
+        "product:P04551"
       ],
+      "top_dense_sim": 0.9092061519622803,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -992,13 +1280,17 @@
     },
     {
       "id": "auto_067",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02518",
         "product:P04915",
-        "product:P03179",
-        "product:P03087",
-        "product:P04025"
+        "product:P03241",
+        "product:P04025",
+        "product:P04080"
       ],
+      "top_dense_sim": 0.955104410648346,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1007,13 +1299,17 @@
     },
     {
       "id": "auto_068",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02518",
         "product:P04915",
         "product:P03241",
-        "product:P04025",
-        "product:P03087"
+        "product:P03087",
+        "product:P03410"
       ],
+      "top_dense_sim": 0.9620214700698853,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1022,13 +1318,17 @@
     },
     {
       "id": "auto_069",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02518",
         "product:P04915",
-        "product:P03241",
         "product:P03087",
-        "product:P04080"
+        "product:P03241",
+        "product:P03099"
       ],
+      "top_dense_sim": 0.9685914516448975,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1037,13 +1337,17 @@
     },
     {
       "id": "auto_070",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02518",
         "product:P04915",
-        "product:P04025",
+        "product:P03229",
         "product:P03087",
-        "product:P03437"
+        "product:P04601"
       ],
+      "top_dense_sim": 0.9524803161621094,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1052,13 +1356,17 @@
     },
     {
       "id": "auto_071",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00017",
-        "product:P02208",
-        "product:P01590",
         "product:P01568",
+        "product:P01590",
+        "product:P02208",
         "product:P00453"
       ],
+      "top_dense_sim": 0.9779834747314453,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1067,6 +1375,8 @@
     },
     {
       "id": "auto_072",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00017",
         "product:P01568",
@@ -1074,6 +1384,8 @@
         "product:P02493",
         "product:P00733"
       ],
+      "top_dense_sim": 0.9762165546417236,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1082,13 +1394,17 @@
     },
     {
       "id": "auto_073",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00017",
+        "product:P00635",
         "product:P01568",
         "product:P01819",
-        "product:P00635",
-        "product:P00824"
+        "product:P02208"
       ],
+      "top_dense_sim": 0.9526102542877197,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1097,12 +1413,17 @@
     },
     {
       "id": "auto_074",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00017",
         "product:P01568",
         "product:P00453",
-        "product:P02111"
+        "product:P02111",
+        "product:P02208"
       ],
+      "top_dense_sim": 0.9716188907623291,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1111,6 +1432,8 @@
     },
     {
       "id": "auto_075",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00017",
         "product:P01568",
@@ -1118,6 +1441,8 @@
         "product:P01229",
         "product:P00733"
       ],
+      "top_dense_sim": 0.974331259727478,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1126,6 +1451,8 @@
     },
     {
       "id": "auto_076",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02502",
         "product:P04986",
@@ -1133,6 +1460,8 @@
         "product:P02539",
         "product:P03258"
       ],
+      "top_dense_sim": 0.9700255393981934,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1141,6 +1470,8 @@
     },
     {
       "id": "auto_077",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02502",
         "product:P04941",
@@ -1148,6 +1479,8 @@
         "product:P04986",
         "product:P03431"
       ],
+      "top_dense_sim": 0.9445743560791016,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1156,12 +1489,17 @@
     },
     {
       "id": "auto_078",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02502",
         "product:P04941",
         "product:P03973",
-        "product:P04986"
+        "product:P04986",
+        "product:P03202"
       ],
+      "top_dense_sim": 0.9652172327041626,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1170,6 +1508,8 @@
     },
     {
       "id": "auto_079",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02502",
         "product:P04941",
@@ -1177,6 +1517,8 @@
         "product:P04986",
         "product:P03835"
       ],
+      "top_dense_sim": 0.9644474983215332,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1185,13 +1527,17 @@
     },
     {
       "id": "auto_080",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02502",
         "product:P04941",
-        "product:P04986",
+        "product:P03493",
         "product:P03973",
-        "product:P03493"
+        "product:P03394"
       ],
+      "top_dense_sim": 0.8838025331497192,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1200,13 +1546,17 @@
     },
     {
       "id": "auto_081",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00013",
         "product:P02147",
-        "product:P02405",
         "product:P00519",
-        "product:P01482"
+        "product:P01482",
+        "product:P01283"
       ],
+      "top_dense_sim": 0.9655609130859375,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1215,13 +1565,17 @@
     },
     {
       "id": "auto_082",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00270",
-        "product:P02405",
+        "product:P00519",
         "product:P02147",
-        "product:P00814"
+        "product:P02405",
+        "product:P00270"
       ],
+      "top_dense_sim": 0.9349488615989685,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1230,13 +1584,17 @@
     },
     {
       "id": "auto_083",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00270",
+        "product:P00519",
+        "product:P02147",
         "product:P02405",
-        "product:P00252",
-        "product:P00519"
+        "product:P00270"
       ],
+      "top_dense_sim": 0.9727200269699097,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1245,13 +1603,17 @@
     },
     {
       "id": "auto_084",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00013",
         "product:P02147",
-        "product:P02405",
         "product:P01283",
+        "product:P00814",
         "product:P01482"
       ],
+      "top_dense_sim": 0.874732255935669,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1260,13 +1622,17 @@
     },
     {
       "id": "auto_085",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00270",
-        "product:P02405",
+        "product:P00519",
         "product:P02147",
-        "product:P00252"
+        "product:P02405",
+        "product:P00270"
       ],
+      "top_dense_sim": 0.9775842428207397,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1275,13 +1641,17 @@
     },
     {
       "id": "auto_086",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02517",
         "product:P03304",
-        "product:P03321",
+        "product:P03181",
         "product:P03786",
-        "product:P04458"
+        "product:P03321"
       ],
+      "top_dense_sim": 0.7745165824890137,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1290,13 +1660,17 @@
     },
     {
       "id": "auto_087",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02517",
         "product:P03495",
         "product:P03181",
         "product:P03321",
-        "product:P04061"
+        "product:P04503"
       ],
+      "top_dense_sim": 0.8803009986877441,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1305,13 +1679,17 @@
     },
     {
       "id": "auto_088",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02517",
         "product:P03495",
+        "product:P03181",
         "product:P03321",
-        "product:P04503",
-        "product:P04061"
+        "product:P03304"
       ],
+      "top_dense_sim": 0.8206695318222046,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1320,12 +1698,17 @@
     },
     {
       "id": "auto_089",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02517",
         "product:P03495",
+        "product:P04503",
         "product:P04061",
-        "product:P04503"
+        "product:P03181"
       ],
+      "top_dense_sim": 0.8836997747421265,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1334,12 +1717,17 @@
     },
     {
       "id": "auto_090",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02517",
-        "product:P03495",
         "product:P04061",
-        "product:P04503"
+        "product:P03495",
+        "product:P04946",
+        "product:P03181"
       ],
+      "top_dense_sim": 0.8706294298171997,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1348,13 +1736,17 @@
     },
     {
       "id": "auto_091",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02507",
-        "product:P04903",
         "product:P03388",
-        "product:P02893",
+        "product:P04903",
+        "product:P02676",
         "product:P03839"
       ],
+      "top_dense_sim": 0.85426265001297,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1363,13 +1755,17 @@
     },
     {
       "id": "auto_092",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02507",
-        "product:P03650",
+        "product:P03443",
         "product:P04285",
-        "product:P03023",
-        "product:P03125"
+        "product:P03650",
+        "product:P04811"
       ],
+      "top_dense_sim": 0.7814141511917114,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1378,13 +1774,17 @@
     },
     {
       "id": "auto_093",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02507",
+        "product:P03388",
         "product:P03447",
-        "product:P03023",
-        "product:P04761",
-        "product:P02893"
+        "product:P02855",
+        "product:P04761"
       ],
+      "top_dense_sim": 0.7713948488235474,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1393,12 +1793,17 @@
     },
     {
       "id": "auto_094",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02507",
         "product:P03388",
-        "product:P02893",
-        "product:P04761"
+        "product:P02855",
+        "product:P04761",
+        "product:P03074"
       ],
+      "top_dense_sim": 0.9308488368988037,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1407,12 +1812,17 @@
     },
     {
       "id": "auto_095",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02507",
         "product:P03388",
-        "product:P02893",
-        "product:P04538"
+        "product:P04811",
+        "product:P03074",
+        "product:P02855"
       ],
+      "top_dense_sim": 0.9019373059272766,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1421,13 +1831,17 @@
     },
     {
       "id": "auto_096",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00009",
         "product:P01145",
         "product:P02026",
-        "product:P02324",
-        "product:P01980"
+        "product:P01980",
+        "product:P02324"
       ],
+      "top_dense_sim": 0.7486239671707153,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1436,13 +1850,17 @@
     },
     {
       "id": "auto_097",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00009",
         "product:P00337",
         "product:P01194",
-        "product:P00445",
-        "product:P01104"
+        "product:P01502",
+        "product:P00445"
       ],
+      "top_dense_sim": 0.9315317869186401,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1451,13 +1869,17 @@
     },
     {
       "id": "auto_098",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00009",
         "product:P00337",
         "product:P01194",
-        "product:P00445",
-        "product:P01104"
+        "product:P01502",
+        "product:P00445"
       ],
+      "top_dense_sim": 0.9315317869186401,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1466,13 +1888,17 @@
     },
     {
       "id": "auto_099",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00009",
         "product:P00337",
+        "product:P01502",
         "product:P00445",
-        "product:P00107",
-        "product:P01502"
+        "product:P00727"
       ],
+      "top_dense_sim": 0.9471311569213867,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1481,12 +1907,17 @@
     },
     {
       "id": "auto_100",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00009",
-        "product:P00337",
+        "product:P01502",
         "product:P00062",
-        "product:P01502"
+        "product:P00727",
+        "product:P00337"
       ],
+      "top_dense_sim": 0.9323816299438477,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1495,28 +1926,36 @@
     },
     {
       "id": "auto_101",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P01479",
-        "product:P01352",
-        "product:P00759",
         "product:P01097",
-        "product:P00039"
+        "product:P00759",
+        "product:P01352",
+        "product:P00018"
       ],
+      "top_dense_sim": 0.7315430641174316,
+      "predicted_abstain": false,
       "recall@1": 0.0,
       "recall@3": 0.0,
-      "recall@5": 0.0,
-      "mrr": 0.0,
-      "ndcg@5": 0.0
+      "recall@5": 1.0,
+      "mrr": 0.2,
+      "ndcg@5": 0.38685280723454163
     },
     {
       "id": "auto_102",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00018",
         "product:P02216",
         "product:P01250",
-        "product:P00467",
+        "product:P01190",
         "product:P00141"
       ],
+      "top_dense_sim": 0.8786060810089111,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1525,13 +1964,17 @@
     },
     {
       "id": "auto_103",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00018",
         "product:P00197",
         "product:P00590",
         "product:P00467",
-        "product:P01927"
+        "product:P00141"
       ],
+      "top_dense_sim": 0.8652586936950684,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1540,13 +1983,17 @@
     },
     {
       "id": "auto_104",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00018",
-        "product:P00197",
         "product:P02092",
-        "product:P01379",
-        "product:P00590"
+        "product:P00197",
+        "product:P00590",
+        "product:P01379"
       ],
+      "top_dense_sim": 0.9504628777503967,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1555,13 +2002,17 @@
     },
     {
       "id": "auto_105",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00018",
-        "product:P00141",
+        "product:P00197",
         "product:P02092",
-        "product:P02216",
-        "product:P00197"
+        "product:P00141",
+        "product:P00590"
       ],
+      "top_dense_sim": 0.9464613199234009,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1570,6 +2021,8 @@
     },
     {
       "id": "auto_106",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00012",
         "product:P01655",
@@ -1577,6 +2030,8 @@
         "product:P01191",
         "product:P00224"
       ],
+      "top_dense_sim": 0.9334295988082886,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1585,13 +2040,17 @@
     },
     {
       "id": "auto_107",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00012",
         "product:P00039",
-        "product:P00005",
         "product:P02324",
-        "product:P00399"
+        "product:P00399",
+        "product:P01708"
       ],
+      "top_dense_sim": 0.7419277429580688,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1600,13 +2059,17 @@
     },
     {
       "id": "auto_108",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00012",
-        "product:P01191",
         "product:P01655",
+        "product:P00229",
         "product:P00548",
         "product:P00063"
       ],
+      "top_dense_sim": 0.9764156341552734,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1615,13 +2078,17 @@
     },
     {
       "id": "auto_109",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00012",
         "product:P01191",
-        "product:P02472",
         "product:P01655",
-        "product:P00224"
+        "product:P02472",
+        "product:P01649"
       ],
+      "top_dense_sim": 0.9774675369262695,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1630,13 +2097,17 @@
     },
     {
       "id": "auto_110",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00012",
-        "product:P00644",
         "product:P01655",
-        "product:P01914",
-        "product:P00948"
+        "product:P00644",
+        "product:P00260",
+        "product:P01914"
       ],
+      "top_dense_sim": 0.9788244962692261,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1645,13 +2116,17 @@
     },
     {
       "id": "auto_111",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00001",
         "product:P00039",
+        "product:P01165",
         "product:P00002",
-        "product:P01763",
-        "product:P02488"
+        "product:P01763"
       ],
+      "top_dense_sim": 0.8418223857879639,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1660,13 +2135,17 @@
     },
     {
       "id": "auto_112",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00001",
-        "product:P00002",
         "product:P00129",
-        "product:P00236",
-        "product:P00628"
+        "product:P00628",
+        "product:P01711",
+        "product:P01776"
       ],
+      "top_dense_sim": 0.8531603217124939,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1675,13 +2154,17 @@
     },
     {
       "id": "auto_113",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00001",
         "product:P04173",
-        "product:P04698",
+        "product:P04617",
         "product:P00575",
-        "product:P03834"
+        "product:P04698"
       ],
+      "top_dense_sim": 0.8954062461853027,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1690,13 +2173,17 @@
     },
     {
       "id": "auto_114",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00001",
+        "policy:POL003",
         "product:P01356",
         "policy:POL001",
-        "product:P00419",
-        "policy:POL003"
+        "product:P00419"
       ],
+      "top_dense_sim": 0.8796383738517761,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1705,13 +2192,17 @@
     },
     {
       "id": "auto_115",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02520",
         "product:P04995",
-        "product:P03286",
+        "product:P04793",
         "product:P03787",
-        "product:P03270"
+        "product:P04106"
       ],
+      "top_dense_sim": 0.8326966762542725,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1720,13 +2211,17 @@
     },
     {
       "id": "auto_116",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02520",
-        "product:P04895",
         "product:P04868",
-        "product:P02845",
-        "product:P04793"
+        "product:P04895",
+        "product:P04793",
+        "product:P02845"
       ],
+      "top_dense_sim": 0.8799649477005005,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1735,13 +2230,17 @@
     },
     {
       "id": "auto_117",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02520",
+        "product:P04793",
         "product:P03569",
         "product:P03423",
-        "product:P03772",
-        "product:P04793"
+        "product:P03772"
       ],
+      "top_dense_sim": 0.9082859754562378,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1750,13 +2249,17 @@
     },
     {
       "id": "auto_118",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02520",
+        "product:P04793",
         "product:P03569",
         "product:P02996",
-        "product:P03787",
-        "product:P04793"
+        "product:P03787"
       ],
+      "top_dense_sim": 0.9147650003433228,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1765,12 +2268,17 @@
     },
     {
       "id": "auto_119",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02520",
-        "product:P04892",
         "product:P04793",
+        "product:P04892",
+        "product:P02996",
         "product:P03349"
       ],
+      "top_dense_sim": 0.874574601650238,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1779,21 +2287,27 @@
     },
     {
       "id": "auto_120",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00280",
-        "product:P00011",
         "product:P00675",
-        "product:P01176",
+        "product:P00280",
+        "product:P00530",
+        "product:P00011",
         "product:P02120"
       ],
+      "top_dense_sim": 0.7289110422134399,
+      "predicted_abstain": false,
       "recall@1": 0.0,
-      "recall@3": 1.0,
+      "recall@3": 0.0,
       "recall@5": 1.0,
-      "mrr": 0.5,
-      "ndcg@5": 0.6309297535714575
+      "mrr": 0.25,
+      "ndcg@5": 0.43067655807339306
     },
     {
       "id": "auto_121",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00039",
         "product:P02324",
@@ -1801,6 +2315,8 @@
         "product:P01989",
         "product:P00005"
       ],
+      "top_dense_sim": 0.79768967628479,
+      "predicted_abstain": false,
       "recall@1": 0.0,
       "recall@3": 0.0,
       "recall@5": 0.0,
@@ -1809,13 +2325,17 @@
     },
     {
       "id": "auto_122",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00011",
-        "policy:POL001",
         "product:P01948",
         "product:P01728",
+        "product:P00335",
         "product:P01506"
       ],
+      "top_dense_sim": 0.8835325241088867,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1824,13 +2344,17 @@
     },
     {
       "id": "auto_123",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00011",
+        "product:P00688",
         "product:P04238",
-        "policy:POL001",
-        "product:P01684",
-        "product:P01577"
+        "product:P00926",
+        "product:P01684"
       ],
+      "top_dense_sim": 0.9089590311050415,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1839,13 +2363,17 @@
     },
     {
       "id": "auto_124",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P01676",
         "product:P00011",
-        "product:P01796",
         "product:P01153",
-        "product:P01828"
+        "product:P02363",
+        "product:P00022"
       ],
+      "top_dense_sim": 0.6342319250106812,
+      "predicted_abstain": false,
       "recall@1": 0.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1854,13 +2382,17 @@
     },
     {
       "id": "auto_125",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00003",
         "product:P00248",
         "product:P00049",
-        "product:P01043",
-        "product:P01408"
+        "product:P01408",
+        "product:P01043"
       ],
+      "top_dense_sim": 0.9469964504241943,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1869,13 +2401,17 @@
     },
     {
       "id": "auto_126",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00003",
-        "product:P00950",
         "product:P00895",
+        "product:P00950",
         "product:P00639",
-        "product:P02288"
+        "product:P00983"
       ],
+      "top_dense_sim": 0.8273822069168091,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1884,13 +2420,17 @@
     },
     {
       "id": "auto_127",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00003",
         "product:P02455",
-        "product:P00248",
+        "product:P01547",
         "product:P01043",
-        "product:P00049"
+        "product:P00062"
       ],
+      "top_dense_sim": 0.9293608069419861,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1899,13 +2439,17 @@
     },
     {
       "id": "auto_128",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00003",
-        "product:P01043",
         "product:P02455",
-        "product:P00798",
-        "product:P00248"
+        "product:P01547",
+        "product:P01043",
+        "product:P00798"
       ],
+      "top_dense_sim": 0.9835832715034485,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1914,13 +2458,17 @@
     },
     {
       "id": "auto_129",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00003",
         "product:P02455",
-        "product:P01043",
-        "product:P00248",
-        "product:P00798"
+        "product:P01547",
+        "product:P00062",
+        "product:P01043"
       ],
+      "top_dense_sim": 0.9879767894744873,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1929,6 +2477,8 @@
     },
     {
       "id": "auto_130",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00005",
         "product:P00039",
@@ -1936,6 +2486,8 @@
         "product:P02324",
         "product:P00909"
       ],
+      "top_dense_sim": 0.876833438873291,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1944,13 +2496,17 @@
     },
     {
       "id": "auto_131",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00005",
+        "product:P03544",
         "product:P02064",
-        "product:P01910",
-        "product:P00731",
-        "product:P00413"
+        "product:P00467",
+        "product:P01910"
       ],
+      "top_dense_sim": 0.8758692741394043,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1959,13 +2515,17 @@
     },
     {
       "id": "auto_132",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00005",
-        "product:P02023",
-        "product:P01796",
         "product:P01776",
-        "product:P00932"
+        "product:P02023",
+        "product:P00932",
+        "product:P01996"
       ],
+      "top_dense_sim": 0.9004707336425781,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1974,13 +2534,17 @@
     },
     {
       "id": "auto_133",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00005",
+        "product:P02417",
         "product:P02064",
-        "product:P00902",
-        "product:P00014",
-        "product:P00413"
+        "policy:POL003",
+        "product:P00902"
       ],
+      "top_dense_sim": 0.9185561537742615,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1989,13 +2553,17 @@
     },
     {
       "id": "auto_134",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00005",
         "product:P02064",
+        "product:P01914",
         "product:P01145",
-        "policy:POL001",
-        "product:P01914"
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9486222267150879,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2004,6 +2572,8 @@
     },
     {
       "id": "auto_135",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00004",
         "product:P02389",
@@ -2011,6 +2581,8 @@
         "product:P00967",
         "product:P02147"
       ],
+      "top_dense_sim": 0.9706083536148071,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2019,13 +2591,17 @@
     },
     {
       "id": "auto_136",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00004",
         "product:P02280",
-        "product:P02389",
         "product:P00033",
-        "product:P00519"
+        "product:P00519",
+        "product:P02389"
       ],
+      "top_dense_sim": 0.9835527539253235,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2034,11 +2610,17 @@
     },
     {
       "id": "auto_137",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00004",
         "product:P02280",
-        "product:P02389"
+        "product:P02389",
+        "product:P00967",
+        "product:P01560"
       ],
+      "top_dense_sim": 0.9757444262504578,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2047,6 +2629,8 @@
     },
     {
       "id": "auto_138",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00004",
         "product:P02280",
@@ -2054,6 +2638,8 @@
         "product:P00967",
         "product:P01560"
       ],
+      "top_dense_sim": 0.9694786071777344,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2062,12 +2648,17 @@
     },
     {
       "id": "auto_139",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02509",
         "product:P04597",
+        "product:P04313",
         "product:P03328",
-        "product:P04313"
+        "product:P03571"
       ],
+      "top_dense_sim": 0.9779092669487,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2076,12 +2667,17 @@
     },
     {
       "id": "auto_140",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02509",
         "product:P04597",
         "product:P03571",
-        "product:P04905"
+        "product:P04905",
+        "product:P02659"
       ],
+      "top_dense_sim": 0.9775474071502686,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2090,13 +2686,17 @@
     },
     {
       "id": "auto_141",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02509",
         "product:P04597",
-        "product:P04905",
         "product:P03328",
+        "product:P04905",
         "product:P04266"
       ],
+      "top_dense_sim": 0.9702199697494507,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2105,12 +2705,16 @@
     },
     {
       "id": "auto_142",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02509",
         "product:P04597",
         "product:P03328",
         "product:P04905"
       ],
+      "top_dense_sim": 0.9847691059112549,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2119,13 +2723,17 @@
     },
     {
       "id": "auto_143",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02509",
         "product:P04597",
-        "product:P04011",
         "product:P04615",
-        "product:P04746"
+        "product:P04313",
+        "product:P04618"
       ],
+      "top_dense_sim": 0.9736008644104004,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2134,13 +2742,17 @@
     },
     {
       "id": "auto_144",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00007",
-        "product:P00693",
         "product:P00185",
+        "product:P00693",
         "product:P00206",
-        "product:P00013"
+        "product:P00033"
       ],
+      "top_dense_sim": 0.9787548780441284,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2149,6 +2761,8 @@
     },
     {
       "id": "auto_145",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00007",
         "product:P00206",
@@ -2156,6 +2770,8 @@
         "product:P01792",
         "product:P00765"
       ],
+      "top_dense_sim": 0.9529578685760498,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2164,11 +2780,16 @@
     },
     {
       "id": "auto_146",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00007",
         "product:P00206",
-        "product:P00693"
+        "product:P00693",
+        "product:P02389"
       ],
+      "top_dense_sim": 0.9816096425056458,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2177,11 +2798,15 @@
     },
     {
       "id": "auto_147",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00007",
         "product:P00206",
-        "product:P00905"
+        "product:P00693"
       ],
+      "top_dense_sim": 0.9803764820098877,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2190,12 +2815,16 @@
     },
     {
       "id": "auto_148",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00007",
         "product:P00206",
-        "product:P02369",
-        "product:P00905"
+        "product:P00905",
+        "product:P02369"
       ],
+      "top_dense_sim": 0.9163704514503479,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2204,13 +2833,17 @@
     },
     {
       "id": "auto_149",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02515",
+        "product:P04563",
         "product:P02912",
-        "product:P03254",
-        "product:P04223",
-        "product:P03938"
+        "product:P02659",
+        "product:P03254"
       ],
+      "top_dense_sim": 0.7318373322486877,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2219,13 +2852,17 @@
     },
     {
       "id": "auto_150",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02515",
         "product:P02659",
+        "product:P04563",
         "product:P04157",
-        "product:P03447",
-        "product:P03031"
+        "product:P03447"
       ],
+      "top_dense_sim": 0.7419428825378418,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2234,13 +2871,17 @@
     },
     {
       "id": "auto_151",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02515",
-        "product:P03856",
         "product:P01720",
-        "product:P03666",
-        "product:P00934"
+        "product:P03856",
+        "product:P04455",
+        "product:P04309"
       ],
+      "top_dense_sim": 0.774142861366272,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2249,13 +2890,17 @@
     },
     {
       "id": "auto_152",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02515",
-        "product:P02912",
+        "product:P02659",
         "product:P04563",
-        "product:P04309",
-        "product:P03924"
+        "product:P02912",
+        "product:P02908"
       ],
+      "top_dense_sim": 0.8561352491378784,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2264,28 +2909,36 @@
     },
     {
       "id": "auto_153",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P04172",
         "product:P03002",
-        "product:P02683",
         "product:P03457",
-        "product:P02696"
+        "product:P02683",
+        "product:P02515"
       ],
+      "top_dense_sim": 0.7257136106491089,
+      "predicted_abstain": false,
       "recall@1": 0.0,
       "recall@3": 0.0,
-      "recall@5": 0.0,
-      "mrr": 0.0,
-      "ndcg@5": 0.0
+      "recall@5": 1.0,
+      "mrr": 0.2,
+      "ndcg@5": 0.38685280723454163
     },
     {
       "id": "auto_154",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02511",
         "product:P04137",
-        "product:P03646",
+        "product:P03423",
         "product:P03893",
-        "product:P02781"
+        "product:P02570"
       ],
+      "top_dense_sim": 0.9315667152404785,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2294,13 +2947,17 @@
     },
     {
       "id": "auto_155",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02511",
         "product:P04137",
-        "product:P04258",
         "product:P03186",
-        "product:P03436"
+        "product:P04258",
+        "product:P04004"
       ],
+      "top_dense_sim": 0.850292444229126,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2309,13 +2966,17 @@
     },
     {
       "id": "auto_156",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02511",
+        "product:P04604",
         "product:P04137",
         "product:P03893",
-        "product:P03434",
-        "product:P04258"
+        "product:P03434"
       ],
+      "top_dense_sim": 0.9086065888404846,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2324,13 +2985,17 @@
     },
     {
       "id": "auto_157",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02511",
         "product:P04137",
         "product:P04604",
-        "product:P03646",
-        "product:P04837"
+        "policy:POL003",
+        "product:P03548"
       ],
+      "top_dense_sim": 0.965591549873352,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2339,13 +3004,17 @@
     },
     {
       "id": "auto_158",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02511",
         "product:P04172",
-        "product:P03457",
-        "product:P03533",
-        "product:P02550"
+        "product:P03002",
+        "product:P02550",
+        "product:P03533"
       ],
+      "top_dense_sim": 0.8143376111984253,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2354,13 +3023,17 @@
     },
     {
       "id": "auto_159",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00006",
+        "product:P00887",
         "product:P01728",
-        "product:P00749",
-        "product:P00307",
-        "product:P00167"
+        "product:P02676",
+        "product:P00749"
       ],
+      "top_dense_sim": 0.9386436939239502,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2369,13 +3042,17 @@
     },
     {
       "id": "auto_160",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00006",
         "product:P00749",
         "product:P01832",
-        "product:P01892",
-        "product:P00887"
+        "product:P00887",
+        "product:P01892"
       ],
+      "top_dense_sim": 0.9441611766815186,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2384,13 +3061,17 @@
     },
     {
       "id": "auto_161",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00006",
+        "product:P02346",
+        "product:P00480",
         "product:P00749",
-        "product:P02281",
-        "product:P01892",
-        "product:P02040"
+        "product:P01444"
       ],
+      "top_dense_sim": 0.863473653793335,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2399,13 +3080,17 @@
     },
     {
       "id": "auto_162",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00006",
-        "product:P00001",
         "product:P00129",
-        "product:P01711",
-        "product:P01828"
+        "product:P01126",
+        "product:P01828",
+        "product:P01711"
       ],
+      "top_dense_sim": 0.7120874524116516,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2414,13 +3099,17 @@
     },
     {
       "id": "auto_163",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00006",
         "product:P02433",
+        "product:P02900",
         "product:P00749",
-        "product:P01709",
-        "product:P00414"
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.939803957939148,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2429,13 +3118,17 @@
     },
     {
       "id": "auto_164",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02501",
         "product:P03275",
-        "product:P03649",
-        "product:P03666",
-        "product:P04098"
+        "product:P04877",
+        "product:P04462",
+        "product:P03649"
       ],
+      "top_dense_sim": 0.9576638340950012,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2444,13 +3137,17 @@
     },
     {
       "id": "auto_165",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02501",
+        "product:P03916",
         "product:P03237",
         "product:P03507",
-        "product:P03275",
-        "product:P03649"
+        "product:P03275"
       ],
+      "top_dense_sim": 0.9694140553474426,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2459,13 +3156,17 @@
     },
     {
       "id": "auto_166",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02501",
-        "product:P03275",
-        "product:P03507",
         "product:P03916",
+        "product:P03275",
+        "product:P04768",
         "product:P02622"
       ],
+      "top_dense_sim": 0.9663327932357788,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2474,13 +3175,17 @@
     },
     {
       "id": "auto_167",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02501",
-        "product:P03237",
         "product:P03250",
-        "product:P02622",
-        "product:P03186"
+        "product:P03237",
+        "product:P03186",
+        "product:P02622"
       ],
+      "top_dense_sim": 0.9816007614135742,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2489,13 +3194,17 @@
     },
     {
       "id": "auto_168",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02501",
         "product:P03275",
-        "product:P03443",
-        "product:P04522",
+        "product:P03069",
+        "product:P02919",
         "product:P04422"
       ],
+      "top_dense_sim": 0.9764494895935059,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2504,12 +3213,17 @@
     },
     {
       "id": "auto_169",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02506",
         "product:P03661",
         "product:P03484",
-        "product:P04228"
+        "product:P04228",
+        "product:P04945"
       ],
+      "top_dense_sim": 0.9520691633224487,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2518,12 +3232,16 @@
     },
     {
       "id": "auto_170",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02506",
-        "product:P03661",
         "product:P03484",
+        "product:P03661",
         "product:P04228"
       ],
+      "top_dense_sim": 0.9847680330276489,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2532,11 +3250,16 @@
     },
     {
       "id": "auto_171",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02506",
         "product:P03484",
-        "product:P04228"
+        "product:P04228",
+        "product:P03661"
       ],
+      "top_dense_sim": 0.9841471314430237,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2545,11 +3268,16 @@
     },
     {
       "id": "auto_172",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02506",
         "product:P03484",
-        "product:P03661"
+        "product:P03661",
+        "product:P04228"
       ],
+      "top_dense_sim": 0.9791949391365051,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2558,11 +3286,16 @@
     },
     {
       "id": "auto_173",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02506",
         "product:P03484",
-        "product:P03661"
+        "product:P03661",
+        "product:P04228"
       ],
+      "top_dense_sim": 0.979012131690979,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2571,13 +3304,17 @@
     },
     {
       "id": "auto_174",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00039",
         "product:P01479",
-        "product:P02324",
         "product:P00005",
+        "product:P02324",
         "product:P02486"
       ],
+      "top_dense_sim": 0.7148216962814331,
+      "predicted_abstain": false,
       "recall@1": 0.0,
       "recall@3": 0.0,
       "recall@5": 0.0,
@@ -2586,13 +3323,17 @@
     },
     {
       "id": "auto_175",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00019",
         "product:P00685",
         "product:P02192",
-        "product:P00829",
-        "product:P01796"
+        "product:P01796",
+        "product:P00467"
       ],
+      "top_dense_sim": 0.9208435416221619,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2601,13 +3342,17 @@
     },
     {
       "id": "auto_176",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00019",
         "product:P00685",
         "product:P02192",
         "product:P01796",
-        "product:P00467"
+        "product:P00590"
       ],
+      "top_dense_sim": 0.9235407114028931,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2616,13 +3361,17 @@
     },
     {
       "id": "auto_177",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00019",
         "product:P02216",
         "product:P00166",
-        "policy:POL001",
-        "product:P00467"
+        "product:P00141",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9169014692306519,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2631,13 +3380,17 @@
     },
     {
       "id": "auto_178",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00019",
         "product:P02216",
-        "product:P00166",
-        "policy:POL001",
-        "product:P00869"
+        "product:P01099",
+        "product:P00141",
+        "product:P00166"
       ],
+      "top_dense_sim": 0.9228683710098267,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2646,13 +3399,17 @@
     },
     {
       "id": "auto_179",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00020",
+        "product:P00261",
         "product:P01921",
-        "product:P00390",
-        "product:P00748",
-        "product:P01408"
+        "product:P02125",
+        "product:P00748"
       ],
+      "top_dense_sim": 0.9114368557929993,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2661,13 +3418,17 @@
     },
     {
       "id": "auto_180",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00020",
+        "product:P00261",
         "product:P00039",
-        "product:P00390",
-        "product:P01989",
-        "product:P02125"
+        "product:P00901",
+        "product:P01989"
       ],
+      "top_dense_sim": 0.7777106761932373,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2676,11 +3437,17 @@
     },
     {
       "id": "auto_181",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00020",
         "product:P00390",
-        "product:P00409"
+        "product:P00261",
+        "product:P00409",
+        "product:P02125"
       ],
+      "top_dense_sim": 0.9665605425834656,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2689,12 +3456,17 @@
     },
     {
       "id": "auto_182",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00020",
-        "product:P00409",
+        "product:P00390",
         "product:P00261",
-        "product:P00390"
+        "product:P00409",
+        "product:P02125"
       ],
+      "top_dense_sim": 0.9510728120803833,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2703,12 +3475,17 @@
     },
     {
       "id": "auto_183",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00020",
+        "product:P00261",
         "product:P00409",
         "product:P00390",
         "product:P00194"
       ],
+      "top_dense_sim": 0.9463876485824585,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2717,13 +3494,17 @@
     },
     {
       "id": "auto_184",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02519",
-        "product:P03033",
-        "product:P02702",
         "product:P04519",
-        "product:P03350"
+        "product:P03350",
+        "product:P03033",
+        "product:P02702"
       ],
+      "top_dense_sim": 0.9256999492645264,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2732,12 +3513,17 @@
     },
     {
       "id": "auto_185",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02519",
-        "product:P03033",
+        "product:P04519",
         "product:P03350",
+        "product:P03033",
         "product:P02702"
       ],
+      "top_dense_sim": 0.8950468301773071,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2746,12 +3532,17 @@
     },
     {
       "id": "auto_186",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02519",
         "product:P02702",
         "product:P03033",
+        "product:P03350",
         "product:P04519"
       ],
+      "top_dense_sim": 0.9100303649902344,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2760,12 +3551,17 @@
     },
     {
       "id": "auto_187",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02519",
         "product:P02702",
         "product:P03033",
+        "product:P03350",
         "product:P04519"
       ],
+      "top_dense_sim": 0.9744119048118591,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2774,12 +3570,17 @@
     },
     {
       "id": "auto_188",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02519",
         "product:P02702",
         "product:P03033",
+        "product:P03444",
         "product:P04519"
       ],
+      "top_dense_sim": 0.9503824710845947,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2788,13 +3589,17 @@
     },
     {
       "id": "auto_189",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02503",
+        "policy:POL003",
         "product:P04330",
-        "product:P02988",
-        "product:P03659",
-        "policy:POL001"
+        "policy:POL001",
+        "product:P03659"
       ],
+      "top_dense_sim": 0.9106254577636719,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2803,13 +3608,17 @@
     },
     {
       "id": "auto_190",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02503",
+        "policy:POL003",
         "product:P04742",
-        "product:P02988",
-        "product:P04330",
-        "policy:POL001"
+        "policy:POL001",
+        "product:P04330"
       ],
+      "top_dense_sim": 0.9025331735610962,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2818,13 +3627,17 @@
     },
     {
       "id": "auto_191",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02503",
+        "product:P04328",
         "product:P04330",
-        "product:P02802",
-        "product:P03834",
+        "product:P04280",
         "product:P03659"
       ],
+      "top_dense_sim": 0.9454663991928101,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2833,13 +3646,17 @@
     },
     {
       "id": "auto_192",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02503",
+        "product:P03822",
         "product:P03659",
-        "product:P02596",
-        "product:P04742",
-        "product:P04159"
+        "product:P03611",
+        "product:P04742"
       ],
+      "top_dense_sim": 0.9154267311096191,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2848,13 +3665,17 @@
     },
     {
       "id": "auto_193",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P02503",
         "product:P03822",
         "product:P04970",
         "product:P04742",
-        "product:P03555"
+        "product:P02622"
       ],
+      "top_dense_sim": 0.8870569467544556,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2863,6 +3684,8 @@
     },
     {
       "id": "auto_194",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00010",
         "product:P02346",
@@ -2870,6 +3693,8 @@
         "product:P01449",
         "product:P00248"
       ],
+      "top_dense_sim": 0.9523938894271851,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2878,13 +3703,17 @@
     },
     {
       "id": "auto_195",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00010",
-        "product:P00477",
         "product:P00749",
-        "product:P04542",
-        "product:P00887"
+        "product:P00477",
+        "product:P03956",
+        "product:P04542"
       ],
+      "top_dense_sim": 0.9156526923179626,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2893,13 +3722,17 @@
     },
     {
       "id": "auto_196",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00010",
+        "product:P00703",
         "product:P00248",
-        "product:P00602",
-        "product:P01076",
-        "product:P04368"
+        "product:P00633",
+        "product:P01076"
       ],
+      "top_dense_sim": 0.9735185503959656,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2908,13 +3741,17 @@
     },
     {
       "id": "auto_197",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00010",
+        "policy:POL003",
         "product:P01454",
-        "product:P02703",
-        "product:P00248",
-        "product:P00602"
+        "policy:POL001",
+        "product:P00248"
       ],
+      "top_dense_sim": 0.9402980804443359,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2923,13 +3760,17 @@
     },
     {
       "id": "auto_198",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00010",
+        "policy:POL003",
         "product:P03123",
-        "product:P00602",
-        "product:P00248",
-        "product:P00568"
+        "policy:POL001",
+        "product:P00248"
       ],
+      "top_dense_sim": 0.9394773840904236,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2938,12 +3779,17 @@
     },
     {
       "id": "auto_199",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00016",
         "product:P00351",
         "product:P01336",
+        "product:P02250",
         "product:P02399"
       ],
+      "top_dense_sim": 0.8935741186141968,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2952,13 +3798,17 @@
     },
     {
       "id": "auto_200",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00016",
-        "product:P01031",
         "product:P00399",
         "product:P01145",
-        "product:P01828"
+        "product:P01031",
+        "product:P01980"
       ],
+      "top_dense_sim": 0.8221056461334229,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2967,12 +3817,17 @@
     },
     {
       "id": "hard_001",
+      "kind": "compound",
+      "split": null,
       "ranking": [
         "product:P00016",
         "product:P02512",
         "product:P01336",
+        "product:P04758",
         "product:P01797"
       ],
+      "top_dense_sim": 0.863331139087677,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2981,10 +3836,13 @@
     },
     {
       "id": "hard_002",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02516",
-        "product:P03307"
+        "product:P02516"
       ],
+      "top_dense_sim": 0.9838324189186096,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2993,13 +3851,17 @@
     },
     {
       "id": "hard_003",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P02508",
-        "product:P04161",
         "product:P04355",
-        "product:P04249",
-        "product:P03058"
+        "product:P04161",
+        "product:P03058",
+        "product:P04249"
       ],
+      "top_dense_sim": 0.9713044762611389,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3008,13 +3870,17 @@
     },
     {
       "id": "hard_004",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P02516",
-        "product:P03373",
-        "product:P03307",
         "product:P03981",
-        "product:P04065"
+        "product:P03373",
+        "product:P04065",
+        "product:P03689"
       ],
+      "top_dense_sim": 0.9877394437789917,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3023,13 +3889,17 @@
     },
     {
       "id": "hard_005",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P01701",
         "policy:POL001",
+        "product:P01701",
         "policy:POL002",
         "product:P00420",
         "product:P03497"
       ],
+      "top_dense_sim": 0.4260110855102539,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -3038,12 +3908,17 @@
     },
     {
       "id": "hard_006",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P02514",
         "product:P02505",
+        "product:P02514",
+        "product:P02909",
         "product:P04565",
-        "product:P02909"
+        "product:P04255"
       ],
+      "top_dense_sim": 0.8799518346786499,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3052,9 +3927,13 @@
     },
     {
       "id": "hard_007",
+      "kind": "budget",
+      "split": null,
       "ranking": [
         "product:P02502"
       ],
+      "top_dense_sim": 0.9830772876739502,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3063,13 +3942,17 @@
     },
     {
       "id": "hard_008",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P00017",
         "product:P02111",
         "product:P00453",
         "product:P01568",
-        "product:P01229"
+        "product:P01590"
       ],
+      "top_dense_sim": 0.9556262493133545,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3078,13 +3961,17 @@
     },
     {
       "id": "hard_009",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00270",
-        "product:P02405",
         "product:P02147",
+        "product:P02405",
+        "product:P01283",
         "product:P00519"
       ],
+      "top_dense_sim": 0.9773725271224976,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3093,13 +3980,17 @@
     },
     {
       "id": "hard_010",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P02868",
         "policy:POL001",
-        "product:P00420",
+        "product:P02868",
         "policy:POL002",
-        "product:P02862"
+        "product:P00420",
+        "product:P03497"
       ],
+      "top_dense_sim": 0.4292601943016052,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -3108,11 +3999,17 @@
     },
     {
       "id": "hard_011",
+      "kind": "compound",
+      "split": null,
       "ranking": [
         "product:P00012",
         "product:P00018",
-        "product:P01259"
+        "product:P01259",
+        "product:P02092",
+        "product:P00590"
       ],
+      "top_dense_sim": 0.7676652669906616,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3121,9 +4018,13 @@
     },
     {
       "id": "hard_012",
+      "kind": "budget",
+      "split": null,
       "ranking": [
         "product:P00005"
       ],
+      "top_dense_sim": 0.8209525942802429,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3132,13 +4033,17 @@
     },
     {
       "id": "hard_013",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P00011",
         "product:P01203",
         "product:P03904",
         "product:P04988",
-        "product:P03162"
+        "product:P01365"
       ],
+      "top_dense_sim": 0.7001038789749146,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3147,13 +4052,17 @@
     },
     {
       "id": "hard_014",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P00005",
-        "product:P00910",
         "product:P02417",
-        "product:P02023",
-        "product:P01810"
+        "product:P00910",
+        "product:P01489",
+        "product:P02023"
       ],
+      "top_dense_sim": 0.8928217887878418,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3162,13 +4071,17 @@
     },
     {
       "id": "hard_015",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P02862",
         "policy:POL001",
+        "product:P02862",
         "policy:POL002",
         "product:P00420",
         "product:P03497"
       ],
+      "top_dense_sim": 0.42969954013824463,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -3177,11 +4090,16 @@
     },
     {
       "id": "hard_016",
+      "kind": "compound",
+      "split": null,
       "ranking": [
         "product:P02511",
         "product:P02515",
+        "product:P04137",
         "product:P04309"
       ],
+      "top_dense_sim": 0.8451296091079712,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3190,10 +4108,14 @@
     },
     {
       "id": "hard_017",
+      "kind": "budget",
+      "split": null,
       "ranking": [
         "product:P02519",
         "product:P02702"
       ],
+      "top_dense_sim": 0.9845505952835083,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3202,11 +4124,16 @@
     },
     {
       "id": "hard_018",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P02506",
         "product:P03484",
-        "product:P03661"
+        "product:P03661",
+        "product:P04228"
       ],
+      "top_dense_sim": 0.9651429057121277,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3215,12 +4142,17 @@
     },
     {
       "id": "hard_019",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P00020",
-        "product:P00409",
         "product:P00261",
-        "product:P00390"
+        "product:P00409",
+        "product:P00390",
+        "product:P00194"
       ],
+      "top_dense_sim": 0.9817191362380981,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3229,13 +4161,17 @@
     },
     {
       "id": "hard_020",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00420",
         "policy:POL001",
-        "product:P02862",
+        "product:P00420",
         "policy:POL002",
-        "product:P01701"
+        "product:P02862",
+        "product:P03497"
       ],
+      "top_dense_sim": 0.4310370087623596,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -3244,12 +4180,17 @@
     },
     {
       "id": "hard_021",
+      "kind": "compound",
+      "split": null,
       "ranking": [
         "product:P00016",
         "product:P02512",
         "product:P01336",
+        "product:P04758",
         "product:P01797"
       ],
+      "top_dense_sim": 0.863331139087677,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3258,10 +4199,15 @@
     },
     {
       "id": "hard_022",
+      "kind": "budget",
+      "split": null,
       "ranking": [
         "product:P02514",
-        "product:P04887"
+        "product:P04887",
+        "product:P03923"
       ],
+      "top_dense_sim": 0.9792240262031555,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3270,13 +4216,17 @@
     },
     {
       "id": "hard_023",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P02508",
-        "product:P04161",
         "product:P04355",
-        "product:P04249",
-        "product:P03058"
+        "product:P04161",
+        "product:P03058",
+        "product:P04249"
       ],
+      "top_dense_sim": 0.9713044762611389,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3285,13 +4235,17 @@
     },
     {
       "id": "hard_024",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P02516",
-        "product:P03373",
-        "product:P03307",
         "product:P03981",
-        "product:P04065"
+        "product:P03373",
+        "product:P04065",
+        "product:P03689"
       ],
+      "top_dense_sim": 0.9877394437789917,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3300,13 +4254,17 @@
     },
     {
       "id": "hard_025",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00420",
         "policy:POL001",
-        "product:P01701",
+        "product:P00420",
         "policy:POL002",
+        "product:P01701",
         "product:P03497"
       ],
+      "top_dense_sim": 0.40994328260421753,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -3315,12 +4273,17 @@
     },
     {
       "id": "hard_026",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P02514",
         "product:P02505",
+        "product:P02514",
+        "product:P02909",
         "product:P04565",
-        "product:P02909"
+        "product:P04255"
       ],
+      "top_dense_sim": 0.8799518346786499,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3329,10 +4292,13 @@
     },
     {
       "id": "hard_027",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02517",
-        "product:P04503"
+        "product:P02517"
       ],
+      "top_dense_sim": 0.9127503037452698,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3341,13 +4307,17 @@
     },
     {
       "id": "hard_028",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P00017",
         "product:P02111",
         "product:P00453",
         "product:P01568",
-        "product:P01229"
+        "product:P01590"
       ],
+      "top_dense_sim": 0.9556262493133545,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3356,13 +4326,17 @@
     },
     {
       "id": "hard_029",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00270",
-        "product:P02405",
         "product:P02147",
+        "product:P02405",
+        "product:P01283",
         "product:P00519"
       ],
+      "top_dense_sim": 0.9773725271224976,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3371,13 +4345,17 @@
     },
     {
       "id": "hard_030",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00420",
         "policy:POL001",
-        "product:P01701",
+        "product:P00420",
         "policy:POL002",
-        "product:P02862"
+        "product:P01701",
+        "product:P03497"
       ],
+      "top_dense_sim": 0.41731101274490356,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -3386,11 +4364,17 @@
     },
     {
       "id": "hard_031",
+      "kind": "compound",
+      "split": null,
       "ranking": [
         "product:P00012",
         "product:P00018",
-        "product:P01259"
+        "product:P01259",
+        "product:P02092",
+        "product:P00590"
       ],
+      "top_dense_sim": 0.7676652669906616,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3399,11 +4383,15 @@
     },
     {
       "id": "hard_032",
+      "kind": "budget",
+      "split": null,
       "ranking": [
         "product:P00004",
         "product:P02389",
         "product:P00967"
       ],
+      "top_dense_sim": 0.9772424697875977,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3412,13 +4400,17 @@
     },
     {
       "id": "hard_033",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P00011",
         "product:P01203",
         "product:P03904",
         "product:P04988",
-        "product:P03162"
+        "product:P01365"
       ],
+      "top_dense_sim": 0.7001038789749146,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3427,13 +4419,17 @@
     },
     {
       "id": "hard_034",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P00005",
-        "product:P00910",
         "product:P02417",
-        "product:P02023",
-        "product:P01810"
+        "product:P00910",
+        "product:P01489",
+        "product:P02023"
       ],
+      "top_dense_sim": 0.8928217887878418,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3442,13 +4438,17 @@
     },
     {
       "id": "hard_035",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
         "product:P03634",
-        "product:P03892",
         "policy:POL001",
-        "product:P00420",
-        "policy:POL002"
+        "product:P03892",
+        "policy:POL002",
+        "product:P00420"
       ],
+      "top_dense_sim": 0.4159854054450989,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -3457,11 +4457,16 @@
     },
     {
       "id": "hard_036",
+      "kind": "compound",
+      "split": null,
       "ranking": [
         "product:P02511",
         "product:P02515",
+        "product:P04137",
         "product:P04309"
       ],
+      "top_dense_sim": 0.8451296091079712,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3470,12 +4475,17 @@
     },
     {
       "id": "hard_037",
+      "kind": "budget",
+      "split": null,
       "ranking": [
         "product:P02503",
         "product:P03659",
         "product:P02988",
-        "product:P04970"
+        "product:P04970",
+        "product:P03846"
       ],
+      "top_dense_sim": 0.9269804954528809,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3484,11 +4494,16 @@
     },
     {
       "id": "hard_038",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P02506",
         "product:P03484",
-        "product:P03661"
+        "product:P03661",
+        "product:P04228"
       ],
+      "top_dense_sim": 0.9651429057121277,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3497,12 +4512,17 @@
     },
     {
       "id": "hard_039",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P00020",
-        "product:P00409",
         "product:P00261",
-        "product:P00390"
+        "product:P00409",
+        "product:P00390",
+        "product:P00194"
       ],
+      "top_dense_sim": 0.9817191362380981,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3511,13 +4531,17 @@
     },
     {
       "id": "hard_040",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P02862",
         "policy:POL001",
+        "product:P02862",
         "policy:POL002",
         "product:P00420",
         "product:P03497"
       ],
+      "top_dense_sim": 0.40362226963043213,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -3526,12 +4550,17 @@
     },
     {
       "id": "hard_041",
+      "kind": "compound",
+      "split": null,
       "ranking": [
         "product:P00016",
         "product:P02512",
         "product:P01336",
+        "product:P04758",
         "product:P01797"
       ],
+      "top_dense_sim": 0.863331139087677,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3540,10 +4569,14 @@
     },
     {
       "id": "hard_042",
+      "kind": "budget",
+      "split": null,
       "ranking": [
         "product:P02505",
         "product:P04828"
       ],
+      "top_dense_sim": 0.982907235622406,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3552,13 +4585,17 @@
     },
     {
       "id": "hard_043",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P02508",
-        "product:P04161",
         "product:P04355",
-        "product:P04249",
-        "product:P03058"
+        "product:P04161",
+        "product:P03058",
+        "product:P04249"
       ],
+      "top_dense_sim": 0.9713044762611389,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3567,13 +4604,17 @@
     },
     {
       "id": "hard_044",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P02516",
-        "product:P03373",
-        "product:P03307",
         "product:P03981",
-        "product:P04065"
+        "product:P03373",
+        "product:P04065",
+        "product:P03689"
       ],
+      "top_dense_sim": 0.9877394437789917,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3582,13 +4623,17 @@
     },
     {
       "id": "hard_045",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P03892",
         "policy:POL001",
-        "product:P03634",
+        "product:P03892",
         "policy:POL002",
+        "product:P03634",
         "product:P03497"
       ],
+      "top_dense_sim": 0.4196166396141052,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -3597,12 +4642,17 @@
     },
     {
       "id": "hard_046",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P02514",
         "product:P02505",
+        "product:P02514",
+        "product:P02909",
         "product:P04565",
-        "product:P02909"
+        "product:P04255"
       ],
+      "top_dense_sim": 0.8799518346786499,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3611,10 +4661,15 @@
     },
     {
       "id": "hard_047",
+      "kind": "budget",
+      "split": null,
       "ranking": [
         "product:P02507",
-        "product:P03388"
+        "product:P03388",
+        "product:P02855"
       ],
+      "top_dense_sim": 0.9595003128051758,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3623,13 +4678,17 @@
     },
     {
       "id": "hard_048",
+      "kind": "typo",
+      "split": null,
       "ranking": [
         "product:P00017",
         "product:P02111",
         "product:P00453",
         "product:P01568",
-        "product:P01229"
+        "product:P01590"
       ],
+      "top_dense_sim": 0.9556262493133545,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3638,13 +4697,17 @@
     },
     {
       "id": "hard_049",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00270",
-        "product:P02405",
         "product:P02147",
+        "product:P02405",
+        "product:P01283",
         "product:P00519"
       ],
+      "top_dense_sim": 0.9773725271224976,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -3653,13 +4716,17 @@
     },
     {
       "id": "hard_050",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P03394",
         "policy:POL001",
-        "product:P01365",
+        "product:P03394",
         "policy:POL002",
-        "product:P00420"
+        "product:P01365",
+        "product:P03497"
       ],
+      "top_dense_sim": 0.4092285633087158,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,

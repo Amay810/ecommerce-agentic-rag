@@ -1,31 +1,31 @@
 {
   "summary": {
-    "recall@1": 0.9625,
-    "recall@3": 0.9917,
+    "recall@1": 0.975,
+    "recall@3": 0.9958,
     "recall@5": 0.9958,
-    "mrr": 0.9878,
-    "ndcg@5": 0.9888,
+    "mrr": 0.9958,
+    "ndcg@5": 0.9958,
     "queries": 250,
     "answerable_queries": 240,
     "no_answer_queries": 10,
     "no_answer_accuracy": 0.0,
     "false_positive_rate": 1.0,
-    "latency_p50_ms": 20.52,
-    "latency_p95_ms": 28.93,
+    "latency_p50_ms": 148.29,
+    "latency_p95_ms": 219.12,
     "no_answer_threshold": null,
     "latency_breakdown_p50_ms": {
-      "dense_ms": 8.8,
-      "bm25_ms": 11.67,
-      "fusion_filter_ms": 0.04,
-      "rerank_ms": 0.0,
-      "total_ms": 20.5
+      "dense_ms": 11.21,
+      "bm25_ms": 58.82,
+      "fusion_filter_ms": 0.07,
+      "rerank_ms": 75.79,
+      "total_ms": 148.27
     },
     "dense_backend": "faiss_indexflatip",
-    "index_load_ms": 14936.62,
-    "index_size_bytes": 37301608,
+    "index_load_ms": 15463.04,
+    "index_size_bytes": 185524164,
     "configuration": {
-      "constraints": false,
-      "reranker": false,
+      "constraints": true,
+      "reranker": true,
       "split": null
     }
   },
@@ -37,9 +37,9 @@
       "ranking": [
         "product:P00016",
         "product:P00351",
-        "product:P00357",
-        "product:P00345",
-        "product:P00202"
+        "product:P02399",
+        "product:P02250",
+        "product:P02456"
       ],
       "top_dense_sim": 0.8935741186141968,
       "predicted_abstain": false,
@@ -56,11 +56,11 @@
       "ranking": [
         "product:P00016",
         "product:P00039",
-        "product:P00399",
-        "product:P00368",
-        "product:P00448"
+        "product:P01548",
+        "product:P01107",
+        "product:P01031"
       ],
-      "top_dense_sim": 0.8221055269241333,
+      "top_dense_sim": 0.8221056461334229,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -75,11 +75,11 @@
       "ranking": [
         "product:P00016",
         "product:P00351",
-        "product:P00438",
-        "product:P00140",
-        "product:P00073"
+        "product:P01096",
+        "product:P02399",
+        "product:P01336"
       ],
-      "top_dense_sim": 0.9757626056671143,
+      "top_dense_sim": 0.9757625460624695,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -94,9 +94,9 @@
       "ranking": [
         "product:P00016",
         "product:P00351",
-        "product:P00073",
-        "product:P00335",
-        "product:P00124"
+        "product:P01096",
+        "product:P02399",
+        "product:P01336"
       ],
       "top_dense_sim": 0.9690811634063721,
       "predicted_abstain": false,
@@ -113,11 +113,11 @@
       "ranking": [
         "product:P00016",
         "product:P00351",
-        "product:P00073",
-        "product:P00345",
-        "product:P00327"
+        "product:P02399",
+        "product:P02250",
+        "product:P01336"
       ],
-      "top_dense_sim": 0.9650231599807739,
+      "top_dense_sim": 0.965023398399353,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -131,10 +131,10 @@
       "split": null,
       "ranking": [
         "product:P02512",
-        "product:P02711",
-        "product:P02613",
-        "product:P02952",
-        "product:P02994"
+        "product:P04758",
+        "product:P04267",
+        "product:P03962",
+        "product:P04700"
       ],
       "top_dense_sim": 0.9319467544555664,
       "predicted_abstain": false,
@@ -150,12 +150,12 @@
       "split": null,
       "ranking": [
         "product:P02512",
-        "product:P02667",
-        "product:P02676",
-        "product:P02613",
-        "product:P02903"
+        "product:P04758",
+        "product:P04126",
+        "product:P04651",
+        "product:P03959"
       ],
-      "top_dense_sim": 0.960995078086853,
+      "top_dense_sim": 0.9609951972961426,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -169,12 +169,12 @@
       "split": null,
       "ranking": [
         "product:P02512",
-        "product:P02667",
-        "product:P02676",
-        "product:P02613",
-        "product:P02903"
+        "product:P04758",
+        "product:P03959",
+        "product:P04651",
+        "product:P04126"
       ],
-      "top_dense_sim": 0.9613049030303955,
+      "top_dense_sim": 0.9613050222396851,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -188,12 +188,12 @@
       "split": null,
       "ranking": [
         "product:P02512",
-        "product:P02667",
-        "product:P02955",
-        "product:P02613",
-        "product:P02998"
+        "product:P04758",
+        "product:P04126",
+        "product:P04651",
+        "product:P04700"
       ],
-      "top_dense_sim": 0.9678428173065186,
+      "top_dense_sim": 0.9678428769111633,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -207,10 +207,10 @@
       "split": null,
       "ranking": [
         "product:P02512",
-        "product:P02667",
-        "product:P02676",
-        "product:P02613",
-        "product:P02903"
+        "product:P04758",
+        "product:P04126",
+        "product:P04651",
+        "product:P02613"
       ],
       "top_dense_sim": 0.9657177925109863,
       "predicted_abstain": false,
@@ -226,10 +226,9 @@
       "split": null,
       "ranking": [
         "product:P02513",
-        "product:P02665",
-        "product:P02861",
-        "product:P02703",
-        "product:P00041"
+        "product:P04635",
+        "product:P04337",
+        "product:P03485"
       ],
       "top_dense_sim": 0.8793171644210815,
       "predicted_abstain": false,
@@ -245,12 +244,11 @@
       "split": null,
       "ranking": [
         "product:P02513",
-        "product:P02665",
-        "product:P02861",
-        "product:P02703",
-        "product:P02643"
+        "product:P04635",
+        "product:P04337",
+        "product:P03485"
       ],
-      "top_dense_sim": 0.9530988931655884,
+      "top_dense_sim": 0.9530986547470093,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -264,12 +262,11 @@
       "split": null,
       "ranking": [
         "product:P02513",
-        "product:P02665",
-        "product:P02527",
-        "product:P02703",
-        "product:P02861"
+        "product:P04635",
+        "product:P04337",
+        "product:P03485"
       ],
-      "top_dense_sim": 0.9216611385345459,
+      "top_dense_sim": 0.9216612577438354,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -283,12 +280,12 @@
       "split": null,
       "ranking": [
         "product:P02513",
+        "product:P04635",
         "product:P02665",
-        "product:P02703",
-        "product:P02780",
-        "product:P02641"
+        "product:P04337",
+        "product:P03485"
       ],
-      "top_dense_sim": 0.9712363481521606,
+      "top_dense_sim": 0.9712362289428711,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -302,12 +299,11 @@
       "split": null,
       "ranking": [
         "product:P02513",
-        "product:P02665",
-        "product:P02861",
-        "product:P02703",
-        "product:P02643"
+        "product:P04635",
+        "product:P04337",
+        "product:P03485"
       ],
-      "top_dense_sim": 0.9730703830718994,
+      "top_dense_sim": 0.9730703234672546,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -322,11 +318,11 @@
       "ranking": [
         "product:P00015",
         "product:P00039",
-        "product:P00005",
-        "product:P00072",
-        "product:P00111"
+        "product:P01107",
+        "product:P01352",
+        "product:P01776"
       ],
-      "top_dense_sim": 0.7209016680717468,
+      "top_dense_sim": 0.768714427947998,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -341,11 +337,11 @@
       "ranking": [
         "product:P00015",
         "product:P00199",
-        "product:P00389",
+        "product:P01591",
         "product:P00495",
-        "product:P00467"
+        "product:P02235"
       ],
-      "top_dense_sim": 0.9601795077323914,
+      "top_dense_sim": 0.9601795673370361,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -360,9 +356,9 @@
       "ranking": [
         "product:P00015",
         "product:P00199",
-        "product:P00495",
-        "product:P00427",
-        "product:P00352"
+        "product:P01352",
+        "product:P02154",
+        "product:P00495"
       ],
       "top_dense_sim": 0.9799462556838989,
       "predicted_abstain": false,
@@ -379,11 +375,11 @@
       "ranking": [
         "product:P00015",
         "product:P00199",
-        "product:P00495",
-        "product:P00389",
-        "product:P00467"
+        "product:P02154",
+        "product:P01352",
+        "product:P00495"
       ],
-      "top_dense_sim": 0.9563747644424438,
+      "top_dense_sim": 0.956375002861023,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -397,12 +393,12 @@
       "split": null,
       "ranking": [
         "product:P00015",
+        "product:P01352",
         "product:P00199",
-        "product:P00389",
-        "product:P00495",
-        "product:P00467"
+        "product:P01591",
+        "product:P01695"
       ],
-      "top_dense_sim": 0.8970162868499756,
+      "top_dense_sim": 0.8970161080360413,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -416,12 +412,12 @@
       "split": null,
       "ranking": [
         "product:P02508",
-        "product:P02984",
-        "product:P02711",
-        "product:P02988",
-        "product:P00467"
+        "product:P03131",
+        "product:P03739",
+        "product:P03058",
+        "product:P04161"
       ],
-      "top_dense_sim": 0.9547421932220459,
+      "top_dense_sim": 0.9547423124313354,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -435,12 +431,12 @@
       "split": null,
       "ranking": [
         "product:P02508",
-        "product:P02984",
-        "product:P02660",
-        "product:P02514",
-        "product:P02931"
+        "product:P04753",
+        "product:P03058",
+        "product:P04852",
+        "product:P01601"
       ],
-      "top_dense_sim": 0.9349109530448914,
+      "top_dense_sim": 0.9349108934402466,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -454,12 +450,12 @@
       "split": null,
       "ranking": [
         "product:P02508",
-        "product:P02984",
-        "product:P02660",
-        "product:P02514",
-        "product:P02988"
+        "product:P04753",
+        "product:P04161",
+        "product:P03058",
+        "product:P03739"
       ],
-      "top_dense_sim": 0.9813839197158813,
+      "top_dense_sim": 0.9813840985298157,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -473,12 +469,12 @@
       "split": null,
       "ranking": [
         "product:P02508",
-        "product:P02568",
-        "product:P02826",
-        "product:P02739",
-        "product:P02514"
+        "product:P04161",
+        "product:P03525",
+        "product:P04698",
+        "product:P04745"
       ],
-      "top_dense_sim": 0.9009559154510498,
+      "top_dense_sim": 0.900955855846405,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -492,12 +488,12 @@
       "split": null,
       "ranking": [
         "product:P02508",
-        "product:P02984",
-        "product:P02660",
-        "product:P02711",
-        "product:P02988"
+        "product:P03058",
+        "product:P04161",
+        "product:P04753",
+        "product:P04355"
       ],
-      "top_dense_sim": 0.9454542398452759,
+      "top_dense_sim": 0.9454541206359863,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -512,11 +508,10 @@
       "ranking": [
         "product:P02504",
         "product:P02677",
-        "policy:POL001",
-        "product:P02957",
-        "policy:POL003"
+        "product:P04115",
+        "product:P03908"
       ],
-      "top_dense_sim": 0.9195557832717896,
+      "top_dense_sim": 0.9195559024810791,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -531,11 +526,11 @@
       "ranking": [
         "product:P02504",
         "product:P02677",
-        "policy:POL001",
-        "product:P02957",
-        "product:P00037"
+        "product:P04115",
+        "product:P04935",
+        "product:P04504"
       ],
-      "top_dense_sim": 0.9252150654792786,
+      "top_dense_sim": 0.9252147674560547,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -550,9 +545,9 @@
       "ranking": [
         "product:P02504",
         "product:P02677",
-        "product:P00221",
-        "product:P02957",
-        "product:P00037"
+        "product:P03908",
+        "product:P04115",
+        "product:P04814"
       ],
       "top_dense_sim": 0.9649643898010254,
       "predicted_abstain": false,
@@ -569,11 +564,11 @@
       "ranking": [
         "product:P02504",
         "product:P02677",
-        "product:P00037",
-        "product:P02957",
-        "product:P00005"
+        "product:P04115",
+        "product:P04814",
+        "product:P04652"
       ],
-      "top_dense_sim": 0.934088408946991,
+      "top_dense_sim": 0.9340883493423462,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -587,12 +582,11 @@
       "split": null,
       "ranking": [
         "product:P02504",
+        "product:P04115",
         "product:P02677",
-        "product:P02653",
-        "product:P02783",
-        "product:P02506"
+        "product:P03908"
       ],
-      "top_dense_sim": 0.9567906260490417,
+      "top_dense_sim": 0.9567904472351074,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -606,12 +600,12 @@
       "split": null,
       "ranking": [
         "product:P02516",
-        "product:P02555",
         "product:P02953",
-        "product:P02909",
-        "product:P02863"
+        "product:P03981",
+        "product:P04079",
+        "product:P04060"
       ],
-      "top_dense_sim": 0.8514671921730042,
+      "top_dense_sim": 0.8514673709869385,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -626,11 +620,11 @@
       "ranking": [
         "product:P02516",
         "product:P02581",
-        "product:P02763",
-        "product:P02953",
-        "product:P02594"
+        "product:P04065",
+        "product:P03689",
+        "product:P03373"
       ],
-      "top_dense_sim": 0.9457278847694397,
+      "top_dense_sim": 0.9457279443740845,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -644,10 +638,10 @@
       "split": null,
       "ranking": [
         "product:P02516",
-        "product:P02581",
-        "product:P02746",
         "product:P02594",
-        "product:P02953"
+        "product:P04065",
+        "product:P02581",
+        "product:P03115"
       ],
       "top_dense_sim": 0.9730492830276489,
       "predicted_abstain": false,
@@ -663,12 +657,12 @@
       "split": null,
       "ranking": [
         "product:P02516",
-        "product:P02581",
-        "product:P02953",
-        "product:P02746",
-        "product:P02594"
+        "product:P04065",
+        "product:P03918",
+        "product:P03373",
+        "product:P03960"
       ],
-      "top_dense_sim": 0.971406102180481,
+      "top_dense_sim": 0.9714059829711914,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -682,9 +676,10 @@
       "split": null,
       "ranking": [
         "product:P02516",
-        "product:P02581",
+        "product:P03836",
+        "product:P04065",
         "product:P02953",
-        "product:P02594"
+        "product:P03373"
       ],
       "top_dense_sim": 0.96335768699646,
       "predicted_abstain": false,
@@ -701,9 +696,9 @@
       "ranking": [
         "product:P00008",
         "product:P00012",
-        "product:P00347",
-        "product:P00286",
-        "product:P00118"
+        "product:P01649",
+        "product:P02211",
+        "product:P01205"
       ],
       "top_dense_sim": 0.9278671741485596,
       "predicted_abstain": false,
@@ -719,12 +714,12 @@
       "split": null,
       "ranking": [
         "product:P00008",
+        "product:P04484",
+        "product:P01731",
         "product:P00181",
-        "product:P00325",
-        "product:P02914",
-        "product:P00243"
+        "product:P03421"
       ],
-      "top_dense_sim": 0.9554675221443176,
+      "top_dense_sim": 0.9554676413536072,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -738,12 +733,12 @@
       "split": null,
       "ranking": [
         "product:P00008",
-        "product:P00339",
-        "product:P00164",
-        "product:P00180",
-        "product:P00325"
+        "product:P01677",
+        "product:P01060",
+        "product:P01897",
+        "product:P00792"
       ],
-      "top_dense_sim": 0.9066283702850342,
+      "top_dense_sim": 0.9066283106803894,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -757,12 +752,12 @@
       "split": null,
       "ranking": [
         "product:P00008",
-        "product:P00236",
+        "product:P01776",
+        "product:P01651",
         "product:P00129",
-        "product:P00039",
-        "product:P00473"
+        "product:P00953"
       ],
-      "top_dense_sim": 0.8080637454986572,
+      "top_dense_sim": 0.8080636262893677,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -776,12 +771,12 @@
       "split": null,
       "ranking": [
         "product:P00008",
-        "product:P00386",
-        "policy:POL001",
-        "product:P00118",
-        "policy:POL003"
+        "product:P01897",
+        "product:P01756",
+        "policy:POL002",
+        "product:P01671"
       ],
-      "top_dense_sim": 0.9711673259735107,
+      "top_dense_sim": 0.9711674451828003,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -795,12 +790,12 @@
       "split": null,
       "ranking": [
         "product:P02510",
-        "product:P02975",
-        "product:P02589",
-        "product:P02935",
-        "product:P02662"
+        "product:P04677",
+        "product:P04885",
+        "product:P03531",
+        "product:P04670"
       ],
-      "top_dense_sim": 0.8876508474349976,
+      "top_dense_sim": 0.8876506090164185,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -814,12 +809,12 @@
       "split": null,
       "ranking": [
         "product:P02510",
-        "product:P02641",
-        "product:P02987",
-        "product:P02780",
-        "product:P02703"
+        "product:P03166",
+        "product:P03506",
+        "product:P03064",
+        "product:P04885"
       ],
-      "top_dense_sim": 0.9150941967964172,
+      "top_dense_sim": 0.915094256401062,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -833,12 +828,12 @@
       "split": null,
       "ranking": [
         "product:P02510",
-        "product:P02847",
         "product:P02752",
-        "product:P02702",
-        "product:P02756"
+        "product:P03130",
+        "product:P03292",
+        "product:P04519"
       ],
-      "top_dense_sim": 0.9579987525939941,
+      "top_dense_sim": 0.9579988718032837,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -852,12 +847,12 @@
       "split": null,
       "ranking": [
         "product:P02510",
+        "product:P03130",
         "product:P02702",
-        "product:P02752",
-        "product:P02763",
-        "product:P02662"
+        "product:P03444",
+        "product:P02763"
       ],
-      "top_dense_sim": 0.9593770503997803,
+      "top_dense_sim": 0.9593768119812012,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -871,10 +866,10 @@
       "split": null,
       "ranking": [
         "product:P02510",
-        "product:P02847",
-        "product:P02662",
-        "product:P02702",
-        "product:P02669"
+        "product:P03506",
+        "product:P03130",
+        "product:P04390",
+        "product:P03444"
       ],
       "top_dense_sim": 0.9667549133300781,
       "predicted_abstain": false,
@@ -890,12 +885,12 @@
       "split": null,
       "ranking": [
         "product:P00002",
-        "policy:POL001",
-        "product:P00419",
-        "product:P00043",
-        "product:P00134"
+        "product:P01973",
+        "product:P00708",
+        "product:P01684",
+        "product:P01728"
       ],
-      "top_dense_sim": 0.8902943730354309,
+      "top_dense_sim": 0.8902942538261414,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -909,10 +904,10 @@
       "split": null,
       "ranking": [
         "product:P00002",
-        "product:P00129",
-        "product:P00039",
-        "product:P00236",
-        "product:P00001"
+        "product:P00126",
+        "product:P01830",
+        "product:P01776",
+        "product:P00848"
       ],
       "top_dense_sim": 0.8649501800537109,
       "predicted_abstain": false,
@@ -928,12 +923,12 @@
       "split": null,
       "ranking": [
         "product:P00002",
-        "product:P00279",
-        "product:P00001",
-        "product:P02856",
-        "product:P00296"
+        "product:P01345",
+        "product:P01323",
+        "product:P00740",
+        "product:P01763"
       ],
-      "top_dense_sim": 0.88155198097229,
+      "top_dense_sim": 0.8815520405769348,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -947,12 +942,12 @@
       "split": null,
       "ranking": [
         "product:P00002",
-        "product:P00043",
-        "product:P00410",
-        "policy:POL001",
-        "product:P00483"
+        "product:P00740",
+        "product:P01251",
+        "product:P00483",
+        "product:P00722"
       ],
-      "top_dense_sim": 0.8792263865470886,
+      "top_dense_sim": 0.8792262077331543,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -966,12 +961,12 @@
       "split": null,
       "ranking": [
         "product:P00002",
-        "product:P02649",
-        "product:P00410",
-        "policy:POL001",
-        "product:P00419"
+        "product:P02044",
+        "product:P02165",
+        "product:P00708",
+        "product:P00740"
       ],
-      "top_dense_sim": 0.9055789709091187,
+      "top_dense_sim": 0.9055788516998291,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -985,12 +980,12 @@
       "split": null,
       "ranking": [
         "product:P02514",
-        "product:P02598",
-        "product:P02850",
-        "product:P02985",
-        "product:P02711"
+        "product:P04385",
+        "product:P04121",
+        "product:P04240",
+        "product:P03404"
       ],
-      "top_dense_sim": 0.9730139970779419,
+      "top_dense_sim": 0.9730138778686523,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1004,12 +999,12 @@
       "split": null,
       "ranking": [
         "product:P02514",
-        "product:P02598",
-        "product:P02952",
-        "product:P02580",
-        "product:P02888"
+        "product:P03962",
+        "product:P04121",
+        "product:P04385",
+        "product:P02580"
       ],
-      "top_dense_sim": 0.9352638721466064,
+      "top_dense_sim": 0.935263991355896,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1023,12 +1018,12 @@
       "split": null,
       "ranking": [
         "product:P02514",
-        "product:P02598",
-        "product:P02580",
-        "product:P02952",
-        "product:P02719"
+        "product:P04121",
+        "product:P03962",
+        "product:P04240",
+        "product:P03404"
       ],
-      "top_dense_sim": 0.9623440504074097,
+      "top_dense_sim": 0.9623439311981201,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1042,12 +1037,12 @@
       "split": null,
       "ranking": [
         "product:P02514",
+        "product:P04385",
         "product:P02739",
-        "product:P02568",
-        "product:P02598",
-        "product:P02565"
+        "product:P03576",
+        "product:P04887"
       ],
-      "top_dense_sim": 0.9053547382354736,
+      "top_dense_sim": 0.9053546786308289,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1061,12 +1056,12 @@
       "split": null,
       "ranking": [
         "product:P02514",
-        "product:P02598",
-        "product:P02952",
-        "product:P02580",
-        "product:P02888"
+        "product:P04887",
+        "product:P03962",
+        "product:P04240",
+        "product:P03576"
       ],
-      "top_dense_sim": 0.9523880481719971,
+      "top_dense_sim": 0.9523879289627075,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1080,10 +1075,10 @@
       "split": null,
       "ranking": [
         "product:P02505",
-        "product:P02909",
-        "product:P02801",
         "product:P02884",
-        "product:P02721"
+        "product:P02909",
+        "product:P03530",
+        "product:P04447"
       ],
       "top_dense_sim": 0.9788622856140137,
       "predicted_abstain": false,
@@ -1100,11 +1095,11 @@
       "ranking": [
         "product:P02505",
         "product:P02884",
-        "product:P02596",
+        "product:P04615",
         "product:P02909",
-        "product:P02721"
+        "product:P03821"
       ],
-      "top_dense_sim": 0.9838575720787048,
+      "top_dense_sim": 0.9838573932647705,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1119,11 +1114,11 @@
       "ranking": [
         "product:P02505",
         "product:P02909",
+        "product:P04615",
         "product:P02884",
-        "product:P02756",
-        "product:P02596"
+        "product:P04828"
       ],
-      "top_dense_sim": 0.9803319573402405,
+      "top_dense_sim": 0.9803318977355957,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1138,11 +1133,11 @@
       "ranking": [
         "product:P02505",
         "product:P02884",
-        "product:P02596",
+        "product:P03821",
         "product:P02909",
-        "product:P02721"
+        "product:P04255"
       ],
-      "top_dense_sim": 0.9793964624404907,
+      "top_dense_sim": 0.9793959856033325,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1156,11 +1151,12 @@
       "split": null,
       "ranking": [
         "product:P02505",
-        "product:P02884",
         "product:P02909",
-        "product:P02596"
+        "product:P02884",
+        "product:P03821",
+        "product:P04828"
       ],
-      "top_dense_sim": 0.9828171730041504,
+      "top_dense_sim": 0.9828174114227295,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1174,10 +1170,10 @@
       "split": null,
       "ranking": [
         "product:P00014",
-        "product:P00426",
-        "product:P00044",
+        "product:P02084",
         "product:P00106",
-        "product:P00287"
+        "product:P00957",
+        "product:P00044"
       ],
       "top_dense_sim": 0.9315391778945923,
       "predicted_abstain": false,
@@ -1194,11 +1190,11 @@
       "ranking": [
         "product:P00014",
         "product:P00039",
-        "product:P00005",
-        "product:P00401",
-        "product:P00258"
+        "product:P00129",
+        "product:P00126",
+        "product:P02324"
       ],
-      "top_dense_sim": 0.7582652568817139,
+      "top_dense_sim": 0.7860050201416016,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1212,12 +1208,12 @@
       "split": null,
       "ranking": [
         "product:P00014",
-        "product:P00426",
-        "product:P00044",
+        "product:P02084",
         "product:P00106",
-        "product:P00203"
+        "product:P00753",
+        "product:P00426"
       ],
-      "top_dense_sim": 0.9778722524642944,
+      "top_dense_sim": 0.977872371673584,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1231,12 +1227,12 @@
       "split": null,
       "ranking": [
         "product:P00014",
-        "product:P00426",
-        "product:P00044",
-        "product:P00203",
-        "product:P00287"
+        "product:P02080",
+        "product:P02084",
+        "product:P01849",
+        "product:P00957"
       ],
-      "top_dense_sim": 0.924899697303772,
+      "top_dense_sim": 0.9248995780944824,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1250,12 +1246,12 @@
       "split": null,
       "ranking": [
         "product:P00014",
-        "product:P00044",
-        "product:P00426",
-        "product:P00287",
-        "product:P00247"
+        "product:P01216",
+        "product:P02084",
+        "product:P01849",
+        "product:P00753"
       ],
-      "top_dense_sim": 0.9807687997817993,
+      "top_dense_sim": 0.9807685613632202,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1269,10 +1265,10 @@
       "split": null,
       "ranking": [
         "product:P02518",
-        "product:P02674",
-        "product:P02863",
-        "product:P02514",
-        "product:P02833"
+        "product:P03087",
+        "product:P04915",
+        "product:P04025",
+        "product:P04816"
       ],
       "top_dense_sim": 0.9092061519622803,
       "predicted_abstain": false,
@@ -1288,12 +1284,12 @@
       "split": null,
       "ranking": [
         "product:P02518",
-        "product:P02544",
-        "product:P02833",
-        "product:P02971",
-        "product:P02923"
+        "product:P03410",
+        "product:P04725",
+        "product:P03087",
+        "product:P03241"
       ],
-      "top_dense_sim": 0.9551043510437012,
+      "top_dense_sim": 0.955104410648346,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1307,12 +1303,12 @@
       "split": null,
       "ranking": [
         "product:P02518",
-        "product:P02923",
-        "product:P02920",
-        "product:P02833",
-        "product:P02723"
+        "product:P03087",
+        "product:P03241",
+        "product:P03410",
+        "product:P04915"
       ],
-      "top_dense_sim": 0.9620213508605957,
+      "top_dense_sim": 0.9620214700698853,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1326,12 +1322,12 @@
       "split": null,
       "ranking": [
         "product:P02518",
-        "product:P02923",
-        "product:P02833",
-        "product:P02920",
-        "product:P02544"
+        "product:P03087",
+        "product:P04915",
+        "product:P03410",
+        "product:P04025"
       ],
-      "top_dense_sim": 0.9685916304588318,
+      "top_dense_sim": 0.9685914516448975,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1345,12 +1341,12 @@
       "split": null,
       "ranking": [
         "product:P02518",
-        "product:P02723",
-        "product:P02833",
-        "product:P00280",
-        "product:P02923"
+        "product:P03087",
+        "product:P04601",
+        "product:P03749",
+        "product:P03229"
       ],
-      "top_dense_sim": 0.9524804353713989,
+      "top_dense_sim": 0.9524803161621094,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1364,12 +1360,12 @@
       "split": null,
       "ranking": [
         "product:P00017",
-        "product:P00453",
-        "product:P00373",
-        "product:P00289",
-        "product:P00032"
+        "product:P01568",
+        "product:P01590",
+        "product:P02111",
+        "product:P02208"
       ],
-      "top_dense_sim": 0.9779835939407349,
+      "top_dense_sim": 0.9779834747314453,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1383,12 +1379,12 @@
       "split": null,
       "ranking": [
         "product:P00017",
-        "product:P00490",
         "product:P00453",
-        "product:P00032",
-        "product:P00348"
+        "product:P01568",
+        "product:P02493",
+        "product:P01076"
       ],
-      "top_dense_sim": 0.9762164950370789,
+      "top_dense_sim": 0.9762165546417236,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1402,12 +1398,12 @@
       "split": null,
       "ranking": [
         "product:P00017",
+        "product:P00687",
         "product:P00453",
-        "product:P00032",
-        "product:P00129",
-        "product:P00373"
+        "product:P00635",
+        "product:P02231"
       ],
-      "top_dense_sim": 0.9526103138923645,
+      "top_dense_sim": 0.9526102542877197,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1421,12 +1417,12 @@
       "split": null,
       "ranking": [
         "product:P00017",
+        "product:P01568",
         "product:P00453",
-        "product:P00264",
-        "product:P00467",
-        "product:P00032"
+        "product:P02111",
+        "product:P01229"
       ],
-      "top_dense_sim": 0.9716185927391052,
+      "top_dense_sim": 0.9716188907623291,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1440,12 +1436,12 @@
       "split": null,
       "ranking": [
         "product:P00017",
+        "product:P01568",
         "product:P00453",
-        "product:P00264",
-        "product:P00467",
-        "product:P00032"
+        "product:P02111",
+        "product:P01229"
       ],
-      "top_dense_sim": 0.9743311405181885,
+      "top_dense_sim": 0.974331259727478,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1459,10 +1455,10 @@
       "split": null,
       "ranking": [
         "product:P02502",
-        "product:P02539",
-        "product:P02797",
-        "product:P02700",
-        "product:P02674"
+        "product:P03973",
+        "product:P04941",
+        "product:P04986",
+        "product:P03258"
       ],
       "top_dense_sim": 0.9700255393981934,
       "predicted_abstain": false,
@@ -1478,12 +1474,12 @@
       "split": null,
       "ranking": [
         "product:P02502",
-        "product:P02539",
-        "product:P02797",
-        "product:P02823",
-        "product:P00173"
+        "product:P03973",
+        "product:P04941",
+        "product:P04986",
+        "product:P03431"
       ],
-      "top_dense_sim": 0.9445741772651672,
+      "top_dense_sim": 0.9445743560791016,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1497,12 +1493,12 @@
       "split": null,
       "ranking": [
         "product:P02502",
-        "product:P02539",
-        "product:P02893",
-        "product:P02797",
-        "product:P00399"
+        "product:P03973",
+        "product:P04941",
+        "product:P04986",
+        "product:P02539"
       ],
-      "top_dense_sim": 0.9652174711227417,
+      "top_dense_sim": 0.9652172327041626,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1516,12 +1512,12 @@
       "split": null,
       "ranking": [
         "product:P02502",
+        "product:P04941",
+        "product:P03973",
         "product:P02592",
-        "product:P02539",
-        "product:P02797",
-        "product:P02894"
+        "product:P04986"
       ],
-      "top_dense_sim": 0.9644473791122437,
+      "top_dense_sim": 0.9644474983215332,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1535,12 +1531,12 @@
       "split": null,
       "ranking": [
         "product:P02502",
-        "product:P02683",
-        "product:P02539",
-        "product:P02591",
-        "product:P02621"
+        "product:P04493",
+        "product:P03973",
+        "product:P04986",
+        "product:P03493"
       ],
-      "top_dense_sim": 0.8838022947311401,
+      "top_dense_sim": 0.8838025331497192,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1554,10 +1550,10 @@
       "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00033",
-        "product:P00488",
-        "product:P00252",
-        "product:P00007"
+        "product:P02147",
+        "product:P01683",
+        "product:P02405",
+        "product:P00519"
       ],
       "top_dense_sim": 0.9655609130859375,
       "predicted_abstain": false,
@@ -1573,12 +1569,12 @@
       "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00252",
-        "product:P00270",
-        "product:P00033",
-        "product:P00206"
+        "product:P02147",
+        "product:P00519",
+        "product:P02405",
+        "product:P01283"
       ],
-      "top_dense_sim": 0.9349486827850342,
+      "top_dense_sim": 0.9349488615989685,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1592,12 +1588,12 @@
       "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00270",
-        "product:P00033",
-        "product:P00252",
-        "product:P00206"
+        "product:P02147",
+        "product:P00519",
+        "product:P02405",
+        "product:P01283"
       ],
-      "top_dense_sim": 0.972720205783844,
+      "top_dense_sim": 0.9727200269699097,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1611,12 +1607,12 @@
       "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00252",
-        "product:P00488",
-        "product:P00270",
-        "product:P00007"
+        "product:P02405",
+        "product:P02147",
+        "product:P00519",
+        "product:P01482"
       ],
-      "top_dense_sim": 0.8747321367263794,
+      "top_dense_sim": 0.874732255935669,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1630,10 +1626,10 @@
       "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00270",
-        "product:P00033",
-        "product:P00252",
-        "product:P00206"
+        "product:P02147",
+        "product:P00519",
+        "product:P02405",
+        "product:P01283"
       ],
       "top_dense_sim": 0.9775842428207397,
       "predicted_abstain": false,
@@ -1649,12 +1645,12 @@
       "split": null,
       "ranking": [
         "product:P02517",
-        "product:P02929",
-        "product:P02502",
-        "product:P02814",
-        "product:P02700"
+        "product:P03181",
+        "product:P03786",
+        "product:P03495",
+        "product:P03321"
       ],
-      "top_dense_sim": 0.7672734260559082,
+      "top_dense_sim": 0.7745165824890137,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1668,12 +1664,12 @@
       "split": null,
       "ranking": [
         "product:P02517",
-        "product:P02929",
-        "product:P02502",
-        "product:P02993",
-        "product:P02769"
+        "product:P03181",
+        "product:P04061",
+        "product:P03321",
+        "product:P04503"
       ],
-      "top_dense_sim": 0.8803011178970337,
+      "top_dense_sim": 0.8803009986877441,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1687,11 +1683,12 @@
       "split": null,
       "ranking": [
         "product:P02517",
-        "product:P02929",
-        "product:P02502",
-        "product:P02911"
+        "product:P03181",
+        "product:P03321",
+        "product:P03495",
+        "product:P03304"
       ],
-      "top_dense_sim": 0.8206697106361389,
+      "top_dense_sim": 0.8206695318222046,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1705,11 +1702,12 @@
       "split": null,
       "ranking": [
         "product:P02517",
-        "product:P02929",
-        "product:P02911",
-        "product:P02784"
+        "product:P03181",
+        "product:P04503",
+        "product:P04061",
+        "product:P03495"
       ],
-      "top_dense_sim": 0.8837000131607056,
+      "top_dense_sim": 0.8836997747421265,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1723,12 +1721,12 @@
       "split": null,
       "ranking": [
         "product:P02517",
-        "product:P02784",
-        "product:P02993",
-        "product:P02929",
-        "product:P02769"
+        "product:P03181",
+        "product:P04503",
+        "product:P04061",
+        "product:P03495"
       ],
-      "top_dense_sim": 0.8706293106079102,
+      "top_dense_sim": 0.8706294298171997,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1742,12 +1740,12 @@
       "split": null,
       "ranking": [
         "product:P02507",
-        "product:P02676",
-        "product:P03000",
+        "product:P03388",
+        "product:P04903",
         "product:P02855",
-        "product:P02988"
+        "product:P03839"
       ],
-      "top_dense_sim": 0.8542624711990356,
+      "top_dense_sim": 0.85426265001297,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1761,12 +1759,12 @@
       "split": null,
       "ranking": [
         "product:P02507",
-        "product:P02966",
-        "product:P02514",
-        "product:P02642",
-        "product:P02801"
+        "product:P03388",
+        "product:P04811",
+        "product:P03023",
+        "product:P04555"
       ],
-      "top_dense_sim": 0.7814137935638428,
+      "top_dense_sim": 0.7814141511917114,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1780,12 +1778,12 @@
       "split": null,
       "ranking": [
         "product:P02507",
+        "product:P03388",
         "product:P02855",
-        "product:P02601",
-        "product:P02619",
-        "product:P02721"
+        "product:P03650",
+        "product:P04761"
       ],
-      "top_dense_sim": 0.7713949680328369,
+      "top_dense_sim": 0.7713948488235474,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1799,12 +1797,12 @@
       "split": null,
       "ranking": [
         "product:P02507",
+        "product:P03388",
         "product:P02855",
-        "product:P02893",
-        "product:P02801",
-        "product:P00460"
+        "product:P04761",
+        "product:P04903"
       ],
-      "top_dense_sim": 0.9308490753173828,
+      "top_dense_sim": 0.9308488368988037,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1818,12 +1816,12 @@
       "split": null,
       "ranking": [
         "product:P02507",
+        "product:P03388",
         "product:P02855",
-        "product:P02893",
-        "product:P00163",
-        "product:P02801"
+        "product:P04811",
+        "product:P03074"
       ],
-      "top_dense_sim": 0.9019371867179871,
+      "top_dense_sim": 0.9019373059272766,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1837,12 +1835,12 @@
       "split": null,
       "ranking": [
         "product:P00009",
-        "product:P00209",
-        "product:P00129",
-        "product:P00136",
-        "product:P00064"
+        "product:P01502",
+        "product:P01547",
+        "product:P00039",
+        "product:P00129"
       ],
-      "top_dense_sim": 0.7486242055892944,
+      "top_dense_sim": 0.7486239671707153,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1856,12 +1854,12 @@
       "split": null,
       "ranking": [
         "product:P00009",
-        "product:P00337",
-        "product:P00445",
-        "product:P00184",
-        "product:P00034"
+        "product:P01502",
+        "product:P00107",
+        "product:P01194",
+        "product:P00337"
       ],
-      "top_dense_sim": 0.931531548500061,
+      "top_dense_sim": 0.9315317869186401,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1875,12 +1873,12 @@
       "split": null,
       "ranking": [
         "product:P00009",
-        "product:P00337",
-        "product:P00445",
-        "product:P00184",
-        "product:P00034"
+        "product:P01502",
+        "product:P00107",
+        "product:P01194",
+        "product:P00337"
       ],
-      "top_dense_sim": 0.931531548500061,
+      "top_dense_sim": 0.9315317869186401,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1894,12 +1892,12 @@
       "split": null,
       "ranking": [
         "product:P00009",
+        "product:P01502",
+        "product:P00107",
         "product:P00337",
-        "product:P00445",
-        "product:P00184",
-        "product:P00034"
+        "product:P01104"
       ],
-      "top_dense_sim": 0.9471312165260315,
+      "top_dense_sim": 0.9471311569213867,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1913,12 +1911,12 @@
       "split": null,
       "ranking": [
         "product:P00009",
-        "product:P00337",
-        "product:P00062",
-        "product:P00184",
-        "product:P00034"
+        "product:P01502",
+        "product:P01104",
+        "product:P01194",
+        "product:P00337"
       ],
-      "top_dense_sim": 0.932381808757782,
+      "top_dense_sim": 0.9323816299438477,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1933,11 +1931,11 @@
       "ranking": [
         "product:P00018",
         "product:P00039",
+        "product:P01479",
         "product:P00166",
-        "product:P00005",
-        "product:P00411"
+        "product:P01107"
       ],
-      "top_dense_sim": 0.6566497087478638,
+      "top_dense_sim": 0.7315430641174316,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1951,12 +1949,12 @@
       "split": null,
       "ranking": [
         "product:P00018",
-        "product:P00467",
-        "product:P00141",
         "product:P00197",
-        "product:P00117"
+        "product:P02092",
+        "product:P00590",
+        "product:P02216"
       ],
-      "top_dense_sim": 0.8786059617996216,
+      "top_dense_sim": 0.8786060810089111,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1970,12 +1968,12 @@
       "split": null,
       "ranking": [
         "product:P00018",
+        "product:P00590",
         "product:P00197",
-        "product:P00141",
-        "product:P00467",
-        "product:P00096"
+        "product:P02092",
+        "product:P01299"
       ],
-      "top_dense_sim": 0.8652588129043579,
+      "top_dense_sim": 0.8652586936950684,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -1989,11 +1987,12 @@
       "split": null,
       "ranking": [
         "product:P00018",
-        "product:P00467",
+        "product:P00590",
+        "product:P02092",
         "product:P00197",
-        "product:P00141"
+        "product:P01379"
       ],
-      "top_dense_sim": 0.9504629373550415,
+      "top_dense_sim": 0.9504628777503967,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2007,11 +2006,12 @@
       "split": null,
       "ranking": [
         "product:P00018",
-        "product:P00197",
-        "product:P00467",
-        "product:P00141"
+        "product:P00590",
+        "product:P01299",
+        "product:P02092",
+        "product:P00197"
       ],
-      "top_dense_sim": 0.9464612007141113,
+      "top_dense_sim": 0.9464613199234009,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2025,12 +2025,12 @@
       "split": null,
       "ranking": [
         "product:P00012",
-        "product:P00157",
-        "product:P00222",
-        "product:P00008",
-        "product:P00224"
+        "product:P01649",
+        "product:P01655",
+        "product:P02211",
+        "product:P01191"
       ],
-      "top_dense_sim": 0.9334295392036438,
+      "top_dense_sim": 0.9334295988082886,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2045,11 +2045,11 @@
       "ranking": [
         "product:P00012",
         "product:P00039",
-        "product:P00005",
-        "product:P00399",
-        "product:P00368"
+        "product:P02311",
+        "product:P01107",
+        "product:P01145"
       ],
-      "top_dense_sim": 0.7419279217720032,
+      "top_dense_sim": 0.7419277429580688,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2063,12 +2063,12 @@
       "split": null,
       "ranking": [
         "product:P00012",
-        "product:P00063",
-        "product:P00157",
-        "product:P00222",
-        "product:P00229"
+        "product:P00229",
+        "product:P00934",
+        "product:P01166",
+        "product:P00063"
       ],
-      "top_dense_sim": 0.9764155149459839,
+      "top_dense_sim": 0.9764156341552734,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2082,10 +2082,10 @@
       "split": null,
       "ranking": [
         "product:P00012",
-        "product:P00157",
-        "product:P00222",
-        "product:P00484",
-        "product:P00063"
+        "product:P01649",
+        "product:P02211",
+        "product:P02359",
+        "product:P01606"
       ],
       "top_dense_sim": 0.9774675369262695,
       "predicted_abstain": false,
@@ -2101,10 +2101,10 @@
       "split": null,
       "ranking": [
         "product:P00012",
-        "product:P00063",
-        "product:P00224",
-        "product:P00260",
-        "product:P00484"
+        "product:P00646",
+        "product:P01655",
+        "product:P01191",
+        "product:P00260"
       ],
       "top_dense_sim": 0.9788244962692261,
       "predicted_abstain": false,
@@ -2120,12 +2120,12 @@
       "split": null,
       "ranking": [
         "product:P00001",
+        "product:P00649",
         "product:P00039",
-        "product:P00242",
-        "product:P00126",
-        "product:P00002"
+        "product:P01034",
+        "product:P00242"
       ],
-      "top_dense_sim": 0.8418223261833191,
+      "top_dense_sim": 0.8418223857879639,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2139,12 +2139,12 @@
       "split": null,
       "ranking": [
         "product:P00001",
-        "product:P00129",
-        "product:P00002",
+        "product:P01776",
         "product:P00039",
-        "product:P00236"
+        "product:P00129",
+        "product:P01630"
       ],
-      "top_dense_sim": 0.8531601428985596,
+      "top_dense_sim": 0.8531603217124939,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2158,10 +2158,10 @@
       "split": null,
       "ranking": [
         "product:P00001",
-        "product:P00039",
-        "product:P00236",
-        "product:P02573",
-        "product:P00132"
+        "product:P04698",
+        "product:P01711",
+        "product:P01061",
+        "product:P00473"
       ],
       "top_dense_sim": 0.8954062461853027,
       "predicted_abstain": false,
@@ -2177,12 +2177,12 @@
       "split": null,
       "ranking": [
         "product:P00001",
-        "policy:POL001",
+        "product:P01711",
         "product:P00419",
-        "policy:POL003",
-        "product:P00343"
+        "product:P00575",
+        "product:P00473"
       ],
-      "top_dense_sim": 0.8796381950378418,
+      "top_dense_sim": 0.8796383738517761,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2196,12 +2196,12 @@
       "split": null,
       "ranking": [
         "product:P02520",
-        "product:P02589",
         "product:P02996",
-        "product:P02928",
-        "product:P02505"
+        "product:P04793",
+        "product:P03569",
+        "product:P03840"
       ],
-      "top_dense_sim": 0.832696795463562,
+      "top_dense_sim": 0.8326966762542725,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2215,12 +2215,12 @@
       "split": null,
       "ranking": [
         "product:P02520",
-        "product:P02790",
         "product:P02996",
-        "product:P02845",
-        "product:P02941"
+        "product:P04793",
+        "product:P03569",
+        "product:P04179"
       ],
-      "top_dense_sim": 0.8799650073051453,
+      "top_dense_sim": 0.8799649477005005,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2234,12 +2234,12 @@
       "split": null,
       "ranking": [
         "product:P02520",
-        "product:P02842",
-        "product:P02996",
-        "product:P02816",
-        "product:P02570"
+        "product:P04531",
+        "product:P03423",
+        "product:P04793",
+        "product:P03569"
       ],
-      "top_dense_sim": 0.9082862138748169,
+      "top_dense_sim": 0.9082859754562378,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2253,12 +2253,12 @@
       "split": null,
       "ranking": [
         "product:P02520",
-        "product:P02972",
-        "product:P02570",
         "product:P02996",
-        "product:P02845"
+        "product:P04531",
+        "product:P04793",
+        "product:P04179"
       ],
-      "top_dense_sim": 0.9147648811340332,
+      "top_dense_sim": 0.9147650003433228,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2272,12 +2272,12 @@
       "split": null,
       "ranking": [
         "product:P02520",
+        "product:P04531",
         "product:P02996",
-        "product:P02506",
-        "product:P02570",
-        "product:P02737"
+        "product:P04793",
+        "product:P04892"
       ],
-      "top_dense_sim": 0.8745748996734619,
+      "top_dense_sim": 0.874574601650238,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2290,19 +2290,19 @@
       "kind": "attribute",
       "split": null,
       "ranking": [
-        "product:P00280",
         "product:P00011",
-        "product:P00253",
-        "product:P00302",
-        "product:P00193"
+        "product:P02120",
+        "product:P01434",
+        "product:P01176",
+        "product:P00675"
       ],
-      "top_dense_sim": 0.7289109826087952,
+      "top_dense_sim": 0.7289110422134399,
       "predicted_abstain": false,
-      "recall@1": 0.0,
+      "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
-      "mrr": 0.5,
-      "ndcg@5": 0.6309297535714575
+      "mrr": 1.0,
+      "ndcg@5": 1.0
     },
     {
       "id": "auto_121",
@@ -2310,12 +2310,12 @@
       "split": null,
       "ranking": [
         "product:P00039",
+        "product:P01107",
+        "product:P01200",
         "product:P00399",
-        "product:P00005",
-        "product:P00083",
-        "product:P00469"
+        "product:P01098"
       ],
-      "top_dense_sim": 0.7976893782615662,
+      "top_dense_sim": 0.79768967628479,
       "predicted_abstain": false,
       "recall@1": 0.0,
       "recall@3": 0.0,
@@ -2329,12 +2329,12 @@
       "split": null,
       "ranking": [
         "product:P00011",
+        "product:P02215",
         "product:P00335",
-        "product:P00410",
-        "policy:POL001",
-        "product:P00002"
+        "product:P00932",
+        "product:P02441"
       ],
-      "top_dense_sim": 0.883532702922821,
+      "top_dense_sim": 0.8835325241088867,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2348,12 +2348,12 @@
       "split": null,
       "ranking": [
         "product:P00011",
-        "policy:POL001",
-        "product:P00002",
+        "product:P02297",
+        "product:P00688",
         "product:P00092",
-        "product:P00457"
+        "product:P04665"
       ],
-      "top_dense_sim": 0.9089590907096863,
+      "top_dense_sim": 0.9089590311050415,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2367,10 +2367,10 @@
       "split": null,
       "ranking": [
         "product:P00011",
-        "product:P02720",
-        "product:P00022",
-        "product:P00253",
-        "product:P00302"
+        "product:P02231",
+        "product:P01153",
+        "product:P00039",
+        "product:P00690"
       ],
       "top_dense_sim": 0.6342319250106812,
       "predicted_abstain": false,
@@ -2386,12 +2386,12 @@
       "split": null,
       "ranking": [
         "product:P00003",
-        "product:P00049",
-        "product:P00248",
-        "product:P00273",
-        "product:P00471"
+        "product:P01408",
+        "product:P01547",
+        "product:P01043",
+        "product:P00049"
       ],
-      "top_dense_sim": 0.9469966888427734,
+      "top_dense_sim": 0.9469964504241943,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2405,12 +2405,12 @@
       "split": null,
       "ranking": [
         "product:P00003",
-        "product:P00036",
-        "product:P00248",
-        "product:P00123",
-        "product:P00049"
+        "product:P01043",
+        "product:P00895",
+        "product:P02455",
+        "product:P00983"
       ],
-      "top_dense_sim": 0.8273823261260986,
+      "top_dense_sim": 0.8273822069168091,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2424,12 +2424,12 @@
       "split": null,
       "ranking": [
         "product:P00003",
-        "product:P00049",
-        "product:P00062",
-        "product:P00248",
-        "product:P00123"
+        "product:P01043",
+        "product:P02455",
+        "product:P01547",
+        "product:P00062"
       ],
-      "top_dense_sim": 0.9293607473373413,
+      "top_dense_sim": 0.9293608069419861,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2443,12 +2443,12 @@
       "split": null,
       "ranking": [
         "product:P00003",
-        "product:P00049",
-        "product:P00248",
-        "product:P00062",
-        "product:P00471"
+        "product:P01043",
+        "product:P01547",
+        "product:P02455",
+        "product:P00062"
       ],
-      "top_dense_sim": 0.9835833311080933,
+      "top_dense_sim": 0.9835832715034485,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2462,12 +2462,12 @@
       "split": null,
       "ranking": [
         "product:P00003",
-        "product:P00049",
+        "product:P01547",
+        "product:P01043",
         "product:P00062",
-        "product:P00248",
-        "product:P00471"
+        "product:P02455"
       ],
-      "top_dense_sim": 0.9879766702651978,
+      "top_dense_sim": 0.9879767894744873,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2482,11 +2482,11 @@
       "ranking": [
         "product:P00005",
         "product:P00039",
-        "product:P00399",
-        "product:P00111",
-        "product:P00469"
+        "product:P01200",
+        "product:P01107",
+        "product:P00399"
       ],
-      "top_dense_sim": 0.8768333196640015,
+      "top_dense_sim": 0.876833438873291,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2500,12 +2500,12 @@
       "split": null,
       "ranking": [
         "product:P00005",
-        "product:P00483",
-        "product:P00467",
-        "product:P00413",
-        "product:P00087"
+        "product:P02417",
+        "product:P01684",
+        "product:P01910",
+        "product:P02064"
       ],
-      "top_dense_sim": 0.8758691549301147,
+      "top_dense_sim": 0.8758692741394043,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2520,11 +2520,11 @@
       "ranking": [
         "product:P00005",
         "product:P00201",
-        "product:P00065",
-        "product:P00133",
-        "product:P00350"
+        "product:P00932",
+        "product:P01776",
+        "product:P02063"
       ],
-      "top_dense_sim": 0.9004706144332886,
+      "top_dense_sim": 0.9004707336425781,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2538,10 +2538,10 @@
       "split": null,
       "ranking": [
         "product:P00005",
-        "policy:POL001",
-        "product:P00014",
-        "policy:POL003",
-        "product:P00413"
+        "product:P02086",
+        "product:P01676",
+        "product:P02417",
+        "product:P02064"
       ],
       "top_dense_sim": 0.9185561537742615,
       "predicted_abstain": false,
@@ -2557,12 +2557,12 @@
       "split": null,
       "ranking": [
         "product:P00005",
-        "product:P00143",
-        "product:P00202",
-        "product:P00366",
-        "product:P00342"
+        "product:P01145",
+        "product:P01687",
+        "product:P02064",
+        "product:P01894"
       ],
-      "top_dense_sim": 0.9486223459243774,
+      "top_dense_sim": 0.9486222267150879,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2576,12 +2576,12 @@
       "split": null,
       "ranking": [
         "product:P00004",
-        "product:P00326",
-        "product:P00007",
-        "product:P00372",
-        "product:P00185"
+        "product:P00967",
+        "product:P01774",
+        "product:P00636",
+        "product:P01482"
       ],
-      "top_dense_sim": 0.9706084728240967,
+      "top_dense_sim": 0.9706083536148071,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2595,12 +2595,12 @@
       "split": null,
       "ranking": [
         "product:P00004",
+        "product:P01715",
+        "product:P02280",
         "product:P00033",
-        "product:P00206",
-        "product:P00007",
-        "product:P00185"
+        "product:P00967"
       ],
-      "top_dense_sim": 0.9835529327392578,
+      "top_dense_sim": 0.9835527539253235,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2614,11 +2614,12 @@
       "split": null,
       "ranking": [
         "product:P00004",
-        "product:P00033",
-        "product:P00185",
-        "product:P00007"
+        "product:P02280",
+        "product:P01716",
+        "product:P00967",
+        "product:P01560"
       ],
-      "top_dense_sim": 0.975744366645813,
+      "top_dense_sim": 0.9757444262504578,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2632,12 +2633,12 @@
       "split": null,
       "ranking": [
         "product:P00004",
-        "product:P00033",
+        "product:P02280",
         "product:P00185",
-        "product:P00007",
-        "product:P00326"
+        "product:P02389",
+        "product:P00007"
       ],
-      "top_dense_sim": 0.9694784879684448,
+      "top_dense_sim": 0.9694786071777344,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2651,11 +2652,12 @@
       "split": null,
       "ranking": [
         "product:P02509",
-        "product:P02659",
-        "product:P02846",
-        "product:P02911"
+        "product:P04597",
+        "product:P04313",
+        "product:P03328",
+        "product:P03571"
       ],
-      "top_dense_sim": 0.9779092073440552,
+      "top_dense_sim": 0.9779092669487,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2669,11 +2671,12 @@
       "split": null,
       "ranking": [
         "product:P02509",
-        "product:P02659",
-        "product:P02911",
-        "product:P02846"
+        "product:P04597",
+        "product:P03571",
+        "product:P04905",
+        "product:P03328"
       ],
-      "top_dense_sim": 0.977547287940979,
+      "top_dense_sim": 0.9775474071502686,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2687,10 +2690,10 @@
       "split": null,
       "ranking": [
         "product:P02509",
-        "product:P02659",
-        "product:P02911",
-        "product:P02541",
-        "product:P02794"
+        "product:P04597",
+        "product:P03328",
+        "product:P04905",
+        "product:P04266"
       ],
       "top_dense_sim": 0.9702199697494507,
       "predicted_abstain": false,
@@ -2706,12 +2709,11 @@
       "split": null,
       "ranking": [
         "product:P02509",
-        "product:P02659",
-        "product:P02911",
-        "product:P02846",
-        "product:P02698"
+        "product:P03328",
+        "product:P04597",
+        "product:P04905"
       ],
-      "top_dense_sim": 0.9847690463066101,
+      "top_dense_sim": 0.9847691059112549,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2725,10 +2727,10 @@
       "split": null,
       "ranking": [
         "product:P02509",
-        "product:P02817",
-        "product:P02846",
-        "product:P02698",
-        "product:P02659"
+        "product:P04313",
+        "product:P04597",
+        "product:P04615",
+        "product:P03994"
       ],
       "top_dense_sim": 0.9736008644104004,
       "predicted_abstain": false,
@@ -2745,11 +2747,11 @@
       "ranking": [
         "product:P00007",
         "product:P00185",
-        "product:P00206",
         "product:P00033",
+        "product:P00693",
         "product:P00013"
       ],
-      "top_dense_sim": 0.9787547588348389,
+      "top_dense_sim": 0.9787548780441284,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2763,7 +2765,10 @@
       "split": null,
       "ranking": [
         "product:P00007",
-        "product:P00206"
+        "product:P01792",
+        "product:P00765",
+        "product:P00206",
+        "product:P00567"
       ],
       "top_dense_sim": 0.9529578685760498,
       "predicted_abstain": false,
@@ -2779,9 +2784,11 @@
       "split": null,
       "ranking": [
         "product:P00007",
+        "product:P02389",
+        "product:P00693",
         "product:P00206"
       ],
-      "top_dense_sim": 0.9816097021102905,
+      "top_dense_sim": 0.9816096425056458,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2795,9 +2802,10 @@
       "split": null,
       "ranking": [
         "product:P00007",
-        "product:P00206"
+        "product:P00206",
+        "product:P00693"
       ],
-      "top_dense_sim": 0.9803763031959534,
+      "top_dense_sim": 0.9803764820098877,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2811,9 +2819,11 @@
       "split": null,
       "ranking": [
         "product:P00007",
+        "product:P00905",
+        "product:P02369",
         "product:P00206"
       ],
-      "top_dense_sim": 0.9163705706596375,
+      "top_dense_sim": 0.9163704514503479,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2827,12 +2837,12 @@
       "split": null,
       "ranking": [
         "product:P02515",
-        "product:P02659",
-        "product:P02912",
+        "product:P04563",
         "product:P02944",
-        "product:P02541"
+        "product:P04309",
+        "product:P04975"
       ],
-      "top_dense_sim": 0.7318375110626221,
+      "top_dense_sim": 0.7318373322486877,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2846,12 +2856,12 @@
       "split": null,
       "ranking": [
         "product:P02515",
-        "product:P02659",
-        "product:P02541",
+        "product:P04563",
         "product:P02944",
-        "product:P02908"
+        "product:P04309",
+        "product:P03555"
       ],
-      "top_dense_sim": 0.741942822933197,
+      "top_dense_sim": 0.7419428825378418,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2865,12 +2875,12 @@
       "split": null,
       "ranking": [
         "product:P02515",
-        "product:P02569",
-        "product:P02541",
-        "product:P00229",
-        "product:P02659"
+        "product:P04563",
+        "product:P04309",
+        "product:P02659",
+        "product:P02541"
       ],
-      "top_dense_sim": 0.7741429805755615,
+      "top_dense_sim": 0.774142861366272,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2884,12 +2894,12 @@
       "split": null,
       "ranking": [
         "product:P02515",
-        "product:P02659",
-        "product:P02908",
-        "product:P02912",
-        "policy:POL001"
+        "product:P04563",
+        "product:P04309",
+        "product:P03924",
+        "product:P03031"
       ],
-      "top_dense_sim": 0.8561350107192993,
+      "top_dense_sim": 0.8561352491378784,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2902,19 +2912,19 @@
       "kind": "attribute",
       "split": null,
       "ranking": [
-        "product:P02683",
-        "product:P02696",
         "product:P02515",
-        "product:P02720",
-        "product:P02975"
+        "product:P04698",
+        "product:P02683",
+        "product:P03002",
+        "product:P04745"
       ],
-      "top_dense_sim": 0.6692372560501099,
+      "top_dense_sim": 0.7257136106491089,
       "predicted_abstain": false,
-      "recall@1": 0.0,
+      "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
-      "mrr": 0.3333333333333333,
-      "ndcg@5": 0.5
+      "mrr": 1.0,
+      "ndcg@5": 1.0
     },
     {
       "id": "auto_154",
@@ -2922,12 +2932,12 @@
       "split": null,
       "ranking": [
         "product:P02511",
+        "product:P04137",
         "product:P02570",
-        "product:P02834",
-        "product:P02781",
-        "product:P02543"
+        "product:P03423",
+        "product:P04604"
       ],
-      "top_dense_sim": 0.931566596031189,
+      "top_dense_sim": 0.9315667152404785,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2941,12 +2951,12 @@
       "split": null,
       "ranking": [
         "product:P02511",
+        "product:P04137",
+        "product:P04004",
         "product:P02941",
-        "product:P02703",
-        "product:P02542",
-        "product:P02845"
+        "product:P03124"
       ],
-      "top_dense_sim": 0.8502923846244812,
+      "top_dense_sim": 0.850292444229126,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2960,10 +2970,10 @@
       "split": null,
       "ranking": [
         "product:P02511",
-        "product:P00315",
-        "product:P02707",
-        "product:P00486",
-        "product:P02543"
+        "product:P04137",
+        "product:P04604",
+        "product:P00728",
+        "product:P03893"
       ],
       "top_dense_sim": 0.9086065888404846,
       "predicted_abstain": false,
@@ -2979,12 +2989,12 @@
       "split": null,
       "ranking": [
         "product:P02511",
-        "product:P02941",
-        "product:P02813",
-        "product:P02749",
-        "product:P02543"
+        "product:P04137",
+        "product:P04604",
+        "product:P03548",
+        "product:P03434"
       ],
-      "top_dense_sim": 0.9655914306640625,
+      "top_dense_sim": 0.965591549873352,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -2998,10 +3008,10 @@
       "split": null,
       "ranking": [
         "product:P02511",
-        "product:P02550",
+        "product:P04137",
+        "product:P04994",
         "product:P02683",
-        "product:P02696",
-        "product:P02879"
+        "product:P04698"
       ],
       "top_dense_sim": 0.8143376111984253,
       "predicted_abstain": false,
@@ -3017,12 +3027,12 @@
       "split": null,
       "ranking": [
         "product:P00006",
-        "product:P00212",
         "product:P02676",
+        "product:P00307",
         "product:P00167",
-        "product:P00307"
+        "product:P00500"
       ],
-      "top_dense_sim": 0.9386438131332397,
+      "top_dense_sim": 0.9386436939239502,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3036,12 +3046,12 @@
       "split": null,
       "ranking": [
         "product:P00006",
-        "product:P00093",
-        "product:P00414",
-        "product:P02638",
-        "product:P00167"
+        "product:P01659",
+        "product:P00992",
+        "product:P01832",
+        "product:P00093"
       ],
-      "top_dense_sim": 0.9441612362861633,
+      "top_dense_sim": 0.9441611766815186,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3055,12 +3065,12 @@
       "split": null,
       "ranking": [
         "product:P00006",
+        "product:P02431",
         "product:P00480",
-        "product:P00414",
-        "product:P00002",
-        "product:P00438"
+        "product:P01444",
+        "product:P01257"
       ],
-      "top_dense_sim": 0.8634737730026245,
+      "top_dense_sim": 0.863473653793335,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3074,12 +3084,12 @@
       "split": null,
       "ranking": [
         "product:P00006",
-        "product:P00129",
-        "product:P00001",
-        "product:P00368",
-        "product:P00039"
+        "product:P00126",
+        "product:P01776",
+        "product:P00039",
+        "product:P00129"
       ],
-      "top_dense_sim": 0.7120871543884277,
+      "top_dense_sim": 0.7120874524116516,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3094,11 +3104,11 @@
       "ranking": [
         "product:P00006",
         "product:P00167",
+        "product:P04212",
         "product:P02900",
-        "product:P00414",
-        "policy:POL001"
+        "product:P00602"
       ],
-      "top_dense_sim": 0.9398038387298584,
+      "top_dense_sim": 0.939803957939148,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3112,12 +3122,12 @@
       "split": null,
       "ranking": [
         "product:P02501",
-        "product:P02975",
-        "product:P02622",
-        "product:P02939",
-        "product:P02663"
+        "product:P04098",
+        "product:P03649",
+        "product:P03237",
+        "product:P02981"
       ],
-      "top_dense_sim": 0.9576637744903564,
+      "top_dense_sim": 0.9576638340950012,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3131,12 +3141,12 @@
       "split": null,
       "ranking": [
         "product:P02501",
-        "product:P02663",
-        "product:P02853",
-        "product:P02919",
+        "product:P03507",
+        "product:P04098",
+        "product:P03649",
         "product:P02622"
       ],
-      "top_dense_sim": 0.9694141149520874,
+      "top_dense_sim": 0.9694140553474426,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3150,10 +3160,10 @@
       "split": null,
       "ranking": [
         "product:P02501",
-        "product:P00022",
+        "product:P03507",
         "product:P02622",
-        "product:P02847",
-        "product:P02663"
+        "product:P04098",
+        "product:P03649"
       ],
       "top_dense_sim": 0.9663327932357788,
       "predicted_abstain": false,
@@ -3169,12 +3179,12 @@
       "split": null,
       "ranking": [
         "product:P02501",
-        "product:P02622",
-        "product:P02894",
-        "product:P02663",
-        "product:P02954"
+        "product:P04896",
+        "product:P04098",
+        "product:P04401",
+        "product:P04004"
       ],
-      "top_dense_sim": 0.9816006422042847,
+      "top_dense_sim": 0.9816007614135742,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3188,12 +3198,12 @@
       "split": null,
       "ranking": [
         "product:P02501",
-        "product:P02919",
-        "product:P02622",
-        "product:P02975",
-        "product:P02663"
+        "product:P04098",
+        "product:P03649",
+        "product:P04745",
+        "product:P02622"
       ],
-      "top_dense_sim": 0.9764493703842163,
+      "top_dense_sim": 0.9764494895935059,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3207,11 +3217,12 @@
       "split": null,
       "ranking": [
         "product:P02506",
-        "product:P02643",
-        "product:P02614",
-        "product:P02545"
+        "product:P03484",
+        "product:P04945",
+        "product:P04228",
+        "product:P03661"
       ],
-      "top_dense_sim": 0.9520692825317383,
+      "top_dense_sim": 0.9520691633224487,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3225,11 +3236,11 @@
       "split": null,
       "ranking": [
         "product:P02506",
-        "product:P02643",
-        "product:P02614",
-        "product:P02545"
+        "product:P03484",
+        "product:P03661",
+        "product:P04228"
       ],
-      "top_dense_sim": 0.9847679734230042,
+      "top_dense_sim": 0.9847680330276489,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3243,11 +3254,11 @@
       "split": null,
       "ranking": [
         "product:P02506",
-        "product:P02643",
-        "product:P02614",
-        "product:P02545"
+        "product:P03484",
+        "product:P04228",
+        "product:P03661"
       ],
-      "top_dense_sim": 0.9841469526290894,
+      "top_dense_sim": 0.9841471314430237,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3261,11 +3272,11 @@
       "split": null,
       "ranking": [
         "product:P02506",
-        "product:P02643",
-        "product:P02614",
-        "product:P02545"
+        "product:P03484",
+        "product:P04228",
+        "product:P03661"
       ],
-      "top_dense_sim": 0.9791949987411499,
+      "top_dense_sim": 0.9791949391365051,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3279,10 +3290,9 @@
       "split": null,
       "ranking": [
         "product:P02506",
-        "product:P02643",
-        "product:P02785",
-        "product:P02844",
-        "product:P02614"
+        "product:P03484",
+        "product:P04228",
+        "product:P03661"
       ],
       "top_dense_sim": 0.979012131690979,
       "predicted_abstain": false,
@@ -3297,19 +3307,19 @@
       "kind": "attribute",
       "split": null,
       "ranking": [
-        "product:P00039",
-        "product:P00005",
-        "product:P00469",
         "product:P00019",
-        "product:P00187"
+        "product:P00039",
+        "product:P01107",
+        "product:P00399",
+        "product:P01383"
       ],
-      "top_dense_sim": 0.7148218154907227,
+      "top_dense_sim": 0.7148216962814331,
       "predicted_abstain": false,
-      "recall@1": 0.0,
-      "recall@3": 0.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
       "recall@5": 1.0,
-      "mrr": 0.25,
-      "ndcg@5": 0.43067655807339306
+      "mrr": 1.0,
+      "ndcg@5": 1.0
     },
     {
       "id": "auto_175",
@@ -3317,12 +3327,12 @@
       "split": null,
       "ranking": [
         "product:P00019",
-        "product:P00467",
-        "product:P00141",
-        "product:P00297",
-        "product:P00197"
+        "product:P00829",
+        "product:P00685",
+        "product:P01523",
+        "product:P00710"
       ],
-      "top_dense_sim": 0.9208433628082275,
+      "top_dense_sim": 0.9208435416221619,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3336,12 +3346,12 @@
       "split": null,
       "ranking": [
         "product:P00019",
-        "product:P00141",
-        "product:P00467",
-        "product:P00143",
-        "product:P00197"
+        "product:P02012",
+        "product:P00685",
+        "product:P00829",
+        "product:P00590"
       ],
-      "top_dense_sim": 0.9235410094261169,
+      "top_dense_sim": 0.9235407114028931,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3355,12 +3365,12 @@
       "split": null,
       "ranking": [
         "product:P00019",
-        "product:P00141",
         "product:P00166",
-        "product:P00467",
-        "product:P00197"
+        "product:P01479",
+        "product:P02216",
+        "product:P00141"
       ],
-      "top_dense_sim": 0.9169013500213623,
+      "top_dense_sim": 0.9169014692306519,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3374,12 +3384,12 @@
       "split": null,
       "ranking": [
         "product:P00019",
-        "product:P00141",
+        "product:P00869",
         "product:P00166",
-        "product:P00467",
-        "product:P00312"
+        "product:P00141",
+        "product:P01479"
       ],
-      "top_dense_sim": 0.9228682518005371,
+      "top_dense_sim": 0.9228683710098267,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3393,11 +3403,12 @@
       "split": null,
       "ranking": [
         "product:P00020",
-        "product:P00390",
         "product:P00261",
-        "product:P00409"
+        "product:P00390",
+        "product:P00748",
+        "product:P01921"
       ],
-      "top_dense_sim": 0.9114366769790649,
+      "top_dense_sim": 0.9114368557929993,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3411,12 +3422,12 @@
       "split": null,
       "ranking": [
         "product:P00020",
-        "product:P00039",
-        "product:P00005",
-        "product:P00261",
-        "product:P00036"
+        "product:P00409",
+        "product:P02125",
+        "product:P00748",
+        "product:P00261"
       ],
-      "top_dense_sim": 0.7777105569839478,
+      "top_dense_sim": 0.7777106761932373,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3432,9 +3443,10 @@
         "product:P00020",
         "product:P00390",
         "product:P00261",
-        "product:P00409"
+        "product:P00409",
+        "product:P02125"
       ],
-      "top_dense_sim": 0.9665606021881104,
+      "top_dense_sim": 0.9665605425834656,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3450,10 +3462,10 @@
         "product:P00020",
         "product:P00390",
         "product:P00261",
-        "product:P00409",
+        "product:P01921",
         "product:P00194"
       ],
-      "top_dense_sim": 0.951072633266449,
+      "top_dense_sim": 0.9510728120803833,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3468,11 +3480,11 @@
       "ranking": [
         "product:P00020",
         "product:P00261",
-        "product:P00409",
         "product:P00390",
+        "product:P00409",
         "product:P00194"
       ],
-      "top_dense_sim": 0.946387767791748,
+      "top_dense_sim": 0.9463876485824585,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3486,11 +3498,12 @@
       "split": null,
       "ranking": [
         "product:P02519",
+        "product:P03033",
+        "product:P04519",
         "product:P02702",
-        "product:P02673",
-        "product:P02662"
+        "product:P03350"
       ],
-      "top_dense_sim": 0.9257000684738159,
+      "top_dense_sim": 0.9256999492645264,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3504,12 +3517,12 @@
       "split": null,
       "ranking": [
         "product:P02519",
+        "product:P03033",
         "product:P02702",
-        "product:P02975",
-        "product:P02524",
-        "product:P02939"
+        "product:P04519",
+        "product:P03350"
       ],
-      "top_dense_sim": 0.8950467109680176,
+      "top_dense_sim": 0.8950468301773071,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3523,11 +3536,12 @@
       "split": null,
       "ranking": [
         "product:P02519",
+        "product:P03350",
+        "product:P03033",
         "product:P02702",
-        "product:P02673",
-        "product:P02541"
+        "product:P04519"
       ],
-      "top_dense_sim": 0.9100302457809448,
+      "top_dense_sim": 0.9100303649902344,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3541,11 +3555,12 @@
       "split": null,
       "ranking": [
         "product:P02519",
+        "product:P03033",
+        "product:P03350",
         "product:P02702",
-        "product:P02673",
-        "product:P02524"
+        "product:P04519"
       ],
-      "top_dense_sim": 0.9744121432304382,
+      "top_dense_sim": 0.9744119048118591,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3560,11 +3575,11 @@
       "ranking": [
         "product:P02519",
         "product:P02702",
-        "product:P02673",
-        "product:P02816",
-        "product:P02662"
+        "product:P03033",
+        "product:P03350",
+        "product:P03444"
       ],
-      "top_dense_sim": 0.9503827095031738,
+      "top_dense_sim": 0.9503824710845947,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3578,12 +3593,12 @@
       "split": null,
       "ranking": [
         "product:P02503",
-        "policy:POL001",
-        "product:P02802",
-        "policy:POL003",
-        "product:P02524"
+        "product:P03822",
+        "product:P04330",
+        "product:P03611",
+        "product:P04970"
       ],
-      "top_dense_sim": 0.9106252193450928,
+      "top_dense_sim": 0.9106254577636719,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3597,10 +3612,10 @@
       "split": null,
       "ranking": [
         "product:P02503",
-        "policy:POL001",
-        "product:P02802",
-        "policy:POL003",
-        "product:P02524"
+        "product:P02667",
+        "product:P03822",
+        "product:P04330",
+        "product:P03846"
       ],
       "top_dense_sim": 0.9025331735610962,
       "predicted_abstain": false,
@@ -3616,12 +3631,12 @@
       "split": null,
       "ranking": [
         "product:P02503",
-        "product:P02802",
-        "product:P02817",
-        "product:P02524",
-        "product:P02696"
+        "product:P04330",
+        "product:P03659",
+        "product:P04716",
+        "product:P04328"
       ],
-      "top_dense_sim": 0.9454665184020996,
+      "top_dense_sim": 0.9454663991928101,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3635,12 +3650,12 @@
       "split": null,
       "ranking": [
         "product:P02503",
-        "product:P02846",
-        "product:P02596",
-        "product:P02524",
-        "policy:POL001"
+        "product:P03822",
+        "product:P04330",
+        "product:P03611",
+        "product:P04742"
       ],
-      "top_dense_sim": 0.9154266715049744,
+      "top_dense_sim": 0.9154267311096191,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3654,10 +3669,10 @@
       "split": null,
       "ranking": [
         "product:P02503",
-        "product:P02622",
-        "product:P02645",
-        "product:P02632",
-        "product:P02845"
+        "product:P03822",
+        "product:P04970",
+        "product:P03210",
+        "product:P04665"
       ],
       "top_dense_sim": 0.8870569467544556,
       "predicted_abstain": false,
@@ -3673,12 +3688,12 @@
       "split": null,
       "ranking": [
         "product:P00010",
-        "product:P00329",
-        "product:P00422",
-        "product:P00248",
-        "product:P00414"
+        "product:P01449",
+        "product:P02346",
+        "product:P01739",
+        "product:P01454"
       ],
-      "top_dense_sim": 0.9523940086364746,
+      "top_dense_sim": 0.9523938894271851,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3692,12 +3707,12 @@
       "split": null,
       "ranking": [
         "product:P00010",
-        "product:P02667",
-        "product:P00207",
+        "product:P00887",
         "product:P00477",
-        "product:P00033"
+        "product:P01832",
+        "product:P00749"
       ],
-      "top_dense_sim": 0.9156529307365417,
+      "top_dense_sim": 0.9156526923179626,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3711,12 +3726,12 @@
       "split": null,
       "ranking": [
         "product:P00010",
-        "product:P02903",
-        "product:P00248",
-        "product:P00184",
-        "product:P00216"
+        "product:P04294",
+        "product:P01454",
+        "product:P01076",
+        "product:P00703"
       ],
-      "top_dense_sim": 0.9735184907913208,
+      "top_dense_sim": 0.9735185503959656,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3730,12 +3745,12 @@
       "split": null,
       "ranking": [
         "product:P00010",
-        "policy:POL001",
-        "product:P00248",
-        "policy:POL003",
-        "product:P00216"
+        "product:P01907",
+        "product:P01454",
+        "product:P02450",
+        "product:P01739"
       ],
-      "top_dense_sim": 0.9402981400489807,
+      "top_dense_sim": 0.9402980804443359,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3749,12 +3764,12 @@
       "split": null,
       "ranking": [
         "product:P00010",
-        "policy:POL001",
-        "product:P00248",
-        "policy:POL003",
-        "product:P00216"
+        "product:P00755",
+        "product:P01907",
+        "product:P02450",
+        "product:P01454"
       ],
-      "top_dense_sim": 0.9394774436950684,
+      "top_dense_sim": 0.9394773840904236,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3769,9 +3784,9 @@
       "ranking": [
         "product:P00016",
         "product:P00351",
-        "product:P00357",
-        "product:P00345",
-        "product:P00202"
+        "product:P02399",
+        "product:P02250",
+        "product:P02456"
       ],
       "top_dense_sim": 0.8935741186141968,
       "predicted_abstain": false,
@@ -3788,11 +3803,11 @@
       "ranking": [
         "product:P00016",
         "product:P00039",
-        "product:P00399",
-        "product:P00368",
-        "product:P00448"
+        "product:P01548",
+        "product:P01107",
+        "product:P01031"
       ],
-      "top_dense_sim": 0.8221055269241333,
+      "top_dense_sim": 0.8221056461334229,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3806,28 +3821,25 @@
       "split": null,
       "ranking": [
         "product:P00016",
-        "product:P00351",
         "product:P02512",
-        "product:P00345",
-        "product:P00073"
+        "product:P04758",
+        "product:P01096",
+        "product:P02399"
       ],
-      "top_dense_sim": 0.8633311986923218,
+      "top_dense_sim": 0.863331139087677,
       "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.9197207891481876
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_002",
       "kind": "budget",
       "split": null,
       "ranking": [
-        "product:P02516",
-        "product:P02581",
-        "product:P02953",
-        "product:P02594"
+        "product:P02516"
       ],
       "top_dense_sim": 0.9838324189186096,
       "predicted_abstain": false,
@@ -3843,12 +3855,12 @@
       "split": null,
       "ranking": [
         "product:P02508",
-        "product:P02984",
-        "product:P02660",
-        "product:P02826",
-        "product:P02719"
+        "product:P04753",
+        "product:P04161",
+        "product:P03739",
+        "product:P03058"
       ],
-      "top_dense_sim": 0.9713042974472046,
+      "top_dense_sim": 0.9713044762611389,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3862,11 +3874,12 @@
       "split": null,
       "ranking": [
         "product:P02516",
-        "product:P02581",
-        "product:P02953",
-        "product:P02594"
+        "product:P04065",
+        "product:P03981",
+        "product:P03689",
+        "product:P03373"
       ],
-      "top_dense_sim": 0.9877395033836365,
+      "top_dense_sim": 0.9877394437789917,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3879,13 +3892,13 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
+        "product:P00780",
+        "product:P00643",
         "policy:POL001",
-        "product:P00420",
-        "policy:POL002",
-        "product:P00311",
-        "product:P00320"
+        "product:P03276",
+        "policy:POL002"
       ],
-      "top_dense_sim": 0.4088749885559082,
+      "top_dense_sim": 0.4260110855102539,
       "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
@@ -3898,13 +3911,13 @@
       "kind": "compound",
       "split": null,
       "ranking": [
-        "product:P02505",
         "product:P02514",
+        "product:P02505",
         "product:P02909",
-        "product:P02878",
-        "product:P02596"
+        "product:P04565",
+        "product:P04255"
       ],
-      "top_dense_sim": 0.8799515962600708,
+      "top_dense_sim": 0.8799518346786499,
       "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
@@ -3917,13 +3930,9 @@
       "kind": "budget",
       "split": null,
       "ranking": [
-        "product:P02502",
-        "product:P02539",
-        "product:P02797",
-        "product:P02592",
-        "product:P02894"
+        "product:P02502"
       ],
-      "top_dense_sim": 0.9830771088600159,
+      "top_dense_sim": 0.9830772876739502,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3937,12 +3946,12 @@
       "split": null,
       "ranking": [
         "product:P00017",
-        "product:P00264",
-        "product:P00453",
-        "product:P00391",
-        "product:P00032"
+        "product:P01568",
+        "product:P01590",
+        "product:P02493",
+        "product:P02111"
       ],
-      "top_dense_sim": 0.9556261301040649,
+      "top_dense_sim": 0.9556262493133545,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3956,12 +3965,12 @@
       "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00252",
-        "product:P00270",
-        "product:P00033",
-        "product:P00206"
+        "product:P02147",
+        "product:P02405",
+        "product:P00519",
+        "product:P01283"
       ],
-      "top_dense_sim": 0.977372407913208,
+      "top_dense_sim": 0.9773725271224976,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -3974,11 +3983,11 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
+        "product:P00643",
         "policy:POL001",
-        "product:P02868",
+        "product:P03655",
         "policy:POL002",
-        "product:P00420",
-        "product:P00320"
+        "product:P04818"
       ],
       "top_dense_sim": 0.4292601943016052,
       "predicted_abstain": false,
@@ -3993,13 +4002,13 @@
       "kind": "compound",
       "split": null,
       "ranking": [
-        "product:P00012",
         "product:P00018",
-        "product:P00197",
-        "product:P00048",
-        "product:P00141"
+        "product:P00012",
+        "product:P00590",
+        "product:P01259",
+        "product:P02092"
       ],
-      "top_dense_sim": 0.7676650881767273,
+      "top_dense_sim": 0.7676652669906616,
       "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
@@ -4012,13 +4021,9 @@
       "kind": "budget",
       "split": null,
       "ranking": [
-        "product:P00005",
-        "policy:POL002",
-        "product:P00014",
-        "policy:POL001",
-        "product:P00413"
+        "product:P00005"
       ],
-      "top_dense_sim": 0.8209526538848877,
+      "top_dense_sim": 0.8209525942802429,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4032,10 +4037,10 @@
       "split": null,
       "ranking": [
         "product:P00011",
-        "product:P02775",
-        "product:P00473",
-        "product:P02765",
-        "product:P00002"
+        "product:P02153",
+        "product:P00940",
+        "product:P04988",
+        "product:P01203"
       ],
       "top_dense_sim": 0.7001038789749146,
       "predicted_abstain": false,
@@ -4051,12 +4056,12 @@
       "split": null,
       "ranking": [
         "product:P00005",
-        "product:P00054",
-        "product:P00413",
-        "product:P02897",
-        "product:P00203"
+        "product:P02417",
+        "product:P02064",
+        "product:P01489",
+        "product:P00910"
       ],
-      "top_dense_sim": 0.8928219079971313,
+      "top_dense_sim": 0.8928217887878418,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4069,11 +4074,11 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
-        "policy:POL001",
-        "product:P02862",
-        "policy:POL002",
-        "product:P00420",
-        "product:P00320"
+        "product:P00643",
+        "product:P03994",
+        "product:P03616",
+        "product:P02186",
+        "policy:POL001"
       ],
       "top_dense_sim": 0.42969954013824463,
       "predicted_abstain": false,
@@ -4090,9 +4095,8 @@
       "ranking": [
         "product:P02511",
         "product:P02515",
-        "product:P02944",
-        "product:P02524",
-        "product:P02996"
+        "product:P04137",
+        "product:P04309"
       ],
       "top_dense_sim": 0.8451296091079712,
       "predicted_abstain": false,
@@ -4108,10 +4112,7 @@
       "split": null,
       "ranking": [
         "product:P02519",
-        "product:P02702",
-        "product:P02673",
-        "product:P02687",
-        "product:P02524"
+        "product:P02702"
       ],
       "top_dense_sim": 0.9845505952835083,
       "predicted_abstain": false,
@@ -4127,11 +4128,11 @@
       "split": null,
       "ranking": [
         "product:P02506",
-        "product:P02643",
-        "product:P02614",
-        "product:P02545"
+        "product:P03484",
+        "product:P03661",
+        "product:P04228"
       ],
-      "top_dense_sim": 0.9651431441307068,
+      "top_dense_sim": 0.9651429057121277,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4145,12 +4146,12 @@
       "split": null,
       "ranking": [
         "product:P00020",
-        "product:P00261",
-        "product:P00409",
         "product:P00390",
-        "product:P00194"
+        "product:P00194",
+        "product:P01921",
+        "product:P00409"
       ],
-      "top_dense_sim": 0.9817191958427429,
+      "top_dense_sim": 0.9817191362380981,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4163,13 +4164,13 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
+        "product:P03892",
+        "product:P00875",
         "product:P00473",
-        "policy:POL001",
-        "product:P00420",
-        "policy:POL002",
-        "product:P02862"
+        "product:P03276",
+        "policy:POL001"
       ],
-      "top_dense_sim": 0.43103694915771484,
+      "top_dense_sim": 0.4310370087623596,
       "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
@@ -4183,18 +4184,18 @@
       "split": null,
       "ranking": [
         "product:P00016",
-        "product:P00351",
         "product:P02512",
-        "product:P00345",
-        "product:P00073"
+        "product:P04758",
+        "product:P01096",
+        "product:P02399"
       ],
-      "top_dense_sim": 0.8633311986923218,
+      "top_dense_sim": 0.863331139087677,
       "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.9197207891481876
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_022",
@@ -4202,12 +4203,10 @@
       "split": null,
       "ranking": [
         "product:P02514",
-        "product:P02598",
-        "product:P02952",
-        "product:P02878",
-        "product:P02580"
+        "product:P04887",
+        "product:P03923"
       ],
-      "top_dense_sim": 0.9792239665985107,
+      "top_dense_sim": 0.9792240262031555,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4221,12 +4220,12 @@
       "split": null,
       "ranking": [
         "product:P02508",
-        "product:P02984",
-        "product:P02660",
-        "product:P02826",
-        "product:P02719"
+        "product:P04753",
+        "product:P04161",
+        "product:P03739",
+        "product:P03058"
       ],
-      "top_dense_sim": 0.9713042974472046,
+      "top_dense_sim": 0.9713044762611389,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4240,11 +4239,12 @@
       "split": null,
       "ranking": [
         "product:P02516",
-        "product:P02581",
-        "product:P02953",
-        "product:P02594"
+        "product:P04065",
+        "product:P03981",
+        "product:P03689",
+        "product:P03373"
       ],
-      "top_dense_sim": 0.9877395033836365,
+      "top_dense_sim": 0.9877394437789917,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4257,13 +4257,13 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
-        "policy:POL001",
-        "product:P00420",
-        "policy:POL002",
-        "product:P00473",
-        "product:P00320"
+        "product:P04004",
+        "product:P03892",
+        "product:P04015",
+        "product:P00643",
+        "product:P00253"
       ],
-      "top_dense_sim": 0.40994322299957275,
+      "top_dense_sim": 0.40994328260421753,
       "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
@@ -4276,13 +4276,13 @@
       "kind": "compound",
       "split": null,
       "ranking": [
-        "product:P02505",
         "product:P02514",
+        "product:P02505",
         "product:P02909",
-        "product:P02878",
-        "product:P02596"
+        "product:P04565",
+        "product:P04255"
       ],
-      "top_dense_sim": 0.8799515962600708,
+      "top_dense_sim": 0.8799518346786499,
       "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
@@ -4295,10 +4295,9 @@
       "kind": "budget",
       "split": null,
       "ranking": [
-        "product:P02517",
-        "product:P02929"
+        "product:P02517"
       ],
-      "top_dense_sim": 0.9127501249313354,
+      "top_dense_sim": 0.9127503037452698,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4312,12 +4311,12 @@
       "split": null,
       "ranking": [
         "product:P00017",
-        "product:P00264",
-        "product:P00453",
-        "product:P00391",
-        "product:P00032"
+        "product:P01568",
+        "product:P01590",
+        "product:P02493",
+        "product:P02111"
       ],
-      "top_dense_sim": 0.9556261301040649,
+      "top_dense_sim": 0.9556262493133545,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4331,12 +4330,12 @@
       "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00252",
-        "product:P00270",
-        "product:P00033",
-        "product:P00206"
+        "product:P02147",
+        "product:P02405",
+        "product:P00519",
+        "product:P01283"
       ],
-      "top_dense_sim": 0.977372407913208,
+      "top_dense_sim": 0.9773725271224976,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4349,13 +4348,13 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
-        "product:P00004",
-        "policy:POL001",
-        "product:P00420",
-        "policy:POL002",
-        "product:P02862"
+        "product:P03892",
+        "product:P00643",
+        "product:P00833",
+        "product:P03276",
+        "product:P01861"
       ],
-      "top_dense_sim": 0.4173109531402588,
+      "top_dense_sim": 0.41731101274490356,
       "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
@@ -4368,13 +4367,13 @@
       "kind": "compound",
       "split": null,
       "ranking": [
-        "product:P00012",
         "product:P00018",
-        "product:P00197",
-        "product:P00048",
-        "product:P00141"
+        "product:P00012",
+        "product:P00590",
+        "product:P01259",
+        "product:P02092"
       ],
-      "top_dense_sim": 0.7676650881767273,
+      "top_dense_sim": 0.7676652669906616,
       "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
@@ -4388,11 +4387,10 @@
       "split": null,
       "ranking": [
         "product:P00004",
-        "product:P00033",
-        "product:P00185",
-        "product:P00007"
+        "product:P00967",
+        "product:P02389"
       ],
-      "top_dense_sim": 0.9772425889968872,
+      "top_dense_sim": 0.9772424697875977,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4406,10 +4404,10 @@
       "split": null,
       "ranking": [
         "product:P00011",
-        "product:P02775",
-        "product:P00473",
-        "product:P02765",
-        "product:P00002"
+        "product:P02153",
+        "product:P00940",
+        "product:P04988",
+        "product:P01203"
       ],
       "top_dense_sim": 0.7001038789749146,
       "predicted_abstain": false,
@@ -4425,12 +4423,12 @@
       "split": null,
       "ranking": [
         "product:P00005",
-        "product:P00054",
-        "product:P00413",
-        "product:P02897",
-        "product:P00203"
+        "product:P02417",
+        "product:P02064",
+        "product:P01489",
+        "product:P00910"
       ],
-      "top_dense_sim": 0.8928219079971313,
+      "top_dense_sim": 0.8928217887878418,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4443,13 +4441,13 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
-        "policy:POL001",
-        "product:P00420",
-        "policy:POL002",
-        "product:P00033",
-        "product:P00349"
+        "product:P03634",
+        "product:P03892",
+        "product:P04134",
+        "product:P00643",
+        "policy:POL002"
       ],
-      "top_dense_sim": 0.4052838683128357,
+      "top_dense_sim": 0.4159854054450989,
       "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
@@ -4464,9 +4462,8 @@
       "ranking": [
         "product:P02511",
         "product:P02515",
-        "product:P02944",
-        "product:P02524",
-        "product:P02996"
+        "product:P04137",
+        "product:P04309"
       ],
       "top_dense_sim": 0.8451296091079712,
       "predicted_abstain": false,
@@ -4482,12 +4479,12 @@
       "split": null,
       "ranking": [
         "product:P02503",
-        "policy:POL002",
-        "product:P02524",
-        "policy:POL001",
-        "product:P02569"
+        "product:P03846",
+        "product:P04970",
+        "product:P03659",
+        "product:P02988"
       ],
-      "top_dense_sim": 0.9269804358482361,
+      "top_dense_sim": 0.9269804954528809,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4501,11 +4498,11 @@
       "split": null,
       "ranking": [
         "product:P02506",
-        "product:P02643",
-        "product:P02614",
-        "product:P02545"
+        "product:P03484",
+        "product:P03661",
+        "product:P04228"
       ],
-      "top_dense_sim": 0.9651431441307068,
+      "top_dense_sim": 0.9651429057121277,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4519,12 +4516,12 @@
       "split": null,
       "ranking": [
         "product:P00020",
-        "product:P00261",
-        "product:P00409",
         "product:P00390",
-        "product:P00194"
+        "product:P00194",
+        "product:P01921",
+        "product:P00409"
       ],
-      "top_dense_sim": 0.9817191958427429,
+      "top_dense_sim": 0.9817191362380981,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4537,13 +4534,13 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
-        "policy:POL001",
-        "product:P02862",
-        "policy:POL002",
-        "product:P00420",
-        "product:P02928"
+        "product:P03892",
+        "product:P04270",
+        "product:P03126",
+        "product:P04035",
+        "product:P00643"
       ],
-      "top_dense_sim": 0.40362223982810974,
+      "top_dense_sim": 0.40362226963043213,
       "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
@@ -4557,18 +4554,18 @@
       "split": null,
       "ranking": [
         "product:P00016",
-        "product:P00351",
         "product:P02512",
-        "product:P00345",
-        "product:P00073"
+        "product:P04758",
+        "product:P01096",
+        "product:P02399"
       ],
-      "top_dense_sim": 0.8633311986923218,
+      "top_dense_sim": 0.863331139087677,
       "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.9197207891481876
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_042",
@@ -4576,11 +4573,9 @@
       "split": null,
       "ranking": [
         "product:P02505",
-        "product:P02884",
-        "product:P02909",
-        "product:P02596"
+        "product:P04828"
       ],
-      "top_dense_sim": 0.9829072952270508,
+      "top_dense_sim": 0.982907235622406,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4594,12 +4589,12 @@
       "split": null,
       "ranking": [
         "product:P02508",
-        "product:P02984",
-        "product:P02660",
-        "product:P02826",
-        "product:P02719"
+        "product:P04753",
+        "product:P04161",
+        "product:P03739",
+        "product:P03058"
       ],
-      "top_dense_sim": 0.9713042974472046,
+      "top_dense_sim": 0.9713044762611389,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4613,11 +4608,12 @@
       "split": null,
       "ranking": [
         "product:P02516",
-        "product:P02581",
-        "product:P02953",
-        "product:P02594"
+        "product:P04065",
+        "product:P03981",
+        "product:P03689",
+        "product:P03373"
       ],
-      "top_dense_sim": 0.9877395033836365,
+      "top_dense_sim": 0.9877394437789917,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4630,13 +4626,13 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
-        "policy:POL001",
-        "product:P00473",
-        "policy:POL002",
-        "product:P00420",
-        "product:P02977"
+        "product:P03892",
+        "product:P04989",
+        "product:P00643",
+        "product:P03394",
+        "policy:POL001"
       ],
-      "top_dense_sim": 0.40218695998191833,
+      "top_dense_sim": 0.4196166396141052,
       "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
@@ -4649,13 +4645,13 @@
       "kind": "compound",
       "split": null,
       "ranking": [
-        "product:P02505",
         "product:P02514",
+        "product:P02505",
         "product:P02909",
-        "product:P02878",
-        "product:P02596"
+        "product:P04565",
+        "product:P04255"
       ],
-      "top_dense_sim": 0.8799515962600708,
+      "top_dense_sim": 0.8799518346786499,
       "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
@@ -4669,12 +4665,10 @@
       "split": null,
       "ranking": [
         "product:P02507",
-        "product:P02855",
-        "policy:POL002",
-        "product:P02801",
-        "product:P02619"
+        "product:P03388",
+        "product:P02855"
       ],
-      "top_dense_sim": 0.9595000743865967,
+      "top_dense_sim": 0.9595003128051758,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4688,12 +4682,12 @@
       "split": null,
       "ranking": [
         "product:P00017",
-        "product:P00264",
-        "product:P00453",
-        "product:P00391",
-        "product:P00032"
+        "product:P01568",
+        "product:P01590",
+        "product:P02493",
+        "product:P02111"
       ],
-      "top_dense_sim": 0.9556261301040649,
+      "top_dense_sim": 0.9556262493133545,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4707,12 +4701,12 @@
       "split": null,
       "ranking": [
         "product:P00013",
-        "product:P00252",
-        "product:P00270",
-        "product:P00033",
-        "product:P00206"
+        "product:P02147",
+        "product:P02405",
+        "product:P00519",
+        "product:P01283"
       ],
-      "top_dense_sim": 0.977372407913208,
+      "top_dense_sim": 0.9773725271224976,
       "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
@@ -4725,13 +4719,13 @@
       "kind": "no_answer",
       "split": null,
       "ranking": [
-        "policy:POL001",
-        "product:P00420",
-        "policy:POL002",
-        "product:P00473",
-        "product:P02689"
+        "product:P03892",
+        "product:P02689",
+        "product:P03464",
+        "product:P00643",
+        "product:P01988"
       ],
-      "top_dense_sim": 0.3973711431026459,
+      "top_dense_sim": 0.4092285633087158,
       "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,

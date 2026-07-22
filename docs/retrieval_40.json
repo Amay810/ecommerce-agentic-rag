@@ -1,26 +1,48 @@
 {
   "summary": {
-    "recall@1": 0.9625,
-    "recall@3": 0.9771,
-    "recall@5": 0.9854,
-    "mrr": 0.9889,
-    "ndcg@5": 0.9804,
+    "recall@1": 0.9583,
+    "recall@3": 0.9917,
+    "recall@5": 1.0,
+    "mrr": 0.9868,
+    "ndcg@5": 0.9901,
     "queries": 250,
-    "latency_p50_ms": 23.93,
-    "latency_p95_ms": 41.75,
-    "index_load_ms": 11283.65,
-    "index_size_bytes": 880566,
+    "answerable_queries": 240,
+    "no_answer_queries": 10,
+    "no_answer_accuracy": 0.0,
+    "false_positive_rate": 1.0,
+    "latency_p50_ms": 9.44,
+    "latency_p95_ms": 9.96,
+    "no_answer_threshold": null,
+    "latency_breakdown_p50_ms": {
+      "dense_ms": 8.41,
+      "bm25_ms": 0.96,
+      "fusion_filter_ms": 0.04,
+      "rerank_ms": 0.0,
+      "total_ms": 9.43
+    },
+    "dense_backend": "faiss_indexflatip",
+    "index_load_ms": 13826.05,
+    "index_size_bytes": 1581649,
     "configuration": {
       "constraints": false,
-      "reranker": false
+      "reranker": false,
+      "split": null
     }
   },
   "details": [
     {
       "id": "auto_001",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "product:P00020",
+        "product:P00012",
+        "policy:POL001",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8935739994049072,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -29,9 +51,17 @@
     },
     {
       "id": "auto_002",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "product:P00005",
+        "product:P00002",
+        "product:P00001",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.8221055269241333,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -40,9 +70,17 @@
     },
     {
       "id": "auto_003",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "product:P00007",
+        "product:P00013",
+        "product:P00010",
+        "product:P00015"
       ],
+      "top_dense_sim": 0.9757626056671143,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -51,9 +89,17 @@
     },
     {
       "id": "auto_004",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "product:P00009",
+        "product:P00007",
+        "policy:POL001",
+        "product:P00012"
       ],
+      "top_dense_sim": 0.9690811634063721,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -62,9 +108,17 @@
     },
     {
       "id": "auto_005",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "policy:POL001",
+        "product:P00012",
+        "policy:POL003",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.9650231599807739,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -73,9 +127,17 @@
     },
     {
       "id": "auto_006",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02512"
+        "product:P02512",
+        "product:P02514",
+        "product:P02505",
+        "product:P02511",
+        "product:P02502"
       ],
+      "top_dense_sim": 0.9319467544555664,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -84,9 +146,17 @@
     },
     {
       "id": "auto_007",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02512"
+        "product:P02512",
+        "product:P02514",
+        "product:P02508",
+        "product:P02511",
+        "product:P00019"
       ],
+      "top_dense_sim": 0.9609949588775635,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -95,9 +165,17 @@
     },
     {
       "id": "auto_008",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02512"
+        "product:P02512",
+        "product:P02514",
+        "product:P02508",
+        "product:P02511",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9613049030303955,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -106,9 +184,17 @@
     },
     {
       "id": "auto_009",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02512"
+        "product:P02512",
+        "product:P02508",
+        "product:P02514",
+        "policy:POL001",
+        "product:P02511"
       ],
+      "top_dense_sim": 0.9678428173065186,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -117,9 +203,17 @@
     },
     {
       "id": "auto_010",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02512"
+        "product:P02512",
+        "product:P02514",
+        "product:P00004",
+        "product:P00009",
+        "product:P02511"
       ],
+      "top_dense_sim": 0.9657177925109863,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -128,9 +222,17 @@
     },
     {
       "id": "auto_011",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02513"
+        "product:P02513",
+        "product:P02510",
+        "product:P02514",
+        "product:P02505",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.8793174028396606,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -139,9 +241,17 @@
     },
     {
       "id": "auto_012",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02513"
+        "product:P02513",
+        "product:P02510",
+        "product:P02519",
+        "product:P02506",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9530988931655884,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -150,9 +260,17 @@
     },
     {
       "id": "auto_013",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02513"
+        "product:P02513",
+        "product:P02510",
+        "product:P00010",
+        "product:P00004",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9216611385345459,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -161,9 +279,17 @@
     },
     {
       "id": "auto_014",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02513"
+        "product:P02513",
+        "product:P02510",
+        "product:P02503",
+        "product:P02501",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9712362885475159,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -172,9 +298,17 @@
     },
     {
       "id": "auto_015",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02513"
+        "product:P02513",
+        "product:P02510",
+        "product:P02516",
+        "product:P02506",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9730703830718994,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -183,9 +317,17 @@
     },
     {
       "id": "auto_016",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00015"
+        "product:P00015",
+        "product:P00005",
+        "product:P00001",
+        "product:P00002",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.7209015488624573,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -194,9 +336,17 @@
     },
     {
       "id": "auto_017",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00015"
+        "product:P00015",
+        "product:P00018",
+        "product:P00019",
+        "product:P00014",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.9601795673370361,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -205,9 +355,17 @@
     },
     {
       "id": "auto_018",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00015"
+        "product:P00015",
+        "product:P00018",
+        "product:P02514",
+        "product:P02502",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.9799462556838989,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -216,9 +374,17 @@
     },
     {
       "id": "auto_019",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00015"
+        "product:P00015",
+        "product:P00018",
+        "product:P00016",
+        "product:P02518",
+        "product:P00012"
       ],
+      "top_dense_sim": 0.9563747644424438,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -227,9 +393,17 @@
     },
     {
       "id": "auto_020",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00015"
+        "product:P00015",
+        "product:P00018",
+        "product:P00017",
+        "product:P02518",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.8970162868499756,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -238,9 +412,17 @@
     },
     {
       "id": "auto_021",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02508"
+        "product:P02508",
+        "product:P02514",
+        "product:P02512",
+        "product:P02518",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9547422528266907,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -249,9 +431,17 @@
     },
     {
       "id": "auto_022",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02508"
+        "product:P02508",
+        "product:P02514",
+        "product:P00015",
+        "product:P00009",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9349109530448914,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -260,9 +450,17 @@
     },
     {
       "id": "auto_023",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02508"
+        "product:P02508",
+        "product:P02514",
+        "product:P02512",
+        "product:P02518",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9813839197158813,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -271,9 +469,17 @@
     },
     {
       "id": "auto_024",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02508"
+        "product:P02508",
+        "product:P02514",
+        "product:P02505",
+        "product:P00001",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.9009559154510498,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -282,9 +488,17 @@
     },
     {
       "id": "auto_025",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02508"
+        "product:P02508",
+        "product:P02514",
+        "product:P02512",
+        "product:P02506",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9454542398452759,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -293,9 +507,17 @@
     },
     {
       "id": "auto_026",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02504"
+        "product:P02504",
+        "product:P02506",
+        "policy:POL001",
+        "product:P02520",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9195557832717896,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -304,9 +526,17 @@
     },
     {
       "id": "auto_027",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02504"
+        "product:P02504",
+        "product:P02506",
+        "policy:POL001",
+        "product:P02520",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.925214946269989,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -315,9 +545,17 @@
     },
     {
       "id": "auto_028",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02504"
+        "product:P02504",
+        "product:P02506",
+        "product:P00005",
+        "product:P02520",
+        "product:P00001"
       ],
+      "top_dense_sim": 0.9649643898010254,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -326,9 +564,17 @@
     },
     {
       "id": "auto_029",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02504"
+        "product:P02504",
+        "product:P00005",
+        "product:P02506",
+        "product:P00001",
+        "product:P02520"
       ],
+      "top_dense_sim": 0.9340884685516357,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -337,9 +583,17 @@
     },
     {
       "id": "auto_030",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02504"
+        "product:P02504",
+        "product:P02506",
+        "policy:POL001",
+        "product:P02520",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9567908048629761,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -348,9 +602,17 @@
     },
     {
       "id": "auto_031",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02516"
+        "product:P02516",
+        "product:P02505",
+        "product:P02514",
+        "product:P02515",
+        "product:P02502"
       ],
+      "top_dense_sim": 0.8514671921730042,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -359,9 +621,17 @@
     },
     {
       "id": "auto_032",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02516"
+        "product:P02516",
+        "policy:POL001",
+        "product:P02519",
+        "product:P02505",
+        "product:P02515"
       ],
+      "top_dense_sim": 0.9457278847694397,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -370,9 +640,17 @@
     },
     {
       "id": "auto_033",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02516"
+        "product:P02516",
+        "product:P02505",
+        "product:P02519",
+        "policy:POL001",
+        "product:P02515"
       ],
+      "top_dense_sim": 0.9730492830276489,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -381,9 +659,17 @@
     },
     {
       "id": "auto_034",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02516"
+        "product:P02516",
+        "product:P02515",
+        "product:P02513",
+        "product:P02519",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.971406102180481,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -392,9 +678,17 @@
     },
     {
       "id": "auto_035",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02516"
+        "product:P02516",
+        "product:P02505",
+        "product:P02519",
+        "policy:POL001",
+        "product:P02515"
       ],
+      "top_dense_sim": 0.96335768699646,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -403,9 +697,17 @@
     },
     {
       "id": "auto_036",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00008"
+        "product:P00008",
+        "product:P00012",
+        "product:P00011",
+        "product:P00007",
+        "product:P00009"
       ],
+      "top_dense_sim": 0.9278671741485596,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -414,9 +716,17 @@
     },
     {
       "id": "auto_037",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00008"
+        "product:P00008",
+        "product:P00012",
+        "policy:POL001",
+        "policy:POL003",
+        "product:P00017"
       ],
+      "top_dense_sim": 0.9554675221443176,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -425,9 +735,17 @@
     },
     {
       "id": "auto_038",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00008"
+        "product:P00008",
+        "product:P00012",
+        "product:P00017",
+        "product:P00001",
+        "product:P00003"
       ],
+      "top_dense_sim": 0.9066283702850342,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -436,10 +754,17 @@
     },
     {
       "id": "auto_039",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00008",
-        "product:P00002"
+        "product:P00002",
+        "product:P00001",
+        "product:P00005",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.808063805103302,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -448,9 +773,17 @@
     },
     {
       "id": "auto_040",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00008"
+        "product:P00008",
+        "policy:POL001",
+        "product:P00007",
+        "policy:POL003",
+        "product:P02511"
       ],
+      "top_dense_sim": 0.9711673259735107,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -459,9 +792,17 @@
     },
     {
       "id": "auto_041",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02510"
+        "product:P02510",
+        "product:P02514",
+        "product:P02506",
+        "product:P02502",
+        "product:P02520"
       ],
+      "top_dense_sim": 0.8876508474349976,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -470,9 +811,17 @@
     },
     {
       "id": "auto_042",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02510"
+        "product:P02510",
+        "product:P02513",
+        "product:P02519",
+        "product:P02506",
+        "product:P02503"
       ],
+      "top_dense_sim": 0.9150941967964172,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -481,9 +830,17 @@
     },
     {
       "id": "auto_043",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02510"
+        "product:P02510",
+        "product:P02513",
+        "product:P02519",
+        "product:P02509",
+        "product:P02520"
       ],
+      "top_dense_sim": 0.9579988718032837,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -492,9 +849,16 @@
     },
     {
       "id": "auto_044",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02510"
+        "product:P02510",
+        "product:P02519",
+        "product:P02513",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9593769907951355,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -503,9 +867,17 @@
     },
     {
       "id": "auto_045",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02510"
+        "product:P02510",
+        "product:P02513",
+        "product:P02506",
+        "product:P02519",
+        "product:P02520"
       ],
+      "top_dense_sim": 0.9667549729347229,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -514,9 +886,17 @@
     },
     {
       "id": "auto_046",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00002"
+        "product:P00002",
+        "product:P00019",
+        "product:P00014",
+        "product:P00005",
+        "product:P00015"
       ],
+      "top_dense_sim": 0.8902943730354309,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -525,11 +905,17 @@
     },
     {
       "id": "auto_047",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00002",
         "product:P00001",
-        "product:P00005"
+        "product:P00005",
+        "product:P00004",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8649501800537109,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -538,9 +924,17 @@
     },
     {
       "id": "auto_048",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00002"
+        "product:P00002",
+        "product:P00001",
+        "product:P00004",
+        "product:P00016",
+        "product:P00010"
       ],
+      "top_dense_sim": 0.88155198097229,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -549,9 +943,17 @@
     },
     {
       "id": "auto_049",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00002"
+        "product:P00002",
+        "product:P00019",
+        "product:P00011",
+        "product:P00014",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.8792263865470886,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -560,10 +962,17 @@
     },
     {
       "id": "auto_050",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00002",
-        "product:P00011"
+        "product:P00011",
+        "product:P00019",
+        "product:P00014",
+        "product:P00015"
       ],
+      "top_dense_sim": 0.9055789709091187,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -572,9 +981,17 @@
     },
     {
       "id": "auto_051",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02514"
+        "product:P02514",
+        "product:P02505",
+        "product:P02508",
+        "product:P02502",
+        "product:P00010"
       ],
+      "top_dense_sim": 0.9730139970779419,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -583,9 +1000,17 @@
     },
     {
       "id": "auto_052",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02514"
+        "product:P02514",
+        "product:P02512",
+        "product:P02508",
+        "product:P00009",
+        "product:P00019"
       ],
+      "top_dense_sim": 0.9352638721466064,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -594,9 +1019,17 @@
     },
     {
       "id": "auto_053",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02514"
+        "product:P02514",
+        "product:P02508",
+        "product:P02512",
+        "product:P02520",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.9623440504074097,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -605,9 +1038,17 @@
     },
     {
       "id": "auto_054",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02514"
+        "product:P02514",
+        "product:P02508",
+        "product:P02512",
+        "product:P02505",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.9053546190261841,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -616,9 +1057,17 @@
     },
     {
       "id": "auto_055",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02514"
+        "product:P02514",
+        "product:P02512",
+        "product:P02508",
+        "policy:POL001",
+        "product:P00015"
       ],
+      "top_dense_sim": 0.9523880481719971,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -627,9 +1076,17 @@
     },
     {
       "id": "auto_056",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02505"
+        "product:P02505",
+        "product:P02509",
+        "product:P02514",
+        "product:P02502",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9788622856140137,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -638,9 +1095,17 @@
     },
     {
       "id": "auto_057",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02505"
+        "product:P02505",
+        "product:P02509",
+        "product:P02506",
+        "product:P02520",
+        "product:P02516"
       ],
+      "top_dense_sim": 0.9838575720787048,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -649,9 +1114,17 @@
     },
     {
       "id": "auto_058",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02505"
+        "product:P02505",
+        "product:P02506",
+        "product:P02509",
+        "policy:POL003",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9803319573402405,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -660,9 +1133,17 @@
     },
     {
       "id": "auto_059",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02505"
+        "product:P02505",
+        "product:P02509",
+        "product:P02506",
+        "product:P02514",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9793964624404907,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -671,9 +1152,17 @@
     },
     {
       "id": "auto_060",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02505"
+        "product:P02505",
+        "product:P02506",
+        "product:P02509",
+        "product:P02516",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9828171730041504,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -682,9 +1171,17 @@
     },
     {
       "id": "auto_061",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00014"
+        "product:P00014",
+        "product:P02506",
+        "product:P02504",
+        "policy:POL001",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.9315392374992371,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -693,21 +1190,36 @@
     },
     {
       "id": "auto_062",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
+        "product:P00014",
         "product:P00005",
-        "product:P00014"
+        "product:P00001",
+        "product:P00002",
+        "product:P00004"
       ],
-      "recall@1": 0.0,
+      "top_dense_sim": 0.7582652568817139,
+      "predicted_abstain": false,
+      "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
-      "mrr": 0.5,
-      "ndcg@5": 0.6309297535714575
+      "mrr": 1.0,
+      "ndcg@5": 1.0
     },
     {
       "id": "auto_063",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00014"
+        "product:P00014",
+        "product:P00009",
+        "policy:POL001",
+        "product:P00005",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9778722524642944,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -716,9 +1228,17 @@
     },
     {
       "id": "auto_064",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00014"
+        "product:P00014",
+        "product:P00005",
+        "product:P00009",
+        "product:P00017",
+        "product:P02502"
       ],
+      "top_dense_sim": 0.924899697303772,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -727,9 +1247,17 @@
     },
     {
       "id": "auto_065",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00014"
+        "product:P00014",
+        "product:P00009",
+        "product:P00019",
+        "product:P00005",
+        "product:P00006"
       ],
+      "top_dense_sim": 0.9807687997817993,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -738,9 +1266,17 @@
     },
     {
       "id": "auto_066",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02518"
+        "product:P02518",
+        "product:P02505",
+        "product:P02502",
+        "product:P02514",
+        "product:P02515"
       ],
+      "top_dense_sim": 0.9092061519622803,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -749,9 +1285,17 @@
     },
     {
       "id": "auto_067",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02518"
+        "product:P02518",
+        "product:P02511",
+        "product:P02506",
+        "product:P00006",
+        "product:P02520"
       ],
+      "top_dense_sim": 0.9551043510437012,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -760,9 +1304,17 @@
     },
     {
       "id": "auto_068",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02518"
+        "product:P02518",
+        "product:P02520",
+        "product:P02517",
+        "product:P02506",
+        "product:P02514"
       ],
+      "top_dense_sim": 0.9620213508605957,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -771,9 +1323,17 @@
     },
     {
       "id": "auto_069",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02518"
+        "product:P02518",
+        "policy:POL001",
+        "product:P02506",
+        "product:P02511",
+        "product:P02505"
       ],
+      "top_dense_sim": 0.9685916304588318,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -782,9 +1342,17 @@
     },
     {
       "id": "auto_070",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02518"
+        "product:P02518",
+        "product:P02509",
+        "product:P02506",
+        "product:P00017",
+        "product:P02520"
       ],
+      "top_dense_sim": 0.9524804949760437,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -793,9 +1361,17 @@
     },
     {
       "id": "auto_071",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00017"
+        "product:P00017",
+        "product:P00008",
+        "product:P00009",
+        "product:P00007",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9779835939407349,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -804,9 +1380,17 @@
     },
     {
       "id": "auto_072",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00017"
+        "product:P00017",
+        "product:P00002",
+        "product:P00004",
+        "product:P00009",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.9762165546417236,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -815,9 +1399,17 @@
     },
     {
       "id": "auto_073",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00017"
+        "product:P00017",
+        "product:P00002",
+        "product:P00004",
+        "product:P00001",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.9526103138923645,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -826,9 +1418,17 @@
     },
     {
       "id": "auto_074",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00017"
+        "product:P00017",
+        "product:P00019",
+        "policy:POL001",
+        "product:P00002",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9716185927391052,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -837,9 +1437,17 @@
     },
     {
       "id": "auto_075",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00017"
+        "product:P00017",
+        "product:P00009",
+        "product:P00019",
+        "policy:POL001",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.9743311405181885,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -848,9 +1456,17 @@
     },
     {
       "id": "auto_076",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02502"
+        "product:P02502",
+        "product:P02517",
+        "product:P02514",
+        "product:P02505",
+        "product:P00013"
       ],
+      "top_dense_sim": 0.9700255393981934,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -859,9 +1475,17 @@
     },
     {
       "id": "auto_077",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02502"
+        "product:P02502",
+        "product:P02517",
+        "product:P02506",
+        "product:P00010",
+        "product:P00019"
       ],
+      "top_dense_sim": 0.9445741772651672,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -870,9 +1494,17 @@
     },
     {
       "id": "auto_078",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02502"
+        "product:P02502",
+        "product:P00005",
+        "product:P02517",
+        "product:P00001",
+        "product:P00017"
       ],
+      "top_dense_sim": 0.9652174711227417,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -881,9 +1513,17 @@
     },
     {
       "id": "auto_079",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02502"
+        "product:P02502",
+        "product:P02517",
+        "policy:POL001",
+        "policy:POL003",
+        "product:P02501"
       ],
+      "top_dense_sim": 0.9644473791122437,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -892,9 +1532,17 @@
     },
     {
       "id": "auto_080",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02502"
+        "product:P02502",
+        "product:P02505",
+        "product:P02517",
+        "product:P00005",
+        "product:P00001"
       ],
+      "top_dense_sim": 0.8838023543357849,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -903,9 +1551,17 @@
     },
     {
       "id": "auto_081",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00013"
+        "product:P00013",
+        "product:P00007",
+        "product:P00004",
+        "product:P00010",
+        "product:P02505"
       ],
+      "top_dense_sim": 0.9655609130859375,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -914,9 +1570,15 @@
     },
     {
       "id": "auto_082",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00013"
+        "product:P00013",
+        "product:P00004",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.9349486827850342,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -925,9 +1587,15 @@
     },
     {
       "id": "auto_083",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00013"
+        "product:P00013",
+        "product:P00007",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.972720205783844,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -936,9 +1604,17 @@
     },
     {
       "id": "auto_084",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00013"
+        "product:P00013",
+        "product:P00004",
+        "product:P00007",
+        "product:P00001",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.8747321367263794,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -947,9 +1623,15 @@
     },
     {
       "id": "auto_085",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00013"
+        "product:P00013",
+        "product:P00007",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.9775843024253845,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -958,9 +1640,17 @@
     },
     {
       "id": "auto_086",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02517"
+        "product:P02517",
+        "product:P02502",
+        "product:P02514",
+        "product:P02518",
+        "product:P02505"
       ],
+      "top_dense_sim": 0.767273485660553,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -969,9 +1659,17 @@
     },
     {
       "id": "auto_087",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02517"
+        "product:P02517",
+        "product:P02509",
+        "product:P02502",
+        "product:P00009",
+        "product:P02520"
       ],
+      "top_dense_sim": 0.8803011178970337,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -980,9 +1678,17 @@
     },
     {
       "id": "auto_088",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02517"
+        "product:P02517",
+        "product:P02502",
+        "product:P02509",
+        "product:P00015",
+        "product:P00010"
       ],
+      "top_dense_sim": 0.8206696510314941,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -991,9 +1697,16 @@
     },
     {
       "id": "auto_089",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02517"
+        "product:P02517",
+        "product:P02509",
+        "product:P02502",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.8837000727653503,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1002,9 +1715,17 @@
     },
     {
       "id": "auto_090",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02517"
+        "product:P02517",
+        "product:P02509",
+        "product:P02502",
+        "product:P02503",
+        "product:P02513"
       ],
+      "top_dense_sim": 0.8706293106079102,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1013,9 +1734,17 @@
     },
     {
       "id": "auto_091",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02507"
+        "product:P02507",
+        "product:P02518",
+        "product:P02512",
+        "product:P00020",
+        "product:P02508"
       ],
+      "top_dense_sim": 0.8542624711990356,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1024,9 +1753,17 @@
     },
     {
       "id": "auto_092",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02507"
+        "product:P02507",
+        "product:P02514",
+        "product:P02505",
+        "product:P02502",
+        "product:P00010"
       ],
+      "top_dense_sim": 0.7814138531684875,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1035,9 +1772,17 @@
     },
     {
       "id": "auto_093",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02507"
+        "product:P02507",
+        "product:P02505",
+        "product:P02509",
+        "product:P00010",
+        "product:P02512"
       ],
+      "top_dense_sim": 0.7713949680328369,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1046,9 +1791,17 @@
     },
     {
       "id": "auto_094",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02507"
+        "product:P02507",
+        "policy:POL001",
+        "product:P02512",
+        "policy:POL003",
+        "product:P02519"
       ],
+      "top_dense_sim": 0.9308490753173828,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1057,9 +1810,17 @@
     },
     {
       "id": "auto_095",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02507"
+        "product:P02507",
+        "product:P00012",
+        "product:P02512",
+        "product:P00015",
+        "product:P02514"
       ],
+      "top_dense_sim": 0.9019371271133423,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1068,9 +1829,17 @@
     },
     {
       "id": "auto_096",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00009"
+        "product:P00009",
+        "product:P00001",
+        "product:P00005",
+        "product:P00002",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.7486240863800049,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1079,9 +1848,17 @@
     },
     {
       "id": "auto_097",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00009"
+        "product:P00009",
+        "product:P00014",
+        "product:P00019",
+        "product:P00006",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.931531548500061,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1090,9 +1867,17 @@
     },
     {
       "id": "auto_098",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00009"
+        "product:P00009",
+        "product:P00014",
+        "product:P00019",
+        "product:P00006",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.931531548500061,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1101,9 +1886,17 @@
     },
     {
       "id": "auto_099",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00009"
+        "product:P00009",
+        "product:P00014",
+        "product:P00013",
+        "product:P02517",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.9471312761306763,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1112,9 +1905,17 @@
     },
     {
       "id": "auto_100",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00009"
+        "product:P00009",
+        "product:P00003",
+        "product:P00017",
+        "policy:POL001",
+        "product:P00013"
       ],
+      "top_dense_sim": 0.9323817491531372,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1123,23 +1924,36 @@
     },
     {
       "id": "auto_101",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00002",
         "product:P00005",
         "product:P00018",
-        "product:P00001"
+        "product:P00002",
+        "product:P00001",
+        "product:P00015"
       ],
+      "top_dense_sim": 0.6589291095733643,
+      "predicted_abstain": false,
       "recall@1": 0.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
-      "mrr": 0.3333333333333333,
-      "ndcg@5": 0.5
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575
     },
     {
       "id": "auto_102",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00018"
+        "product:P00018",
+        "product:P00017",
+        "product:P00019",
+        "policy:POL001",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.878605842590332,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1148,9 +1962,17 @@
     },
     {
       "id": "auto_103",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00018"
+        "product:P00018",
+        "product:P00002",
+        "product:P00015",
+        "product:P02509",
+        "product:P00019"
       ],
+      "top_dense_sim": 0.8652587532997131,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1159,9 +1981,17 @@
     },
     {
       "id": "auto_104",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00018"
+        "product:P00018",
+        "product:P00015",
+        "product:P00019",
+        "policy:POL001",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9504629373550415,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1170,9 +2000,17 @@
     },
     {
       "id": "auto_105",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00018"
+        "product:P00018",
+        "product:P00015",
+        "product:P00019",
+        "policy:POL001",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9464612007141113,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1181,9 +2019,17 @@
     },
     {
       "id": "auto_106",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00012"
+        "product:P00012",
+        "product:P00008",
+        "product:P00011",
+        "product:P00009",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.9334295392036438,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1192,9 +2038,17 @@
     },
     {
       "id": "auto_107",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00012"
+        "product:P00012",
+        "product:P00005",
+        "product:P00001",
+        "product:P00002",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.7060868144035339,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1203,9 +2057,17 @@
     },
     {
       "id": "auto_108",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00012"
+        "product:P00012",
+        "product:P00015",
+        "product:P00008",
+        "product:P00009",
+        "product:P00016"
       ],
+      "top_dense_sim": 0.9764155149459839,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1214,9 +2076,17 @@
     },
     {
       "id": "auto_109",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00012"
+        "product:P00012",
+        "product:P00008",
+        "product:P00009",
+        "product:P00002",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.9774675369262695,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1225,9 +2095,17 @@
     },
     {
       "id": "auto_110",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00012"
+        "product:P00012",
+        "product:P00016",
+        "product:P00014",
+        "policy:POL001",
+        "product:P00008"
       ],
+      "top_dense_sim": 0.9788244962692261,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1236,10 +2114,17 @@
     },
     {
       "id": "auto_111",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00001",
-        "product:P00002"
+        "product:P00002",
+        "product:P00005",
+        "product:P00004",
+        "product:P00016"
       ],
+      "top_dense_sim": 0.8418223261833191,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1248,11 +2133,17 @@
     },
     {
       "id": "auto_112",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00001",
         "product:P00002",
-        "product:P00005"
+        "product:P00005",
+        "product:P00004",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8531601428985596,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1261,9 +2152,17 @@
     },
     {
       "id": "auto_113",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00001"
+        "product:P00001",
+        "product:P00002",
+        "product:P00010",
+        "product:P00005",
+        "product:P00011"
       ],
+      "top_dense_sim": 0.8954062461853027,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1272,9 +2171,17 @@
     },
     {
       "id": "auto_114",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00001"
+        "product:P00001",
+        "product:P00002",
+        "product:P00011",
+        "policy:POL001",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.8796381950378418,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1283,9 +2190,17 @@
     },
     {
       "id": "auto_115",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02520"
+        "product:P02520",
+        "product:P02505",
+        "product:P02506",
+        "product:P02514",
+        "product:P02502"
       ],
+      "top_dense_sim": 0.832696795463562,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1294,9 +2209,17 @@
     },
     {
       "id": "auto_116",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02520"
+        "product:P02520",
+        "product:P02506",
+        "product:P02513",
+        "product:P02501",
+        "product:P02510"
       ],
+      "top_dense_sim": 0.8799649477005005,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1305,9 +2228,17 @@
     },
     {
       "id": "auto_117",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02520"
+        "product:P02520",
+        "product:P02506",
+        "product:P02511",
+        "product:P02510",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9082862138748169,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1316,9 +2247,17 @@
     },
     {
       "id": "auto_118",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02520"
+        "product:P02520",
+        "product:P02506",
+        "product:P02511",
+        "product:P02514",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.9147648811340332,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1327,9 +2266,17 @@
     },
     {
       "id": "auto_119",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02520"
+        "product:P02520",
+        "product:P00004",
+        "product:P02506",
+        "product:P00012",
+        "product:P02510"
       ],
+      "top_dense_sim": 0.8745748996734619,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1338,23 +2285,36 @@
     },
     {
       "id": "auto_120",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00011"
+        "product:P00016",
+        "product:P00015",
+        "product:P00011",
+        "product:P00010",
+        "product:P00007"
       ],
-      "recall@1": 1.0,
+      "top_dense_sim": 0.7289109826087952,
+      "predicted_abstain": false,
+      "recall@1": 0.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
-      "mrr": 1.0,
-      "ndcg@5": 1.0
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5
     },
     {
       "id": "auto_121",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00005",
-        "product:P00002",
         "product:P00001",
-        "product:P00011"
+        "product:P00002",
+        "product:P00011",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.6350536346435547,
+      "predicted_abstain": false,
       "recall@1": 0.0,
       "recall@3": 0.0,
       "recall@5": 1.0,
@@ -1363,9 +2323,17 @@
     },
     {
       "id": "auto_122",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00011"
+        "product:P00011",
+        "policy:POL001",
+        "product:P00002",
+        "policy:POL003",
+        "product:P00016"
       ],
+      "top_dense_sim": 0.883532702922821,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1374,9 +2342,17 @@
     },
     {
       "id": "auto_123",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00011"
+        "product:P00011",
+        "product:P00008",
+        "product:P00012",
+        "product:P00007",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9089590907096863,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1385,20 +2361,36 @@
     },
     {
       "id": "auto_124",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00011"
+        "product:P00005",
+        "product:P00011",
+        "product:P00001",
+        "product:P00002",
+        "product:P00017"
       ],
-      "recall@1": 1.0,
+      "top_dense_sim": 0.6342319250106812,
+      "predicted_abstain": false,
+      "recall@1": 0.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
-      "mrr": 1.0,
-      "ndcg@5": 1.0
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575
     },
     {
       "id": "auto_125",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00003"
+        "product:P00003",
+        "product:P00013",
+        "product:P00009",
+        "product:P00016",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.9469966888427734,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1407,9 +2399,17 @@
     },
     {
       "id": "auto_126",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00003"
+        "product:P00003",
+        "product:P00005",
+        "product:P00001",
+        "product:P00002",
+        "product:P00009"
       ],
+      "top_dense_sim": 0.8273823261260986,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1418,9 +2418,17 @@
     },
     {
       "id": "auto_127",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00003"
+        "product:P00003",
+        "product:P00009",
+        "product:P00014",
+        "product:P02509",
+        "product:P00006"
       ],
+      "top_dense_sim": 0.9293607473373413,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1429,9 +2437,17 @@
     },
     {
       "id": "auto_128",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00003"
+        "product:P00003",
+        "product:P00009",
+        "product:P02513",
+        "policy:POL001",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.9835833311080933,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1440,9 +2456,17 @@
     },
     {
       "id": "auto_129",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00003"
+        "product:P00003",
+        "product:P00009",
+        "policy:POL001",
+        "product:P00008",
+        "product:P00014"
       ],
+      "top_dense_sim": 0.9879766702651978,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1451,11 +2475,17 @@
     },
     {
       "id": "auto_130",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00005",
         "product:P00001",
-        "product:P00002"
+        "product:P00002",
+        "product:P00004",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8768333196640015,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1464,9 +2494,17 @@
     },
     {
       "id": "auto_131",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00005"
+        "product:P00005",
+        "product:P00002",
+        "product:P00014",
+        "product:P00019",
+        "product:P00009"
       ],
+      "top_dense_sim": 0.8758692741394043,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1475,9 +2513,17 @@
     },
     {
       "id": "auto_132",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00005"
+        "product:P00005",
+        "product:P00004",
+        "product:P00009",
+        "product:P02502",
+        "product:P00014"
       ],
+      "top_dense_sim": 0.9004707336425781,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1486,9 +2532,17 @@
     },
     {
       "id": "auto_133",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00005"
+        "product:P00005",
+        "product:P00011",
+        "product:P00002",
+        "policy:POL001",
+        "product:P00014"
       ],
+      "top_dense_sim": 0.9185561537742615,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1497,9 +2551,17 @@
     },
     {
       "id": "auto_134",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00005"
+        "product:P00005",
+        "product:P00013",
+        "product:P00007",
+        "product:P00016",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9486223459243774,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1508,9 +2570,17 @@
     },
     {
       "id": "auto_135",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00004"
+        "product:P00004",
+        "product:P00007",
+        "product:P00013",
+        "product:P00001",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.9706084132194519,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1519,9 +2589,15 @@
     },
     {
       "id": "auto_136",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00004"
+        "product:P00004",
+        "product:P00007",
+        "product:P00013"
       ],
+      "top_dense_sim": 0.9835529327392578,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1530,9 +2606,15 @@
     },
     {
       "id": "auto_137",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00004"
+        "product:P00004",
+        "product:P00007",
+        "product:P00013"
       ],
+      "top_dense_sim": 0.9757444262504578,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1541,9 +2623,15 @@
     },
     {
       "id": "auto_138",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00004"
+        "product:P00004",
+        "product:P00007",
+        "product:P00013"
       ],
+      "top_dense_sim": 0.9694785475730896,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1552,9 +2640,17 @@
     },
     {
       "id": "auto_139",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02509"
+        "product:P02509",
+        "product:P02515",
+        "product:P02503",
+        "product:P02517",
+        "product:P02510"
       ],
+      "top_dense_sim": 0.9779092073440552,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1563,9 +2659,16 @@
     },
     {
       "id": "auto_140",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02509"
+        "product:P02509",
+        "product:P02515",
+        "product:P02505",
+        "product:P02517"
       ],
+      "top_dense_sim": 0.977547287940979,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1574,9 +2677,17 @@
     },
     {
       "id": "auto_141",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02509"
+        "product:P02509",
+        "product:P02505",
+        "product:P02515",
+        "product:P02517",
+        "product:P00008"
       ],
+      "top_dense_sim": 0.9702199697494507,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1585,9 +2696,17 @@
     },
     {
       "id": "auto_142",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02509"
+        "product:P02509",
+        "product:P02515",
+        "product:P02505",
+        "product:P02517",
+        "product:P00010"
       ],
+      "top_dense_sim": 0.9847690463066101,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1596,9 +2715,17 @@
     },
     {
       "id": "auto_143",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02509"
+        "product:P02509",
+        "product:P02505",
+        "product:P02515",
+        "product:P00002",
+        "product:P00001"
       ],
+      "top_dense_sim": 0.9736008644104004,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1607,9 +2734,17 @@
     },
     {
       "id": "auto_144",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00007"
+        "product:P00007",
+        "product:P00013",
+        "product:P00010",
+        "product:P00004",
+        "product:P02505"
       ],
+      "top_dense_sim": 0.9787547588348389,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1618,9 +2753,17 @@
     },
     {
       "id": "auto_145",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00007"
+        "product:P00007",
+        "product:P00013",
+        "product:P00004",
+        "product:P00005",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.9529578685760498,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1629,9 +2772,15 @@
     },
     {
       "id": "auto_146",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00007"
+        "product:P00007",
+        "product:P00013",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.9816097021102905,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1640,9 +2789,15 @@
     },
     {
       "id": "auto_147",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00007"
+        "product:P00007",
+        "product:P00013",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.9803763031959534,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1651,9 +2806,15 @@
     },
     {
       "id": "auto_148",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00007"
+        "product:P00007",
+        "product:P00004",
+        "product:P00013"
       ],
+      "top_dense_sim": 0.9163705706596375,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1662,9 +2823,17 @@
     },
     {
       "id": "auto_149",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02515"
+        "product:P02515",
+        "product:P02509",
+        "product:P02503",
+        "policy:POL001",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.7318375110626221,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1673,9 +2842,17 @@
     },
     {
       "id": "auto_150",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02515"
+        "product:P02515",
+        "product:P02509",
+        "product:P02517",
+        "product:P02501",
+        "product:P00009"
       ],
+      "top_dense_sim": 0.741942822933197,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1684,9 +2861,17 @@
     },
     {
       "id": "auto_151",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02515"
+        "product:P02515",
+        "product:P02509",
+        "product:P00012",
+        "product:P00009",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.7741429805755615,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1695,9 +2880,17 @@
     },
     {
       "id": "auto_152",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02515"
+        "product:P02515",
+        "product:P02509",
+        "product:P02503",
+        "product:P02518",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.8561350107192993,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1706,9 +2899,17 @@
     },
     {
       "id": "auto_153",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02515"
+        "product:P02515",
+        "product:P00001",
+        "product:P00005",
+        "product:P00002",
+        "product:P02505"
       ],
+      "top_dense_sim": 0.5749744176864624,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1717,9 +2918,17 @@
     },
     {
       "id": "auto_154",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02511"
+        "product:P02511",
+        "product:P02518",
+        "product:P02515",
+        "product:P02520",
+        "product:P00014"
       ],
+      "top_dense_sim": 0.9315666556358337,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1728,9 +2937,17 @@
     },
     {
       "id": "auto_155",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02511"
+        "product:P02511",
+        "product:P02503",
+        "product:P02501",
+        "product:P02513",
+        "product:P02510"
       ],
+      "top_dense_sim": 0.8502923846244812,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1739,9 +2956,17 @@
     },
     {
       "id": "auto_156",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02511"
+        "product:P02511",
+        "product:P00008",
+        "product:P02520",
+        "product:P02506",
+        "product:P02505"
       ],
+      "top_dense_sim": 0.9086065292358398,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1750,9 +2975,17 @@
     },
     {
       "id": "auto_157",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02511"
+        "product:P02511",
+        "product:P02520",
+        "policy:POL001",
+        "product:P02515",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9655914306640625,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1761,9 +2994,17 @@
     },
     {
       "id": "auto_158",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02511"
+        "product:P02511",
+        "product:P02505",
+        "product:P00005",
+        "product:P00002",
+        "product:P02512"
       ],
+      "top_dense_sim": 0.8143375515937805,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1772,9 +3013,17 @@
     },
     {
       "id": "auto_159",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00006"
+        "product:P00006",
+        "product:P00019",
+        "product:P00009",
+        "product:P00002",
+        "product:P00014"
       ],
+      "top_dense_sim": 0.9386438131332397,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1783,9 +3032,17 @@
     },
     {
       "id": "auto_160",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00006"
+        "product:P00006",
+        "product:P02518",
+        "product:P00011",
+        "product:P00010",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.9441612958908081,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1794,9 +3051,17 @@
     },
     {
       "id": "auto_161",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00006"
+        "product:P00006",
+        "product:P00002",
+        "product:P00001",
+        "product:P00010",
+        "product:P00016"
       ],
+      "top_dense_sim": 0.8634737730026245,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1805,10 +3070,17 @@
     },
     {
       "id": "auto_162",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00006",
-        "product:P00001"
+        "product:P00001",
+        "product:P00002",
+        "product:P00005",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.7120871543884277,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1817,9 +3089,17 @@
     },
     {
       "id": "auto_163",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00006"
+        "product:P00006",
+        "product:P00002",
+        "product:P00016",
+        "product:P00011",
+        "product:P00010"
       ],
+      "top_dense_sim": 0.9398037791252136,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1828,9 +3108,17 @@
     },
     {
       "id": "auto_164",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02501"
+        "product:P02501",
+        "product:P02509",
+        "product:P02502",
+        "product:P02515",
+        "product:P02514"
       ],
+      "top_dense_sim": 0.9576637744903564,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1839,9 +3127,17 @@
     },
     {
       "id": "auto_165",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02501"
+        "product:P02501",
+        "product:P02508",
+        "product:P02515",
+        "policy:POL001",
+        "product:P02509"
       ],
+      "top_dense_sim": 0.9694139957427979,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1850,9 +3146,17 @@
     },
     {
       "id": "auto_166",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02501"
+        "product:P02501",
+        "product:P02509",
+        "product:P00017",
+        "product:P02515",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.9663327932357788,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1861,9 +3165,17 @@
     },
     {
       "id": "auto_167",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02501"
+        "product:P02501",
+        "product:P02502",
+        "product:P02513",
+        "product:P02515",
+        "product:P02503"
       ],
+      "top_dense_sim": 0.9816006422042847,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1872,9 +3184,17 @@
     },
     {
       "id": "auto_168",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02501"
+        "product:P02501",
+        "product:P02505",
+        "product:P02515",
+        "product:P00001",
+        "product:P02509"
       ],
+      "top_dense_sim": 0.9764493703842163,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1883,9 +3203,17 @@
     },
     {
       "id": "auto_169",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02506"
+        "product:P02506",
+        "product:P02520",
+        "product:P02502",
+        "product:P02514",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.9520692825317383,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1894,9 +3222,17 @@
     },
     {
       "id": "auto_170",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02506"
+        "product:P02506",
+        "product:P02520",
+        "product:P02502",
+        "product:P02518",
+        "product:P02504"
       ],
+      "top_dense_sim": 0.9847679734230042,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1905,9 +3241,17 @@
     },
     {
       "id": "auto_171",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02506"
+        "product:P02506",
+        "product:P02520",
+        "product:P02504",
+        "product:P02518",
+        "product:P00014"
       ],
+      "top_dense_sim": 0.9841469526290894,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1916,9 +3260,17 @@
     },
     {
       "id": "auto_172",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02506"
+        "product:P02506",
+        "product:P02520",
+        "product:P00014",
+        "product:P02504",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.9791949987411499,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1927,9 +3279,17 @@
     },
     {
       "id": "auto_173",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02506"
+        "product:P02506",
+        "product:P02520",
+        "product:P02505",
+        "product:P02504",
+        "product:P02518"
       ],
+      "top_dense_sim": 0.979012131690979,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1938,12 +3298,17 @@
     },
     {
       "id": "auto_174",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
         "product:P00005",
-        "product:P00002",
         "product:P00001",
-        "product:P00019"
+        "product:P00002",
+        "product:P00019",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.6971906423568726,
+      "predicted_abstain": false,
       "recall@1": 0.0,
       "recall@3": 0.0,
       "recall@5": 1.0,
@@ -1952,9 +3317,17 @@
     },
     {
       "id": "auto_175",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00019"
+        "product:P00019",
+        "product:P00014",
+        "product:P00009",
+        "product:P00002",
+        "product:P00006"
       ],
+      "top_dense_sim": 0.9208433628082275,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1963,9 +3336,17 @@
     },
     {
       "id": "auto_176",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00019"
+        "product:P00019",
+        "product:P00002",
+        "product:P00005",
+        "product:P00014",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9235410690307617,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1974,9 +3355,17 @@
     },
     {
       "id": "auto_177",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00019"
+        "product:P00019",
+        "product:P00018",
+        "policy:POL001",
+        "policy:POL003",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.9169013500213623,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1985,9 +3374,17 @@
     },
     {
       "id": "auto_178",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00019"
+        "product:P00019",
+        "product:P00018",
+        "policy:POL001",
+        "policy:POL003",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.9228682518005371,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -1996,9 +3393,17 @@
     },
     {
       "id": "auto_179",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00020"
+        "product:P00020",
+        "product:P00013",
+        "product:P00007",
+        "product:P00015",
+        "product:P00010"
       ],
+      "top_dense_sim": 0.9114366769790649,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2007,9 +3412,17 @@
     },
     {
       "id": "auto_180",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00020"
+        "product:P00020",
+        "product:P00005",
+        "product:P00001",
+        "product:P00002",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.7777105569839478,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2018,9 +3431,17 @@
     },
     {
       "id": "auto_181",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00020"
+        "product:P00020",
+        "policy:POL001",
+        "product:P00015",
+        "policy:POL003",
+        "product:P00005"
       ],
+      "top_dense_sim": 0.9665606021881104,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2029,9 +3450,17 @@
     },
     {
       "id": "auto_182",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00020"
+        "product:P00020",
+        "product:P02512",
+        "product:P00010",
+        "product:P00015",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.951072633266449,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2040,9 +3469,17 @@
     },
     {
       "id": "auto_183",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00020"
+        "product:P00020",
+        "product:P00015",
+        "product:P02502",
+        "product:P00012",
+        "product:P02512"
       ],
+      "top_dense_sim": 0.946387767791748,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2051,9 +3488,17 @@
     },
     {
       "id": "auto_184",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02519"
+        "product:P02519",
+        "product:P02510",
+        "product:P02513",
+        "product:P02503",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9257000684738159,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2062,9 +3507,17 @@
     },
     {
       "id": "auto_185",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02519"
+        "product:P02519",
+        "product:P02505",
+        "product:P02514",
+        "product:P02502",
+        "product:P02510"
       ],
+      "top_dense_sim": 0.8950467109680176,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2073,9 +3526,17 @@
     },
     {
       "id": "auto_186",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02519"
+        "product:P02519",
+        "product:P02509",
+        "product:P02506",
+        "policy:POL001",
+        "product:P02510"
       ],
+      "top_dense_sim": 0.9100302457809448,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2084,9 +3545,17 @@
     },
     {
       "id": "auto_187",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02519"
+        "product:P02519",
+        "policy:POL001",
+        "product:P02510",
+        "policy:POL003",
+        "product:P02515"
       ],
+      "top_dense_sim": 0.9744120836257935,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2095,9 +3564,17 @@
     },
     {
       "id": "auto_188",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02519"
+        "product:P02519",
+        "product:P02510",
+        "product:P02512",
+        "policy:POL001",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9503827095031738,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2106,9 +3583,17 @@
     },
     {
       "id": "auto_189",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02503"
+        "product:P02503",
+        "product:P02515",
+        "product:P02509",
+        "product:P02505",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9106253385543823,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2117,9 +3602,17 @@
     },
     {
       "id": "auto_190",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02503"
+        "product:P02503",
+        "product:P02509",
+        "product:P02515",
+        "product:P02505",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9025331735610962,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2128,9 +3621,17 @@
     },
     {
       "id": "auto_191",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02503"
+        "product:P02503",
+        "product:P02505",
+        "product:P00005",
+        "product:P02515",
+        "product:P00001"
       ],
+      "top_dense_sim": 0.9454665184020996,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2139,9 +3640,17 @@
     },
     {
       "id": "auto_192",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02503"
+        "product:P02503",
+        "product:P02509",
+        "product:P02515",
+        "policy:POL001",
+        "policy:POL003"
       ],
+      "top_dense_sim": 0.9154267311096191,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2150,9 +3659,17 @@
     },
     {
       "id": "auto_193",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P02503"
+        "product:P02503",
+        "product:P02515",
+        "product:P02509",
+        "product:P02501",
+        "product:P02502"
       ],
+      "top_dense_sim": 0.887056827545166,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2161,9 +3678,17 @@
     },
     {
       "id": "auto_194",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00010"
+        "product:P00010",
+        "product:P00007",
+        "product:P00020",
+        "product:P00013",
+        "product:P00017"
       ],
+      "top_dense_sim": 0.9523940086364746,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2172,9 +3697,17 @@
     },
     {
       "id": "auto_195",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00010"
+        "product:P00010",
+        "product:P02518",
+        "product:P00014",
+        "product:P02509",
+        "product:P00006"
       ],
+      "top_dense_sim": 0.915652871131897,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2183,9 +3716,17 @@
     },
     {
       "id": "auto_196",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00010"
+        "product:P00010",
+        "product:P00001",
+        "product:P00020",
+        "product:P00002",
+        "product:P00017"
       ],
+      "top_dense_sim": 0.9735184907913208,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2194,9 +3735,17 @@
     },
     {
       "id": "auto_197",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00010"
+        "product:P00010",
+        "policy:POL001",
+        "product:P00020",
+        "policy:POL003",
+        "product:P00017"
       ],
+      "top_dense_sim": 0.9402981400489807,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2205,9 +3754,17 @@
     },
     {
       "id": "auto_198",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00010"
+        "product:P00010",
+        "policy:POL001",
+        "product:P00020",
+        "policy:POL003",
+        "product:P00017"
       ],
+      "top_dense_sim": 0.9394774436950684,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2216,9 +3773,17 @@
     },
     {
       "id": "auto_199",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "product:P00020",
+        "product:P00012",
+        "policy:POL001",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8935739994049072,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2227,9 +3792,17 @@
     },
     {
       "id": "auto_200",
+      "kind": "attribute",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "product:P00005",
+        "product:P00002",
+        "product:P00001",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.8221055269241333,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2238,20 +3811,36 @@
     },
     {
       "id": "hard_001",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "product:P02512",
+        "product:P02508",
+        "product:P00013",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8633311986923218,
+      "predicted_abstain": false,
       "recall@1": 0.5,
-      "recall@3": 0.5,
-      "recall@5": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.6131471927654584
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_002",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02516"
+        "product:P02516",
+        "product:P02505",
+        "policy:POL002",
+        "product:P02519",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9838324189186096,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2260,9 +3849,17 @@
     },
     {
       "id": "hard_003",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P02508"
+        "product:P02508",
+        "product:P02514",
+        "product:P02512",
+        "product:P02513",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9713042974472046,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2271,9 +3868,17 @@
     },
     {
       "id": "hard_004",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P02516"
+        "product:P02516",
+        "product:P02505",
+        "product:P02519",
+        "product:P02513",
+        "product:P02515"
       ],
+      "top_dense_sim": 0.9877394437789917,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2282,9 +3887,17 @@
     },
     {
       "id": "hard_005",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00007"
+        "product:P00007",
+        "policy:POL001",
+        "product:P00002",
+        "policy:POL002",
+        "product:P00012"
       ],
+      "top_dense_sim": 0.36986857652664185,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -2293,10 +3906,17 @@
     },
     {
       "id": "hard_006",
+      "kind": "compound",
+      "split": null,
       "ranking": [
+        "product:P02505",
         "product:P02514",
-        "product:P02505"
+        "product:P02508",
+        "product:P02512",
+        "product:P02519"
       ],
+      "top_dense_sim": 0.8799515962600708,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2305,9 +3925,17 @@
     },
     {
       "id": "hard_007",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02502"
+        "product:P02502",
+        "product:P02517",
+        "policy:POL002",
+        "policy:POL001",
+        "product:P02501"
       ],
+      "top_dense_sim": 0.9830770492553711,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2316,9 +3944,17 @@
     },
     {
       "id": "hard_008",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P00017"
+        "product:P00017",
+        "product:P00009",
+        "product:P00002",
+        "product:P00018",
+        "product:P00019"
       ],
+      "top_dense_sim": 0.9556261301040649,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2327,9 +3963,15 @@
     },
     {
       "id": "hard_009",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P00013"
+        "product:P00013",
+        "product:P00007",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.977372407913208,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2338,11 +3980,17 @@
     },
     {
       "id": "hard_010",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00006",
         "policy:POL001",
-        "policy:POL002"
+        "product:P00006",
+        "policy:POL002",
+        "product:P00004",
+        "product:P00009"
       ],
+      "top_dense_sim": 0.3623184263706207,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -2351,20 +3999,36 @@
     },
     {
       "id": "hard_011",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P00012"
+        "product:P00012",
+        "product:P00018",
+        "product:P00017",
+        "product:P00016",
+        "product:P00014"
       ],
+      "top_dense_sim": 0.7676650881767273,
+      "predicted_abstain": false,
       "recall@1": 0.5,
-      "recall@3": 0.5,
-      "recall@5": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.6131471927654584
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_012",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P00005"
+        "product:P00005",
+        "policy:POL002",
+        "product:P00014",
+        "policy:POL001",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.8209525942802429,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2373,9 +4037,15 @@
     },
     {
       "id": "hard_013",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P00011"
+        "product:P00011",
+        "product:P00002",
+        "product:P00001"
       ],
+      "top_dense_sim": 0.7001038789749146,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2384,9 +4054,17 @@
     },
     {
       "id": "hard_014",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P00005"
+        "product:P00005",
+        "policy:POL003",
+        "product:P00014",
+        "product:P02506",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8928219079971313,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2395,11 +4073,17 @@
     },
     {
       "id": "hard_015",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00004",
         "policy:POL001",
-        "policy:POL002"
+        "product:P00004",
+        "policy:POL002",
+        "product:P00006",
+        "product:P02509"
       ],
+      "top_dense_sim": 0.3435162305831909,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -2408,20 +4092,35 @@
     },
     {
       "id": "hard_016",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P02511"
+        "product:P02511",
+        "product:P02515",
+        "product:P02520",
+        "product:P02503"
       ],
+      "top_dense_sim": 0.8451296091079712,
+      "predicted_abstain": false,
       "recall@1": 0.5,
-      "recall@3": 0.5,
-      "recall@5": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.6131471927654584
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_017",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02519"
+        "product:P02519",
+        "product:P02510",
+        "product:P02513",
+        "policy:POL002",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9845507144927979,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2430,9 +4129,17 @@
     },
     {
       "id": "hard_018",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P02506"
+        "product:P02506",
+        "product:P02520",
+        "product:P02504",
+        "product:P02513",
+        "product:P02508"
       ],
+      "top_dense_sim": 0.9651431441307068,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2441,9 +4148,17 @@
     },
     {
       "id": "hard_019",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P00020"
+        "product:P00020",
+        "product:P00010",
+        "product:P02504",
+        "product:P00015",
+        "product:P02512"
       ],
+      "top_dense_sim": 0.9817191958427429,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2452,11 +4167,17 @@
     },
     {
       "id": "hard_020",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00004",
         "policy:POL001",
-        "policy:POL002"
+        "product:P00004",
+        "policy:POL002",
+        "product:P00007",
+        "product:P02513"
       ],
+      "top_dense_sim": 0.3512602150440216,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -2465,20 +4186,35 @@
     },
     {
       "id": "hard_021",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "product:P02512",
+        "product:P02508",
+        "product:P00013",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8633311986923218,
+      "predicted_abstain": false,
       "recall@1": 0.5,
-      "recall@3": 0.5,
-      "recall@5": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.6131471927654584
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_022",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02514"
+        "product:P02514",
+        "product:P02508",
+        "product:P02512",
+        "policy:POL002"
       ],
+      "top_dense_sim": 0.9792239665985107,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2487,9 +4223,17 @@
     },
     {
       "id": "hard_023",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P02508"
+        "product:P02508",
+        "product:P02514",
+        "product:P02512",
+        "product:P02513",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9713042974472046,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2498,9 +4242,17 @@
     },
     {
       "id": "hard_024",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P02516"
+        "product:P02516",
+        "product:P02505",
+        "product:P02519",
+        "product:P02513",
+        "product:P02515"
       ],
+      "top_dense_sim": 0.9877394437789917,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2509,11 +4261,17 @@
     },
     {
       "id": "hard_025",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00004",
         "policy:POL001",
-        "policy:POL002"
+        "product:P00004",
+        "policy:POL002",
+        "product:P00002",
+        "product:P02508"
       ],
+      "top_dense_sim": 0.35864418745040894,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -2522,10 +4280,17 @@
     },
     {
       "id": "hard_026",
+      "kind": "compound",
+      "split": null,
       "ranking": [
+        "product:P02505",
         "product:P02514",
-        "product:P02505"
+        "product:P02508",
+        "product:P02512",
+        "product:P02519"
       ],
+      "top_dense_sim": 0.8799515962600708,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2534,9 +4299,17 @@
     },
     {
       "id": "hard_027",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02517"
+        "product:P02517",
+        "product:P02509",
+        "product:P02502",
+        "policy:POL002",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9127501249313354,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2545,9 +4318,17 @@
     },
     {
       "id": "hard_028",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P00017"
+        "product:P00017",
+        "product:P00009",
+        "product:P00002",
+        "product:P00018",
+        "product:P00019"
       ],
+      "top_dense_sim": 0.9556261301040649,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2556,9 +4337,15 @@
     },
     {
       "id": "hard_029",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P00013"
+        "product:P00013",
+        "product:P00007",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.977372407913208,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2567,11 +4354,17 @@
     },
     {
       "id": "hard_030",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
         "product:P00004",
         "policy:POL001",
-        "policy:POL002"
+        "policy:POL002",
+        "product:P00007",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.3552997410297394,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -2580,20 +4373,34 @@
     },
     {
       "id": "hard_031",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P00012"
+        "product:P00012",
+        "product:P00018",
+        "product:P00017",
+        "product:P00016",
+        "product:P00014"
       ],
+      "top_dense_sim": 0.7676650881767273,
+      "predicted_abstain": false,
       "recall@1": 0.5,
-      "recall@3": 0.5,
-      "recall@5": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.6131471927654584
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_032",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P00004"
+        "product:P00004",
+        "product:P00007",
+        "product:P00013"
       ],
+      "top_dense_sim": 0.9772425293922424,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2602,9 +4409,15 @@
     },
     {
       "id": "hard_033",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P00011"
+        "product:P00011",
+        "product:P00002",
+        "product:P00001"
       ],
+      "top_dense_sim": 0.7001038789749146,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2613,9 +4426,17 @@
     },
     {
       "id": "hard_034",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P00005"
+        "product:P00005",
+        "policy:POL003",
+        "product:P00014",
+        "product:P02506",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8928219079971313,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2624,11 +4445,17 @@
     },
     {
       "id": "hard_035",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00004",
         "policy:POL001",
-        "policy:POL002"
+        "product:P00004",
+        "policy:POL002",
+        "product:P00007",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.36720308661460876,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -2637,20 +4464,35 @@
     },
     {
       "id": "hard_036",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P02511"
+        "product:P02511",
+        "product:P02515",
+        "product:P02520",
+        "product:P02503"
       ],
+      "top_dense_sim": 0.8451296091079712,
+      "predicted_abstain": false,
       "recall@1": 0.5,
-      "recall@3": 0.5,
-      "recall@5": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.6131471927654584
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_037",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02503"
+        "product:P02503",
+        "product:P02515",
+        "product:P02509",
+        "policy:POL002",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9269803762435913,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2659,9 +4501,17 @@
     },
     {
       "id": "hard_038",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P02506"
+        "product:P02506",
+        "product:P02520",
+        "product:P02504",
+        "product:P02513",
+        "product:P02508"
       ],
+      "top_dense_sim": 0.9651431441307068,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2670,9 +4520,17 @@
     },
     {
       "id": "hard_039",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P00020"
+        "product:P00020",
+        "product:P00010",
+        "product:P02504",
+        "product:P00015",
+        "product:P02512"
       ],
+      "top_dense_sim": 0.9817191958427429,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2681,11 +4539,17 @@
     },
     {
       "id": "hard_040",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00004",
         "policy:POL001",
-        "policy:POL002"
+        "product:P00004",
+        "policy:POL002",
+        "product:P00007",
+        "product:P02514"
       ],
+      "top_dense_sim": 0.37281566858291626,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -2694,20 +4558,36 @@
     },
     {
       "id": "hard_041",
+      "kind": "compound",
+      "split": null,
       "ranking": [
-        "product:P00016"
+        "product:P00016",
+        "product:P02512",
+        "product:P02508",
+        "product:P00013",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.8633311986923218,
+      "predicted_abstain": false,
       "recall@1": 0.5,
-      "recall@3": 0.5,
-      "recall@5": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
       "mrr": 1.0,
-      "ndcg@5": 0.6131471927654584
+      "ndcg@5": 1.0
     },
     {
       "id": "hard_042",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02505"
+        "product:P02505",
+        "product:P02506",
+        "product:P02509",
+        "policy:POL002",
+        "policy:POL001"
       ],
+      "top_dense_sim": 0.9829072952270508,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2716,9 +4596,17 @@
     },
     {
       "id": "hard_043",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P02508"
+        "product:P02508",
+        "product:P02514",
+        "product:P02512",
+        "product:P02513",
+        "product:P02506"
       ],
+      "top_dense_sim": 0.9713042974472046,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2727,9 +4615,17 @@
     },
     {
       "id": "hard_044",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P02516"
+        "product:P02516",
+        "product:P02505",
+        "product:P02519",
+        "product:P02513",
+        "product:P02515"
       ],
+      "top_dense_sim": 0.9877394437789917,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2738,11 +4634,17 @@
     },
     {
       "id": "hard_045",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00004",
         "policy:POL001",
-        "policy:POL002"
+        "product:P00004",
+        "policy:POL002",
+        "product:P00007",
+        "product:P00002"
       ],
+      "top_dense_sim": 0.3695756196975708,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,
@@ -2751,10 +4653,17 @@
     },
     {
       "id": "hard_046",
+      "kind": "compound",
+      "split": null,
       "ranking": [
+        "product:P02505",
         "product:P02514",
-        "product:P02505"
+        "product:P02508",
+        "product:P02512",
+        "product:P02519"
       ],
+      "top_dense_sim": 0.8799515962600708,
+      "predicted_abstain": false,
       "recall@1": 0.5,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2763,9 +4672,17 @@
     },
     {
       "id": "hard_047",
+      "kind": "budget",
+      "split": null,
       "ranking": [
-        "product:P02507"
+        "product:P02507",
+        "policy:POL002",
+        "product:P02519",
+        "policy:POL001",
+        "product:P02505"
       ],
+      "top_dense_sim": 0.9595001935958862,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2774,9 +4691,17 @@
     },
     {
       "id": "hard_048",
+      "kind": "typo",
+      "split": null,
       "ranking": [
-        "product:P00017"
+        "product:P00017",
+        "product:P00009",
+        "product:P00002",
+        "product:P00018",
+        "product:P00019"
       ],
+      "top_dense_sim": 0.9556261301040649,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2785,9 +4710,15 @@
     },
     {
       "id": "hard_049",
+      "kind": "near_sku",
+      "split": null,
       "ranking": [
-        "product:P00013"
+        "product:P00013",
+        "product:P00007",
+        "product:P00004"
       ],
+      "top_dense_sim": 0.977372407913208,
+      "predicted_abstain": false,
       "recall@1": 1.0,
       "recall@3": 1.0,
       "recall@5": 1.0,
@@ -2796,11 +4727,17 @@
     },
     {
       "id": "hard_050",
+      "kind": "no_answer",
+      "split": null,
       "ranking": [
-        "product:P00004",
         "policy:POL001",
-        "policy:POL002"
+        "product:P00004",
+        "policy:POL002",
+        "product:P00002",
+        "product:P00007"
       ],
+      "top_dense_sim": 0.3390420079231262,
+      "predicted_abstain": false,
       "recall@1": null,
       "recall@3": null,
       "recall@5": null,

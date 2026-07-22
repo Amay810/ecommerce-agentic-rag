@@ -21,6 +21,12 @@ def _eligible(db):
 
 
 class HarnessToolTests(unittest.TestCase):
+ def test_seed_database_creates_missing_parent_directory(self):
+    with tempfile.TemporaryDirectory() as d:
+        db = Path(d) / "missing" / "nested" / "env.db"
+        seed_database(db, users=20, orders=100)
+        assert db.is_file()
+
  def test_policy_observation_excludes_hidden_gold(self):
     class SpyPolicy:
         privileged = False

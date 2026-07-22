@@ -65,12 +65,25 @@ class LLMPolicy:
     @staticmethod
     def _local_generator(model_name: str) -> Callable[[str], str]:
         from transformers import AutoModelForCausalLM, AutoTokenizer
-        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype="auto", trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True, local_files_only=True)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name, device_map="auto", torch_dtype="auto",
+            trust_remote_code=True, local_files_only=True,
+        )
+        model.eval()
 
         def generate(prompt: str) -> str:
             messages = [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}]
-            text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            # Qwen3 supports an explicit non-thinking mode, which is preferable
+            # for a short machine-parseable next-action JSON. Older templates
+            # safely ignore this through the fallback.
+            try:
+                text = tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True,
+                    enable_thinking=False,
+                )
+            except TypeError:
+                text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
             inputs = tokenizer(text, return_tensors="pt").to(model.device)
             output = model.generate(**inputs, max_new_tokens=256, do_sample=False)
             return tokenizer.decode(output[0][inputs.input_ids.shape[1]:], skip_special_tokens=True)
@@ -107,4 +120,3 @@ class LLMPolicy:
                 if attempt < self.max_parse_retries:
                     self.retry_count += 1
         return AgentAction.handoff("model_action_parse_failure")
-

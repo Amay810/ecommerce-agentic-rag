@@ -1,0 +1,12 @@
+{
+  "products": 40,
+  "policies": 5,
+  "chunks": 413,
+  "parents": 45,
+  "embed_model": "paraphrase-multilingual-MiniLM-L12-v2",
+  "model_load_ms": 2762.04,
+  "embedding_ms": 2011.78,
+  "persist_ms": 9.26,
+  "build_time_ms": 11787.68,
+  "index_size_bytes": 820687
+}

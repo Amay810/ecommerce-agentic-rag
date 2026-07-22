@@ -140,6 +140,14 @@ class RulePolicy:
             return AgentAction.tool_call("create_return_request", order_id=order_id or "", user_id=user_id,
                                          verification_code=code or "", confirmed=True)
 
+        # Explicit requests for rules/policies take precedence over ambiguous
+        # domain words such as "物流" and "退款".  Without this guard those
+        # words were incorrectly routed to personal-order or return workflows.
+        policy_request = any(x in lower for x in ("政策", "规定", "规则", "条款", "policy"))
+        if policy_request and order_id is None:
+            policy_type = next((x for x in ("退换货", "保修", "物流", "发票", "退款") if x in text), "return")
+            return AgentAction.tool_call("get_policy", policy_type=policy_type)
+
         is_return = any(x in lower for x in ("退货", "退款", "return"))
         is_order = order_id is not None or any(x in lower for x in ("订单", "物流", "order"))
         if is_order:

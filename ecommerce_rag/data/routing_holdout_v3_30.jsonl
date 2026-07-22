@@ -1,0 +1,30 @@
+{"id": "routing_v3_001", "message": "请查平台物流条款，不是查我的订单", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_002", "message": "退款有哪些正式规则？", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_003", "message": "我只想了解退换货规定", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_004", "message": "发票政策具体怎么写的", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_005", "message": "查一下保修条款", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_006", "message": "物流配送规则是什么", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_007", "message": "退款到账的政策说明", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_008", "message": "平台换货规则，不涉及具体订单", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_009", "message": "有哪些正式的发票规定", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_010", "message": "请依据政策解释保修范围", "expected_tool": "get_policy", "kind": "policy_ambiguity"}
+{"id": "routing_v3_011", "message": "查订单 O000001 的物流状态，验证码 000001", "expected_tool": "get_order", "kind": "personal_order"}
+{"id": "routing_v3_012", "message": "订单 O000011 要退货，验证码 000011", "expected_tool": "check_return_eligibility", "kind": "return"}
+{"id": "routing_v3_013", "message": "比较 P00001 和 P00002", "expected_tool": "compare_products", "kind": "compare"}
+{"id": "routing_v3_014", "message": "帮我搜索适合场景 1 的商品", "expected_tool": "search_catalog", "kind": "catalog"}
+{"id": "routing_v3_015", "message": "查订单 O000002 的物流状态，验证码 000002", "expected_tool": "get_order", "kind": "personal_order"}
+{"id": "routing_v3_016", "message": "订单 O000012 要退货，验证码 000012", "expected_tool": "check_return_eligibility", "kind": "return"}
+{"id": "routing_v3_017", "message": "比较 P00002 和 P00003", "expected_tool": "compare_products", "kind": "compare"}
+{"id": "routing_v3_018", "message": "帮我搜索适合场景 2 的商品", "expected_tool": "search_catalog", "kind": "catalog"}
+{"id": "routing_v3_019", "message": "查订单 O000003 的物流状态，验证码 000003", "expected_tool": "get_order", "kind": "personal_order"}
+{"id": "routing_v3_020", "message": "订单 O000013 要退货，验证码 000013", "expected_tool": "check_return_eligibility", "kind": "return"}
+{"id": "routing_v3_021", "message": "比较 P00003 和 P00004", "expected_tool": "compare_products", "kind": "compare"}
+{"id": "routing_v3_022", "message": "帮我搜索适合场景 3 的商品", "expected_tool": "search_catalog", "kind": "catalog"}
+{"id": "routing_v3_023", "message": "查订单 O000004 的物流状态，验证码 000004", "expected_tool": "get_order", "kind": "personal_order"}
+{"id": "routing_v3_024", "message": "订单 O000014 要退货，验证码 000014", "expected_tool": "check_return_eligibility", "kind": "return"}
+{"id": "routing_v3_025", "message": "比较 P00004 和 P00005", "expected_tool": "compare_products", "kind": "compare"}
+{"id": "routing_v3_026", "message": "帮我搜索适合场景 4 的商品", "expected_tool": "search_catalog", "kind": "catalog"}
+{"id": "routing_v3_027", "message": "查订单 O000005 的物流状态，验证码 000005", "expected_tool": "get_order", "kind": "personal_order"}
+{"id": "routing_v3_028", "message": "订单 O000015 要退货，验证码 000015", "expected_tool": "check_return_eligibility", "kind": "return"}
+{"id": "routing_v3_029", "message": "比较 P00005 和 P00006", "expected_tool": "compare_products", "kind": "compare"}
+{"id": "routing_v3_030", "message": "帮我搜索适合场景 5 的商品", "expected_tool": "search_catalog", "kind": "catalog"}

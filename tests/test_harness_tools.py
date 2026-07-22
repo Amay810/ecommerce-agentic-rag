@@ -5,6 +5,7 @@ from pathlib import Path
 
 from ecommerce_rag.domain import TaskSpec
 from ecommerce_rag.domain import AgentAction
+from ecommerce_rag.domain import AgentObservation
 from ecommerce_rag.harness import HarnessRunner, RulePolicy
 from ecommerce_rag.orders import connect, seed_database
 from ecommerce_rag.tools import RetailTools
@@ -21,6 +22,24 @@ def _eligible(db):
 
 
 class HarnessToolTests(unittest.TestCase):
+ def test_explicit_policy_language_precedes_order_and_return_keywords(self):
+    policy = RulePolicy()
+    cases = {
+        "我想了解物流，有没有正式规则": "物流",
+        "别猜，查一下退款规定": "退款",
+        "别猜，查一下物流规定": "物流",
+    }
+    for message, expected_type in cases.items():
+        observation = AgentObservation(
+            current_message=message,
+            history=[{"role": "user", "content": message}],
+            tool_schemas=[],
+            session={"user_id": "U0001"},
+        )
+        action = policy.act(observation)
+        assert action.tool_name == "get_policy"
+        assert action.arguments["policy_type"] == expected_type
+
  def test_seed_database_creates_missing_parent_directory(self):
     with tempfile.TemporaryDirectory() as d:
         db = Path(d) / "missing" / "nested" / "env.db"

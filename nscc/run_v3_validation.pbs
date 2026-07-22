@@ -1,0 +1,31 @@
+#!/bin/bash
+#PBS -N erag-v3-check
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=1:mem=64gb
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o output_erag_v3_validation.log
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
+module load cuda/11.8.0
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+
+export HF_HOME=/scratch/users/ntu/s250045/cache/huggingface-ecommerce
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export TOKENIZERS_PARALLELISM=false
+export ERAG_EMBED_MODEL=/scratch/users/ntu/s250045/cache/huggingface-ecommerce/hub/models--sentence-transformers--paraphrase-multilingual-MiniLM-L12-v2/snapshots/e8f8c211226b894fcb81acc59f3b34ba3efd5f42
+
+test -s ecommerce_rag/data/retrieval_eval_v3_150.jsonl
+test -s ecommerce_rag/index_5000/embeddings.npy
+
+python -m ecommerce_rag.benchmark   --testset ecommerce_rag/data/retrieval_eval_v3_150.jsonl   --index ecommerce_rag/index_5000   --constraints --split locked   --output docs/retrieval_v3_locked_nscc.json
+
+python -m scripts.evaluate_routing_holdout   --input ecommerce_rag/data/routing_holdout_v3_30.jsonl   --output docs/routing_holdout_v3_rule_nscc.json
+
+python -m unittest discover -s tests -v
+echo "=== v3 validation complete ==="
+

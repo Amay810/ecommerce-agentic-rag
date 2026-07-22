@@ -40,7 +40,7 @@ fi
 echo "Dataset validated: lines=$ACTUAL_LINES sha256=$ACTUAL_SHA256"
 for n in 40 1000 5000; do
   python -m scripts.slice_products --input ecommerce_rag/data/amazon_products_5k.jsonl --limit "${n}" --stratify-field amazon_category_config --output "ecommerce_rag/data/amazon_products_${n}.jsonl"
-  python -m ecommerce_rag.data_loader --products "ecommerce_rag/data/amazon_products_${n}.jsonl" --index-dir "ecommerce_rag/index_${n}"
+  python -m ecommerce_rag.data_loader --products "ecommerce_rag/data/amazon_products_${n}.jsonl" --index-dir "ecommerce_rag/index_${n}" --stats-output "docs/index_build_${n}.json"
 done
 python -m scripts.generate_retrieval_eval --products ecommerce_rag/data/amazon_products_40.jsonl --output ecommerce_rag/data/retrieval_eval_250.jsonl
 for n in 40 1000 5000; do python -m ecommerce_rag.benchmark --testset ecommerce_rag/data/retrieval_eval_250.jsonl --index "ecommerce_rag/index_${n}" --output "docs/retrieval_${n}.json"; done

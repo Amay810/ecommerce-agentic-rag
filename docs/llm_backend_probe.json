@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "stage": "backend_init",
+  "generator": {
+    "backend": "local",
+    "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+    "max_new_tokens": 512,
+    "enable_thinking_supported": true,
+    "chat_template_present": true
+  },
+  "first_generation": {
+    "raw_output": "{\"action_type\":\"final_answer\"}",
+    "finish_reason": "stop",
+    "prompt_tokens": 28,
+    "completion_tokens": 8,
+    "truncated": false
+  }
+}

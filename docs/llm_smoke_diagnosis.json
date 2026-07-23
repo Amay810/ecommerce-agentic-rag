@@ -1,0 +1,50 @@
+{
+  "trajectories": 8,
+  "steps_with_llm_trace": 16,
+  "instrumented": true,
+  "quality": {
+    "effective_action_parse_rate": 1.0,
+    "strict_envelope_parse_rate": 0.75,
+    "recovered_parse_rate": 0.25,
+    "illegal_tool_rate": 0.0,
+    "generation_error_rate": 0.0,
+    "fallback_only_trajectory_rate": 0.0,
+    "avg_non_fallback_tool_calls": 1.0,
+    "trajectories_with_real_tool_call_rate": 0.875,
+    "truncation_rate": 0.0
+  },
+  "envelope_violations": {
+    "missing_envelope_field": 4
+  },
+  "resolutions": {
+    "parsed": 12,
+    "parsed_with_violations": 4
+  },
+  "parse_stages": {},
+  "finish_reasons": {
+    "stop": 16
+  },
+  "generations": 16,
+  "prompt_tokens": {
+    "min": 496,
+    "median": 539,
+    "max": 2573,
+    "mean": 839.81
+  },
+  "completion_tokens": {
+    "min": 30,
+    "median": 53,
+    "max": 267,
+    "mean": 84.06
+  },
+  "generators": [
+    {
+      "backend": "local",
+      "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+      "max_new_tokens": 512,
+      "enable_thinking_supported": true,
+      "chat_template_present": true
+    }
+  ],
+  "failure_samples": {}
+}

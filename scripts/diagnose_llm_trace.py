@@ -19,7 +19,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-FALLBACK_REASON = "model_action_parse_failure"
+#: Reasons the policy emits when it could not produce a usable action at all.
+FALLBACK_REASONS = {"model_action_parse_failure", "model_generation_error"}
 
 
 def load_trajectories(store: Path) -> list[dict[str, Any]]:
@@ -43,6 +44,7 @@ def build_report(trajectories: list[dict[str, Any]], samples_per_stage: int = 3)
     resolutions = collections.Counter()
     stages = collections.Counter()
     finish_reasons = collections.Counter()
+    violation_counter = collections.Counter()
     generators: list[dict] = []
     prompt_tokens: list[float] = []
     completion_tokens: list[float] = []
@@ -59,9 +61,17 @@ def build_report(trajectories: list[dict[str, Any]], samples_per_stage: int = 3)
             resolutions[trace.get("resolution", "unknown")] += 1
             if trace.get("generator") and trace["generator"] not in generators:
                 generators.append(trace["generator"])
+            for violation in trace.get("envelope_violations", []):
+                # keep the field list out of the key so the histogram stays readable
+                violation_counter[violation.split(":", 1)[0]] += 1
             for attempt in trace.get("attempts", []):
                 total_generations += 1
-                finish_reasons[str(attempt.get("finish_reason"))] += 1
+                if attempt.get("parse_stage") == "generation_error":
+                    # no text was produced; counting a null finish_reason here would
+                    # pollute the histogram used to spot truncation
+                    finish_reasons["<generation_error>"] += 1
+                else:
+                    finish_reasons[str(attempt.get("finish_reason"))] += 1
                 if attempt.get("truncated"):
                     truncated += 1
                 if attempt.get("prompt_tokens") is not None:
@@ -85,26 +95,44 @@ def build_report(trajectories: list[dict[str, Any]], samples_per_stage: int = 3)
     # is not a model evaluation, however many rows it produced.
     fallback_only = 0
     real_tool_calls = 0
+    with_real_tool_call = 0
     for trajectory in trajectories:
         names = [call.get("name") for call in trajectory.get("tool_calls", [])]
         reasons = {call.get("arguments", {}).get("reason") for call in trajectory.get("tool_calls", [])
                    if call.get("name") == "escalate_to_human"}
-        if names and set(names) == {"escalate_to_human"} and reasons == {FALLBACK_REASON}:
+        if names and set(names) == {"escalate_to_human"} and reasons and reasons <= FALLBACK_REASONS:
             fallback_only += 1
-        real_tool_calls += sum(1 for name in names if name != "escalate_to_human")
+        real = sum(1 for name in names if name != "escalate_to_human")
+        real_tool_calls += real
+        with_real_tool_call += int(real > 0)
 
     n = len(trajectories) or 1
-    parsed = resolutions.get("parsed", 0)
+    # "parsed" is strictly compliant; "parsed_with_violations" was recoverable but
+    # broke the one-object-and-nothing-else contract. Reporting only their sum
+    # would let protocol violations count as clean output.
+    strict = resolutions.get("parsed", 0)
+    recovered = resolutions.get("parsed_with_violations", 0)
+    illegal_tool = stages.get("unknown_tool", 0)
     return {
         "trajectories": len(trajectories),
         "steps_with_llm_trace": steps_with_llm,
         "instrumented": steps_with_llm > 0,
         "quality": {
-            "effective_action_parse_rate": round(parsed / steps_with_llm, 4) if steps_with_llm else None,
+            # usable action produced, whether or not the envelope was clean
+            "effective_action_parse_rate": round((strict + recovered) / steps_with_llm, 4) if steps_with_llm else None,
+            # subset that also obeyed "exactly one JSON object and nothing else"
+            "strict_envelope_parse_rate": round(strict / steps_with_llm, 4) if steps_with_llm else None,
+            "recovered_parse_rate": round(recovered / steps_with_llm, 4) if steps_with_llm else None,
+            # share of generations that named a tool which was not offered
+            "illegal_tool_rate": round(illegal_tool / total_generations, 4) if total_generations else None,
+            "generation_error_rate": round(stages.get("generation_error", 0) / total_generations, 4) if total_generations else None,
             "fallback_only_trajectory_rate": round(fallback_only / n, 4),
-            "non_fallback_tool_call_rate": round(real_tool_calls / n, 4),
+            # a mean, not a rate: a multi-step trajectory contributes more than one
+            "avg_non_fallback_tool_calls": round(real_tool_calls / n, 4),
+            "trajectories_with_real_tool_call_rate": round(with_real_tool_call / n, 4),
             "truncation_rate": round(truncated / total_generations, 4) if total_generations else None,
         },
+        "envelope_violations": dict(violation_counter.most_common()),
         "resolutions": dict(resolutions),
         "parse_stages": dict(stages.most_common()),
         "finish_reasons": dict(finish_reasons.most_common()),

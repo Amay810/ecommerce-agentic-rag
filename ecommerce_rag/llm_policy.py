@@ -72,12 +72,24 @@ class ActionParseError(ValueError):
         self.stage = stage
 
 
-def _extract_json_object(raw: str) -> str:
-    """Return the first balanced ``{...}`` block.
+#: The protocol requires exactly these envelope fields and nothing else.
+ACTION_FIELDS = ("action_type", "tool_name", "arguments", "content", "requires_user_response")
+
+#: Wrappers a model commonly adds around the object; stripped before deciding
+#: whether real content sits outside it.
+_FENCE_NOISE = ("```json", "```", "`", "​")
+
+
+def _extract_json_object(raw: str) -> tuple[str, str]:
+    """Return the first balanced ``{...}`` block and any content outside it.
 
     A greedy ``\\{.*\\}`` spans from the first brace to the last one, so a model
     that emits two objects, or prose containing a brace, yields something that
     is not valid JSON and the real cause is hidden behind a decode error.
+
+    The protocol says "exactly one JSON object and nothing else", so leading and
+    trailing material is returned rather than discarded — the caller records it
+    as an envelope violation instead of counting the output as clean.
     """
     start = raw.find("{")
     if start < 0:
@@ -100,7 +112,10 @@ def _extract_json_object(raw: str) -> str:
         elif char == "}":
             depth -= 1
             if depth == 0:
-                return raw[start:index + 1]
+                outside = raw[:start] + raw[index + 1:]
+                for noise in _FENCE_NOISE:
+                    outside = outside.replace(noise, "")
+                return raw[start:index + 1], outside.strip()
     raise ActionParseError("unbalanced_json", "'{' is never closed — output was likely truncated")
 
 
@@ -221,38 +236,75 @@ class LLMPolicy:
     # ------------------------------------------------------------------ parse
 
     @staticmethod
-    def _parse(raw: str, allowed_tools: set[str]) -> AgentAction:
+    def _parse(raw: str, allowed_tools: set[str]) -> tuple[AgentAction, list[str]]:
+        """Parse one action. Returns the action and any envelope violations.
+
+        Types are checked, never coerced: ``bool("false")`` is ``True`` and
+        ``str(7)`` is ``"7"``, so coercion turns a malformed action into a
+        plausible-looking one and the protocol violation disappears from the
+        statistics. Deviations that are recoverable (extra keys, trailing text)
+        are reported instead of silently accepted, so the diagnosis can separate
+        strictly compliant output from output we merely rescued.
+        """
         if not raw or not raw.strip():
             raise ActionParseError("empty_output", "model returned no text")
-        block = _extract_json_object(raw)
+        block, trailing = _extract_json_object(raw)
         try:
             value = json.loads(block)
         except json.JSONDecodeError as exc:
             raise ActionParseError("json_decode_error", str(exc)) from exc
-        if not isinstance(value, dict):
-            raise ActionParseError("not_an_object", f"top level is {type(value).__name__}")
+        # `value` is necessarily a dict: the extractor returns a balanced {...}
+        # block, so a successful decode cannot yield any other type.
+
+        violations: list[str] = []
+        if trailing:
+            violations.append("content_outside_json_object")
+        extra = sorted(set(value) - set(ACTION_FIELDS))
+        if extra:
+            violations.append(f"unknown_envelope_field:{','.join(extra)}")
 
         action_type = value.get("action_type")
         if action_type not in {"tool_call", "final_answer", "handoff"}:
             raise ActionParseError("bad_action_type", f"unknown action_type: {action_type!r}")
 
+        if "arguments" in value and value["arguments"] is not None and not isinstance(value["arguments"], dict):
+            raise ActionParseError("arguments_not_object",
+                                   f"arguments must be an object, got {type(value['arguments']).__name__}")
         arguments = value.get("arguments") or {}
-        if not isinstance(arguments, dict):
-            raise ActionParseError("arguments_not_object", "arguments must be an object")
+
+        content = value.get("content", "")
+        if content is None:
+            content = ""
+        if not isinstance(content, str):
+            raise ActionParseError("bad_content_type", f"content must be a string, got {type(content).__name__}")
+
+        requires_response = value.get("requires_user_response", False)
+        if requires_response is None:
+            requires_response = False
+        if not isinstance(requires_response, bool):
+            raise ActionParseError("bad_requires_user_response_type",
+                                   f"requires_user_response must be a boolean, got {type(requires_response).__name__}")
 
         tool_name = value.get("tool_name")
         if action_type == "tool_call":
-            if not tool_name:
+            if tool_name is None or tool_name == "":
                 raise ActionParseError("missing_tool_name", "tool_call without tool_name")
+            if not isinstance(tool_name, str):
+                raise ActionParseError("bad_tool_name_type", f"tool_name must be a string, got {type(tool_name).__name__}")
             if tool_name not in allowed_tools:
                 raise ActionParseError("unknown_tool", f"tool not offered: {tool_name!r}")
             try:
                 validate_arguments(tool_name, arguments)
             except ToolArgumentError as exc:
                 raise ActionParseError("schema_violation", str(exc)) from exc
+        else:
+            if tool_name is not None:
+                raise ActionParseError("tool_name_on_non_tool_action",
+                                       f"{action_type} must not carry tool_name={tool_name!r}")
+            if arguments and action_type == "final_answer":
+                violations.append("arguments_on_final_answer")
 
-        return AgentAction(action_type, tool_name, arguments, str(value.get("content", "")),
-                           bool(value.get("requires_user_response", False)))
+        return AgentAction(action_type, tool_name, arguments, content, requires_response), violations
 
     # -------------------------------------------------------------------- act
 
@@ -275,20 +327,33 @@ class LLMPolicy:
             request = user if not error else (
                 f"{user}\n\nYour previous output could not be parsed: {error}\n"
                 "Return corrected JSON only.")
-            result = self.generate(system, request)
+            record: dict[str, Any] = {"attempt": attempt, "system_chars": len(system), "user_chars": len(request)}
+
+            # A backend that raises — incompatible chat template, tokenizer or
+            # model load failure, OOM, runtime error — is the one path that would
+            # otherwise bypass every bit of this instrumentation and abort the run.
+            try:
+                result = self.generate(system, request)
+            except Exception as exc:  # noqa: BLE001 - the whole point is to attribute it
+                record.update(parse_ok=False, parse_stage="generation_error",
+                              parse_error=f"{type(exc).__name__}: {exc}",
+                              generation_error_type=type(exc).__name__, raw_output=None)
+                attempts.append(record)
+                error = f"[generation_error] {type(exc).__name__}"
+                if attempt < self.max_parse_retries:
+                    self.retry_count += 1
+                continue
+
             if isinstance(result, str):
                 result = Generation(text=result)
-
-            record: dict[str, Any] = {
-                "attempt": attempt,
-                "system_chars": len(system), "user_chars": len(request),
+            record.update({
                 "prompt_tokens": result.prompt_tokens, "completion_tokens": result.completion_tokens,
                 "finish_reason": result.finish_reason, "truncated": result.truncated,
                 "raw_output": result.text, "raw_output_chars": len(result.text or ""),
                 **({"generation_meta": result.meta} if result.meta else {}),
-            }
+            })
             try:
-                action = self._parse(result.text, allowed)
+                action, violations = self._parse(result.text, allowed)
             except ActionParseError as exc:
                 record.update(parse_ok=False, parse_stage=exc.stage, parse_error=str(exc))
                 attempts.append(record)
@@ -297,12 +362,18 @@ class LLMPolicy:
                     self.retry_count += 1
                 continue
             record.update(parse_ok=True, parse_stage=None, parse_error=None,
-                          action_type=action.action_type, tool_name=action.tool_name)
+                          action_type=action.action_type, tool_name=action.tool_name,
+                          envelope_violations=violations, strict_envelope=not violations)
             attempts.append(record)
-            self.last_trace = {"resolution": "parsed", "attempts": attempts, "generator": self.generator_meta}
+            self.last_trace = {"resolution": "parsed" if not violations else "parsed_with_violations",
+                               "attempts": attempts, "generator": self.generator_meta,
+                               "envelope_violations": violations}
             return action
 
+        final_stage = attempts[-1].get("parse_stage") if attempts else None
+        # Distinguish "the model produced unusable text" from "we could not call it".
+        reason = "model_generation_error" if final_stage == "generation_error" else "model_action_parse_failure"
         self.last_trace = {"resolution": "fallback_handoff", "attempts": attempts,
-                           "generator": self.generator_meta,
-                           "final_stage": attempts[-1].get("parse_stage") if attempts else None}
-        return AgentAction.handoff("model_action_parse_failure")
+                           "generator": self.generator_meta, "final_stage": final_stage,
+                           "fallback_reason": reason}
+        return AgentAction.handoff(reason)

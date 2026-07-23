@@ -2,6 +2,8 @@
 """The tool contract must never drift from the implementation."""
 
 import inspect
+import types
+import typing
 import unittest
 
 from ecommerce_rag.tool_schema import (
@@ -16,6 +18,24 @@ from ecommerce_rag.tools import READ_TOOLS, WRITE_TOOLS, RetailTools
 
 def _signature(name: str) -> inspect.Signature:
     return inspect.signature(getattr(RetailTools, name))
+
+
+_SCALARS = {str: "string", int: "integer", float: "number", bool: "boolean"}
+
+
+def _json_type(annotation) -> object:
+    """Map a Python annotation onto the JSON Schema ``type`` it should declare."""
+    origin = typing.get_origin(annotation)
+    if origin in (typing.Union, types.UnionType):
+        parts = [_json_type(arg) for arg in typing.get_args(annotation) if arg is not type(None)]
+        if type(None) in typing.get_args(annotation):
+            return parts[0] if len(parts) != 1 else [parts[0], "null"]
+        return parts[0]
+    if origin in (list, typing.List):
+        return "array"
+    if annotation in _SCALARS:
+        return _SCALARS[annotation]
+    raise AssertionError(f"unmapped annotation: {annotation!r}")
 
 
 class SchemaMatchesImplementationTests(unittest.TestCase):
@@ -41,6 +61,34 @@ class SchemaMatchesImplementationTests(unittest.TestCase):
                                if name != "self" and p.default is inspect.Parameter.empty)
             self.assertEqual(sorted(schema["parameters"].get("required", [])), mandatory,
                              f"{schema['name']}: required set differs from the signature")
+
+    def test_declared_types_match_the_python_annotations(self):
+        # Names and required sets agreeing is not enough: a schema saying "string"
+        # for a bool parameter would still let a wrong-typed call through.
+        for schema in TOOL_SCHEMAS:
+            hints = typing.get_type_hints(getattr(RetailTools, schema["name"]))
+            for name, spec in schema["parameters"]["properties"].items():
+                self.assertIn(name, hints, f"{schema['name']}.{name} has no annotation to compare against")
+                self.assertEqual(spec.get("type"), _json_type(hints[name]),
+                                 f"{schema['name']}.{name}: declared type differs from the annotation")
+
+    def test_declared_defaults_match_the_signature(self):
+        for schema in TOOL_SCHEMAS:
+            parameters = _signature(schema["name"]).parameters
+            for name, spec in schema["parameters"]["properties"].items():
+                if "default" in spec:
+                    self.assertEqual(spec["default"], parameters[name].default,
+                                     f"{schema['name']}.{name}: declared default differs from the signature")
+
+    def test_array_parameters_declare_their_item_type(self):
+        for schema in TOOL_SCHEMAS:
+            hints = typing.get_type_hints(getattr(RetailTools, schema["name"]))
+            for name, spec in schema["parameters"]["properties"].items():
+                if spec.get("type") != "array":
+                    continue
+                (item_annotation,) = typing.get_args(hints[name])
+                self.assertEqual((spec.get("items") or {}).get("type"), _json_type(item_annotation),
+                                 f"{schema['name']}.{name}: item type differs from the annotation")
 
 
 class ValidateArgumentsTests(unittest.TestCase):

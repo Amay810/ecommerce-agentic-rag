@@ -139,20 +139,38 @@ locked 60×3），结果**不可用于评价模型能力**：
 
 ### 重跑前置条件（已完成前两项）
 
-**① 可观测性（已完成）** —— `LLMPolicy` 现在记录每一次生成：模型原始输出、
-prompt/completion token 数、finish reason、是否因 token 预算截断、每次解析失败
-的**阶段**（`empty_output` / `no_json_object` / `unbalanced_json` /
-`json_decode_error` / `bad_action_type` / `unknown_tool` / `schema_violation`），
-以及后端与 chat template 信息。trace 随 `model_calls[].llm` 落入轨迹。
-`scripts/diagnose_llm_trace.py` 把它聚合成归因报告，并给出行数门槛看不到的
-质量信号：有效动作解析率、纯 fallback 轨迹占比、非 fallback 工具调用率、截断率。
+**① 可观测性（已完成）** —— `LLMPolicy` 记录每一次生成：模型原始输出、
+prompt/completion token 数、finish reason、是否因 token 预算截断、以及失败所处的
+**阶段**。共 14 个阶段，分三类：
+
+- 调用失败：`generation_error`（chat template 不兼容、模型加载失败、OOM、推理
+  异常——这是唯一会绕过其余全部插桩的路径，因此单独捕获并给出区别于解析失败的
+  fallback reason `model_generation_error`）
+- 提取失败：`empty_output` / `no_json_object` / `unbalanced_json`（截断）/
+  `json_decode_error`
+- 契约违规：`bad_action_type` / `arguments_not_object` / `bad_content_type` /
+  `bad_requires_user_response_type` / `missing_tool_name` / `bad_tool_name_type` /
+  `unknown_tool` / `tool_name_on_non_tool_action` / `schema_violation`
+
+trace 随 `model_calls[].llm` 落入轨迹。`scripts/diagnose_llm_trace.py` 聚合成归因
+报告，并给出行数门槛看不到的质量信号：有效动作解析率、严格合规解析率、恢复性
+解析率、非法工具率、生成异常率、纯 fallback 轨迹占比、平均真实工具调用数、
+至少一次真实工具调用的轨迹占比、截断率。
 
 **② 动作协议（已完成）** —— 统一为**单一 JSON 对象 + JSON Schema 校验**，
-未同时引入原生 tool calling 或约束解码，避免失败时变量过多。工具契约收敛到
-`ecommerce_rag/tool_schema.py` 这一处，是标准 JSON Schema，同一份定义同时用于：
-展示给策略、执行前校验参数、将来直接对接原生 tool calling。
-参数类型现在会在**进入工具层之前**被校验（此前 `TOOL_SCHEMAS` 无类型且从不校验），
-且有测试断言 schema 与 `RetailTools` 方法签名一致，防止契约与实现漂移。
+未同时引入原生 tool calling 或约束解码，避免失败时变量过多。
+
+**envelope 字段一律类型校验、不做强制转换**：`bool("false")` 是 `True`、
+`str(7)` 是 `"7"`，一旦强转，畸形动作会变成看起来合理的动作，协议违规就从统计里
+消失了。可恢复的偏差（对象外有内容、多余字段）不静默接受，而是记为
+`envelope_violations`，使报告能区分"严格合规"与"被我们救回来的"。
+
+工具契约收敛到 `ecommerce_rag/tool_schema.py`，写成标准 JSON Schema，同一份定义
+用于展示给策略、执行前校验参数、以及后续对接原生 tool calling（各家 API 的外层
+包装字段名不同，仍需一层适配，但参数 schema 本身可直接复用）。参数类型现在在
+**进入工具层之前**被校验（此前 `TOOL_SCHEMAS` 无类型且从不被校验）。测试断言每个
+schema 与对应 `RetailTools` 方法的参数名、required 集合、**Python 类型注解**和
+默认值一致，防止契约与实现漂移。
 
 **③ 小规模 smoke（待 NSCC）** —— 5–10 条覆盖检索、订单查询、退货多轮确认、
 拒绝写操作、安全转人工，确认动作可解析、工具真实执行、数据库终态正确。

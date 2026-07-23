@@ -290,12 +290,19 @@ class LLMPolicy:
         # the stated contract. They stay recoverable, but they are never counted
         # as compliant — during smoke the real output format must be visible.
         violations: list[str] = []
-        if any(marker in trailing for marker in _FENCE_MARKERS):
-            violations.append("markdown_fence")
+        fenced = any(marker in trailing for marker in _FENCE_MARKERS)
         residue = trailing
-        for marker in _FENCE_MARKERS:
-            residue = residue.replace(marker, "")
-        if residue.replace("json", "", 1).strip():
+        if fenced:
+            violations.append("markdown_fence")
+            for marker in _FENCE_MARKERS:
+                residue = residue.replace(marker, "")
+            # A fence may carry a language tag right after the opening marker.
+            # Only discount it when a fence was actually present — a bare "json"
+            # prefix is stray prose, not fence syntax, and must stay a violation.
+            residue = residue.strip()
+            if residue.lower().startswith("json"):
+                residue = residue[4:]
+        if residue.strip():
             violations.append("content_outside_json_object")
         extra = sorted(set(value) - set(ACTION_FIELDS))
         if extra:

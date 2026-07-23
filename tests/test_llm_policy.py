@@ -116,6 +116,16 @@ class ActionEnvelopeTests(unittest.TestCase):
         # the fence alone must not also be reported as stray prose
         self.assertNotIn("content_outside_json_object", policy.last_trace["envelope_violations"])
 
+    def test_bare_language_tag_without_a_fence_is_stray_prose(self):
+        # the language tag is fence syntax; without a fence it is just text, and
+        # discounting it would let non-compliant output count as strict
+        policy = LLMPolicy(_scripted('json\n{"action_type":"final_answer","tool_name":null,'
+                                     '"arguments":{},"content":"x","requires_user_response":false}'))
+        policy.act(_observation())
+        self.assertEqual(policy.last_trace["resolution"], "parsed_with_violations")
+        self.assertIn("content_outside_json_object", policy.last_trace["envelope_violations"])
+        self.assertNotIn("markdown_fence", policy.last_trace["envelope_violations"])
+
     def test_a_fully_specified_object_has_no_violations(self):
         policy = LLMPolicy(_scripted('{"action_type":"final_answer","tool_name":null,"arguments":{},'
                                      '"content":"done","requires_user_response":false}'))

@@ -21,8 +21,31 @@ from typing import Any
 PASS, FAIL, WARN = "PASS", "FAIL", "WARN"
 
 
+#: Every quality signal the gate reasons about. Checked for presence separately,
+#: so a renamed or dropped metric fails the gate instead of quietly skipping it.
+REQUIRED_QUALITY_KEYS = (
+    "effective_action_parse_rate",
+    "generation_error_rate",
+    "fallback_only_trajectory_rate",
+    "illegal_tool_rate",
+)
+
+
 def _check(name: str, ok: bool, detail: str) -> dict[str, Any]:
     return {"check": name, "status": PASS if ok else FAIL, "detail": detail}
+
+
+def _zero_metric(name: str, quality: dict[str, Any]) -> dict[str, Any]:
+    """A metric that must be present and exactly zero.
+
+    ``(quality.get(name) or 0) == 0`` reads as a zero check but passes when the
+    field is absent, so a renamed or missing metric would silently clear a gate
+    whose entire purpose is to fail closed.
+    """
+    value = quality.get(name)
+    if value is None:
+        return _check(name + "_is_zero", False, f"{name} missing from the diagnosis — cannot verify")
+    return _check(name + "_is_zero", value == 0, f"{name}={value}")
 
 
 def evaluate(manifest: dict, report: dict, diagnosis: dict, min_parse_rate: float) -> dict[str, Any]:
@@ -31,17 +54,17 @@ def evaluate(manifest: dict, report: dict, diagnosis: dict, min_parse_rate: floa
     expected_ids = {meta["task_id"]: scenario for scenario, meta in scenarios.items()}
     details = {row.get("task_id"): row for row in report.get("details", [])}
 
+    absent = [key for key in REQUIRED_QUALITY_KEYS if quality.get(key) is None]
     checks = [
         _check("instrumented", bool(diagnosis.get("instrumented")),
                "no LLM trace in the store" if not diagnosis.get("instrumented") else "trace present"),
+        _check("diagnosis_has_required_metrics", not absent,
+               f"missing: {', '.join(absent)}" if absent else "all present"),
         _check("trajectory_count", diagnosis.get("trajectories") == len(expected_ids),
                f"expected {len(expected_ids)}, got {diagnosis.get('trajectories')}"),
-        _check("generation_error_rate_is_zero", (quality.get("generation_error_rate") or 0) == 0,
-               f"generation_error_rate={quality.get('generation_error_rate')}"),
-        _check("no_fallback_only_trajectories", (quality.get("fallback_only_trajectory_rate") or 0) == 0,
-               f"fallback_only_trajectory_rate={quality.get('fallback_only_trajectory_rate')}"),
-        _check("illegal_tool_rate_is_zero", (quality.get("illegal_tool_rate") or 0) == 0,
-               f"illegal_tool_rate={quality.get('illegal_tool_rate')}"),
+        _zero_metric("generation_error_rate", quality),
+        _zero_metric("fallback_only_trajectory_rate", quality),
+        _zero_metric("illegal_tool_rate", quality),
     ]
 
     parse_rate = quality.get("effective_action_parse_rate")

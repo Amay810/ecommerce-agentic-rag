@@ -57,7 +57,7 @@ class SmokeGateTests(unittest.TestCase):
 
     def test_any_fallback_only_trajectory_blocks(self):
         result = _run(diagnosis=_diagnosis(quality={"fallback_only_trajectory_rate": 0.125}))
-        self.assertIn("no_fallback_only_trajectories", result["failed_checks"])
+        self.assertIn("fallback_only_trajectory_rate_is_zero", result["failed_checks"])
 
     def test_any_illegal_tool_blocks(self):
         result = _run(diagnosis=_diagnosis(quality={"illegal_tool_rate": 0.01}))
@@ -94,6 +94,61 @@ class SmokeGateTests(unittest.TestCase):
         result = _run(report={"details": [_details()["details"][0]]})
         self.assertIn("all_scenarios_ran", result["failed_checks"])
 
+class MissingMetricTests(unittest.TestCase):
+    """A gate that exists to fail closed must not pass when it cannot see a metric.
+
+    `(quality.get(x) or 0) == 0` reads as a zero check but treats an absent field
+    as zero, so a renamed metric would silently clear the gate. This project has
+    already renamed one quality metric once.
+    """
+
+    @staticmethod
+    def _without(*keys):
+        quality = {"effective_action_parse_rate": 1.0, "strict_envelope_parse_rate": 1.0,
+                   "illegal_tool_rate": 0.0, "generation_error_rate": 0.0,
+                   "fallback_only_trajectory_rate": 0.0, "truncation_rate": 0.0}
+        for key in keys:
+            quality.pop(key)
+        return {"instrumented": True, "trajectories": 2, "quality": quality, "envelope_violations": {}}
+
+    def test_missing_generation_error_rate_blocks(self):
+        result = _run(diagnosis=self._without("generation_error_rate"))
+        self.assertFalse(result["passed"])
+        self.assertIn("generation_error_rate_is_zero", result["failed_checks"])
+        self.assertIn("diagnosis_has_required_metrics", result["failed_checks"])
+
+    def test_missing_fallback_only_rate_blocks(self):
+        result = _run(diagnosis=self._without("fallback_only_trajectory_rate"))
+        self.assertFalse(result["passed"])
+        self.assertIn("fallback_only_trajectory_rate_is_zero", result["failed_checks"])
+
+    def test_missing_illegal_tool_rate_blocks(self):
+        result = _run(diagnosis=self._without("illegal_tool_rate"))
+        self.assertFalse(result["passed"])
+        self.assertIn("illegal_tool_rate_is_zero", result["failed_checks"])
+
+    def test_missing_parse_rate_blocks(self):
+        result = _run(diagnosis=self._without("effective_action_parse_rate"))
+        self.assertFalse(result["passed"])
+        self.assertIn("effective_action_parse_rate", result["failed_checks"])
+
+    def test_an_empty_quality_block_blocks_everything(self):
+        result = _run(diagnosis={"instrumented": True, "trajectories": 2, "quality": {}})
+        self.assertFalse(result["passed"])
+        for name in ("diagnosis_has_required_metrics", "generation_error_rate_is_zero",
+                     "fallback_only_trajectory_rate_is_zero", "illegal_tool_rate_is_zero",
+                     "effective_action_parse_rate"):
+            self.assertIn(name, result["failed_checks"])
+
+    def test_a_renamed_metric_is_caught_by_the_completeness_check(self):
+        diagnosis = self._without("illegal_tool_rate")
+        diagnosis["quality"]["illegal_tool_ratio"] = 0.0  # plausible rename
+        result = _run(diagnosis=diagnosis)
+        self.assertFalse(result["passed"])
+        self.assertIn("diagnosis_has_required_metrics", result["failed_checks"])
+
+
+class WarningTests(unittest.TestCase):
     def test_envelope_violations_warn_but_do_not_block(self):
         result = _run(diagnosis=_diagnosis(
             quality={"strict_envelope_parse_rate": 0.5},

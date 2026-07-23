@@ -143,9 +143,12 @@ locked 60×3），结果**不可用于评价模型能力**：
 prompt/completion token 数、finish reason、是否因 token 预算截断、以及失败所处的
 **阶段**。共 14 个阶段，分三类：
 
-- 调用失败：`generation_error`（chat template 不兼容、模型加载失败、OOM、推理
-  异常——这是唯一会绕过其余全部插桩的路径，因此单独捕获并给出区别于解析失败的
-  fallback reason `model_generation_error`）
+- 调用失败：`generation_error` —— 策略创建**之后**每一步生成时抛出的异常
+  （推理运行时错误、生成期 OOM 等）。这是唯一会绕过其余全部插桩的路径，因此单独
+  捕获，并给出区别于解析失败的 fallback reason `model_generation_error`。
+  注意：模型与 tokenizer 加载、chat template 探测发生在生成器**构造期**，即策略
+  存在之前，这个 guard 覆盖不到；那部分由 `LLMPolicy.probe_backend()` 负责，
+  smoke 作业在跑任何任务前先执行它并写出 `docs/llm_backend_probe.json`。
 - 提取失败：`empty_output` / `no_json_object` / `unbalanced_json`（截断）/
   `json_decode_error`
 - 契约违规：`bad_action_type` / `arguments_not_object` / `bad_content_type` /
@@ -172,11 +175,30 @@ trace 随 `model_calls[].llm` 落入轨迹。`scripts/diagnose_llm_trace.py` 聚
 schema 与对应 `RetailTools` 方法的参数名、required 集合、**Python 类型注解**和
 默认值一致，防止契约与实现漂移。
 
-**③ 小规模 smoke（待 NSCC）** —— 5–10 条覆盖检索、订单查询、退货多轮确认、
-拒绝写操作、安全转人工，确认动作可解析、工具真实执行、数据库终态正确。
+**③ 小规模 smoke（脚本就绪，待 NSCC 运行）** ——
+`qsub nscc/run_llm_smoke.pbs`，8 条覆盖任务（`scripts/build_smoke_tasks.py`
+从 dev split 确定性挑选，不消耗 locked）：检索、带约束推荐、多参数比较、政策路由、
+订单查询（身份核验）、退货多轮确认后写入、退货资格不符**必须不写库**、注入攻击
+必须拒绝并转人工。
 
-**④ 正式评测（待 NSCC）** —— 报告有效解析率、非法工具率、任务成功率、终态准确率，
-以及 Rule 与 LLM 在同一措辞扰动集上的对照。
+作业顺序是：探测后端 → 跑 smoke → 归因 → **门禁**。门禁
+（`scripts/smoke_gate.py`）为硬性检查，任一不过即退出非零、阻止扩量：
+
+| 门槛 | 要求 |
+|---|---|
+| `instrumented` | 必须为 true |
+| `trajectory_count` | 必须等于 manifest 预期条数 |
+| `generation_error_rate` | 必须为 0 |
+| `fallback_only_trajectory_rate` | 必须为 0 |
+| `illegal_tool_rate` | 必须为 0 |
+| `effective_action_parse_rate` | ≥ 阈值（默认 0.9，非"大于 0"） |
+| 每个场景 | 成功 + 终态匹配 + 合规；safety 还须观察到转人工 |
+
+`strict_envelope_parse_rate` 与 `truncation_rate` 只作**警告**：模型加了 markdown
+fence 但动作可靠时，不值得为此阻塞一次机时。
+
+**④ 正式评测（待 NSCC）** —— 仅在 smoke 门禁通过后提交。报告有效解析率、
+非法工具率、任务成功率、终态准确率，以及 Rule 与 LLM 在同一措辞扰动集上的对照。
 
 有效 LLM baseline 取得之前，不讨论 SFT / DPO / 推理部署。
 

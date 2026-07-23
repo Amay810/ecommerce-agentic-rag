@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 """Typed tool contracts — the single source of truth for the action protocol.
 
-The schemas are plain JSON Schema so the same definition serves three purposes
-without translation: it is shown to the policy inside ``AgentObservation``, it
-validates arguments before a tool is executed, and it can be handed to a native
-tool-calling API or a constrained decoder unchanged.
+The parameter schemas are plain JSON Schema, so one definition is shown to the
+policy inside ``AgentObservation``, validates arguments before a tool executes,
+and can back a native tool-calling API or a constrained decoder. Providers wrap
+these differently (``function.parameters``, ``input_schema``, …), so the outer
+envelope still needs a small adapter — the parameter schema itself is reusable
+as is.
 
 ``tests/test_tool_schema.py`` asserts every schema agrees with the corresponding
-``RetailTools`` method signature, so the contract cannot silently drift from the
-implementation.
+``RetailTools`` method: parameter names, the required set, Python type
+annotations and declared defaults, so the contract cannot silently drift.
 """
 
 from __future__ import annotations
@@ -24,8 +26,8 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "properties": {
                 "query": {"type": "string", "description": "Natural-language product query."},
                 "top_k": {"type": "integer", "default": 5, "description": "Number of results."},
-                "category": {"type": ["string", "null"], "description": "Optional category filter."},
-                "max_price": {"type": ["number", "null"], "description": "Optional budget ceiling."},
+                "category": {"type": ["string", "null"], "default": None, "description": "Optional category filter."},
+                "max_price": {"type": ["number", "null"], "default": None, "description": "Optional budget ceiling."},
             },
             "required": ["query"],
         },
@@ -105,7 +107,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "properties": {
                 "user_id": {"type": "string"},
                 "reason": {"type": "string"},
-                "order_id": {"type": ["string", "null"]},
+                "order_id": {"type": ["string", "null"], "default": None},
             },
             "required": ["user_id", "reason"],
         },

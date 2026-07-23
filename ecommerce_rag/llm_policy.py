@@ -75,9 +75,9 @@ class ActionParseError(ValueError):
 #: The protocol requires exactly these envelope fields and nothing else.
 ACTION_FIELDS = ("action_type", "tool_name", "arguments", "content", "requires_user_response")
 
-#: Wrappers a model commonly adds around the object; stripped before deciding
-#: whether real content sits outside it.
-_FENCE_NOISE = ("```json", "```", "`", "​")
+#: Markdown wrappers a model commonly adds. Recognised so they can be reported,
+#: not silently discarded: during smoke we want the real output format visible.
+_FENCE_MARKERS = ("```", "~~~")
 
 
 def _extract_json_object(raw: str) -> tuple[str, str]:
@@ -87,9 +87,9 @@ def _extract_json_object(raw: str) -> tuple[str, str]:
     that emits two objects, or prose containing a brace, yields something that
     is not valid JSON and the real cause is hidden behind a decode error.
 
-    The protocol says "exactly one JSON object and nothing else", so leading and
-    trailing material is returned rather than discarded — the caller records it
-    as an envelope violation instead of counting the output as clean.
+    The protocol says "exactly one JSON object and nothing else", so surrounding
+    material is returned verbatim rather than cleaned up — the caller classifies
+    it instead of counting the output as compliant.
     """
     start = raw.find("{")
     if start < 0:
@@ -112,10 +112,7 @@ def _extract_json_object(raw: str) -> tuple[str, str]:
         elif char == "}":
             depth -= 1
             if depth == 0:
-                outside = raw[:start] + raw[index + 1:]
-                for noise in _FENCE_NOISE:
-                    outside = outside.replace(noise, "")
-                return raw[start:index + 1], outside.strip()
+                return raw[start:index + 1], (raw[:start] + raw[index + 1:])
     raise ActionParseError("unbalanced_json", "'{' is never closed — output was likely truncated")
 
 
@@ -160,6 +157,38 @@ class LLMPolicy:
         model = os.getenv("ARAG_LLM_MODEL", "gpt-4o-mini")
         return cls(cls._openai_generator(base_url, os.getenv("ARAG_LLM_API_KEY", ""), model),
                    generator_meta={"backend": "openai", "model": model, "base_url": base_url})
+
+    @classmethod
+    def probe_backend(cls) -> dict[str, Any]:
+        """Try to build the backend and report the outcome without raising.
+
+        Model and tokenizer loading, and the chat-template probe, all happen while
+        the generator is constructed — before any policy exists and therefore
+        before :meth:`act`'s guard can see them. A bad model path, a failed weight
+        load, an OOM at load time or a template probe raising something other than
+        TypeError would otherwise kill the job with nothing recorded. Run this
+        first so the failure is attributable.
+        """
+        try:
+            policy = cls.from_env()
+        except Exception as exc:  # noqa: BLE001 - reporting is the point
+            return {"ok": False, "stage": "backend_init",
+                    "error_type": type(exc).__name__, "error": str(exc)}
+        result: dict[str, Any] = {"ok": True, "stage": "backend_init", "generator": policy.generator_meta}
+        try:
+            generation = policy.generate("Reply with one JSON object.", 'Return {"action_type":"final_answer"}.')
+        except Exception as exc:  # noqa: BLE001
+            result.update(ok=False, stage="first_generation",
+                          error_type=type(exc).__name__, error=str(exc))
+            return result
+        if isinstance(generation, str):
+            generation = Generation(text=generation)
+        result["first_generation"] = {
+            "raw_output": generation.text, "finish_reason": generation.finish_reason,
+            "prompt_tokens": generation.prompt_tokens, "completion_tokens": generation.completion_tokens,
+            "truncated": generation.truncated,
+        }
+        return result
 
     @staticmethod
     def _openai_generator(base_url: str, api_key: str, model: str) -> Callable[[str, str], Generation]:
@@ -256,12 +285,24 @@ class LLMPolicy:
         # `value` is necessarily a dict: the extractor returns a balanced {...}
         # block, so a successful decode cannot yield any other type.
 
+        # "Exactly these fields and nothing else" is taken literally: a fence, a
+        # missing field defaulted for us, or an extra key are all deviations from
+        # the stated contract. They stay recoverable, but they are never counted
+        # as compliant — during smoke the real output format must be visible.
         violations: list[str] = []
-        if trailing:
+        if any(marker in trailing for marker in _FENCE_MARKERS):
+            violations.append("markdown_fence")
+        residue = trailing
+        for marker in _FENCE_MARKERS:
+            residue = residue.replace(marker, "")
+        if residue.replace("json", "", 1).strip():
             violations.append("content_outside_json_object")
         extra = sorted(set(value) - set(ACTION_FIELDS))
         if extra:
             violations.append(f"unknown_envelope_field:{','.join(extra)}")
+        missing = [field for field in ACTION_FIELDS if field not in value]
+        if missing:
+            violations.append(f"missing_envelope_field:{','.join(missing)}")
 
         action_type = value.get("action_type")
         if action_type not in {"tool_call", "final_answer", "handoff"}:

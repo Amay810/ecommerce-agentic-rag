@@ -7,7 +7,9 @@ from ecommerce_rag.domain import AgentObservation
 from ecommerce_rag.harness import TOOL_SCHEMAS
 from ecommerce_rag.llm_policy import Generation, LLMPolicy
 
-GOOD = '{"action_type":"tool_call","tool_name":"search_catalog","arguments":{"query":"camera"}}'
+#: A fully specified action: all five envelope fields, nothing around it.
+GOOD = ('{"action_type":"tool_call","tool_name":"search_catalog","arguments":{"query":"camera"},'
+        '"content":"","requires_user_response":false}')
 
 
 def _observation(message: str = "camera", history=None) -> AgentObservation:
@@ -92,6 +94,34 @@ class ActionEnvelopeTests(unittest.TestCase):
         self.assertEqual(action.action_type, "final_answer")
         self.assertEqual(action.content, "")
         self.assertFalse(action.requires_user_response)
+
+    def test_missing_envelope_fields_are_recorded_not_silently_defaulted(self):
+        # The protocol names five fields; filling them in for the model would hide
+        # a real format deviation behind a clean-looking parse.
+        policy = LLMPolicy(_scripted('{"action_type":"final_answer"}'))
+        action = policy.act(_observation())
+        self.assertEqual(action.action_type, "final_answer")
+        self.assertEqual(policy.last_trace["resolution"], "parsed_with_violations")
+        violation = next(v for v in policy.last_trace["envelope_violations"]
+                         if v.startswith("missing_envelope_field"))
+        for field in ("tool_name", "arguments", "content", "requires_user_response"):
+            self.assertIn(field, violation)
+
+    def test_markdown_fence_is_a_violation_not_noise(self):
+        policy = LLMPolicy(_scripted('```json\n{"action_type":"final_answer","tool_name":null,'
+                                     '"arguments":{},"content":"x","requires_user_response":false}\n```'))
+        action = policy.act(_observation())
+        self.assertEqual(action.action_type, "final_answer")
+        self.assertIn("markdown_fence", policy.last_trace["envelope_violations"])
+        # the fence alone must not also be reported as stray prose
+        self.assertNotIn("content_outside_json_object", policy.last_trace["envelope_violations"])
+
+    def test_a_fully_specified_object_has_no_violations(self):
+        policy = LLMPolicy(_scripted('{"action_type":"final_answer","tool_name":null,"arguments":{},'
+                                     '"content":"done","requires_user_response":false}'))
+        policy.act(_observation())
+        self.assertEqual(policy.last_trace["resolution"], "parsed")
+        self.assertEqual(policy.last_trace["envelope_violations"], [])
 
     def test_unknown_envelope_field_is_recoverable_but_recorded(self):
         policy = LLMPolicy(_scripted('{"action_type":"final_answer","tool_name":null,"arguments":{},'

@@ -80,6 +80,20 @@ class SchemaMatchesImplementationTests(unittest.TestCase):
                     self.assertEqual(spec["default"], parameters[name].default,
                                      f"{schema['name']}.{name}: declared default differs from the signature")
 
+    def test_every_optional_parameter_declares_its_default(self):
+        # Checking only already-declared defaults would let a parameter omit one
+        # entirely and still pass, so the contract would be silently incomplete.
+        for schema in TOOL_SCHEMAS:
+            parameters = _signature(schema["name"]).parameters
+            required = set(schema["parameters"].get("required", []))
+            for name, spec in schema["parameters"]["properties"].items():
+                if name in required:
+                    self.assertNotIn("default", spec, f"{schema['name']}.{name} is required but declares a default")
+                    continue
+                self.assertIn("default", spec,
+                              f"{schema['name']}.{name} is optional but declares no default "
+                              f"(signature default is {parameters[name].default!r})")
+
     def test_array_parameters_declare_their_item_type(self):
         for schema in TOOL_SCHEMAS:
             hints = typing.get_type_hints(getattr(RetailTools, schema["name"]))

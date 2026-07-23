@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "version": "v2-evidence-1",
+    "version": "v2-evidence-2",
     "cases": 50,
-    "notice": "AI-assisted pending human adjudication"
+    "notice": "AI-assisted pending human adjudication; no-answer model-code extraction fixed (CJK word-boundary bug)"
   },
   "cases": [
     {
@@ -18205,7 +18205,7 @@
       "question": "量子悬浮全息烤箱 第九代 火星专供 编号ZX-9000",
       "constraints": {
         "query": "量子悬浮全息烤箱 第九代 火星专供 编号ZX-9000",
-        "required_model_code": null,
+        "required_model_code": "ZX-9000",
         "impossible_description": "量子悬浮全息烤箱 第九代 火星专供"
       },
       "proposed_gold_doc_ids": "",
@@ -18238,8 +18238,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 1,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02704",
@@ -18279,8 +18283,12 @@
           "dense_sim": 0.5362,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01425",
@@ -18321,8 +18329,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 2,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00909",
@@ -18347,8 +18359,12 @@
           "dense_sim": 0.5252,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01746",
@@ -18382,8 +18398,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 3,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02486",
@@ -18406,8 +18426,12 @@
           "dense_sim": 0.5038,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00160",
@@ -18439,8 +18463,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00608",
@@ -18465,8 +18493,12 @@
           "dense_sim": 0.485,
           "dense_rank": 4,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01652",
@@ -18503,8 +18535,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04894",
@@ -18533,8 +18569,12 @@
           "dense_sim": 0.4833,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00775",
@@ -18569,8 +18609,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04318",
@@ -18603,8 +18647,12 @@
           "dense_sim": 0.4822,
           "dense_rank": 6,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02140",
@@ -18627,8 +18675,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03983",
@@ -18650,8 +18702,12 @@
           "dense_sim": 0.4817,
           "dense_rank": 7,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00190",
@@ -18684,8 +18740,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 8,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01712",
@@ -18707,8 +18767,12 @@
           "dense_sim": 0.4775,
           "dense_rank": 8,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04420",
@@ -18759,8 +18823,12 @@
           "dense_sim": 0.4757,
           "dense_rank": 9,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04959",
@@ -18796,8 +18864,12 @@
           "dense_sim": 0.4747,
           "dense_rank": 10,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01855",
@@ -18822,8 +18894,12 @@
           "dense_sim": 0.4742,
           "dense_rank": 11,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03010",
@@ -18861,11 +18937,15 @@
           "dense_sim": 0.474,
           "dense_rank": 12,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P00477, product:P02704, product:P01425, product:P00909, product:P01746, product:P02486, product:P00160, product:P00608, product:P01652, product:P04894, product:P00775, product:P04318, product:P02140, product:P03983, product:P00190, product:P01712, product:P04420, product:P04959, product:P01855, product:P03010。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     },
     {
@@ -18875,7 +18955,7 @@
       "question": "零重力永动手机充电器 900%效率 编号ZX-9001",
       "constraints": {
         "query": "零重力永动手机充电器 900%效率 编号ZX-9001",
-        "required_model_code": null,
+        "required_model_code": "ZX-9001",
         "impossible_description": "零重力永动手机充电器 900%效率"
       },
       "proposed_gold_doc_ids": "",
@@ -18912,8 +18992,12 @@
           "dense_sim": 0.6241,
           "dense_rank": 4,
           "bm25_rank": 9,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02140",
@@ -18936,8 +19020,12 @@
           "dense_sim": 0.6133,
           "dense_rank": 7,
           "bm25_rank": 8,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04666",
@@ -18986,8 +19074,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 1,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01511",
@@ -19019,8 +19111,12 @@
           "dense_sim": 0.6427,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03558",
@@ -19056,8 +19152,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 2,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00574",
@@ -19082,8 +19182,12 @@
           "dense_sim": 0.6404,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01425",
@@ -19124,8 +19228,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 3,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02241",
@@ -19155,8 +19263,12 @@
           "dense_sim": 0.6307,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01746",
@@ -19190,8 +19302,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00160",
@@ -19223,8 +19339,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01472",
@@ -19252,8 +19372,12 @@
           "dense_sim": 0.6222,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01652",
@@ -19290,8 +19414,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00065",
@@ -19318,8 +19446,12 @@
           "dense_sim": 0.6147,
           "dense_rank": 6,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00775",
@@ -19354,11 +19486,15 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P00190, product:P02140, product:P04666, product:P01511, product:P03558, product:P00574, product:P01425, product:P02241, product:P01746, product:P00160, product:P01472, product:P01652, product:P00065, product:P00775。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     },
     {
@@ -19368,7 +19504,7 @@
       "question": "能读取梦境的USB线 紫色版本 编号ZX-9002",
       "constraints": {
         "query": "能读取梦境的USB线 紫色版本 编号ZX-9002",
-        "required_model_code": null,
+        "required_model_code": "ZX-9002",
         "impossible_description": "能读取梦境的USB线 紫色版本"
       },
       "proposed_gold_doc_ids": "",
@@ -19404,8 +19540,12 @@
           "dense_sim": 0.5984,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02249",
@@ -19441,8 +19581,12 @@
           "dense_sim": 0.593,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01883",
@@ -19484,8 +19628,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 3,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01312",
@@ -19519,8 +19667,12 @@
           "dense_sim": 0.5849,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01250",
@@ -19557,8 +19709,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01352",
@@ -19583,8 +19739,12 @@
           "dense_sim": 0.5805,
           "dense_rank": 4,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00102",
@@ -19628,8 +19788,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01459",
@@ -19655,8 +19819,12 @@
           "dense_sim": 0.58,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00759",
@@ -19681,8 +19849,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01974",
@@ -19712,8 +19884,12 @@
           "dense_sim": 0.5795,
           "dense_rank": 6,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00879",
@@ -19743,8 +19919,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01424",
@@ -19765,8 +19945,12 @@
           "dense_sim": 0.5762,
           "dense_rank": 7,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01647",
@@ -19793,8 +19977,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 8,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01365",
@@ -19818,8 +20006,12 @@
           "dense_sim": 0.5733,
           "dense_rank": 8,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01964",
@@ -19856,8 +20048,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 9,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00549",
@@ -19893,8 +20089,12 @@
           "dense_sim": 0.5676,
           "dense_rank": 9,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01802",
@@ -19929,8 +20129,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 10,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01718",
@@ -19953,11 +20157,15 @@
           "dense_sim": 0.5625,
           "dense_rank": 10,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P02105, product:P02249, product:P01883, product:P01312, product:P01250, product:P01352, product:P00102, product:P01459, product:P00759, product:P01974, product:P00879, product:P01424, product:P01647, product:P01365, product:P01964, product:P00549, product:P01802, product:P01718。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     },
     {
@@ -19967,7 +20175,7 @@
       "question": "时间旅行电视遥控器 2099款 编号ZX-9003",
       "constraints": {
         "query": "时间旅行电视遥控器 2099款 编号ZX-9003",
-        "required_model_code": null,
+        "required_model_code": "ZX-9003",
         "impossible_description": "时间旅行电视遥控器 2099款"
       },
       "proposed_gold_doc_ids": "",
@@ -20000,8 +20208,12 @@
           "dense_sim": 0.6318,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01126",
@@ -20026,8 +20238,12 @@
           "dense_sim": 0.5847,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01425",
@@ -20068,8 +20284,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 3,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01837",
@@ -20101,8 +20321,12 @@
           "dense_sim": 0.5843,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01746",
@@ -20136,8 +20360,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03465",
@@ -20181,8 +20409,12 @@
           "dense_sim": 0.5714,
           "dense_rank": 4,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00160",
@@ -20214,8 +20446,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02287",
@@ -20247,8 +20483,12 @@
           "dense_sim": 0.5643,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01652",
@@ -20285,8 +20525,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00873",
@@ -20317,8 +20561,12 @@
           "dense_sim": 0.5639,
           "dense_rank": 6,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00775",
@@ -20353,8 +20601,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00416",
@@ -20389,8 +20641,12 @@
           "dense_sim": 0.5571,
           "dense_rank": 7,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02140",
@@ -20413,8 +20669,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 8,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00881",
@@ -20442,8 +20702,12 @@
           "dense_sim": 0.5541,
           "dense_rank": 8,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00190",
@@ -20476,11 +20740,15 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 9,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P00606, product:P01126, product:P01425, product:P01837, product:P01746, product:P03465, product:P00160, product:P02287, product:P01652, product:P00873, product:P00775, product:P00416, product:P02140, product:P00881, product:P00190。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     },
     {
@@ -20490,7 +20758,7 @@
       "question": "反物质驱动扫地机器人 家用版 编号ZX-9004",
       "constraints": {
         "query": "反物质驱动扫地机器人 家用版 编号ZX-9004",
-        "required_model_code": null,
+        "required_model_code": "ZX-9004",
         "impossible_description": "反物质驱动扫地机器人 家用版"
       },
       "proposed_gold_doc_ids": "",
@@ -20526,8 +20794,12 @@
           "dense_sim": 0.6646,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01425",
@@ -20568,8 +20840,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 2,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03737",
@@ -20593,8 +20869,12 @@
           "dense_sim": 0.5888,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01746",
@@ -20628,8 +20908,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 3,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03155",
@@ -20663,8 +20947,12 @@
           "dense_sim": 0.5745,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00160",
@@ -20696,8 +20984,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03394",
@@ -20720,8 +21012,12 @@
           "dense_sim": 0.5705,
           "dense_rank": 4,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01652",
@@ -20758,8 +21054,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03493",
@@ -20780,8 +21080,12 @@
           "dense_sim": 0.566,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00775",
@@ -20816,8 +21120,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03010",
@@ -20855,8 +21163,12 @@
           "dense_sim": 0.558,
           "dense_rank": 6,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02140",
@@ -20879,8 +21191,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03830",
@@ -20916,8 +21232,12 @@
           "dense_sim": 0.5579,
           "dense_rank": 7,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00190",
@@ -20950,8 +21270,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 8,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02683",
@@ -20974,8 +21298,12 @@
           "dense_sim": 0.5549,
           "dense_rank": 8,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04154",
@@ -21020,8 +21348,12 @@
           "dense_sim": 0.5489,
           "dense_rank": 9,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03533",
@@ -21041,11 +21373,15 @@
           "dense_sim": 0.5419,
           "dense_rank": 10,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P02771, product:P01425, product:P03737, product:P01746, product:P03155, product:P00160, product:P03394, product:P01652, product:P03493, product:P00775, product:P03010, product:P02140, product:P03830, product:P00190, product:P02683, product:P04154, product:P03533。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     },
     {
@@ -21055,7 +21391,7 @@
       "question": "量子悬浮全息烤箱 第九代 火星专供 编号ZX-9005",
       "constraints": {
         "query": "量子悬浮全息烤箱 第九代 火星专供 编号ZX-9005",
-        "required_model_code": null,
+        "required_model_code": "ZX-9005",
         "impossible_description": "量子悬浮全息烤箱 第九代 火星专供"
       },
       "proposed_gold_doc_ids": "",
@@ -21100,8 +21436,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 1,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02704",
@@ -21141,8 +21481,12 @@
           "dense_sim": 0.5408,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01746",
@@ -21176,8 +21520,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 2,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00909",
@@ -21202,8 +21550,12 @@
           "dense_sim": 0.5115,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00160",
@@ -21235,8 +21587,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 3,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02486",
@@ -21259,8 +21615,12 @@
           "dense_sim": 0.4938,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01652",
@@ -21297,8 +21657,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03983",
@@ -21320,8 +21684,12 @@
           "dense_sim": 0.4808,
           "dense_rank": 4,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00775",
@@ -21356,8 +21724,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01712",
@@ -21379,8 +21751,12 @@
           "dense_sim": 0.4806,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02140",
@@ -21403,8 +21779,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04318",
@@ -21437,8 +21817,12 @@
           "dense_sim": 0.4759,
           "dense_rank": 6,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00190",
@@ -21471,8 +21855,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00608",
@@ -21497,8 +21885,12 @@
           "dense_sim": 0.4751,
           "dense_rank": 7,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04894",
@@ -21527,8 +21919,12 @@
           "dense_sim": 0.4687,
           "dense_rank": 8,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04964",
@@ -21551,8 +21947,12 @@
           "dense_sim": 0.4683,
           "dense_rank": 9,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02804",
@@ -21580,8 +21980,12 @@
           "dense_sim": 0.4653,
           "dense_rank": 10,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04724",
@@ -21602,11 +22006,15 @@
           "dense_sim": 0.4651,
           "dense_rank": 11,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P01425, product:P02704, product:P01746, product:P00909, product:P00160, product:P02486, product:P01652, product:P03983, product:P00775, product:P01712, product:P02140, product:P04318, product:P00190, product:P00608, product:P04894, product:P04964, product:P02804, product:P04724。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     },
     {
@@ -21616,7 +22024,7 @@
       "question": "零重力永动手机充电器 900%效率 编号ZX-9006",
       "constraints": {
         "query": "零重力永动手机充电器 900%效率 编号ZX-9006",
-        "required_model_code": null,
+        "required_model_code": "ZX-9006",
         "impossible_description": "零重力永动手机充电器 900%效率"
       },
       "proposed_gold_doc_ids": "",
@@ -21653,8 +22061,12 @@
           "dense_sim": 0.6192,
           "dense_rank": 4,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02140",
@@ -21677,8 +22089,12 @@
           "dense_sim": 0.6134,
           "dense_rank": 6,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01425",
@@ -21719,8 +22135,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 1,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01511",
@@ -21752,8 +22172,12 @@
           "dense_sim": 0.6385,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01746",
@@ -21787,8 +22211,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 2,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00574",
@@ -21813,8 +22241,12 @@
           "dense_sim": 0.6365,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00160",
@@ -21846,8 +22278,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 3,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02241",
@@ -21877,8 +22313,12 @@
           "dense_sim": 0.621,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01652",
@@ -21915,8 +22355,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00775",
@@ -21951,8 +22395,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01472",
@@ -21980,11 +22428,15 @@
           "dense_sim": 0.6166,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P00190, product:P02140, product:P01425, product:P01511, product:P01746, product:P00574, product:P00160, product:P02241, product:P01652, product:P00775, product:P01472。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     },
     {
@@ -21994,7 +22446,7 @@
       "question": "能读取梦境的USB线 紫色版本 编号ZX-9007",
       "constraints": {
         "query": "能读取梦境的USB线 紫色版本 编号ZX-9007",
-        "required_model_code": null,
+        "required_model_code": "ZX-9007",
         "impossible_description": "能读取梦境的USB线 紫色版本"
       },
       "proposed_gold_doc_ids": "",
@@ -22030,8 +22482,12 @@
           "dense_sim": 0.5982,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02249",
@@ -22067,8 +22523,12 @@
           "dense_sim": 0.5972,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01883",
@@ -22110,8 +22570,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 3,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01352",
@@ -22136,8 +22600,12 @@
           "dense_sim": 0.5867,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01250",
@@ -22174,8 +22642,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01312",
@@ -22209,8 +22681,12 @@
           "dense_sim": 0.5865,
           "dense_rank": 4,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00102",
@@ -22254,8 +22730,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01974",
@@ -22285,8 +22765,12 @@
           "dense_sim": 0.5774,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00759",
@@ -22311,8 +22795,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01459",
@@ -22338,8 +22826,12 @@
           "dense_sim": 0.575,
           "dense_rank": 6,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00879",
@@ -22369,8 +22861,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01424",
@@ -22391,8 +22887,12 @@
           "dense_sim": 0.5729,
           "dense_rank": 7,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01647",
@@ -22419,8 +22919,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 8,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00549",
@@ -22456,8 +22960,12 @@
           "dense_sim": 0.5704,
           "dense_rank": 8,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01964",
@@ -22494,8 +23002,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 9,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01365",
@@ -22519,8 +23031,12 @@
           "dense_sim": 0.5696,
           "dense_rank": 9,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01802",
@@ -22555,8 +23071,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 10,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01718",
@@ -22579,11 +23099,15 @@
           "dense_sim": 0.5649,
           "dense_rank": 10,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P02105, product:P02249, product:P01883, product:P01352, product:P01250, product:P01312, product:P00102, product:P01974, product:P00759, product:P01459, product:P00879, product:P01424, product:P01647, product:P00549, product:P01964, product:P01365, product:P01802, product:P01718。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     },
     {
@@ -22593,7 +23117,7 @@
       "question": "时间旅行电视遥控器 2099款 编号ZX-9008",
       "constraints": {
         "query": "时间旅行电视遥控器 2099款 编号ZX-9008",
-        "required_model_code": null,
+        "required_model_code": "ZX-9008",
         "impossible_description": "时间旅行电视遥控器 2099款"
       },
       "proposed_gold_doc_ids": "",
@@ -22633,8 +23157,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 1,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00606",
@@ -22663,8 +23191,12 @@
           "dense_sim": 0.6312,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01837",
@@ -22696,8 +23228,12 @@
           "dense_sim": 0.5821,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01126",
@@ -22722,8 +23258,12 @@
           "dense_sim": 0.5814,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01425",
@@ -22764,8 +23304,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02287",
@@ -22797,8 +23341,12 @@
           "dense_sim": 0.5666,
           "dense_rank": 4,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01746",
@@ -22832,8 +23380,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03465",
@@ -22877,8 +23429,12 @@
           "dense_sim": 0.5659,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00160",
@@ -22910,8 +23466,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00873",
@@ -22942,8 +23502,12 @@
           "dense_sim": 0.5649,
           "dense_rank": 6,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01652",
@@ -22980,8 +23544,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00416",
@@ -23016,8 +23584,12 @@
           "dense_sim": 0.5543,
           "dense_rank": 7,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00775",
@@ -23052,8 +23624,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 8,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02140",
@@ -23076,8 +23652,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 9,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00190",
@@ -23110,11 +23690,15 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 10,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P02279, product:P00606, product:P01837, product:P01126, product:P01425, product:P02287, product:P01746, product:P03465, product:P00160, product:P00873, product:P01652, product:P00416, product:P00775, product:P02140, product:P00190。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     },
     {
@@ -23124,7 +23708,7 @@
       "question": "反物质驱动扫地机器人 家用版 编号ZX-9009",
       "constraints": {
         "query": "反物质驱动扫地机器人 家用版 编号ZX-9009",
-        "required_model_code": null,
+        "required_model_code": "ZX-9009",
         "impossible_description": "反物质驱动扫地机器人 家用版"
       },
       "proposed_gold_doc_ids": "",
@@ -23160,8 +23744,12 @@
           "dense_sim": 0.6712,
           "dense_rank": 1,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01425",
@@ -23202,8 +23790,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 2,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03155",
@@ -23237,8 +23829,12 @@
           "dense_sim": 0.5818,
           "dense_rank": 2,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01746",
@@ -23272,8 +23868,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 3,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03737",
@@ -23297,8 +23897,12 @@
           "dense_sim": 0.5779,
           "dense_rank": 3,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00160",
@@ -23330,8 +23934,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 4,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03394",
@@ -23354,8 +23962,12 @@
           "dense_sim": 0.5616,
           "dense_rank": 4,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01652",
@@ -23392,8 +24004,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 5,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03830",
@@ -23429,8 +24045,12 @@
           "dense_sim": 0.5613,
           "dense_rank": 5,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00775",
@@ -23465,8 +24085,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 6,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03010",
@@ -23504,8 +24128,12 @@
           "dense_sim": 0.561,
           "dense_rank": 6,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P02140",
@@ -23528,8 +24156,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 7,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P03493",
@@ -23550,8 +24182,12 @@
           "dense_sim": 0.5608,
           "dense_rank": 7,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P00190",
@@ -23584,8 +24220,12 @@
           "dense_sim": 0.0,
           "dense_rank": null,
           "bm25_rank": 8,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P01050",
@@ -23614,8 +24254,12 @@
           "dense_sim": 0.5473,
           "dense_rank": 8,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         },
         {
           "doc_id": "product:P04154",
@@ -23660,11 +24304,15 @@
           "dense_sim": 0.5453,
           "dense_rank": 9,
           "bm25_rank": null,
-          "checks": {},
-          "failed_checks": []
+          "checks": {
+            "model_code": false
+          },
+          "failed_checks": [
+            "model_code"
+          ]
         }
       ],
-      "automatic_rationale": "Top 20 中存在未被 gold 覆盖的程序性可行候选：product:P02771, product:P01425, product:P03155, product:P01746, product:P03737, product:P00160, product:P03394, product:P01652, product:P03830, product:P00775, product:P03010, product:P02140, product:P03493, product:P00190, product:P01050, product:P04154。",
+      "automatic_rationale": "Top 20 中没有候选通过全部硬约束；仍需人工确认。",
       "automatic_conclusion": "pending"
     }
   ]

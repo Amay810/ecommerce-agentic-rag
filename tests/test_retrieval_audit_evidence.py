@@ -25,6 +25,22 @@ class RetrievalAuditEvidenceTests(unittest.TestCase):
         checks = candidate_checks(facts, {"required_model_code": "ZX-9000"})
         self.assertFalse(checks["model_code"])
 
+    def test_no_answer_model_code_is_extracted_from_chinese_context(self):
+        # Regression: `\bZX-\d+\b` never matched because CJK characters are word
+        # characters in Python's re, so there is no boundary between 号 and Z.
+        # Every no-answer case ended up with required_model_code=None and its
+        # constraint check was therefore empty and unadjudicable.
+        row = {"audit_scope": "no_answer", "question": "量子悬浮全息烤箱 第九代 火星专供 编号ZX-9000"}
+        parsed = parse_constraints(row, {"constraints": {}})
+        self.assertEqual(parsed["required_model_code"], "ZX-9000")
+        self.assertEqual(parsed["impossible_description"], "量子悬浮全息烤箱 第九代 火星专供")
+
+    def test_no_answer_without_model_code_stays_none(self):
+        row = {"audit_scope": "no_answer", "question": "会自己洗碗的水杯 限量版"}
+        parsed = parse_constraints(row, {"constraints": {}})
+        self.assertIsNone(parsed["required_model_code"])
+        self.assertEqual(parsed["impossible_description"], "会自己洗碗的水杯 限量版")
+
     def test_html_panel_is_self_contained(self):
         payload = {"metadata": {"version": "test"}, "cases": []}
         page = build_html(payload)

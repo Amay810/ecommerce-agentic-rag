@@ -45,9 +45,12 @@ def parse_constraints(row: dict[str, str], spec: dict[str, Any]) -> dict[str, An
             result.update(brand=match.group(1).strip(), category_alias=match.group(2).strip(),
                           keyword=match.group(3).strip())
     elif scope == "no_answer":
-        code = re.search(r"\bZX-\d+\b", question, flags=re.I)
+        # `\b` cannot be used here: CJK characters are word characters in Python's
+        # re, so "编号ZX-9000" has no word boundary between 号 and Z and the match
+        # silently fails, leaving every no-answer case without its model code.
+        code = re.search(r"(?<![A-Za-z0-9])ZX-\d+(?![A-Za-z0-9])", question, flags=re.I)
         result.update(required_model_code=code.group(0) if code else None,
-                      impossible_description=re.sub(r"\s*编号ZX-\d+\s*$", "", question).strip())
+                      impossible_description=re.sub(r"\s*编号\s*ZX-\d+\s*$", "", question).strip())
     return result
 
 

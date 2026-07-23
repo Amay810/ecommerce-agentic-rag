@@ -1,0 +1,88 @@
+{
+  "trajectories": 8,
+  "steps_with_llm_trace": 13,
+  "instrumented": true,
+  "quality": {
+    "effective_action_parse_rate": 0.8462,
+    "strict_envelope_parse_rate": 0.8462,
+    "recovered_parse_rate": 0.0,
+    "illegal_tool_rate": 0.0,
+    "generation_error_rate": 0.0,
+    "fallback_only_trajectory_rate": 0.25,
+    "avg_non_fallback_tool_calls": 0.625,
+    "trajectories_with_real_tool_call_rate": 0.5,
+    "truncation_rate": 0.0
+  },
+  "envelope_violations": {},
+  "resolutions": {
+    "parsed": 11,
+    "fallback_handoff": 2
+  },
+  "parse_stages": {
+    "tool_call_requires_user_response": 2,
+    "schema_violation": 2
+  },
+  "finish_reasons": {
+    "stop": 15
+  },
+  "generations": 15,
+  "prompt_tokens": {
+    "min": 668,
+    "median": 698,
+    "max": 2745,
+    "mean": 970.93
+  },
+  "completion_tokens": {
+    "min": 39,
+    "median": 64,
+    "max": 355,
+    "mean": 100.4
+  },
+  "generators": [
+    {
+      "backend": "local",
+      "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+      "max_new_tokens": 512,
+      "enable_thinking_supported": true,
+      "chat_template_present": true
+    }
+  ],
+  "failure_samples": {
+    "tool_call_requires_user_response": [
+      {
+        "trajectory_id": "tr_v2_dev_return_01_20260760_3ee0da77",
+        "attempt": 0,
+        "parse_error": "tool_call runs immediately and cannot request a user response; use final_answer with requires_user_response=true to ask",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000011\", \"user_id\": \"U0441\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      },
+      {
+        "trajectory_id": "tr_v2_dev_return_06_20260765_d212fd69",
+        "attempt": 0,
+        "parse_error": "tool_call runs immediately and cannot request a user response; use final_answer with requires_user_response=true to ask",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000003\", \"user_id\": \"U0608\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      }
+    ],
+    "schema_violation": [
+      {
+        "trajectory_id": "tr_v2_dev_return_01_20260760_3ee0da77",
+        "attempt": 1,
+        "parse_error": "check_return_eligibility.verification_code: '' does not match required pattern [0-9]{6}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000011\", \"user_id\": \"U0441\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_v2_dev_return_06_20260765_d212fd69",
+        "attempt": 1,
+        "parse_error": "check_return_eligibility.verification_code: '' does not match required pattern [0-9]{6}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000003\", \"user_id\": \"U0608\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": false}"
+      }
+    ]
+  }
+}

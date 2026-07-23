@@ -136,8 +136,31 @@ locked 60×3），结果**不可用于评价模型能力**：
 
 原始结果与轨迹全部保留（`docs/harness_v2_llm_*_pass3.json`、
 `logs/harness_v2_llm_360.sqlite`），并在汇总 JSON 中标记 `run_validity`。
-重跑前的前置条件：trace 记录 raw output + 解析尝试 + fallback 原因，先跑
-5–10 条 smoke 确认动作可解析且工具真正执行，再扩到 360 条。
+
+### 重跑前置条件（已完成前两项）
+
+**① 可观测性（已完成）** —— `LLMPolicy` 现在记录每一次生成：模型原始输出、
+prompt/completion token 数、finish reason、是否因 token 预算截断、每次解析失败
+的**阶段**（`empty_output` / `no_json_object` / `unbalanced_json` /
+`json_decode_error` / `bad_action_type` / `unknown_tool` / `schema_violation`），
+以及后端与 chat template 信息。trace 随 `model_calls[].llm` 落入轨迹。
+`scripts/diagnose_llm_trace.py` 把它聚合成归因报告，并给出行数门槛看不到的
+质量信号：有效动作解析率、纯 fallback 轨迹占比、非 fallback 工具调用率、截断率。
+
+**② 动作协议（已完成）** —— 统一为**单一 JSON 对象 + JSON Schema 校验**，
+未同时引入原生 tool calling 或约束解码，避免失败时变量过多。工具契约收敛到
+`ecommerce_rag/tool_schema.py` 这一处，是标准 JSON Schema，同一份定义同时用于：
+展示给策略、执行前校验参数、将来直接对接原生 tool calling。
+参数类型现在会在**进入工具层之前**被校验（此前 `TOOL_SCHEMAS` 无类型且从不校验），
+且有测试断言 schema 与 `RetailTools` 方法签名一致，防止契约与实现漂移。
+
+**③ 小规模 smoke（待 NSCC）** —— 5–10 条覆盖检索、订单查询、退货多轮确认、
+拒绝写操作、安全转人工，确认动作可解析、工具真实执行、数据库终态正确。
+
+**④ 正式评测（待 NSCC）** —— 报告有效解析率、非法工具率、任务成功率、终态准确率，
+以及 Rule 与 LLM 在同一措辞扰动集上的对照。
+
+有效 LLM baseline 取得之前，不讨论 SFT / DPO / 推理部署。
 
 ## 措辞鲁棒性（语言扰动，不是 pass³）
 

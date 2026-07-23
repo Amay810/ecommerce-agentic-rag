@@ -16,19 +16,8 @@ from typing import Any, Protocol
 
 from .domain import AgentAction, AgentObservation, GradeResult, TaskSpec, Trajectory
 from .orders import connect, seed_database, snapshot
+from .tool_schema import TOOL_SCHEMAS
 from .tools import RetailTools, WRITE_TOOLS
-
-
-TOOL_SCHEMAS: list[dict[str, Any]] = [
-    {"name": "search_catalog", "required": ["query"], "properties": ["query", "top_k", "category", "max_price"]},
-    {"name": "get_product", "required": ["product_id"], "properties": ["product_id"]},
-    {"name": "compare_products", "required": ["product_ids"], "properties": ["product_ids"]},
-    {"name": "get_policy", "required": ["policy_type"], "properties": ["policy_type"]},
-    {"name": "get_order", "required": ["order_id", "user_id", "verification_code"], "properties": ["order_id", "user_id", "verification_code"]},
-    {"name": "check_return_eligibility", "required": ["order_id", "user_id", "verification_code"], "properties": ["order_id", "user_id", "verification_code"]},
-    {"name": "create_return_request", "required": ["order_id", "user_id", "verification_code", "confirmed"], "properties": ["order_id", "user_id", "verification_code", "confirmed"]},
-    {"name": "escalate_to_human", "required": ["user_id", "reason"], "properties": ["user_id", "reason", "order_id"]},
-]
 
 
 class AgentPolicy(Protocol):
@@ -287,7 +276,14 @@ class HarnessRunner:
             retries_after = int(getattr(self.policy, "retry_count", 0))
             if retries_after > retries_before:
                 retry_spans.append({"step": step, "retries": retries_after - retries_before, "reason": "invalid_model_action"})
-            model_calls.append({"step": step, "latency_ms": (time.perf_counter()-action_started)*1000, "action": asdict(action)})
+            call_record = {"step": step, "latency_ms": (time.perf_counter()-action_started)*1000, "action": asdict(action)}
+            # Policies that talk to a model expose the raw generation and the exact
+            # parse stage; without it a failed run cannot be attributed to the
+            # prompt, the chat template, the output format or the parser.
+            policy_trace = getattr(self.policy, "last_trace", None)
+            if policy_trace:
+                call_record["llm"] = copy.deepcopy(policy_trace)
+            model_calls.append(call_record)
             actions.append(asdict(action)); history.append({"role": "assistant", "content": action.content, "action": action.action_type})
             if action.action_type == "tool_call":
                 result = tools.call(action.tool_name or "", **action.arguments)

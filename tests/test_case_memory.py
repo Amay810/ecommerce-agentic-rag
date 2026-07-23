@@ -5,6 +5,7 @@ Uses a fake embedding model (returns deterministic vectors) and a temp SQLite DB
 so no sentence-transformers or real support.db is needed.
 """
 
+import unittest
 import json
 import sqlite3
 import tempfile
@@ -82,145 +83,125 @@ def _build_fake_memory(entries: list[tuple[dict, str]], model=None):
 
 # ── tests ─────────────────────────────────────────────────────────────────────
 
-def test_search_finds_price_constraint():
-    """Searching '不超过500元耳机' should surface a price_constraint_ignored memory."""
-    model = _FakeModel()
-    entries = [
-        _fake_case("sc_p1", "预算600以内通勤降噪耳机推荐", "recommend", "caution",
-                   ["price_constraint_ignored"]),
-        _fake_case("sc_ok1", "这款耳机音质怎么样", "product_qa", "ok", []),
-    ]
-    db, ep = _build_fake_memory(entries, model)
 
-    # A query semantically close to "预算600以内" should hit with our fake model
-    # since both start with '预', seed will be similar — but we lower threshold to 0.0
-    # for testing to always trigger.
-    hint = case_memory.search("预算500以内耳机", model=model,
-                               mem_db_path=db, embed_path=ep, threshold=0.0, n=3)
-    assert hint.matched is True
-    assert len(hint.memories) > 0
-    print("PASS test_search_finds_price_constraint")
+class CaseMemoryTests(unittest.TestCase):
+    def test_search_finds_price_constraint(self):
+        """Searching '不超过500元耳机' should surface a price_constraint_ignored memory."""
+        model = _FakeModel()
+        entries = [
+            _fake_case("sc_p1", "预算600以内通勤降噪耳机推荐", "recommend", "caution",
+                       ["price_constraint_ignored"]),
+            _fake_case("sc_ok1", "这款耳机音质怎么样", "product_qa", "ok", []),
+        ]
+        db, ep = _build_fake_memory(entries, model)
 
+        # A query semantically close to "预算600以内" should hit with our fake model
+        # since both start with '预', seed will be similar — but we lower threshold to 0.0
+        # for testing to always trigger.
+        hint = case_memory.search("预算500以内耳机", model=model,
+                                   mem_db_path=db, embed_path=ep, threshold=0.0, n=3)
+        assert hint.matched is True
+        assert len(hint.memories) > 0
 
-def test_search_returns_no_match_above_threshold():
-    """With very high threshold, nothing should match."""
-    model = _FakeModel()
-    entries = [_fake_case("sc_1", "保温杯怎么清洗", "product_qa", "ok", [])]
-    db, ep = _build_fake_memory(entries, model)
-    hint = case_memory.search("保温杯怎么清洗", model=model,
-                               mem_db_path=db, embed_path=ep, threshold=2.0)
-    assert hint.matched is False
-    print("PASS test_search_returns_no_match_above_threshold")
+    def test_search_returns_no_match_above_threshold(self):
+        """With very high threshold, nothing should match."""
+        model = _FakeModel()
+        entries = [_fake_case("sc_1", "保温杯怎么清洗", "product_qa", "ok", [])]
+        db, ep = _build_fake_memory(entries, model)
+        hint = case_memory.search("保温杯怎么清洗", model=model,
+                                   mem_db_path=db, embed_path=ep, threshold=2.0)
+        assert hint.matched is False
 
+    def test_suggested_action_price_filter(self):
+        """price_constraint_ignored pattern → suggested_action = apply_price_filter."""
+        model = _FakeModel()
+        entries = [
+            _fake_case("sc_p2", "不超过800元的机械键盘", "recommend", "caution",
+                       ["price_constraint_ignored"]),
+        ]
+        db, ep = _build_fake_memory(entries, model)
+        hint = case_memory.search("不超过800元的机械键盘", model=model,
+                                   mem_db_path=db, embed_path=ep, threshold=0.0)
+        assert hint.matched
+        assert hint.suggested_action == "apply_price_filter"
+        assert "price_constraint_ignored" in hint.avoid_patterns
 
-def test_suggested_action_price_filter():
-    """price_constraint_ignored pattern → suggested_action = apply_price_filter."""
-    model = _FakeModel()
-    entries = [
-        _fake_case("sc_p2", "不超过800元的机械键盘", "recommend", "caution",
-                   ["price_constraint_ignored"]),
-    ]
-    db, ep = _build_fake_memory(entries, model)
-    hint = case_memory.search("不超过800元的机械键盘", model=model,
-                               mem_db_path=db, embed_path=ep, threshold=0.0)
-    assert hint.matched
-    assert hint.suggested_action == "apply_price_filter"
-    assert "price_constraint_ignored" in hint.avoid_patterns
-    print("PASS test_suggested_action_price_filter")
+    def test_suggested_action_query_decomposition(self):
+        """compound_query_recall_gap → suggested_action = use_query_decomposition."""
+        model = _FakeModel()
+        entries = [
+            _fake_case("sc_c1", "保温杯和焖烧罐哪个好", "compare", "caution",
+                       ["compound_query_recall_gap"]),
+        ]
+        db, ep = _build_fake_memory(entries, model)
+        hint = case_memory.search("保温杯和焖烧罐哪个保温效果更好", model=model,
+                                   mem_db_path=db, embed_path=ep, threshold=0.0)
+        assert hint.matched
+        assert hint.suggested_action == "use_query_decomposition"
 
+    def test_hint_to_trace(self):
+        """hint_to_trace returns a non-empty string for matched hints."""
+        hint = case_memory.MemoryHint(
+            matched=True, top_sim=0.82,
+            avoid_patterns=["price_constraint_ignored"],
+            suggested_action="apply_price_filter",
+            memories=[],
+            note="test note",
+        )
+        t = case_memory.hint_to_trace(hint)
+        assert t is not None
+        assert "0.82" in t
+        assert "price_constraint" in t
 
-def test_suggested_action_query_decomposition():
-    """compound_query_recall_gap → suggested_action = use_query_decomposition."""
-    model = _FakeModel()
-    entries = [
-        _fake_case("sc_c1", "保温杯和焖烧罐哪个好", "compare", "caution",
-                   ["compound_query_recall_gap"]),
-    ]
-    db, ep = _build_fake_memory(entries, model)
-    hint = case_memory.search("保温杯和焖烧罐哪个保温效果更好", model=model,
-                               mem_db_path=db, embed_path=ep, threshold=0.0)
-    assert hint.matched
-    assert hint.suggested_action == "use_query_decomposition"
-    print("PASS test_suggested_action_query_decomposition")
+        no_match = case_memory.MemoryHint(matched=False)
+        assert case_memory.hint_to_trace(no_match) is None
 
+    def test_no_memory_index_returns_no_match(self):
+        """When memory files don't exist, search returns matched=False gracefully."""
+        model = _FakeModel()
+        hint = case_memory.search("随便问个问题", model=model,
+                                   mem_db_path=Path("/nonexistent/mem.db"),
+                                   embed_path=Path("/nonexistent/mem.npy"))
+        assert hint.matched is False
 
-def test_hint_to_trace():
-    """hint_to_trace returns a non-empty string for matched hints."""
-    hint = case_memory.MemoryHint(
-        matched=True, top_sim=0.82,
-        avoid_patterns=["price_constraint_ignored"],
-        suggested_action="apply_price_filter",
-        memories=[],
-        note="test note",
-    )
-    t = case_memory.hint_to_trace(hint)
-    assert t is not None
-    assert "0.82" in t
-    assert "price_constraint" in t
+    def test_make_memory_text_includes_patterns(self):
+        """_make_memory_text embeds pattern info into the text."""
+        case = {
+            "intent": "recommend", "query": "预算600以内耳机",
+            "action": "caution", "evidence": [
+                {"doc_id": "product:P009", "source_type": "product"}
+            ],
+            "freshness": {"status": "fresh"},
+        }
+        text = case_memory._make_memory_text(case, ["price_constraint_ignored"])
+        assert "price_constraint_ignored" in text
+        assert "recommend" in text
+        assert "预算600以内耳机" in text
 
-    no_match = case_memory.MemoryHint(matched=False)
-    assert case_memory.hint_to_trace(no_match) is None
-    print("PASS test_hint_to_trace")
-
-
-def test_no_memory_index_returns_no_match():
-    """When memory files don't exist, search returns matched=False gracefully."""
-    model = _FakeModel()
-    hint = case_memory.search("随便问个问题", model=model,
-                               mem_db_path=Path("/nonexistent/mem.db"),
-                               embed_path=Path("/nonexistent/mem.npy"))
-    assert hint.matched is False
-    print("PASS test_no_memory_index_returns_no_match")
-
-
-def test_make_memory_text_includes_patterns():
-    """_make_memory_text embeds pattern info into the text."""
-    case = {
-        "intent": "recommend", "query": "预算600以内耳机",
-        "action": "caution", "evidence": [
-            {"doc_id": "product:P009", "source_type": "product"}
-        ],
-        "freshness": {"status": "fresh"},
-    }
-    text = case_memory._make_memory_text(case, ["price_constraint_ignored"])
-    assert "price_constraint_ignored" in text
-    assert "recommend" in text
-    assert "预算600以内耳机" in text
-    print("PASS test_make_memory_text_includes_patterns")
-
-
-def test_case_patterns_detects_price():
-    """_case_patterns correctly detects price_constraint_ignored on a synthetic case."""
-    case = {
-        "query": "预算600以内通勤降噪耳机",
-        "intent": "recommend",
-        "action": "caution",
-        "needs_review": True,
-        "evidence": [
-            {"chunk_id": "c9", "doc_id": "product:P009", "source_type": "product",
-             "title": "ProNoise", "score": 0.88, "dense_sim": 0.70, "citation_index": 1}
-        ],
-        "snapshot": {
-            "products": [{"doc_id": "product:P009", "title": "ProNoise",
-                          "price": 899, "inventory": "现货",
-                          "version": None, "default_updated_at": "2026-06-12"}],
-            "policies": [],
-        },
-        "case_id": "sc_test_price", "ts": "2026-06-12T00:00:00+00:00",
-        "freshness": None, "trace": [], "grounding_ratio": None,
-        "citation_ok": None, "consistency_verdict": None, "confidence": 0.7,
-    }
-    patterns = case_memory._case_patterns(case)
-    assert "price_constraint_ignored" in patterns, f"got {patterns}"
-    print("PASS test_case_patterns_detects_price")
-
-
-def _run_all():
-    fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
-    for fn in fns:
-        fn()
-    print(f"\nAll {len(fns)} case_memory tests passed.")
+    def test_case_patterns_detects_price(self):
+        """_case_patterns correctly detects price_constraint_ignored on a synthetic case."""
+        case = {
+            "query": "预算600以内通勤降噪耳机",
+            "intent": "recommend",
+            "action": "caution",
+            "needs_review": True,
+            "evidence": [
+                {"chunk_id": "c9", "doc_id": "product:P009", "source_type": "product",
+                 "title": "ProNoise", "score": 0.88, "dense_sim": 0.70, "citation_index": 1}
+            ],
+            "snapshot": {
+                "products": [{"doc_id": "product:P009", "title": "ProNoise",
+                              "price": 899, "inventory": "现货",
+                              "version": None, "default_updated_at": "2026-06-12"}],
+                "policies": [],
+            },
+            "case_id": "sc_test_price", "ts": "2026-06-12T00:00:00+00:00",
+            "freshness": None, "trace": [], "grounding_ratio": None,
+            "citation_ok": None, "consistency_verdict": None, "confidence": 0.7,
+        }
+        patterns = case_memory._case_patterns(case)
+        assert "price_constraint_ignored" in patterns, f"got {patterns}"
 
 
 if __name__ == "__main__":
-    _run_all()
+    unittest.main()

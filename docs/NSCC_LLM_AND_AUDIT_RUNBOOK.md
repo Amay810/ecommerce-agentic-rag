@@ -58,14 +58,22 @@ The job refuses to mix with an existing
 `logs/harness_v2_llm_360.sqlite`. If an earlier run exists, archive it
 explicitly before resubmission.
 
-Successful outputs:
+Produced outputs (the job completed; the **run itself is invalid** — see below):
 
-- `docs/harness_v2_llm_dev_pass3.json`;
-- `docs/harness_v2_llm_locked_pass3.json`;
-- `docs/trajectory_audit_40.csv`;
+- `docs/harness_v2_llm_dev_pass3.json` — carries a `run_validity: invalid` block;
+- `docs/harness_v2_llm_locked_pass3.json` — carries a `run_validity: invalid` block;
+- `docs/trajectory_audit_40.csv` — 40-row template, **0 rows adjudicated**;
 - `docs/agent_rl_gate_v2.json`;
-- `logs/harness_v2_llm_360.sqlite`;
-- `logs/action_preferences.jsonl`.
+- `logs/harness_v2_llm_360.sqlite` — 360 trajectories, all parse failures;
+- `logs/action_preferences.jsonl` — **empty (0 bytes)**. A policy that emits a
+  single action cannot generate preference pairs, so this is a downstream
+  symptom of the failed run, not a usable artifact.
+
+> **This batch is an invalid integration run.** `model_action_parse_failure`
+> fired on 360/360 trajectories and every step degraded to `escalate_to_human`.
+> Do not quote its numbers as Qwen agent capability. Before re-running: persist
+> raw model output and parse attempts in the trace, then verify with a 5–10 task
+> smoke run that actions parse and tools actually execute.
 
 ## 4. Audit 40 trajectories
 

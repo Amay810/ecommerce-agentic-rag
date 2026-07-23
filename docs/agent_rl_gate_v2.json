@@ -5,7 +5,7 @@
     "policy_input_isolated": true,
     "deterministic_graders": true,
     "real_llm_trajectories_at_least_360": true,
-    "human_audit_at_least_40": true,
+    "human_audit_at_least_40": false,
     "human_reward_agreement_at_least_90pct": false,
     "preference_pairs_at_least_200": false,
     "base_llm_success_below_95pct": true
@@ -16,6 +16,9 @@
   "base_llm_success": 0.16666666666666666,
   "preference_pairs": 0,
   "human_audit_rows": 40,
-  "human_reward_agreement": 0.0,
+  "human_audit_reviewed": 0,
+  "human_audit_malformed_rows": 0,
+  "human_audit_status": "not_started",
+  "human_reward_agreement": null,
   "decision": "stop at RL-ready harness; do not claim Agent RL"
 }

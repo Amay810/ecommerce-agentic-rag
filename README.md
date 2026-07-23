@@ -107,12 +107,37 @@ locked set 得到：
 |---|---:|---:|---:|---:|---:|---:|
 | Oracle upper bound | 是 | 1.000 | 1.000 | 0.944 | 1.000 | 1.000 |
 | Rule Policy（NSCC） | 否 | 0.950 | 0.950 | 0.917 | 1.000 | 1.000 |
-| LLM next-action | 否 | pending | pending | pending | pending | pending |
+| LLM next-action（Qwen3-4B） | 否 | invalid run | invalid run | invalid run | invalid run | invalid run |
 
 Rule Policy 的 9 次失败来自 3 个政策任务重复 3 次：物流/退款歧义词被错误地
 优先解释为个人订单或退货。修复“明确政策语言优先”后，新的 routing v3
 30-query holdout 达到 30/30；原 locked 结果仍保留，不把修复后的重复运行冒充
 未见测试。
+
+Rule Policy 的 0.950 是**确定性规则系统的环境与评分器基线**，用于验证环境、
+工具与 grader 正确，不代表 Agent 泛化能力：任务生成器与规则策略共用高度一致
+的关键词模板，dev/locked 只更换订单与商品实体，未改变语言分布。
+
+### LLM next-action：首轮接入失败（invalid integration run）
+
+已在 NSCC 跑完 360 条 LLMPolicy 轨迹（Qwen3-4B-Instruct-2507，dev 60×3 +
+locked 60×3），结果**不可用于评价模型能力**：
+
+- 360/360 条轨迹发生 `model_action_parse_failure`，随后全部退化为
+  `escalate_to_human`；
+- 汇总数字（task success 0.1667）来自本来就应转人工的 safety 任务，等价于
+  “永远转人工”的退化基线，不是模型能力测量；
+- `policy_compliance = 1.000` 同样无意义：一个不调用任何工具的策略当然不会
+  触碰禁用工具；
+- 失败分类被记为 `{retrieval, wrong-tool, recovery}`，是 `classify_failure()`
+  缺少 parse 桶导致的误归因，真实原因 100% 是动作协议解析失败；
+- trace 未保存模型原始输出与解析尝试，因此**无法判断**问题出在 prompt、chat
+  template、输出格式还是 parser。
+
+原始结果与轨迹全部保留（`docs/harness_v2_llm_*_pass3.json`、
+`logs/harness_v2_llm_360.sqlite`），并在汇总 JSON 中标记 `run_validity`。
+重跑前的前置条件：trace 记录 raw output + 解析尝试 + fallback 原因，先跑
+5–10 条 smoke 确认动作可解析且工具真正执行，再扩到 360 条。
 
 ## 原 28 题回归
 
@@ -123,12 +148,24 @@ NSCC 复建索引结果为 Recall@1=0.889、Recall@5=1.000、MRR=0.963。
 
 ## RL 决策
 
-当前 RL gate 为 `eligible=false`：真实 LLMPolicy 轨迹、人工审核和 preference
-pairs 均未达到门槛。Oracle/Rule 轨迹不能代替真实模型轨迹，因此当前只声明
-“RL-ready Harness”，不声明 Agent RL、DPO 或策略训练。
+当前 RL gate 为 `eligible=false`。Oracle/Rule 轨迹不能代替真实模型轨迹，因此
+当前只声明“RL-ready Harness”，不声明 Agent RL、DPO 或策略训练。
 
-准备好的 [run_llm_policy_v2.pbs](nscc/run_llm_policy_v2.pbs) 将运行 dev 60×3
-和 locked 60×3，共 360 条真实 LLMPolicy 轨迹，并导出 40 条人工审核表。
+[run_llm_policy_v2.pbs](nscc/run_llm_policy_v2.pbs) 已执行，产出 360 条轨迹，
+但该批次为 invalid integration run（见上节），不计入有效 LLM baseline。
+未通过的门槛项：
+
+| 门槛 | 状态 | 说明 |
+|---|---|---|
+| `real_llm_trajectories_at_least_360` | 计数达标但内容无效 | 360 条全为解析失败，gate 目前只检查行数、无质量下限 |
+| `human_audit_at_least_40` | false | `trajectory_audit_40.csv` 有 40 行模板，人工判定列 **0 行已填** |
+| `human_reward_agreement_at_least_90pct` | false | agreement = `null`（尚未开始人工裁决，不是人机不一致） |
+| `preference_pairs_at_least_200` | false | 0 对；只输出单一动作的策略无法构造偏好对 |
+
+注：`deterministic_graders` 与 `policy_input_isolated` 两项目前是形式检查
+（前者只校验字段是否为布尔值，后者只检查 observation 顶层字段名），尚未构成
+真实的数据流验证，不应作为无泄漏的最终证据；真正有效的证据是
+`tests/test_harness_tools.py::test_policy_observation_excludes_hidden_gold`。
 
 ## 本地快速回归
 
@@ -169,7 +206,11 @@ qsub nscc/run_llm_policy_v2.pbs
 - 50 条证据面板目前是 AI-assisted pending human adjudication，用户完成
   confirm/modify/uncertain 裁决前不称人工标注；
 - v2/v3 困难检索未达到 0.85 目标；
-- 真实 LLMPolicy、人工 grader agreement 和 Agent RL 仍为 pending；
+- 首轮真实 LLMPolicy 接入已执行但失败（动作协议解析），有效 LLM baseline 仍
+  未取得；人工 grader agreement 尚未开始；Agent RL 未声明；
+- pass³ 目前无统计意义：Rule Policy 确定性、LLMPolicy 使用 `do_sample=False`，
+  三次重复只改 seed 而无随机性来源，因此 pass³ ≡ pass@1，当前应读作
+  “确定性重复一致率”；
 - 所有 easy/hard、Oracle/Rule/LLM 结果分开报告。
 
 完整证据见 [implementation report](docs/implementation_report.md)、

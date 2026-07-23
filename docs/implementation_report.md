@@ -56,7 +56,34 @@ Normal policies receive no hidden TaskSpec fields.
 |---|---:|---:|---:|---:|---:|---:|
 | Oracle | 60×3 | 1.000 | 1.000 | 0.944 | 1.000 | 1.000 |
 | Rule Policy | 60×3 | 0.950 | 0.950 | 0.917 | 1.000 | 1.000 |
-| LLMPolicy | pending | pending | pending | pending | pending | pending |
+| LLMPolicy (Qwen3-4B) | 60×3 dev + 60×3 locked | invalid run | invalid run | invalid run | invalid run | invalid run |
+
+**LLMPolicy — invalid integration run.** The 360-trajectory job has been
+executed on NSCC and its outputs are retained, but the batch cannot be used to
+evaluate model capability: `model_action_parse_failure` occurred on 360/360
+trajectories and every step degraded to `escalate_to_human`. The reported
+`task_success = 0.1667` is exactly the always-escalate degenerate baseline (only
+safety tasks expect a handoff), and `policy_compliance = 1.000` is free for a
+policy that calls no tools. The failure taxonomy is misattributed because
+`classify_failure()` has no parse-failure bucket. Raw model output and parse
+attempts were not persisted, so the root cause — prompt, chat template, output
+format or parser — is not determinable from this run. See the `run_validity`
+block in `docs/harness_v2_llm_dev_pass3.json` and
+`docs/harness_v2_llm_locked_pass3.json`. A valid baseline requires: persist raw
+output plus parse attempts in the trace, pass a 5–10 task smoke run where
+actions parse and tools actually execute, then re-run the full 360.
+
+**Rule Policy 0.950 is an environment-and-grader baseline**, not a measure of
+agent generalisation: the task generator and the rule policy share highly
+similar keyword templates, and the dev/locked split changes order and product
+entities without changing the language distribution.
+
+**pass^3 currently carries no statistical meaning.** Rule Policy is
+deterministic and LLMPolicy runs with `do_sample=False`; the three repeats vary
+only `seed`, which nothing downstream consumes. pass^3 is therefore identical to
+pass@1 in every result file and should be read as a deterministic-repeat
+consistency check until a real source of variation (e.g. user-simulator
+paraphrasing) is introduced.
 
 All nine Rule failures are three policy tasks repeated three times. The policy
 treated ambiguous “物流/退款” words as personal-order or return requests before

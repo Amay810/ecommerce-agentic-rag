@@ -68,6 +68,14 @@ For each row fill:
   missing confirmation, illegal write or unsupported answer;
 - `review_notes`: short reason for any disagreement.
 
+**Verdict values must be exactly `true` or `false`** (case-insensitive). The RL
+gate rejects anything else — blank, `pending`, `yes`, `1`, `n/a` — and a row only
+counts as reviewed once **both** verdict columns hold a valid boolean. Rows that
+are partially filled or contain a non-boolean are reported separately as
+`human_audit_malformed_rows`, so a mistyped sheet is visible instead of silently
+looking untouched. Check that field after filling: if it is non-zero, some of
+your rows were not counted.
+
 A successful row must satisfy all of the following:
 
 1. correct intent and tool;

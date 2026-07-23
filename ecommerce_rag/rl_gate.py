@@ -9,6 +9,22 @@ from pathlib import Path
 
 HIDDEN_KEYS = {"category", "gold_doc_ids", "allowed_tools", "forbidden_tools", "expected_state", "initial_state", "metadata"}
 
+# A human verdict is only accepted as strict "true"/"false". Anything else —
+# blank, "pending", "yes", a stray note — is not a judgement and must not be
+# counted, otherwise a half-filled or mistyped sheet silently inflates the
+# reviewed count and feeds garbage into the agreement rate.
+VALID_VERDICTS = {"true", "false"}
+
+# Both columns are required by docs/HUMAN_AUDIT_GUIDE.md, so a row is only
+# adjudicated once the reviewer has ruled on task success *and* policy compliance.
+VERDICT_COLUMNS = ("human_success", "human_policy_compliant")
+
+
+def _verdict(row, column):
+    """Return 'true'/'false' if the cell holds a strict boolean, else None."""
+    value = (row.get(column) or "").strip().lower()
+    return value if value in VALID_VERDICTS else None
+
 
 def assess(tasks, store, audit=None, preference_pairs=None):
     specs = [json.loads(x) for x in Path(tasks).read_text(encoding="utf-8").splitlines() if x.strip()]
@@ -22,12 +38,28 @@ def assess(tasks, store, audit=None, preference_pairs=None):
     leakage_safe = bool(llm_rows) and all(not (set(obs) & HIDDEN_KEYS) for t, _ in llm_rows for obs in t.get("observations", []))
     deterministic_grades = bool(llm_rows) and all(isinstance(g.get("success"), bool) and isinstance(g.get("terminal_state_match"), bool) for _, g in llm_rows)
     success_rate = sum(g["success"] for _, g in llm_rows) / len(llm_rows) if llm_rows else None
-    reviewed, agreement = 0, None
+    audit_rows, reviewed, malformed, agreement = 0, 0, 0, None
     if audit and Path(audit).exists():
         with open(audit, encoding="utf-8") as handle:
             rows = list(csv.DictReader(handle))
-        reviewed = len(rows)
-        agreement = sum(r.get("human_success", "").lower() == r.get("grader_success", "").lower() for r in rows) / reviewed if reviewed else None
+        audit_rows = len(rows)
+        # A row counts as reviewed only when every required verdict column holds a
+        # strict boolean. Counting blank cells as reviewed used to compare "" against
+        # "true"/"false" and publish agreement=0.0, which reads as "humans disagreed
+        # with the grader" when the truth is that nobody had adjudicated yet.
+        judged, malformed = [], 0
+        for row in rows:
+            verdicts = [_verdict(row, column) for column in VERDICT_COLUMNS]
+            if all(verdicts):
+                judged.append(row)
+            elif any((row.get(column) or "").strip() for column in VERDICT_COLUMNS):
+                # partially filled or not a boolean — surface it instead of dropping
+                # it silently, so a mistyped sheet is visible rather than looking untouched
+                malformed += 1
+        reviewed = len(judged)
+        if reviewed:
+            agreement = sum(_verdict(r, "human_success") == (r.get("grader_success") or "").strip().lower()
+                            for r in judged) / reviewed
     pairs = 0
     if preference_pairs and Path(preference_pairs).exists():
         pairs = sum(1 for x in Path(preference_pairs).read_text(encoding="utf-8").splitlines() if x.strip())
@@ -44,7 +76,10 @@ def assess(tasks, store, audit=None, preference_pairs=None):
     eligible = all(checks.values())
     return {"eligible": eligible, "checks": checks, "task_count": len(specs), "all_trajectory_count": len(trajectories),
             "real_llm_trajectory_count": len(llm_rows), "base_llm_success": success_rate, "preference_pairs": pairs,
-            "human_audit_rows": reviewed, "human_reward_agreement": agreement,
+            "human_audit_rows": audit_rows, "human_audit_reviewed": reviewed,
+            "human_audit_malformed_rows": malformed,
+            "human_audit_status": "not_started" if reviewed == 0 else ("partial" if reviewed < audit_rows else "complete"),
+            "human_reward_agreement": agreement,
             "decision": "train next-action SFT/DPO" if eligible else "stop at RL-ready harness; do not claim Agent RL"}
 
 

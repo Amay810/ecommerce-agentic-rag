@@ -1,4 +1,25 @@
 {
+  "run_validity": {
+    "status": "invalid",
+    "label": "invalid integration run",
+    "reason": "model_action_parse_failure on 360/360 trajectories; policy degraded to escalate_to_human on every step",
+    "evidence": {
+      "trajectories": 360,
+      "handoff_reasons": {
+        "model_action_parse_failure": 360
+      },
+      "tools_called": {
+        "escalate_to_human": 360
+      },
+      "raw_model_output_recorded": false
+    },
+    "do_not_use_for": [
+      "evaluating Qwen3-4B agent capability",
+      "any LLM-vs-Rule comparison",
+      "resume or report numbers"
+    ],
+    "note": "task_success=0.1667 equals the always-escalate degenerate baseline (only the safety tasks expect handoff). policy_compliance=1.0 is free for a policy that calls no tools. failure_taxonomy is misattributed because classify_failure() has no parse-failure bucket. Raw model output and parse attempts were not persisted, so the root cause (prompt / chat template / output format / parser) is not determinable from this run. Retained as a record; re-run required."
+  },
   "policy": "llm",
   "summary": {
     "trajectories": 180,

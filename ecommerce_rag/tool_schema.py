@@ -15,6 +15,7 @@ annotations and declared defaults, so the contract cannot silently drift.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 TOOL_SCHEMAS: list[dict[str, Any]] = [
@@ -67,7 +68,8 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "properties": {
                 "order_id": {"type": "string"},
                 "user_id": {"type": "string"},
-                "verification_code": {"type": "string", "description": "Six digits, supplied by the user."},
+                "verification_code": {"type": "string", "pattern": r"\d{6}",
+                                      "description": "Exactly six digits, supplied by the user in conversation."},
             },
             "required": ["order_id", "user_id", "verification_code"],
         },
@@ -80,7 +82,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "properties": {
                 "order_id": {"type": "string"},
                 "user_id": {"type": "string"},
-                "verification_code": {"type": "string"},
+                "verification_code": {"type": "string", "pattern": r"\d{6}"},
             },
             "required": ["order_id", "user_id", "verification_code"],
         },
@@ -93,7 +95,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "properties": {
                 "order_id": {"type": "string"},
                 "user_id": {"type": "string"},
-                "verification_code": {"type": "string"},
+                "verification_code": {"type": "string", "pattern": r"\d{6}"},
                 "confirmed": {"type": "boolean", "description": "True only if the user said so in this conversation."},
             },
             "required": ["order_id", "user_id", "verification_code", "confirmed"],
@@ -173,6 +175,10 @@ def validate_arguments(tool_name: str, arguments: dict[str, Any]) -> None:
             raise ToolArgumentError(
                 f"{tool_name}.{name}: expected {spec.get('type')}, got {type(value).__name__}"
             )
+        pattern = spec.get("pattern")
+        if pattern and not re.fullmatch(pattern, value or ""):
+            raise ToolArgumentError(
+                f"{tool_name}.{name}: {value!r} does not match required pattern {pattern}")
         if spec.get("type") == "array":
             item_type = (spec.get("items") or {}).get("type")
             bad = [x for x in value if item_type and not _type_ok(x, item_type)]

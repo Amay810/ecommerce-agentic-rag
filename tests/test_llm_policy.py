@@ -141,6 +141,65 @@ class ActionEnvelopeTests(unittest.TestCase):
         self.assertIn("unknown_envelope_field:reasoning", policy.last_trace["envelope_violations"])
 
 
+class ActionSemanticsTests(unittest.TestCase):
+    """Cross-field rules the first live smoke run exposed."""
+
+    def _reject(self, payload: str) -> str:
+        policy = LLMPolicy(_scripted(payload, payload))
+        action = policy.act(_observation())
+        self.assertEqual(action.action_type, "handoff")
+        return policy.last_trace["final_stage"]
+
+    def test_tool_call_may_not_request_a_user_response(self):
+        # Observed live: the model meant "ask for the code" but said tool_call with
+        # requires_user_response=true. The harness executes tool_call immediately
+        # and never reads that flag, so the tool ran with an empty code.
+        stage = self._reject('{"action_type":"tool_call","tool_name":"get_order","arguments":'
+                             '{"order_id":"O000001","user_id":"U0148","verification_code":"123456"},'
+                             '"content":"","requires_user_response":true}')
+        self.assertEqual(stage, "tool_call_requires_user_response")
+
+    def test_empty_verification_code_is_rejected_before_the_tool(self):
+        stage = self._reject('{"action_type":"tool_call","tool_name":"get_order","arguments":'
+                             '{"order_id":"O000001","user_id":"U0148","verification_code":""},'
+                             '"content":"","requires_user_response":false}')
+        self.assertEqual(stage, "schema_violation")
+
+    def test_verification_code_must_be_six_digits(self):
+        for code in ("12345", "1234567", "12a456", "  123456  "):
+            stage = self._reject('{"action_type":"tool_call","tool_name":"get_order","arguments":'
+                                 f'{{"order_id":"O000001","user_id":"U0148","verification_code":"{code}"}},'
+                                 '"content":"","requires_user_response":false}')
+            self.assertEqual(stage, "schema_violation", f"{code!r} should not be accepted")
+
+    def test_handoff_requires_a_reason(self):
+        # The previous contract told the model to send {} for non-tool actions,
+        # then called escalate_to_human, whose reason argument is mandatory.
+        stage = self._reject('{"action_type":"handoff","tool_name":null,"arguments":{},'
+                             '"content":"转人工","requires_user_response":false}')
+        self.assertEqual(stage, "handoff_missing_reason")
+
+    def test_handoff_may_not_set_user_id(self):
+        stage = self._reject('{"action_type":"handoff","tool_name":null,"arguments":'
+                             '{"reason":"identity_verification_failed","user_id":"U9999"},'
+                             '"content":"x","requires_user_response":false}')
+        self.assertEqual(stage, "handoff_sets_user_id")
+
+    def test_handoff_rejects_arguments_outside_the_contract(self):
+        stage = self._reject('{"action_type":"handoff","tool_name":null,"arguments":'
+                             '{"reason":"x","priority":"high"},"content":"x","requires_user_response":false}')
+        self.assertEqual(stage, "handoff_unknown_argument")
+
+    def test_a_well_formed_handoff_is_accepted(self):
+        policy = LLMPolicy(_scripted('{"action_type":"handoff","tool_name":null,"arguments":'
+                                     '{"reason":"identity_verification_failed","order_id":"O000001"},'
+                                     '"content":"已为您转接人工客服。","requires_user_response":false}'))
+        action = policy.act(_observation())
+        self.assertEqual(action.action_type, "handoff")
+        self.assertEqual(action.arguments["reason"], "identity_verification_failed")
+        self.assertEqual(policy.last_trace["resolution"], "parsed")
+
+
 class GenerationErrorTests(unittest.TestCase):
     """A backend that raises is the one path that would bypass all instrumentation."""
 

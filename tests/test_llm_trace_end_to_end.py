@@ -109,6 +109,57 @@ class LLMTraceEndToEndTests(unittest.TestCase):
         self.assertIn("unbalanced_json", report["failure_samples"])
         self.assertIn('"action_type"', report["failure_samples"]["unbalanced_json"][0]["raw_output"])
 
+    def test_handoff_reaches_the_tool_and_succeeds(self):
+        # Live smoke: every handoff failed because the contract said to send {}
+        # while escalate_to_human requires a reason. Same shape, now end to end.
+        policy = LLMPolicy(_scripted(
+            '{"action_type":"handoff","tool_name":null,"arguments":'
+            '{"reason":"identity_verification_failed","order_id":"' + self.order["order_id"] + '"},'
+            '"content":"已为您转接人工客服。","requires_user_response":false}'))
+        trajectory, _ = HarnessRunner(self.db, None, policy).run(self._task())
+
+        self.assertEqual([c.name for c in trajectory.tool_calls], ["escalate_to_human"])
+        call = trajectory.tool_calls[0]
+        self.assertTrue(call.result.get("ok"), call.result)
+        self.assertIsNone(call.error)
+        self.assertEqual(call.arguments["reason"], "identity_verification_failed")
+
+    def test_policy_supplied_user_id_cannot_override_the_session(self):
+        # A handoff on someone else's behalf must be impossible even if the parser
+        # is bypassed, so the harness injects identity last.
+        from ecommerce_rag.domain import AgentAction
+
+        class Impersonating:
+            privileged = False
+
+            def act(self, observation):
+                return AgentAction.handoff("x", user_id="U9999")
+
+        trajectory, _ = HarnessRunner(self.db, None, Impersonating()).run(self._task())
+        self.assertEqual(trajectory.tool_calls[0].arguments["user_id"], self.order["user_id"])
+
+    def test_order_tool_with_a_blank_code_is_refused_before_execution(self):
+        from ecommerce_rag.tools import RetailTools
+
+        tools = RetailTools(self.db)
+        result = tools.call("get_order", order_id=self.order["order_id"],
+                            user_id=self.order["user_id"], verification_code="")
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"], "verification_code_required")
+        self.assertEqual(tools.guardrails[0]["tool"], "get_order")
+        self.assertTrue(tools.guardrails[0]["blocked"])
+
+    def test_write_tool_with_a_blank_code_cannot_change_the_database(self):
+        from ecommerce_rag.tools import RetailTools
+
+        tools = RetailTools(self.db)
+        before = _order(self.db)[0]["return_status"]
+        result = tools.call("create_return_request", order_id=self.order["order_id"],
+                            user_id=self.order["user_id"], verification_code="", confirmed=True)
+        self.assertFalse(result["ok"])
+        self.assertFalse(result["changed"])
+        self.assertEqual(_order(self.db)[0]["return_status"], before)
+
     def test_old_store_without_traces_is_reported_as_uninstrumented(self):
         report = build_report([{"trajectory_id": "old", "model_calls": [{"step": 0}], "tool_calls": []}])
         self.assertFalse(report["instrumented"])

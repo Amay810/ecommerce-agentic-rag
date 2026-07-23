@@ -290,7 +290,11 @@ class HarnessRunner:
                 history.append({"role": "tool", "name": action.tool_name, "content": json.dumps(result, ensure_ascii=False), "result": result})
                 continue
             if action.action_type == "handoff":
-                args = {"user_id": task.user_id, **action.arguments}
+                # Identity is injected by the harness and must win: a policy that
+                # supplies its own user_id would otherwise hand off on someone
+                # else's behalf. A reason is always present for rule/oracle
+                # policies and enforced by the parser for model policies.
+                args = {"reason": "unspecified", **action.arguments, "user_id": task.user_id}
                 result = tools.call("escalate_to_human", **args)
                 history.append({"role": "tool", "name": "escalate_to_human", "content": json.dumps(result), "result": result})
                 answer = action.content or "已转人工处理。"; messages.append({"role": "assistant", "content": answer}); break

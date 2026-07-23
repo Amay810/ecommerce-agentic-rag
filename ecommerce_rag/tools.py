@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 import time
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -14,6 +15,14 @@ from . import orders
 
 READ_TOOLS = {"search_catalog", "get_product", "compare_products", "get_policy", "get_order", "check_return_eligibility"}
 WRITE_TOOLS = {"create_return_request", "escalate_to_human"}
+
+#: Tools that touch one customer's order and therefore must never run without a
+#: verification code the user actually supplied. A policy that asks for the code
+#: and calls the tool in the same turn would otherwise reach the identity check
+#: with an empty string and burn the attempt.
+IDENTITY_GUARDED_TOOLS = {"get_order", "check_return_eligibility", "create_return_request"}
+
+_VERIFICATION_CODE = re.compile(r"\d{6}")
 
 
 class RetailTools:
@@ -34,11 +43,31 @@ class RetailTools:
             "escalate_to_human": self.escalate_to_human,
         }
 
+    def _identity_guard(self, name: str, arguments: dict[str, Any]) -> dict | None:
+        """Refuse an order-scoped tool that arrives without a usable code.
+
+        Enforced here rather than inside each tool so a ninth order-scoped tool
+        cannot be added without the protection.
+        """
+        if name not in IDENTITY_GUARDED_TOOLS:
+            return None
+        code = str(arguments.get("verification_code") or "").strip()
+        if _VERIFICATION_CODE.fullmatch(code):
+            return None
+        self.guardrails.append({"tool": name, "blocked": True, "reason": "verification_code_required",
+                                "supplied": code or None})
+        return {"ok": False, "changed": False, "error": "verification_code_required"}
+
     def call(self, name: str, **arguments: Any) -> dict:
         started = time.perf_counter()
         stamp = datetime.now(timezone.utc).isoformat()
         call_id = hashlib.sha1(f"{name}:{len(self.calls)}:{arguments}".encode()).hexdigest()[:12]
         error = None
+        blocked = self._identity_guard(name, arguments)
+        if blocked is not None:
+            self.calls.append(ToolCall(name, arguments, call_id, blocked, stamp,
+                                       (time.perf_counter() - started) * 1000, blocked["error"]))
+            return blocked
         try:
             if name not in self._registry:
                 raise ValueError(f"unknown tool: {name}")

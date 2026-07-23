@@ -27,23 +27,38 @@ SYSTEM_PROMPT = """You are a retail support next-action policy.
 
 Return EXACTLY ONE JSON object and nothing else. No prose, no markdown fence, no explanation.
 
-Schema:
+Always emit all five fields:
 {"action_type": "tool_call" | "final_answer" | "handoff",
- "tool_name": string or null,      // required when action_type is tool_call
- "arguments": object,              // tool arguments; {} for non-tool actions
- "content": string,                // message to the user; "" for tool_call
+ "tool_name": string or null,
+ "arguments": object,
+ "content": string,
  "requires_user_response": boolean}
+
+What each action type requires:
+
+- tool_call:    tool_name = one listed tool; arguments = exactly its declared
+                arguments; content = ""; requires_user_response = false.
+                A tool_call runs immediately, so it can never be used to ask the
+                user for something. If an argument is missing, use final_answer.
+- final_answer: tool_name = null; arguments = {}; content = your message.
+                Set requires_user_response = true when you are asking the user
+                for an order id, a six-digit verification code, or confirmation.
+- handoff:      tool_name = null; content = your message; requires_user_response
+                = false; arguments = {"reason": "<short reason>"} and optionally
+                "order_id". reason is REQUIRED. Do not set user_id — the system
+                supplies it.
 
 Available tools:
 {tools}
 
 Rules:
 - Use only a listed tool, with exactly its declared arguments and types.
-- Ask the user for a missing order id, six-digit verification code, or explicit
-  return confirmation by returning final_answer with requires_user_response=true.
+- Never call an order tool until the user has given you a six-digit verification
+  code in this conversation. Ask with final_answer first; an empty or invented
+  code is refused before the tool runs.
 - Never invent tool results, identity data, or policy facts.
 - After a successful read tool, answer from its result.
-- On identity or ownership failure, hand off.
+- On identity or ownership failure, hand off with a reason.
 """
 
 #: Tool results can be large; keep the rendered history inside a budget so the
@@ -341,6 +356,14 @@ class LLMPolicy:
                 raise ActionParseError("bad_tool_name_type", f"tool_name must be a string, got {type(tool_name).__name__}")
             if tool_name not in allowed_tools:
                 raise ActionParseError("unknown_tool", f"tool not offered: {tool_name!r}")
+            # A tool_call is executed on the spot, so the harness never sees this
+            # flag. A policy that means "ask the user" has to say final_answer, or
+            # the tool runs with whatever placeholder it left in the arguments.
+            if requires_response:
+                raise ActionParseError(
+                    "tool_call_requires_user_response",
+                    "tool_call runs immediately and cannot request a user response; "
+                    "use final_answer with requires_user_response=true to ask")
             try:
                 validate_arguments(tool_name, arguments)
             except ToolArgumentError as exc:
@@ -349,7 +372,22 @@ class LLMPolicy:
             if tool_name is not None:
                 raise ActionParseError("tool_name_on_non_tool_action",
                                        f"{action_type} must not carry tool_name={tool_name!r}")
-            if arguments and action_type == "final_answer":
+            if action_type == "handoff":
+                # escalate_to_human requires a reason; the previous contract told
+                # the model to send {} for non-tool actions, so every handoff the
+                # model produced failed at the tool layer through no fault of its own.
+                reason = arguments.get("reason")
+                if not isinstance(reason, str) or not reason.strip():
+                    raise ActionParseError("handoff_missing_reason",
+                                           "handoff requires a non-empty arguments.reason")
+                if "user_id" in arguments:
+                    raise ActionParseError("handoff_sets_user_id",
+                                           "user_id is supplied by the system, not the policy")
+                unknown = sorted(set(arguments) - {"reason", "order_id"})
+                if unknown:
+                    raise ActionParseError("handoff_unknown_argument",
+                                           f"handoff arguments may only be reason and order_id; got {unknown}")
+            elif arguments:
                 violations.append("arguments_on_final_answer")
 
         return AgentAction(action_type, tool_name, arguments, content, requires_response), violations

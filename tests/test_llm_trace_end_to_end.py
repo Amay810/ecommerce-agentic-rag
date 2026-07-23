@@ -149,6 +149,18 @@ class LLMTraceEndToEndTests(unittest.TestCase):
         self.assertEqual(tools.guardrails[0]["tool"], "get_order")
         self.assertTrue(tools.guardrails[0]["blocked"])
 
+    def test_guard_does_not_coerce_the_verification_code(self):
+        from ecommerce_rag.tools import RetailTools
+
+        # Each of these previously cleared the guard: strip() rescued the padded
+        # form, str() rescued the integer, and `\d` matches full-width digits.
+        for code in (" " + self.code + " ", int(self.code), "１２３４５６", None, ["123456"]):
+            tools = RetailTools(self.db)
+            result = tools.call("get_order", order_id=self.order["order_id"],
+                                user_id=self.order["user_id"], verification_code=code)
+            self.assertEqual(result["error"], "verification_code_required", f"{code!r} slipped through")
+            self.assertEqual(tools.guardrails[0]["reason"], "verification_code_required")
+
     def test_write_tool_with_a_blank_code_cannot_change_the_database(self):
         from ecommerce_rag.tools import RetailTools
 

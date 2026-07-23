@@ -13,7 +13,7 @@ from ecommerce_rag.tool_schema import (
     prompt_block,
     validate_arguments,
 )
-from ecommerce_rag.tools import READ_TOOLS, WRITE_TOOLS, RetailTools
+from ecommerce_rag.tools import IDENTITY_GUARDED_TOOLS, READ_TOOLS, WRITE_TOOLS, RetailTools
 
 
 def _signature(name: str) -> inspect.Signature:
@@ -103,6 +103,31 @@ class SchemaMatchesImplementationTests(unittest.TestCase):
                 (item_annotation,) = typing.get_args(hints[name])
                 self.assertEqual((spec.get("items") or {}).get("type"), _json_type(item_annotation),
                                  f"{schema['name']}.{name}: item type differs from the annotation")
+
+
+class IdentityGuardCoverageTests(unittest.TestCase):
+    """The central guard promises no order tool can be added without protection.
+
+    That only holds if membership of IDENTITY_GUARDED_TOOLS is derived from the
+    contract rather than maintained by hand, so assert the two agree.
+    """
+
+    def test_every_tool_taking_a_verification_code_is_identity_guarded(self):
+        takes_code = {schema["name"] for schema in TOOL_SCHEMAS
+                      if "verification_code" in schema["parameters"]["properties"]}
+        missing = sorted(takes_code - IDENTITY_GUARDED_TOOLS)
+        self.assertEqual(missing, [], f"unguarded tools accepting a verification code: {missing}")
+
+    def test_no_guarded_tool_lacks_a_verification_code(self):
+        for name in IDENTITY_GUARDED_TOOLS:
+            self.assertIn("verification_code", SCHEMA_BY_NAME[name]["parameters"]["properties"],
+                          f"{name} is identity-guarded but declares no verification_code")
+
+    def test_verification_code_uses_ascii_digits_only(self):
+        # `\d` matches Unicode decimals, so it would accept full-width digits
+        for name in IDENTITY_GUARDED_TOOLS:
+            spec = SCHEMA_BY_NAME[name]["parameters"]["properties"]["verification_code"]
+            self.assertEqual(spec.get("pattern"), r"[0-9]{6}", f"{name} uses a non-ASCII digit class")
 
 
 class ValidateArgumentsTests(unittest.TestCase):

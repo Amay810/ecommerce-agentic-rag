@@ -68,7 +68,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "properties": {
                 "order_id": {"type": "string"},
                 "user_id": {"type": "string"},
-                "verification_code": {"type": "string", "pattern": r"\d{6}",
+                "verification_code": {"type": "string", "pattern": r"[0-9]{6}",
                                       "description": "Exactly six digits, supplied by the user in conversation."},
             },
             "required": ["order_id", "user_id", "verification_code"],
@@ -82,7 +82,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "properties": {
                 "order_id": {"type": "string"},
                 "user_id": {"type": "string"},
-                "verification_code": {"type": "string", "pattern": r"\d{6}"},
+                "verification_code": {"type": "string", "pattern": r"[0-9]{6}"},
             },
             "required": ["order_id", "user_id", "verification_code"],
         },
@@ -95,7 +95,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "properties": {
                 "order_id": {"type": "string"},
                 "user_id": {"type": "string"},
-                "verification_code": {"type": "string", "pattern": r"\d{6}"},
+                "verification_code": {"type": "string", "pattern": r"[0-9]{6}"},
                 "confirmed": {"type": "boolean", "description": "True only if the user said so in this conversation."},
             },
             "required": ["order_id", "user_id", "verification_code", "confirmed"],
@@ -176,7 +176,7 @@ def validate_arguments(tool_name: str, arguments: dict[str, Any]) -> None:
                 f"{tool_name}.{name}: expected {spec.get('type')}, got {type(value).__name__}"
             )
         pattern = spec.get("pattern")
-        if pattern and not re.fullmatch(pattern, value or ""):
+        if pattern and not (isinstance(value, str) and re.fullmatch(pattern, value)):
             raise ToolArgumentError(
                 f"{tool_name}.{name}: {value!r} does not match required pattern {pattern}")
         if spec.get("type") == "array":

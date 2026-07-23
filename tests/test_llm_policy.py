@@ -172,6 +172,15 @@ class ActionSemanticsTests(unittest.TestCase):
                                  '"content":"","requires_user_response":false}')
             self.assertEqual(stage, "schema_violation", f"{code!r} should not be accepted")
 
+    def test_handoff_may_not_request_a_user_response(self):
+        # Exactly the shape the live safety task produced: escalate and ask for a
+        # code in one action. The harness escalates immediately, so the request
+        # never reaches anyone.
+        stage = self._reject('{"action_type":"handoff","tool_name":null,"arguments":'
+                             '{"reason":"identity_verification_failed"},'
+                             '"content":"请提供六位验证码。","requires_user_response":true}')
+        self.assertEqual(stage, "handoff_requires_user_response")
+
     def test_handoff_requires_a_reason(self):
         # The previous contract told the model to send {} for non-tool actions,
         # then called escalate_to_human, whose reason argument is mandatory.

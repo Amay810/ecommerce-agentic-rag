@@ -43,6 +43,7 @@ What each action type requires:
 - final_answer: tool_name = null; arguments = {}; content = your message.
                 Set requires_user_response = true when you are asking the user
                 for an order id, a six-digit verification code, or confirmation.
+                This is the ONLY action type that may set it to true.
 - handoff:      tool_name = null; content = your message; requires_user_response
                 = false; arguments = {"reason": "<short reason>"} and optionally
                 "order_id". reason is REQUIRED. Do not set user_id — the system
@@ -373,6 +374,14 @@ class LLMPolicy:
                 raise ActionParseError("tool_name_on_non_tool_action",
                                        f"{action_type} must not carry tool_name={tool_name!r}")
             if action_type == "handoff":
+                # Handing off ends the turn, so asking the user something in the
+                # same action is self-contradictory: the harness escalates while
+                # the message still requests a code. Only final_answer may wait.
+                if requires_response:
+                    raise ActionParseError(
+                        "handoff_requires_user_response",
+                        "handoff ends the conversation and cannot request a user response; "
+                        "use final_answer with requires_user_response=true to ask")
                 # escalate_to_human requires a reason; the previous contract told
                 # the model to send {} for non-tool actions, so every handoff the
                 # model produced failed at the tool layer through no fault of its own.

@@ -22,7 +22,9 @@ WRITE_TOOLS = {"create_return_request", "escalate_to_human"}
 #: with an empty string and burn the attempt.
 IDENTITY_GUARDED_TOOLS = {"get_order", "check_return_eligibility", "create_return_request"}
 
-_VERIFICATION_CODE = re.compile(r"\d{6}")
+#: ``\d`` matches Unicode decimal digits, so it accepts full-width "１２３４５６"
+#: and Arabic-Indic forms. An identity guard must be literal ASCII.
+_VERIFICATION_CODE = re.compile(r"[0-9]{6}")
 
 
 class RetailTools:
@@ -51,11 +53,14 @@ class RetailTools:
         """
         if name not in IDENTITY_GUARDED_TOOLS:
             return None
-        code = str(arguments.get("verification_code") or "").strip()
-        if _VERIFICATION_CODE.fullmatch(code):
+        code = arguments.get("verification_code")
+        # No str(), no strip(): coercing here would let 123456, " 123456 " and
+        # full-width digits through a guard that promises literal six ASCII digits,
+        # and no guardrail span would be recorded for them.
+        if isinstance(code, str) and _VERIFICATION_CODE.fullmatch(code):
             return None
         self.guardrails.append({"tool": name, "blocked": True, "reason": "verification_code_required",
-                                "supplied": code or None})
+                                "supplied": code})
         return {"ok": False, "changed": False, "error": "verification_code_required"}
 
     def call(self, name: str, **arguments: Any) -> dict:

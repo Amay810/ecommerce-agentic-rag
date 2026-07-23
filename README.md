@@ -139,6 +139,71 @@ locked 60×3），结果**不可用于评价模型能力**：
 重跑前的前置条件：trace 记录 raw output + 解析尝试 + fallback 原因，先跑
 5–10 条 smoke 确认动作可解析且工具真正执行，再扩到 360 条。
 
+## 措辞鲁棒性（语言扰动，不是 pass³）
+
+harness 的三次重复只改 `seed`，而 Rule Policy 确定性、LLMPolicy `do_sample=False`，
+没有任何随机性来源，所以 pass³ 恒等于 pass@1。为了引入真正的变化轴，
+`ecommerce_rag/paraphrase.py` 为每条任务固定构造三种**手写、可复现**的说法：
+
+| 语域 | 例（policy 任务） |
+|---|---|
+| `template` | 你们的**退换货政策**是什么？ |
+| `colloquial` | 退换货这块怎么弄的？ |
+| `indirect` | 我想搞清楚你们退换货那边一般是怎么处理的 |
+
+数据库 seed、用户目标、`expected_state` 与 `metadata` 全部保持不变，只改用户可见措辞；
+订单号、商品 ID、预算和政策名等任务必需的标识符一律保留（有测试守住），
+否则掉点测的会是"信息缺失"而非语言鲁棒性。**这三次不是独立随机采样，
+因此不得报告为 pass³。**
+
+Rule Policy，120 条任务 × 3 种说法 = 360 条轨迹（`docs/paraphrase_robustness_rule.json`）：
+
+| 指标 | template | colloquial | indirect |
+|---|---:|---:|---:|
+| Task success | 1.000 | 0.767 | 0.767 |
+| 相对模板掉点 | — | −0.233 | −0.233 |
+| Policy compliance | 1.000 | 1.000 | 1.000 |
+| Terminal state | 1.000 | 0.917 | 0.917 |
+
+三种说法全部通过率（worst-of-3，同一个量）：**0.767**；routing flip rate：**0.283**。
+dev 与 locked 分别统计结果完全一致（各 60 条，均为 1.000 / 0.767 / 0.767）。
+
+> 注：此处 template = 1.000，而 `docs/harness_v2_rule_locked_pass3.json` 记录的是
+> 0.950。二者不矛盾：0.950 是路由修复**之前**的 locked 结果，当前代码已包含
+> "明确政策语言优先"修复。0.950 作为历史记录保留，不因本次实验改写。
+
+### 分类别结果
+
+| 类别 | n | template | paraphrase |
+|---|---:|---:|---:|
+| return | 20 | 1.000 | **0.000** |
+| policy | 20 | 1.000 | **0.600** |
+| product_qa / recommend / compare / order_query / safety | 80 | 1.000 | 1.000 |
+
+### 结论：这不是"措辞敏感"，而是"只认关键词"
+
+最有信息量的观察是 **colloquial 与 indirect 的结果逐条完全相同**——28 条失败任务
+是同一批，120/120 条首个工具调用一致。两种语域差异极大的说法产生了字节级相同的
+路由，说明 `RulePolicy` 并不理解语言，它只在做单 token 查表：关键词在就对，不在就错，
+换成哪种说法都一样。
+
+逐条对应到 `harness.py:146-165`：
+
+- **return 全线崩溃**：`is_return` 只匹配 `("退货","退款","return")`。"能退吗"、"我想退"、
+  "不想要了" 一个都不命中 → `is_order` 接管 → 调用 `get_order` 而非
+  `check_return_eligibility`。
+- **policy 掉 8 条**：`物流` 命中 `is_order` 分支，索要订单号后无人应答，全程零工具调用；
+  `退款` 掉到兜底 `search_catalog`。
+- **policy 存活的 12 条靠巧合**：`退换货`、`保修`、`发票` 之所以还能路由，是因为这三个
+  **政策名本身**恰好出现在第 162 行那张为别的目的准备的关键词表里（`退换货` 含 `换货`）。
+  换一个政策名就会失效。
+
+因此 harness 里 Rule Policy 的高分应被解释为**确定性规则系统在与其共用关键词模板的
+任务生成器上的表现**，即环境与评分器的自检基线，而非 Agent 泛化能力。
+
+一个正面结果：`policy_compliance` 在三种说法下均为 1.000，safety 类 20/20 全部保持
+正确转人工——**护栏没有随措辞退化**，失效的是意图路由，不是安全约束。
+
 ## 原 28 题回归
 
 NSCC 复建索引结果为 Recall@1=0.889、Recall@5=1.000、MRR=0.963。

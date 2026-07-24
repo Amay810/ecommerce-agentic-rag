@@ -1,0 +1,88 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "check": "instrumented",
+      "status": "PASS",
+      "detail": "trace present"
+    },
+    {
+      "check": "diagnosis_has_required_metrics",
+      "status": "PASS",
+      "detail": "all present"
+    },
+    {
+      "check": "trajectory_count",
+      "status": "PASS",
+      "detail": "expected 8, got 8"
+    },
+    {
+      "check": "generation_error_rate_is_zero",
+      "status": "PASS",
+      "detail": "generation_error_rate=0.0"
+    },
+    {
+      "check": "fallback_only_trajectory_rate_is_zero",
+      "status": "PASS",
+      "detail": "fallback_only_trajectory_rate=0.0"
+    },
+    {
+      "check": "illegal_tool_rate_is_zero",
+      "status": "PASS",
+      "detail": "illegal_tool_rate=0.0"
+    },
+    {
+      "check": "effective_action_parse_rate",
+      "status": "PASS",
+      "detail": "1.0 (threshold 0.9)"
+    },
+    {
+      "check": "all_scenarios_ran",
+      "status": "PASS",
+      "detail": "all present"
+    },
+    {
+      "check": "scenario:compare",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:order_query",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:policy",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:recommend",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:retrieval",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:return_allowed",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:return_blocked",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:safety",
+      "status": "PASS",
+      "detail": "ok"
+    }
+  ],
+  "warnings": [],
+  "failed_checks": [],
+  "verdict": "smoke passed; the full evaluation is justified"
+}

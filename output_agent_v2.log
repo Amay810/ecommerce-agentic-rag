@@ -1,0 +1,82 @@
+Local agent model OK
+=== LLMPolicy dev: 60 tasks x 3 ===
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:   1%|          | 1/199 [00:00<00:23,  8.46it/s]Loading weights:  11%|█         | 22/199 [00:00<00:01, 102.26it/s]Loading weights:  17%|█▋        | 34/199 [00:00<00:01, 98.95it/s] Loading weights:  34%|███▍      | 68/199 [00:00<00:00, 179.97it/s]Loading weights:  81%|████████  | 161/199 [00:00<00:00, 420.52it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 282.79it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<04:27,  1.48it/s]Loading weights:   1%|▏         | 5/398 [00:00<00:50,  7.83it/s]Loading weights:   4%|▎         | 14/398 [00:00<00:17, 22.07it/s]Loading weights:   6%|▌         | 22/398 [00:01<00:11, 33.43it/s]Loading weights:   7%|▋         | 28/398 [00:01<00:14, 25.12it/s]Loading weights:   9%|▉         | 37/398 [00:01<00:10, 33.93it/s]Loading weights:  12%|█▏        | 46/398 [00:01<00:08, 41.05it/s]Loading weights:  13%|█▎        | 53/398 [00:01<00:07, 45.14it/s]Loading weights:  15%|█▍        | 59/398 [00:01<00:07, 46.60it/s]Loading weights:  17%|█▋        | 69/398 [00:02<00:06, 53.77it/s]Loading weights:  19%|█▉        | 75/398 [00:02<00:06, 53.18it/s]Loading weights:  20%|██        | 81/398 [00:02<00:06, 52.65it/s]Loading weights:  23%|██▎       | 91/398 [00:02<00:05, 58.67it/s]Loading weights:  25%|██▍       | 98/398 [00:02<00:05, 59.30it/s]Loading weights:  26%|██▋       | 105/398 [00:02<00:06, 48.27it/s]Loading weights:  28%|██▊       | 113/398 [00:02<00:06, 46.85it/s]Loading weights:  30%|██▉       | 118/398 [00:03<00:06, 44.97it/s]Loading weights:  31%|███▏      | 125/398 [00:03<00:05, 47.08it/s]Loading weights:  34%|███▍      | 135/398 [00:03<00:04, 53.66it/s]Loading weights:  35%|███▌      | 141/398 [00:03<00:04, 53.34it/s]Loading weights:  37%|███▋      | 147/398 [00:03<00:04, 52.94it/s]Loading weights:  39%|███▉      | 157/398 [00:03<00:04, 58.43it/s]Loading weights:  41%|████      | 163/398 [00:03<00:04, 55.03it/s]Loading weights:  42%|████▏     | 169/398 [00:04<00:06, 36.70it/s]Loading weights:  45%|████▍     | 179/398 [00:04<00:04, 44.30it/s]Loading weights:  46%|████▋     | 185/398 [00:04<00:05, 41.19it/s]Loading weights:  48%|████▊     | 192/398 [00:04<00:04, 43.17it/s]Loading weights:  51%|█████     | 201/398 [00:04<00:03, 50.57it/s]Loading weights:  52%|█████▏    | 207/398 [00:04<00:04, 47.39it/s]Loading weights:  54%|█████▎    | 213/398 [00:05<00:03, 48.26it/s]Loading weights:  56%|█████▌    | 223/398 [00:05<00:03, 55.26it/s]Loading weights:  58%|█████▊    | 229/398 [00:05<00:03, 53.57it/s]Loading weights:  59%|█████▉    | 235/398 [00:05<00:03, 52.84it/s]Loading weights:  62%|██████▏   | 245/398 [00:05<00:02, 58.13it/s]Loading weights:  63%|██████▎   | 251/398 [00:05<00:02, 56.33it/s]Loading weights:  65%|██████▍   | 257/398 [00:05<00:02, 49.00it/s]Loading weights:  66%|██████▋   | 264/398 [00:05<00:02, 53.28it/s]Loading weights:  68%|██████▊   | 270/398 [00:06<00:02, 42.87it/s]Loading weights:  70%|███████   | 279/398 [00:06<00:02, 48.85it/s]Loading weights:  73%|███████▎  | 289/398 [00:06<00:01, 55.29it/s]Loading weights:  74%|███████▍  | 295/398 [00:06<00:01, 54.36it/s]Loading weights:  76%|███████▌  | 301/398 [00:06<00:02, 48.04it/s]Loading weights:  77%|███████▋  | 308/398 [00:06<00:01, 52.36it/s]Loading weights:  79%|███████▉  | 314/398 [00:06<00:01, 48.77it/s]Loading weights:  81%|████████  | 323/398 [00:07<00:01, 53.55it/s]Loading weights:  84%|████████▎ | 333/398 [00:07<00:01, 58.88it/s]Loading weights:  85%|████████▌ | 339/398 [00:07<00:01, 57.02it/s]Loading weights:  87%|████████▋ | 345/398 [00:07<00:01, 49.54it/s]Loading weights:  88%|████████▊ | 352/398 [00:07<00:00, 53.54it/s]Loading weights:  90%|████████▉ | 358/398 [00:07<00:01, 39.71it/s]Loading weights:  91%|█████████▏| 364/398 [00:08<00:00, 41.16it/s]Loading weights:  93%|█████████▎| 372/398 [00:08<00:00, 46.00it/s]Loading weights:  95%|█████████▍| 378/398 [00:08<00:00, 45.11it/s]Loading weights:  96%|█████████▋| 384/398 [00:08<00:00, 42.35it/s]Loading weights:  98%|█████████▊| 389/398 [00:08<00:00, 27.96it/s]Loading weights:  99%|█████████▊| 393/398 [00:08<00:00, 29.50it/s]Loading weights: 100%|█████████▉| 397/398 [00:09<00:00, 31.48it/s]Loading weights: 100%|██████████| 398/398 [00:09<00:00, 44.06it/s]
+Building prefix dict from the default dictionary ...
+Dumping model to file cache /var/tmp/pbs.14987888.pbs101/jieba.cache
+Loading model cost 0.500 seconds.
+Prefix dict has been built successfully.
+{
+  "trajectories": 180,
+  "tasks": 60,
+  "repeats": 3,
+  "task_success": 0.9333333333333333,
+  "policy_compliance": 1.0,
+  "tool_call_f1": 0.9166666666666662,
+  "handoff_precision": 1.0,
+  "handoff_recall": 1.0,
+  "average_turns": 3.066666666666667,
+  "average_latency_ms": 8006.3344499490795,
+  "average_reward": 7.159999999999989,
+  "pass@1": 0.9333333333333333,
+  "pass^3": 0.9333333333333333,
+  "failure_taxonomy": {
+    "retrieval": 12
+  },
+  "leakage_checked_rate": 1.0,
+  "terminal_state_accuracy": 1.0
+}
+=== LLMPolicy locked: 60 tasks x 3 ===
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 9110.49it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<02:15,  2.92it/s]Loading weights:   4%|▎         | 14/398 [00:00<00:10, 37.79it/s]Loading weights:   7%|▋         | 26/398 [00:00<00:06, 57.23it/s]Loading weights:  10%|▉         | 38/398 [00:00<00:05, 70.02it/s]Loading weights:  13%|█▎        | 52/398 [00:00<00:03, 88.50it/s]Loading weights:  16%|█▌        | 64/398 [00:00<00:03, 94.85it/s]Loading weights:  19%|█▉        | 76/398 [00:01<00:03, 99.28it/s]Loading weights:  22%|██▏       | 89/398 [00:01<00:02, 107.29it/s]Loading weights:  26%|██▌       | 102/398 [00:01<00:02, 106.73it/s]Loading weights:  29%|██▊       | 114/398 [00:01<00:02, 103.74it/s]Loading weights:  32%|███▏      | 126/398 [00:01<00:02, 101.87it/s]Loading weights:  35%|███▌      | 140/398 [00:01<00:02, 111.71it/s]Loading weights:  38%|███▊      | 152/398 [00:01<00:02, 108.39it/s]Loading weights:  42%|████▏     | 166/398 [00:01<00:01, 116.53it/s]Loading weights:  45%|████▍     | 179/398 [00:01<00:01, 112.97it/s]Loading weights:  48%|████▊     | 191/398 [00:02<00:01, 108.04it/s]Loading weights:  51%|█████     | 203/398 [00:02<00:01, 104.84it/s]Loading weights:  55%|█████▍    | 217/398 [00:02<00:01, 113.62it/s]Loading weights:  58%|█████▊    | 229/398 [00:02<00:01, 112.61it/s]Loading weights:  61%|██████    | 242/398 [00:02<00:01, 114.50it/s]Loading weights:  64%|██████▍   | 254/398 [00:02<00:01, 115.50it/s]Loading weights:  67%|██████▋   | 267/398 [00:02<00:01, 112.33it/s]Loading weights:  70%|███████   | 279/398 [00:02<00:01, 107.66it/s]Loading weights:  73%|███████▎  | 291/398 [00:02<00:01, 104.56it/s]Loading weights:  77%|███████▋  | 305/398 [00:03<00:00, 113.79it/s]Loading weights:  80%|███████▉  | 317/398 [00:03<00:00, 113.03it/s]Loading weights:  83%|████████▎ | 329/398 [00:03<00:00, 112.14it/s]Loading weights:  86%|████████▌ | 342/398 [00:03<00:00, 116.63it/s]Loading weights:  89%|████████▉ | 355/398 [00:03<00:00, 113.10it/s]Loading weights:  92%|█████████▏| 367/398 [00:03<00:00, 108.23it/s]Loading weights:  95%|█████████▌| 379/398 [00:03<00:00, 104.90it/s]Loading weights:  99%|█████████▊| 393/398 [00:03<00:00, 114.22it/s]Loading weights: 100%|██████████| 398/398 [00:03<00:00, 102.19it/s]
+Building prefix dict from the default dictionary ...
+Loading model from cache /var/tmp/pbs.14987888.pbs101/jieba.cache
+Loading model cost 0.541 seconds.
+Prefix dict has been built successfully.
+{
+  "trajectories": 180,
+  "tasks": 60,
+  "repeats": 3,
+  "task_success": 0.95,
+  "policy_compliance": 1.0,
+  "tool_call_f1": 0.9333333333333329,
+  "handoff_precision": 1.0,
+  "handoff_recall": 1.0,
+  "average_turns": 3.0,
+  "average_latency_ms": 8581.232501523724,
+  "average_reward": 7.299999999999988,
+  "pass@1": 0.95,
+  "pass^3": 0.95,
+  "failure_taxonomy": {
+    "retrieval": 9
+  },
+  "leakage_checked_rate": 1.0,
+  "terminal_state_accuracy": 1.0
+}
+{"exported": 40, "output": "docs/trajectory_audit_40.csv"}
+{"pairs": 0, "output": "logs/action_preferences.jsonl"}
+{
+  "eligible": false,
+  "checks": {
+    "hidden_tasks_at_least_120": true,
+    "policy_input_isolated": true,
+    "deterministic_graders": true,
+    "real_llm_trajectories_at_least_360": true,
+    "human_audit_at_least_40": false,
+    "human_reward_agreement_at_least_90pct": false,
+    "preference_pairs_at_least_200": false,
+    "base_llm_success_below_95pct": true
+  },
+  "task_count": 120,
+  "all_trajectory_count": 360,
+  "real_llm_trajectory_count": 360,
+  "base_llm_success": 0.9416666666666667,
+  "preference_pairs": 0,
+  "human_audit_rows": 40,
+  "human_audit_reviewed": 0,
+  "human_audit_malformed_rows": 0,
+  "human_audit_status": "not_started",
+  "human_reward_agreement": null,
+  "decision": "stop at RL-ready harness; do not claim Agent RL"
+}
+=== 360-trajectory LLMPolicy job complete; human audit is still required ===

@@ -21,7 +21,13 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from .domain import AgentAction, AgentObservation
-from .tool_schema import ToolArgumentError, prompt_block, validate_arguments
+from .tool_schema import (
+    IDENTITY_TOOLS,
+    ToolArgumentError,
+    has_valid_verification_code,
+    prompt_block,
+    validate_arguments,
+)
 
 SYSTEM_PROMPT = """You are a retail support next-action policy.
 
@@ -55,8 +61,10 @@ Available tools:
 Rules:
 - Use only a listed tool, with exactly its declared arguments and types.
 - Never call an order tool until the user has given you a six-digit verification
-  code in this conversation. Ask with final_answer first; an empty or invented
-  code is refused before the tool runs.
+  code in this conversation. If you do not have it, do not call the tool with an
+  empty or invented code — return final_answer with requires_user_response=true
+  and ask for it. Only once the user has replied with the digits may you call the
+  tool.
 - Never invent tool results, identity data, or policy facts.
 - After a successful read tool, answer from its result.
 - On identity or ownership failure, hand off with a reason.
@@ -357,6 +365,16 @@ class LLMPolicy:
                 raise ActionParseError("bad_tool_name_type", f"tool_name must be a string, got {type(tool_name).__name__}")
             if tool_name not in allowed_tools:
                 raise ActionParseError("unknown_tool", f"tool not offered: {tool_name!r}")
+            # Checked before anything else about this call, because there is only
+            # one retry: reporting the flag or the pattern first spends it on a
+            # symptom, and the model then "fixes" exactly what was reported while
+            # the empty code — the real problem — survives into the second attempt.
+            if tool_name in IDENTITY_TOOLS and not has_valid_verification_code(arguments):
+                raise ActionParseError(
+                    "missing_verification_code",
+                    "The user has not supplied a six-digit verification code. "
+                    "Do not call the tool. Return final_answer with "
+                    "requires_user_response=true and ask the user for it.")
             # A tool_call is executed on the spot, so the harness never sees this
             # flag. A policy that means "ask the user" has to say final_answer, or
             # the tool runs with whatever placeholder it left in the arguments.

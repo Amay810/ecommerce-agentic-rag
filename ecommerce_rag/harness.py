@@ -154,6 +154,32 @@ class RulePolicy:
         return AgentAction.tool_call("search_catalog", query=observation.current_message or text, top_k=5)
 
 
+#: Unambiguous ways to ask for the six-digit code. A bare "code" or a bare
+#: "六位" is deliberately excluded: the simulator holds a real secret, and
+#: "product code" or "discount code" must never make it disclose one.
+_CODE_PHRASES = ("验证码", "验证代码", "校验码",
+                 "verification code", "six-digit code", "6-digit code",
+                 "six digit code", "6 digit code")
+#: A bare "六位" is not enough.  Keep the qualifier adjacent so phrases such
+#: as "六位优惠码" or "六位客服需要商品码" cannot disclose the simulator's
+#: verification secret.
+_SIX_DIGIT_CODE = re.compile(r"六位(?:的)?(?:验证|校验)?(?:代码|数字|码)")
+
+
+def _asks_for_verification_code(text: str) -> bool:
+    """Whether an utterance is asking the user for their verification code.
+
+    Matching the literal substring "验证码" was too brittle: a model asking for
+    the "六位验证代码" — natural Chinese — contains no such substring, so the
+    simulator stayed silent and the conversation died with the model having done
+    exactly the right thing.
+    """
+    lowered = text.lower()
+    if any(phrase in lowered for phrase in _CODE_PHRASES):
+        return True
+    return _SIX_DIGIT_CODE.search(text) is not None
+
+
 class UserSimulator:
     """Deterministic hidden user state; only its utterances reach the policy."""
 
@@ -165,7 +191,7 @@ class UserSimulator:
         self.turn += 1
         request = action.content.lower()
         behavior = self.task.metadata.get("user_behavior", {})
-        if "验证码" in request or "verification" in request:
+        if _asks_for_verification_code(action.content):
             if behavior.get("disclose_verification", True) is False:
                 return "我不愿提供验证码，请转人工。"
             return str(behavior.get("verification_code", self.task.metadata.get("verification_code", "000000")))

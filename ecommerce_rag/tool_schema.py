@@ -118,6 +118,21 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
 
 SCHEMA_BY_NAME: dict[str, dict[str, Any]] = {schema["name"]: schema for schema in TOOL_SCHEMAS}
 
+#: Tools that cannot run without the user's code, derived from the contract so
+#: the set cannot drift from it. ``tools.IDENTITY_GUARDED_TOOLS`` is asserted
+#: equal to this in tests.
+IDENTITY_TOOLS: frozenset[str] = frozenset(
+    name for name, schema in SCHEMA_BY_NAME.items()
+    if "verification_code" in schema["parameters"]["properties"]
+)
+
+VERIFICATION_CODE_PATTERN = r"[0-9]{6}"
+
+
+def has_valid_verification_code(arguments: dict[str, Any]) -> bool:
+    code = arguments.get("verification_code")
+    return isinstance(code, str) and re.fullmatch(VERIFICATION_CODE_PATTERN, code) is not None
+
 _PYTHON_TYPES: dict[str, tuple[type, ...]] = {
     "string": (str,),
     "integer": (int,),

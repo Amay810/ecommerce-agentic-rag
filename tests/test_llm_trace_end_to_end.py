@@ -149,6 +149,39 @@ class LLMTraceEndToEndTests(unittest.TestCase):
         self.assertEqual(tools.guardrails[0]["tool"], "get_order")
         self.assertTrue(tools.guardrails[0]["blocked"])
 
+    def test_round_two_failure_path_now_completes(self):
+        """Replay the live round-2 shape end to end, through to a successful tool call.
+
+        Round 2: the model called the tool with an empty code, the first feedback
+        named the flag instead of the missing code, the model flipped the flag and
+        re-sent the same empty code, and the turn fell back to a handoff.
+        """
+        empty_call = ('{"action_type":"tool_call","tool_name":"get_order","arguments":'
+                      f'{{"order_id":"{self.order["order_id"]}","user_id":"{self.order["user_id"]}",'
+                      '"verification_code":""},"content":"","requires_user_response":true}')
+        ask = ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
+               '"content":"为了查看您的订单状态，我需要您的六位验证代码。","requires_user_response":true}')
+        real_call = ('{"action_type":"tool_call","tool_name":"get_order","arguments":'
+                     f'{{"order_id":"{self.order["order_id"]}","user_id":"{self.order["user_id"]}",'
+                     f'"verification_code":"{self.code}"}},"content":"","requires_user_response":false}}')
+        done = ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
+                '"content":"您的订单状态已查询。","requires_user_response":false}')
+
+        policy = LLMPolicy(_scripted(empty_call, ask, real_call, done))
+        trajectory, result = HarnessRunner(self.db, None, policy).run(self._task())
+
+        # 1. the first feedback named the missing code, not the flag
+        first = trajectory.model_calls[0]["llm"]["attempts"]
+        self.assertEqual(first[0]["parse_stage"], "missing_verification_code")
+        # 2. the retry produced a question rather than another tool call
+        self.assertEqual(trajectory.model_calls[0]["action"]["action_type"], "final_answer")
+        # 3. the simulator understood "六位验证代码" and answered with the digits
+        self.assertEqual(trajectory.user_simulator_spans[0]["response"], self.code)
+        # 4. the tool then ran for real and the task succeeded
+        self.assertEqual([c.name for c in trajectory.tool_calls], ["get_order"])
+        self.assertTrue(trajectory.tool_calls[0].result.get("ok"))
+        self.assertTrue(result.success)
+
     def test_guard_does_not_coerce_the_verification_code(self):
         from ecommerce_rag.tools import RetailTools
 

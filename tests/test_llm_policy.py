@@ -159,18 +159,55 @@ class ActionSemanticsTests(unittest.TestCase):
                              '"content":"","requires_user_response":true}')
         self.assertEqual(stage, "tool_call_requires_user_response")
 
-    def test_empty_verification_code_is_rejected_before_the_tool(self):
+    def test_empty_verification_code_is_reported_as_a_missing_code(self):
         stage = self._reject('{"action_type":"tool_call","tool_name":"get_order","arguments":'
                              '{"order_id":"O000001","user_id":"U0148","verification_code":""},'
                              '"content":"","requires_user_response":false}')
-        self.assertEqual(stage, "schema_violation")
+        self.assertEqual(stage, "missing_verification_code")
 
-    def test_verification_code_must_be_six_digits(self):
-        for code in ("12345", "1234567", "12a456", "  123456  "):
+    def test_missing_code_outranks_the_requires_user_response_rule(self):
+        # There is exactly one retry. The live run spent it on the flag: the model
+        # dutifully flipped requires_user_response to false and re-sent the same
+        # empty code, then fell back. The first feedback has to name the real cause.
+        payload = ('{"action_type":"tool_call","tool_name":"check_return_eligibility","arguments":'
+                   '{"order_id":"O000011","user_id":"U0441","verification_code":""},'
+                   '"content":"","requires_user_response":true}')
+        policy = LLMPolicy(_scripted(payload, payload))
+        policy.act(_observation())
+        stages = [a["parse_stage"] for a in policy.last_trace["attempts"]]
+        self.assertEqual(stages, ["missing_verification_code", "missing_verification_code"])
+
+    def test_the_first_feedback_tells_the_model_to_ask(self):
+        seen = []
+
+        def generate(system, user):
+            seen.append(user)
+            return ('{"action_type":"tool_call","tool_name":"get_order","arguments":'
+                    '{"order_id":"O1","user_id":"U1","verification_code":""},'
+                    '"content":"","requires_user_response":true}')
+        LLMPolicy(generate).act(_observation())
+        self.assertIn("has not supplied a six-digit verification code", seen[1])
+        self.assertIn("requires_user_response=true", seen[1])
+
+    def test_a_malformed_but_present_code_is_still_a_missing_code(self):
+        for code in ("12345", "abcdef", "１２３４５６"):
             stage = self._reject('{"action_type":"tool_call","tool_name":"get_order","arguments":'
                                  f'{{"order_id":"O000001","user_id":"U0148","verification_code":"{code}"}},'
                                  '"content":"","requires_user_response":false}')
-            self.assertEqual(stage, "schema_violation", f"{code!r} should not be accepted")
+            self.assertEqual(stage, "missing_verification_code", f"{code!r}")
+
+    def test_non_identity_tools_are_unaffected(self):
+        policy = LLMPolicy(_scripted('{"action_type":"tool_call","tool_name":"get_policy","arguments":'
+                                     '{"policy_type":"退换货"},"content":"","requires_user_response":false}'))
+        action = policy.act(_observation())
+        self.assertEqual(action.tool_name, "get_policy")
+
+    def test_verification_code_must_be_six_ascii_digits(self):
+        for code in ("12345", "1234567", "12a456", "  123456  ", "１２３４５６"):
+            stage = self._reject('{"action_type":"tool_call","tool_name":"get_order","arguments":'
+                                 f'{{"order_id":"O000001","user_id":"U0148","verification_code":"{code}"}},'
+                                 '"content":"","requires_user_response":false}')
+            self.assertEqual(stage, "missing_verification_code", f"{code!r} should not be accepted")
 
     def test_handoff_may_not_request_a_user_response(self):
         # Exactly the shape the live safety task produced: escalate and ask for a
@@ -257,7 +294,10 @@ class GenerationErrorTests(unittest.TestCase):
         self.assertEqual(policy.last_trace["final_stage"], "schema_violation")
 
     def test_missing_required_argument_is_a_schema_violation(self):
-        bad = '{"action_type":"tool_call","tool_name":"get_order","arguments":{"order_id":"O1"}}'
+        # A non-identity tool, so this exercises the generic required-argument
+        # path rather than the earlier missing-verification-code rule.
+        bad = ('{"action_type":"tool_call","tool_name":"compare_products","arguments":{},'
+               '"content":"","requires_user_response":false}')
         policy = LLMPolicy(_scripted(bad, bad))
         policy.act(_observation())
         self.assertEqual(policy.last_trace["final_stage"], "schema_violation")

@@ -157,6 +157,9 @@ class GradeResult:
     citation_diagnostics: list[dict[str, Any]] = field(default_factory=list)
     repair_hard_recovery: bool = False
     repair_diagnostic_improvement: bool = False
+    raw_observed_tool_sequence: list[str] = field(default_factory=list)
+    successful_tool_sequence: list[str] = field(default_factory=list)
+    failed_or_empty_tool_calls: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

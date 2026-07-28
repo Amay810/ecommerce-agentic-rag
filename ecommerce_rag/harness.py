@@ -286,6 +286,19 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
         for name in expected
     )
     sequence_match, sequence_failure = _sequence_match(task.expected_tool_sequence, trajectory.tool_calls)
+    successful_sequence = [call.name for call in trajectory.tool_calls if call.result.get("ok", False)]
+    failed_or_empty_calls: list[dict[str, Any]] = []
+    for call in trajectory.tool_calls:
+        result = call.result or {}
+        empty_keys = [key for key in ("items", "policies", "products")
+                      if key in result and not result.get(key)]
+        if not result.get("ok", False) or empty_keys:
+            failed_or_empty_calls.append({
+                "call_id": call.call_id, "tool_name": call.name,
+                "status": "failed" if not result.get("ok", False) else "empty_result",
+                "error": result.get("error"), "empty_fields": empty_keys,
+                "arguments": copy.deepcopy(call.arguments),
+            })
     # A guardrail can preserve terminal state while the policy still makes an
     # impermissible decision. Keep those two facts separate.
     compliant = not forbidden_tool_attempt
@@ -348,6 +361,9 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
         citation_diagnostics=answer_grade["citation_diagnostics"],
         repair_hard_recovery=any(span.get("hard_recovery") for span in trajectory.repair_spans),
         repair_diagnostic_improvement=any(span.get("diagnostic_improvement") for span in trajectory.repair_spans),
+        raw_observed_tool_sequence=names,
+        successful_tool_sequence=successful_sequence,
+        failed_or_empty_tool_calls=failed_or_empty_calls,
     )
 
 

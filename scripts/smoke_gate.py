@@ -90,7 +90,13 @@ def evaluate(manifest: dict, report: dict, diagnosis: dict, min_parse_rate: floa
         if scenarios[scenario].get("handoff_expected") and not row.get("handoff_observed"):
             problems.append("expected a handoff, none observed")
         if scenarios[scenario].get("expected_tool_sequence") and row.get("tool_sequence_match") is not True:
-            problems.append(f"tool sequence mismatch: {scenarios[scenario]['expected_tool_sequence']}")
+            problems.append(
+                "tool sequence mismatch: "
+                f"expected={scenarios[scenario]['expected_tool_sequence']}; "
+                f"raw_observed={row.get('raw_observed_tool_sequence')}; "
+                f"successful={row.get('successful_tool_sequence')}; "
+                f"failed_or_empty={row.get('failed_or_empty_tool_calls')}"
+            )
         checks.append(_check(f"scenario:{scenario}", not problems, "; ".join(problems) or "ok"))
 
     strict = quality.get("strict_envelope_parse_rate")

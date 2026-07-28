@@ -2,6 +2,7 @@
 """The gate decides whether to spend a full cluster run; it must not be lenient."""
 
 import unittest
+import copy
 
 from scripts.smoke_gate import evaluate
 
@@ -93,6 +94,19 @@ class SmokeGateTests(unittest.TestCase):
     def test_missing_scenario_is_reported(self):
         result = _run(report={"details": [_details()["details"][0]]})
         self.assertIn("all_scenarios_ran", result["failed_checks"])
+
+    def test_sequence_failure_reports_expected_raw_successful_and_empty_calls(self):
+        manifest = copy.deepcopy(MANIFEST)
+        manifest["scenarios"]["order_query"]["expected_tool_sequence"] = ["search_catalog", "get_product"]
+        report = _details(t_order={
+            "success": False, "failure_type": "missing-required-tool", "tool_sequence_match": False,
+            "raw_observed_tool_sequence": ["search_catalog"], "successful_tool_sequence": ["search_catalog"],
+            "failed_or_empty_tool_calls": [{"tool_name": "search_catalog", "status": "empty_result"}],
+        })
+        result = evaluate(manifest, report, _diagnosis(), 0.9)
+        row = next(check for check in result["checks"] if check["check"] == "scenario:order_query")
+        for marker in ("expected=", "raw_observed=", "successful=", "failed_or_empty="):
+            self.assertIn(marker, row["detail"])
 
 class MissingMetricTests(unittest.TestCase):
     """A gate that exists to fail closed must not pass when it cannot see a metric.

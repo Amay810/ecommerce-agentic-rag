@@ -189,7 +189,7 @@ class HybridRetriever:
             chunk = dict(self.by_id[cid])
             if source_type and chunk.get("source_type") != source_type:
                 continue
-            if category and category not in chunk.get("category", ""):
+            if category and category.casefold() not in str(chunk.get("category", "")).casefold():
                 continue
             # Evaluation and tools operate on parent products/policies. Returning
             # five sibling chunks from one product would make Recall@5 misleading.

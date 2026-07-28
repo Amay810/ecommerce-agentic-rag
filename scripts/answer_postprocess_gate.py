@@ -28,6 +28,8 @@ def main() -> None:
     parser.add_argument("--mode", choices=("shadow", "terminal_grounded"), required=True)
     parser.add_argument("--expected-count", type=int, default=80)
     parser.add_argument("--task-manifest", type=Path)
+    parser.add_argument("--run-report", type=Path)
+    parser.add_argument("--reference-run-report", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     base = base_rows(args.base_store)
@@ -61,6 +63,10 @@ def main() -> None:
         base_handoff = any(action.get("action_type") == "handoff" for action in trajectory.get("actions") or [])
         if base_handoff and (row.get("eligible") or row.get("final_answer") != trajectory.get("final_answer")):
             mismatches.append({"task_id": row["task_id"], "field": "base_handoff_pass_through"})
+        if not row.get("eligible") and row.get("final_answer") != trajectory.get("final_answer"):
+            mismatches.append({"task_id": row["task_id"], "field": "ineligible_answer_pass_through"})
+        if row.get("eligible") and row.get("ineligible_reason") is not None:
+            mismatches.append({"task_id": row["task_id"], "field": "eligible_with_ineligible_reason"})
         if args.mode == "shadow" and row.get("final_answer") != trajectory.get("final_answer"):
             mismatches.append({"task_id": row["task_id"], "field": "shadow_changed_answer"})
         if row.get("error") or row.get("truncated"):
@@ -69,6 +75,28 @@ def main() -> None:
             mismatches.append({"task_id": row["task_id"], "field": "missing_generation_config_hash"})
     checks.append({"name": "action_and_terminal_immutability", "passed": not mismatches,
                    "detail": mismatches})
+    if args.run_report:
+        run_report = json.loads(args.run_report.read_text(encoding="utf-8"))
+        report_failures = []
+        if run_report.get("mode") != args.mode:
+            report_failures.append("mode")
+        if run_report.get("verifier_role") != "diagnostic_only":
+            report_failures.append("verifier_role")
+        if run_report.get("verifier_gate_applied") is not False:
+            report_failures.append("verifier_gate_applied")
+        expected_generation_hash = run_report.get("generation_config_hash")
+        sidecar_hashes = {row.get("generation_config_hash") for row in sidecar if row.get("eligible")}
+        if args.mode == "terminal_grounded" and sidecar_hashes != {expected_generation_hash}:
+            report_failures.append("generation_config_hash")
+        checks.append({"name": "diagnostic_only_run_contract", "passed": not report_failures,
+                       "detail": report_failures})
+        if args.reference_run_report:
+            reference = json.loads(args.reference_run_report.read_text(encoding="utf-8"))
+            stable_fields = ("generation_config_hash", "verifier_code_commit", "verifier_config_hash",
+                             "verifier_role", "verifier_gate_applied")
+            drift = [field for field in stable_fields if run_report.get(field) != reference.get(field)]
+            checks.append({"name": "frozen_smoke_to_dev_configuration", "passed": not drift,
+                           "detail": drift})
     passed = all(check["passed"] for check in checks)
     report = {"schema_version": 1, "mode": args.mode, "passed": passed, "checks": checks}
     args.output.parent.mkdir(parents=True, exist_ok=True)

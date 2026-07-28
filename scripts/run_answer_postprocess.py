@@ -17,6 +17,8 @@ from ecommerce_rag.llm_policy import LLMPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 VERIFIER_SOURCE = ROOT / "ecommerce_rag" / "claim_verifier.py"
+VERIFIER_ROLE = "diagnostic_only"
+VERIFIER_GATE_APPLIED = False
 
 
 def verifier_code_commit() -> str:
@@ -120,6 +122,8 @@ def main() -> None:
         "generation_config_hash": stable_hash(generation_config) if generation_config else None,
         "verifier_code_commit": verifier_code_commit(),
         "verifier_config_hash": verifier_config_hash(),
+        "verifier_role": VERIFIER_ROLE,
+        "verifier_gate_applied": VERIFIER_GATE_APPLIED,
         "action_mutation_allowed": False, "handoff_mutation_allowed": False,
     }
     args.output_jsonl.parent.mkdir(parents=True, exist_ok=True)

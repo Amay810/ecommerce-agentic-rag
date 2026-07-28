@@ -322,12 +322,14 @@ def test_human_summary_excludes_unclear_and_incomplete_segmentation(tmp_path: Pa
             "operational_success": "true", "human_answer_complete": "true",
             "human_handoff_appropriate": "true", "human_overall_pass": "true",
             "human_claim_segmentation_complete": "false" if index == 1 else "true",
+            "auto_optional_value": None,
         })
         claims.append({
             "claim_id": f"C{index:03d}", "answer_id": aid, "auto_fact_status": "unclassified",
             "auto_citation_status": "no_automatic_failure",
             "human_fact_status": "unclear" if index == 0 else "supported",
             "human_citation_status": "unclear" if index == 0 else "correct",
+            "auto_optional_value": None,
         })
     answers_path, claims_path, manifest_path = tmp_path / "answers.csv", tmp_path / "claims.csv", tmp_path / "manifest.json"
     _write_rows(answers_path, answers)

@@ -916,7 +916,10 @@ def _csv_json(value: Any) -> str:
 
 
 def _immutable_row_hash(row: dict, mutable_fields: set[str]) -> str:
-    fixed = {key: str(value) for key, value in row.items() if key not in mutable_fields}
+    # csv.DictWriter serializes None as an empty cell.  Hash the stable on-disk
+    # representation so an untouched template survives a write/read round trip.
+    fixed = {key: ("" if value is None else str(value)) for key, value in row.items()
+             if key not in mutable_fields}
     return hashlib.sha256(_csv_json(fixed).encode("utf-8")).hexdigest()
 
 

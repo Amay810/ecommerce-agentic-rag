@@ -5,12 +5,25 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
+import subprocess
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
 from ecommerce_rag.answer_postprocess import AnswerPostprocessor, PostprocessResult, stable_hash
+from ecommerce_rag.claim_verifier import verifier_config_hash
 from ecommerce_rag.llm_policy import LLMPolicy
+
+
+ROOT = Path(__file__).resolve().parents[1]
+VERIFIER_SOURCE = ROOT / "ecommerce_rag" / "claim_verifier.py"
+
+
+def verifier_code_commit() -> str:
+    return subprocess.check_output(
+        ["git", "log", "-1", "--format=%H", "--", str(VERIFIER_SOURCE.relative_to(ROOT))],
+        cwd=ROOT, text=True,
+    ).strip()
 
 
 def open_readonly(path: Path) -> sqlite3.Connection:
@@ -105,6 +118,8 @@ def main() -> None:
                                                      if row["ineligible_reason"]})},
         "changed_answers_eligible": ratio(sum(row["changed"] for row in eligible), len(eligible)),
         "generation_config_hash": stable_hash(generation_config) if generation_config else None,
+        "verifier_code_commit": verifier_code_commit(),
+        "verifier_config_hash": verifier_config_hash(),
         "action_mutation_allowed": False, "handoff_mutation_allowed": False,
     }
     args.output_jsonl.parent.mkdir(parents=True, exist_ok=True)

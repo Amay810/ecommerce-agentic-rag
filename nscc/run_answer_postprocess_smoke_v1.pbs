@@ -18,7 +18,8 @@ export ARAG_LOCAL_MODEL=/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507
 BASE=logs/evidence_phase_a_dev_v3_base.sqlite
 TASKS=docs/answer_postprocess_smoke_v1_manifest.json
 test -s "$BASE"
-python -c "import json; r=json.load(open('docs/verifier_challenge_test_v1_report.json')); assert r['hard_gate_admitted']"
+python -m scripts.check_verifier_admission \
+  --locked-report docs/verifier_challenge_locked_v2_report.json
 python -m scripts.run_answer_postprocess --base-store "$BASE" --mode shadow \
   --task-manifest "$TASKS" --expected-count 12 \
   --output-jsonl logs/answer_postprocess_smoke_v1_shadow.jsonl \
@@ -27,6 +28,9 @@ python -m scripts.run_answer_postprocess --base-store "$BASE" --mode terminal_gr
   --task-manifest "$TASKS" --expected-count 12 \
   --output-jsonl logs/answer_postprocess_smoke_v1_terminal_grounded.jsonl \
   --report docs/answer_postprocess_smoke_v1_terminal_grounded_report.json
+python -m scripts.check_verifier_admission \
+  --locked-report docs/verifier_challenge_locked_v2_report.json \
+  --postprocess-report docs/answer_postprocess_smoke_v1_terminal_grounded_report.json
 python -m scripts.answer_postprocess_gate --base-store "$BASE" --mode shadow \
   --task-manifest "$TASKS" --expected-count 12 \
   --sidecar logs/answer_postprocess_smoke_v1_shadow.jsonl \

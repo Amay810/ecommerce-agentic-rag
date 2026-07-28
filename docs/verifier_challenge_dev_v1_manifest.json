@@ -10,7 +10,7 @@
     "state_date": 25
   },
   "human_review_csv": {
-    "name": "verifier_challenge_test_v1.csv",
+    "name": "verifier_challenge_dev_v1.csv",
     "row_count": 150,
     "sha256": "f415c6624fcd9071cc6d4554f90e53607c47ba7e8905771234b022cf98b7be46",
     "status_counts": {
@@ -18,9 +18,11 @@
     }
   },
   "jsonl_sha256": "8f5b4e1c36c21998e42d4cecba0f98c04873223f026d527ff159057136b2b08f",
-  "name": "verifier_challenge_test_v1",
-  "reuse_policy": "single formal evaluation; changes require a new versioned challenge set",
+  "dataset_role": "development",
+  "admission_applicable": false,
+  "name": "verifier_challenge_dev_v1",
+  "reuse_policy": "development/regression only; permanently ineligible for NSCC admission",
   "row_count": 150,
-  "schema_version": 1,
+  "schema_version": 2,
   "target_error_per_family": 15
 }

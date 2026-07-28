@@ -173,17 +173,19 @@ def main() -> None:
         "selection_basis": "calibration-only coverage of compare/order/policy/product/recommend/no-answer/return/safety",
     }
     rows = challenge_rows()
-    challenge_jsonl = args.output_dir / "verifier_challenge_test_v1.jsonl"
+    challenge_jsonl = args.output_dir / "verifier_challenge_dev_v1.jsonl"
     challenge_jsonl.parent.mkdir(parents=True, exist_ok=True)
     challenge_jsonl.write_text("".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
                                encoding="utf-8")
     challenge_manifest = {
-        "schema_version": 1, "name": "verifier_challenge_test_v1", "row_count": len(rows),
+        "schema_version": 2, "name": "verifier_challenge_dev_v1",
+        "dataset_role": "development", "row_count": len(rows),
         "families": {family: sum(row["family"] == family for row in rows) for family in FAMILIES},
         "target_error_per_family": 15, "control_per_family": 10,
         "all_rows_require_user_confirmation": True,
         "jsonl_sha256": sha256(challenge_jsonl),
-        "reuse_policy": "single formal evaluation; changes require a new versioned challenge set",
+        "admission_applicable": False,
+        "reuse_policy": "development/regression only; permanently ineligible for NSCC admission",
     }
     integrity = json.loads(args.integrity.read_text(encoding="utf-8"))
     aggregate = json.loads(args.aggregate.read_text(encoding="utf-8"))
@@ -211,7 +213,7 @@ def main() -> None:
     }
     write_json(args.output_dir / "answer_postprocess_holdout_v1_manifest.json", holdout)
     write_json(args.output_dir / "answer_postprocess_smoke_v1_manifest.json", smoke)
-    write_json(args.output_dir / "verifier_challenge_test_v1_manifest.json", challenge_manifest)
+    write_json(args.output_dir / "verifier_challenge_dev_v1_manifest.json", challenge_manifest)
     write_json(args.output_dir / "evidence_phase_a_dev_v3_closeout.json", closeout)
     print(json.dumps({"holdout": len(HOLDOUT_IDS), "challenge": len(rows),
                       "provenance_complete": closeout["provenance_complete"]}))

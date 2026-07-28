@@ -8,6 +8,8 @@ frozen trajectory; ``unsupported`` means only that the ledger is insufficient.
 from __future__ import annotations
 
 import re
+import hashlib
+import json
 from dataclasses import dataclass, asdict
 from typing import Any
 
@@ -23,12 +25,33 @@ from .evidence import (
 
 FACT_STATUSES = frozenset({"supported", "contradicted", "unsupported", "not_factual", "unknown"})
 CITATION_STATUSES = frozenset({"correct", "incorrect", "missing", "not_required", "unknown"})
+VERIFIER_CONFIG_V2: dict[str, Any] = {
+    "schema_version": 2,
+    "fact_statuses": sorted(FACT_STATUSES),
+    "citation_statuses": sorted(CITATION_STATUSES),
+    "hard_failure_statuses": ["contradicted"],
+    "diagnostic_only_statuses": ["unsupported", "unknown"],
+    "high_risk_fields": [
+        "product.product_id", "product.price", "order.status", "order.delivered_at",
+        "policy.text", "return.eligible", "return.days_since_delivery",
+    ],
+    "admission_thresholds": {
+        "contradiction_precision": 0.90, "contradiction_recall": 0.90,
+        "unsupported_precision": 0.85, "unsupported_recall": 0.80,
+        "supported_hard_failure_false_positive_rate_max": 0.05,
+    },
+}
 _ENTITY = re.compile(r"\b(?:P[0-9]{5}|O[0-9]{6}|POL[0-9]{3})\b", re.I)
 _PRICE_RELATION = re.compile(
-    r"(?P<price>[0-9]+(?:\.[0-9]+)?)\s*元[^0-9]{0,8}"
-    r"(?P<relation>超过|高于|大于|不超过|低于|小于|以内)"
+    r"(?P<price>[0-9]+(?:\.[0-9]+)?)\s*元[^0-9]{0,8}?"
+    r"(?P<relation>不超过|不高于|低于|小于|以内|(?<!不)超过|(?<!不)高于|大于)"
     r"[^0-9]{0,10}(?P<budget>[0-9]+(?:\.[0-9]+)?)\s*元"
 )
+
+
+def verifier_config_hash() -> str:
+    raw = json.dumps(VERIFIER_CONFIG_V2, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True)

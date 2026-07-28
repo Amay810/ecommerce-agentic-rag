@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from ecommerce_rag.answer_postprocess import AnswerPostprocessor
-from ecommerce_rag.claim_verifier import classify_claim
+from ecommerce_rag.claim_verifier import VERIFIER_CONFIG_V2, classify_claim, verifier_config_hash
 from ecommerce_rag.llm_policy import Generation
 from scripts.prepare_verifier_calibration import HOLDOUT_IDS, SMOKE_IDS, challenge_rows
+from scripts.evaluate_verifier_challenge import atomic_write_new
 
 
 def ledger() -> list[dict]:
@@ -35,6 +36,14 @@ def test_user_budget_is_not_misread_as_product_price() -> None:
     result = classify_claim(
         "我找到一个不高于101元的产品，价格为99元。", ledger(),
         user_messages=[{"role": "user", "content": "预算不高于101元"}],
+    )
+    assert result.fact_status == "supported"
+
+
+def test_not_exceeding_budget_does_not_match_positive_exceeds_relation() -> None:
+    result = classify_claim(
+        "P00001 售价 99 元，不超过 101 元预算。[E2]", ledger(),
+        user_messages=[{"role": "user", "content": "预算不超过101元"}],
     )
     assert result.fact_status == "supported"
 
@@ -83,3 +92,26 @@ def test_challenge_shape_and_review_status() -> None:
     assert len(rows) == len({row["challenge_id"] for row in rows}) == 150
     assert all(row["human_review_status"] == "assistant_prefilled_pending_user_confirmation" for row in rows)
     assert sum(row["gold_fact_status"] == "unsupported" for row in rows) == 25
+
+
+def test_verifier_v2_config_hash_is_canonical_and_covers_admission_thresholds() -> None:
+    assert len(verifier_config_hash()) == 64
+    assert VERIFIER_CONFIG_V2["schema_version"] == 2
+    assert set(VERIFIER_CONFIG_V2["admission_thresholds"]) == {
+        "contradiction_precision", "contradiction_recall", "unsupported_precision",
+        "unsupported_recall", "supported_hard_failure_false_positive_rate_max",
+    }
+
+
+def test_atomic_challenge_report_refuses_overwrite_and_leaves_no_lock(tmp_path) -> None:
+    output = tmp_path / "locked_report.json"
+    atomic_write_new(output, b'{"complete":true}\n')
+    assert output.read_bytes() == b'{"complete":true}\n'
+    assert not (tmp_path / "locked_report.json.lock").exists()
+    try:
+        atomic_write_new(output, b'{"complete":false}\n')
+    except FileExistsError:
+        pass
+    else:
+        raise AssertionError("versioned report overwrite must fail closed")
+    assert output.read_bytes() == b'{"complete":true}\n'

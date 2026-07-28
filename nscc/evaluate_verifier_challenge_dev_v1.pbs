@@ -1,0 +1,18 @@
+#!/bin/bash
+#PBS -N verifier-dev-v1
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=4:mem=8gb
+#PBS -l walltime=00:20:00
+#PBS -j oe
+#PBS -o output_verifier_challenge_dev_v1.log
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+test -s docs/verifier_challenge_dev_v1.csv
+python -m scripts.evaluate_verifier_challenge \
+  --challenge-csv docs/verifier_challenge_dev_v1.csv \
+  --manifest docs/verifier_challenge_dev_v1_manifest.json \
+  --dataset-role development \
+  --output docs/verifier_challenge_dev_v1_report.json

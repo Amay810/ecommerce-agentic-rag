@@ -1,0 +1,26 @@
+{
+  "all_rows_require_user_confirmation": true,
+  "control_per_family": 10,
+  "families": {
+    "budget_range": 25,
+    "citation_binding": 25,
+    "entity_binding": 25,
+    "negation_polarity": 25,
+    "numeric_unit": 25,
+    "state_date": 25
+  },
+  "human_review_csv": {
+    "name": "verifier_challenge_test_v1.csv",
+    "row_count": 150,
+    "sha256": "f415c6624fcd9071cc6d4554f90e53607c47ba7e8905771234b022cf98b7be46",
+    "status_counts": {
+      "assistant_prefilled_pending_user_confirmation": 150
+    }
+  },
+  "jsonl_sha256": "8f5b4e1c36c21998e42d4cecba0f98c04873223f026d527ff159057136b2b08f",
+  "name": "verifier_challenge_test_v1",
+  "reuse_policy": "single formal evaluation; changes require a new versioned challenge set",
+  "row_count": 150,
+  "schema_version": 1,
+  "target_error_per_family": 15
+}

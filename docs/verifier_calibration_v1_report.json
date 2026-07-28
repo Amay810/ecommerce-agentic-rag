@@ -1,0 +1,38 @@
+{
+  "automatic_decision_coverage": {
+    "denominator": 589,
+    "numerator": 575,
+    "rate": 0.9762308998302207
+  },
+  "confusion_matrix": {
+    "human=contradicted|predicted=contradicted": 3,
+    "human=contradicted|predicted=supported": 3,
+    "human=not_factual|predicted=not_factual": 35,
+    "human=not_factual|predicted=supported": 4,
+    "human=not_factual|predicted=unknown": 1,
+    "human=supported|predicted=not_factual": 196,
+    "human=supported|predicted=supported": 338,
+    "human=supported|predicted=unknown": 11,
+    "human=supported|predicted=unsupported": 28,
+    "human=unclear|predicted=supported": 5,
+    "human=unsupported|predicted=not_factual": 3,
+    "human=unsupported|predicted=supported": 2,
+    "human=unsupported|predicted=unknown": 3,
+    "human=unsupported|predicted=unsupported": 2
+  },
+  "dataset": "audit_32_claims_calibration_only",
+  "effective_factual_claims": 589,
+  "row_count": 634,
+  "schema_version": 1,
+  "supported_hard_failure_false_positive_rate": {
+    "denominator": 573,
+    "numerator": 0,
+    "rate": 0.0
+  },
+  "unknown_rate": {
+    "denominator": 589,
+    "numerator": 14,
+    "rate": 0.023769100169779286
+  },
+  "warning": "Tuning-set metrics are regression diagnostics and not generalization evidence."
+}

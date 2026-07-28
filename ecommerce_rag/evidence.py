@@ -220,7 +220,8 @@ def extract_user_context(messages: list[dict[str, Any]] | None) -> dict[str, Any
     budgets: list[float] = []
     for pattern in (
         r"(?:预算|上限)[^0-9]{0,8}([0-9]+(?:\.[0-9]+)?)\s*元?",
-        r"(?:不超过|以内|最多)[^0-9]{0,8}([0-9]+(?:\.[0-9]+)?)\s*元",
+        r"(?:不超过|不高于|以内|最多)[^0-9]{0,8}([0-9]+(?:\.[0-9]+)?)\s*元",
+        r"(?:只能花|只能用|最多花)[^0-9]{0,8}([0-9]+(?:\.[0-9]+)?)\s*元",
         r"([0-9]+(?:\.[0-9]+)?)\s*元(?:以内|以下|封顶)",
     ):
         budgets.extend(float(value) for value in re.findall(pattern, joined, re.I))

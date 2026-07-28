@@ -1,0 +1,42 @@
+{
+  "aggregate_sha256": "86ff7f2250fce534d3a5807d15ab7c4fde9c4b7642a0478d0e3a6724a51239f6",
+  "calibration_sha256": "771919d30f13b12f1e7241963156c98599d70abe034fbe98327dd11bb3af7367",
+  "dpo_pairs_generated": 0,
+  "final_ready": false,
+  "fixed_findings": [
+    "evidence did not improve initial-answer hard pass (56/61 base vs 55/61 evidence)",
+    "100% accepted-answer hard pass must be reported with answer coverage and handoff rate",
+    "repair attempted 44 times and produced one hard recovery",
+    "product specification tasks require search_catalog then get_product for complete evidence",
+    "rates from the targeted 32-group review must not be extrapolated to all 80 tasks"
+  ],
+  "human_review": {
+    "answers": 96,
+    "claims": 634,
+    "task_groups": 32
+  },
+  "integrity_sha256": "a84720e8d3a813e8d5a8c4170cb7be15f7d82871c146ec5eabb82970a3c288f5",
+  "official_archive_ready": true,
+  "paired_sample_human_overall_pass": {
+    "base": {
+      "denominator": 32,
+      "numerator": 26,
+      "rate": 0.8125
+    },
+    "evidence_verify": {
+      "denominator": 32,
+      "numerator": 16,
+      "rate": 0.5
+    },
+    "evidence_verify_repair": {
+      "denominator": 32,
+      "numerator": 16,
+      "rate": 0.5
+    }
+  },
+  "provenance_complete": true,
+  "readme_claims_allowed": false,
+  "run_name": "evidence_phase_a_dev_v3",
+  "schema_version": 1,
+  "status": "negative_ablation_archived"
+}

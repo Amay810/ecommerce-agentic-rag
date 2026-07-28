@@ -993,11 +993,20 @@ def run_analysis(args: argparse.Namespace) -> dict:
             else:
                 checks.append({"name": f"{variant}:source_unchanged", "passed": True, "detail": "hash/file set unchanged"})
 
+        structural_integrity_passed = all(check["passed"] for check in checks)
+        provenance_complete = bool(args.pbs_log and args.pbs_log.exists())
         integrity = {
             "schema_version": 1,
             "run_name": RUN_NAME,
             "contract": CONTRACT,
-            "passed": all(check["passed"] for check in checks),
+            "passed": structural_integrity_passed,
+            "structural_integrity_passed": structural_integrity_passed,
+            "provenance_complete": provenance_complete,
+            "provenance_warning": (
+                None if provenance_complete else
+                "PBS log was not supplied to this local analysis. Structural results are usable for review, "
+                "but the archive is not provenance-complete until the log is hashed."
+            ),
             "checks": checks,
             "details": integrity_details,
             "provenance": provenance,
@@ -1027,6 +1036,8 @@ def run_analysis(args: argparse.Namespace) -> dict:
             ),
             "final_ready": False,
             "human_review_status": "pending",
+            "provenance_complete": provenance_complete,
+            "official_archive_ready": False,
             "dpo_pairs_generated": 0,
         }
         attribution = failure_attribution(by_variant, tasks)
@@ -1063,6 +1074,7 @@ def run_analysis(args: argparse.Namespace) -> dict:
             },
             "source_sqlite_files": source_inventory,
             "source_reports": report_records,
+            "provenance_complete": provenance_complete,
             "answer_template_sha256": _sha256(outputs["answers"]),
             "claim_template_sha256": _sha256(outputs["claims"]),
             "warning": "This paired sample calibrates the verifier. Its rates must not be extrapolated to all 80 tasks.",

@@ -255,6 +255,8 @@ def test_audit_selection_is_32_paired_groups_and_96_answers() -> None:
     assert {row["variant"] for row in answers} == set(VARIANTS)
     assert set(row["task_id"] for row in answers) == set(selected)
     assert claims
+    numeric = next(row for row in claims if row["fact_key"] == "numeric_fact")
+    assert numeric["cited_evidence_ids"] == "E1"
     assert all(tasks[task_id]["split"] != "final" for task_id in selected)
 
 

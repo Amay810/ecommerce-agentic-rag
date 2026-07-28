@@ -56,7 +56,7 @@ ANSWER_HUMAN_FIELDS = {
 CLAIM_HUMAN_FIELDS = {"human_fact_status", "human_citation_status", "review_notes"}
 _CITATION_RE = re.compile(r"\[(E\d+)\]")
 _PRODUCT_ID_RE = re.compile(r"\bP[0-9]{5}\b")
-_SENTENCE_BOUNDARY = re.compile(r"(?:\r?\n)+|(?<=[。！？；;])")
+_SENTENCE_BOUNDARY = re.compile(r"(?:\r?\n)+|[。！？；;](?:\s*\[E\d+\])*")
 
 
 class PostprocessError(RuntimeError):
@@ -848,7 +848,8 @@ def _atomic_claims(text: str) -> list[dict]:
     if tail:
         claims.extend(_claims_from_segment(tail, cursor, len(text)))
     if not claims:
-        claims.append({"claim_text": text.strip(), "source_span": f"0:{len(text)}", "fact_key": "prose"})
+        claims.append({"claim_text": text.strip(), "source_text": text.strip(),
+                       "source_span": f"0:{len(text)}", "fact_key": "prose"})
     return claims
 
 
@@ -880,10 +881,12 @@ def _claims_from_segment(segment: str, start: int, end: int) -> list[dict]:
         if key in seen:
             continue
         seen.add(key)
-        rows.append({"claim_text": value, "source_span": f"{start}:{end}", "fact_key": fact_key})
+        rows.append({"claim_text": value, "source_text": segment,
+                     "source_span": f"{start}:{end}", "fact_key": fact_key})
     # Keep the prose claim even when structured facts were extracted so reviewers can catch
     # semantic claims the deterministic splitter cannot enumerate.
-    rows.append({"claim_text": segment, "source_span": f"{start}:{end}", "fact_key": "prose"})
+    rows.append({"claim_text": segment, "source_text": segment,
+                 "source_span": f"{start}:{end}", "fact_key": "prose"})
     return rows
 
 
@@ -967,7 +970,7 @@ def build_audit_rows(
             })
             for claim in _atomic_claims(answer):
                 fact_auto, citation_auto = _auto_claim_status(claim["claim_text"], row)
-                cited = _CITATION_RE.findall(claim["claim_text"])
+                cited = _CITATION_RE.findall(claim["source_text"])
                 ledger = [item for item in row.trajectory.get("evidence_ledger") or []
                           if item.get("evidence_id") in cited]
                 claim_rows.append({
@@ -978,6 +981,7 @@ def build_audit_rows(
                     "source_span": claim["source_span"],
                     "fact_key": claim["fact_key"],
                     "claim_text": claim["claim_text"],
+                    "source_text": claim["source_text"],
                     "cited_evidence_ids": "|".join(cited),
                     "cited_evidence_json": _csv_json(ledger),
                     "auto_fact_status": fact_auto,

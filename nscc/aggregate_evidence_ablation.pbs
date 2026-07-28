@@ -1,0 +1,28 @@
+#!/bin/bash
+#PBS -N ecommerce-evidence-aggregate
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=4:mem=16gb
+#PBS -l walltime=00:30:00
+#PBS -j oe
+#PBS -o output_evidence_aggregate.log
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+
+AUDIT_ARGS=()
+OUTPUT=docs/evidence_phase_a_dev_v1_aggregate_preaudit.json
+if [ -s docs/evidence_phase_a_audit_32_prefilled.csv ]; then
+  AUDIT_ARGS=(--human-audit docs/evidence_phase_a_audit_32_prefilled.csv)
+  OUTPUT=docs/evidence_phase_a_dev_v1_aggregate_human_calibrated.json
+fi
+if [ -e "$OUTPUT" ]; then
+  echo "ERROR: $OUTPUT already exists; archive it before rerunning."
+  exit 1
+fi
+python -m scripts.aggregate_evidence_ablation \
+  --report-dir docs --run-name evidence_phase_a_dev_v1 \
+  --tasks ecommerce_rag/data/evidence_phase_a_tasks.jsonl \
+  "${AUDIT_ARGS[@]}" \
+  --output "$OUTPUT"

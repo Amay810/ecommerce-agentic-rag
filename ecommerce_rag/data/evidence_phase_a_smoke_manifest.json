@@ -1,0 +1,45 @@
+{
+  "categories": {
+    "compare": 3,
+    "order_query": 3,
+    "policy": 3,
+    "product_qa": 3,
+    "recommend": 3,
+    "recovery_no_answer": 3,
+    "return": 3,
+    "safety": 3
+  },
+  "schema_version": 1,
+  "task_count": 24,
+  "task_ids": [
+    "evidence_a_calibration_product_qa_01",
+    "evidence_a_calibration_recommend_01",
+    "evidence_a_calibration_compare_01",
+    "evidence_a_calibration_policy_01",
+    "evidence_a_calibration_order_query_01",
+    "evidence_a_calibration_return_01",
+    "evidence_a_calibration_safety_01",
+    "evidence_a_calibration_recovery_no_answer_01",
+    "evidence_a_calibration_product_qa_02",
+    "evidence_a_calibration_recommend_02",
+    "evidence_a_calibration_compare_02",
+    "evidence_a_calibration_policy_02",
+    "evidence_a_calibration_order_query_02",
+    "evidence_a_calibration_return_02",
+    "evidence_a_calibration_safety_02",
+    "evidence_a_calibration_recovery_no_answer_02",
+    "evidence_a_calibration_product_qa_03",
+    "evidence_a_calibration_recommend_03",
+    "evidence_a_calibration_compare_03",
+    "evidence_a_calibration_policy_03",
+    "evidence_a_calibration_order_query_03",
+    "evidence_a_calibration_return_03",
+    "evidence_a_calibration_safety_03",
+    "evidence_a_calibration_recovery_no_answer_03"
+  ],
+  "variants": [
+    "base",
+    "evidence_verify",
+    "evidence_verify_repair"
+  ]
+}

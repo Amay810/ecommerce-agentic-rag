@@ -7,7 +7,7 @@ import sqlite3
 from pathlib import Path
 
 
-HIDDEN_KEYS = {"category", "gold_doc_ids", "allowed_tools", "forbidden_tools", "expected_state", "initial_state", "metadata"}
+HIDDEN_KEYS = {"category", "gold_doc_ids", "allowed_tools", "forbidden_tools", "expected_state", "initial_state", "metadata", "answer_expectations"}
 
 # A human verdict is only accepted as strict "true"/"false". Anything else —
 # blank, "pending", "yes", a stray note — is not a judgement and must not be

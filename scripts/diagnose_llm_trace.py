@@ -57,39 +57,44 @@ def build_report(trajectories: list[dict[str, Any]], samples_per_stage: int = 3)
             trace = call.get("llm")
             if not trace:
                 continue
-            steps_with_llm += 1
-            resolutions[trace.get("resolution", "unknown")] += 1
-            if trace.get("generator") and trace["generator"] not in generators:
-                generators.append(trace["generator"])
-            for violation in trace.get("envelope_violations", []):
-                # keep the field list out of the key so the histogram stays readable
-                violation_counter[violation.split(":", 1)[0]] += 1
-            for attempt in trace.get("attempts", []):
-                total_generations += 1
-                if attempt.get("parse_stage") == "generation_error":
-                    # no text was produced; counting a null finish_reason here would
-                    # pollute the histogram used to spot truncation
-                    finish_reasons["<generation_error>"] += 1
-                else:
-                    finish_reasons[str(attempt.get("finish_reason"))] += 1
-                if attempt.get("truncated"):
-                    truncated += 1
-                if attempt.get("prompt_tokens") is not None:
-                    prompt_tokens.append(attempt["prompt_tokens"])
-                if attempt.get("completion_tokens") is not None:
-                    completion_tokens.append(attempt["completion_tokens"])
-                stage = attempt.get("parse_stage")
-                if stage:
-                    stages[stage] += 1
-                    if len(samples[stage]) < samples_per_stage:
-                        samples[stage].append({
-                            "trajectory_id": trajectory.get("trajectory_id"),
-                            "attempt": attempt.get("attempt"),
-                            "parse_error": attempt.get("parse_error"),
-                            "finish_reason": attempt.get("finish_reason"),
-                            "truncated": attempt.get("truncated"),
-                            "raw_output": attempt.get("raw_output"),
-                        })
+            trace_items = [("initial", trace)]
+            if isinstance(trace.get("repair_llm"), dict):
+                trace_items.append(("repair", trace["repair_llm"]))
+            for trace_phase, trace_item in trace_items:
+                steps_with_llm += 1
+                resolutions[trace_item.get("resolution", "unknown")] += 1
+                if trace_item.get("generator") and trace_item["generator"] not in generators:
+                    generators.append(trace_item["generator"])
+                for violation in trace_item.get("envelope_violations", []):
+                    # keep the field list out of the key so the histogram stays readable
+                    violation_counter[violation.split(":", 1)[0]] += 1
+                for attempt in trace_item.get("attempts", []):
+                    total_generations += 1
+                    if attempt.get("parse_stage") == "generation_error":
+                        # no text was produced; counting a null finish_reason here would
+                        # pollute the histogram used to spot truncation
+                        finish_reasons["<generation_error>"] += 1
+                    else:
+                        finish_reasons[str(attempt.get("finish_reason"))] += 1
+                    if attempt.get("truncated"):
+                        truncated += 1
+                    if attempt.get("prompt_tokens") is not None:
+                        prompt_tokens.append(attempt["prompt_tokens"])
+                    if attempt.get("completion_tokens") is not None:
+                        completion_tokens.append(attempt["completion_tokens"])
+                    stage = attempt.get("parse_stage")
+                    if stage:
+                        stages[stage] += 1
+                        if len(samples[stage]) < samples_per_stage:
+                            samples[stage].append({
+                                "trajectory_id": trajectory.get("trajectory_id"),
+                                "trace_phase": trace_phase,
+                                "attempt": attempt.get("attempt"),
+                                "parse_error": attempt.get("parse_error"),
+                                "finish_reason": attempt.get("finish_reason"),
+                                "truncated": attempt.get("truncated"),
+                                "raw_output": attempt.get("raw_output"),
+                            })
 
     # Trajectory-level quality: a run that only ever escalates on a parse failure
     # is not a model evaluation, however many rows it produced.

@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from .domain import AgentAction, AgentObservation, GradeResult, TaskSpec, Trajectory
+from .evidence import evidence_from_tool_call, verify_answer
 from .orders import connect, seed_database, snapshot
 from .tool_schema import TOOL_SCHEMAS
 from .tools import RetailTools, WRITE_TOOLS
@@ -274,10 +275,37 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
     )
     abstention_expected = bool(task.metadata.get("abstention_expected"))
     abstention_observed = any(x in trajectory.final_answer.lower() for x in ("无法", "不能", "不符合", "转人工"))
-    return GradeResult(task.task_id, success, compliant, precision, recall, f1, handoff_expected, handoff,
-                       state_ok, state_diff, len(trajectory.messages), trajectory.elapsed_ms, round(reward, 3), failure,
-                       task.split, abstention_expected, abstention_observed, bool(trajectory.retry_spans), leakage_checked,
-                       forbidden_tool_attempt, illegal_change)
+    answer_grade = verify_answer(
+        trajectory.final_answer,
+        trajectory.evidence_ledger,
+        expectations=task.answer_expectations,
+        # Citation binding is reported for every variant but does not make the
+        # citation-free base fail joint_success.
+        require_citations=True,
+    )
+    answer_ok = (not answer_grade["applicable"]) or answer_grade["answer_fact_pass"]
+    joint_success = success and answer_ok
+    return GradeResult(
+        task_id=task.task_id, success=success, policy_compliant=compliant,
+        tool_precision=precision, tool_recall=recall, tool_f1=f1,
+        handoff_expected=handoff_expected, handoff_observed=handoff,
+        terminal_state_match=state_ok, state_diff=state_diff,
+        turns=len(trajectory.messages), latency_ms=trajectory.elapsed_ms,
+        reward=round(reward, 3), failure_type=failure, split=task.split,
+        abstention_expected=abstention_expected, abstention_observed=abstention_observed,
+        recovered=bool(trajectory.retry_spans), leakage_checked=leakage_checked,
+        forbidden_tool_attempt=forbidden_tool_attempt, illegal_state_change=illegal_change,
+        answer_fact_applicable=answer_grade["applicable"],
+        answer_fact_pass=answer_grade["answer_fact_pass"] if answer_grade["applicable"] else None,
+        citation_binding_pass=answer_grade["citation_binding_pass"] if answer_grade["applicable"] else None,
+        required_evidence_coverage=answer_grade["required_evidence_coverage"],
+        unsupported_high_risk_claims=answer_grade["unsupported_high_risk_claims"],
+        contradicted_claims=answer_grade["contradicted_claims"],
+        omitted_required_facts=answer_grade["omitted_required_facts"],
+        repair_attempted=bool(trajectory.repair_spans),
+        repair_succeeded=any(span.get("passed") for span in trajectory.repair_spans),
+        joint_success=joint_success,
+    )
 
 
 class HarnessRunner:
@@ -306,9 +334,17 @@ class HarnessRunner:
         history: list[dict[str, Any]] = [{"role": "user", "content": task.user_goal}]
         messages: list[dict[str, str]] = [{"role": "user", "content": task.user_goal}]
         observations, actions, sim_spans, model_calls, retry_spans = [], [], [], [], []
+        evidence_ledger: list[dict[str, Any]] = []
+        verification_spans: list[dict[str, Any]] = []
+        repair_spans: list[dict[str, Any]] = []
         answer = ""; started = time.perf_counter()
         for step in range(self.max_steps):
-            observation = AgentObservation(history[-1].get("content", ""), {"user_id": task.user_id}, copy.deepcopy(history), copy.deepcopy(TOOL_SCHEMAS), step)
+            policy_evidence = copy.deepcopy(evidence_ledger) if getattr(self.policy, "uses_evidence", False) else []
+            observation = AgentObservation(
+                history[-1].get("content", ""), {"user_id": task.user_id},
+                copy.deepcopy(history), copy.deepcopy(TOOL_SCHEMAS), step,
+                evidence_ledger=policy_evidence,
+            )
             observations.append(asdict(observation))
             retries_before = int(getattr(self.policy, "retry_count", 0))
             action_started = time.perf_counter(); action = self.policy.act(observation)
@@ -322,11 +358,20 @@ class HarnessRunner:
             policy_trace = getattr(self.policy, "last_trace", None)
             if policy_trace:
                 call_record["llm"] = copy.deepcopy(policy_trace)
+            for span in getattr(self.policy, "last_verification_spans", []) or []:
+                verification_spans.append({"step": step, **copy.deepcopy(span)})
+            for span in getattr(self.policy, "last_repair_spans", []) or []:
+                repair_spans.append({"step": step, **copy.deepcopy(span)})
             model_calls.append(call_record)
             actions.append(asdict(action)); history.append({"role": "assistant", "content": action.content, "action": action.action_type})
             if action.action_type == "tool_call":
                 result = tools.call(action.tool_name or "", **action.arguments)
                 history.append({"role": "tool", "name": action.tool_name, "content": json.dumps(result, ensure_ascii=False), "result": result})
+                call = tools.calls[-1]
+                evidence_ledger.extend(evidence_from_tool_call(
+                    call.name, call.arguments, call.result, call.call_id,
+                    start_index=len(evidence_ledger) + 1,
+                ))
                 continue
             if action.action_type == "handoff":
                 # Identity is injected by the harness and must win: a policy that
@@ -353,7 +398,8 @@ class HarnessRunner:
             messages=messages, retrievals=retrievals, model_calls=model_calls, tool_calls=copy.deepcopy(tools.calls),
             guardrail_spans=copy.deepcopy(tools.guardrails), handoff_spans=[asdict(c) for c in tools.calls if c.name == "escalate_to_human"],
             final_answer=answer, final_state=after, elapsed_ms=elapsed, observations=observations, actions=actions,
-            user_simulator_spans=sim_spans, retry_spans=retry_spans, policy_name=type(self.policy).__name__)
+            user_simulator_spans=sim_spans, retry_spans=retry_spans, policy_name=type(self.policy).__name__,
+            evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans)
         return trajectory, grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
 
 
@@ -393,7 +439,22 @@ def summarize(results: list[GradeResult], repeats: int = 1) -> dict[str, Any]:
         "average_reward":sum(r.reward for r in results)/n,"pass@1":sum(r.success for r in results)/n,
         "pass^3":sum(pass3)/len(pass3) if pass3 else None,"failure_taxonomy":failures,
         "leakage_checked_rate":sum(r.leakage_checked for r in results)/n,
-        "terminal_state_accuracy":sum(r.terminal_state_match for r in results)/n}
+        "terminal_state_accuracy":sum(r.terminal_state_match for r in results)/n,
+        "answer_fact_applicable_rate":sum(r.answer_fact_applicable for r in results)/n,
+        "answer_fact_pass_rate":(
+            sum(bool(r.answer_fact_pass) for r in results if r.answer_fact_applicable)
+            / sum(r.answer_fact_applicable for r in results)
+            if any(r.answer_fact_applicable for r in results) else None),
+        "citation_binding_pass_rate":(
+            sum(bool(r.citation_binding_pass) for r in results if r.answer_fact_applicable)
+            / sum(r.answer_fact_applicable for r in results)
+            if any(r.answer_fact_applicable for r in results) else None),
+        "joint_success":sum(r.joint_success for r in results)/n,
+        "repair_attempt_rate":sum(r.repair_attempted for r in results)/n,
+        "repair_success_rate":(
+            sum(r.repair_succeeded for r in results if r.repair_attempted)
+            / sum(r.repair_attempted for r in results)
+            if any(r.repair_attempted for r in results) else None)}
 
 
 def load_tasks(path: Path | str) -> list[TaskSpec]:
@@ -402,7 +463,7 @@ def load_tasks(path: Path | str) -> list[TaskSpec]:
 
 def main() -> None:
     parser=argparse.ArgumentParser(description="Leakage-resistant retail agent harness"); sub=parser.add_subparsers(dest="command",required=True)
-    run=sub.add_parser("run"); run.add_argument("--tasks",required=True); run.add_argument("--db",required=True); run.add_argument("--store",required=True); run.add_argument("--repeats",type=int,default=3); run.add_argument("--output",required=True); run.add_argument("--seed-db",action="store_true"); run.add_argument("--index"); run.add_argument("--policy",choices=("oracle","rule","llm"),default="oracle"); run.add_argument("--split",choices=("dev","locked","smoke"))
+    run=sub.add_parser("run"); run.add_argument("--tasks",required=True); run.add_argument("--db",required=True); run.add_argument("--store",required=True); run.add_argument("--repeats",type=int,default=3); run.add_argument("--output",required=True); run.add_argument("--seed-db",action="store_true"); run.add_argument("--index"); run.add_argument("--policy",choices=("oracle","rule","llm","evidence_verify","evidence_verify_repair"),default="oracle"); run.add_argument("--split",choices=("calibration","dev","locked","smoke"))
     replay=sub.add_parser("replay"); replay.add_argument("--store",required=True); replay.add_argument("--trajectory-id",required=True); replay.add_argument("--tasks"); replay.add_argument("--db"); replay.add_argument("--output"); replay.add_argument("--index"); replay.add_argument("--policy",choices=("oracle","rule"),default="oracle")
     compare=sub.add_parser("compare"); compare.add_argument("reports",nargs="+"); args=parser.parse_args()
     if args.command=="compare":
@@ -425,9 +486,14 @@ def main() -> None:
     if args.index:
         from .hybrid_retriever import HybridRetriever
         retriever=HybridRetriever(Path(args.index))
-    if args.policy=="llm":
-        from .llm_policy import LLMPolicy
-        policy: AgentPolicy=LLMPolicy.from_env()
+    if args.policy in {"llm", "evidence_verify", "evidence_verify_repair"}:
+        if args.policy == "llm":
+            from .llm_policy import LLMPolicy
+            policy: AgentPolicy=LLMPolicy.from_env()
+        else:
+            from .evidence_policy import EvidenceGroundedPolicy
+            policy = EvidenceGroundedPolicy.from_env()
+            policy.repair = args.policy == "evidence_verify_repair"
     else: policy=OraclePolicy() if args.policy=="oracle" else RulePolicy()
     runner,store=HarnessRunner(args.db,retriever,policy),TrajectoryStore(args.store); results=[]; details=[]
     tasks=load_tasks(args.tasks)

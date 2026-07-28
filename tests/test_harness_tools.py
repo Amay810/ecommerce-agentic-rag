@@ -59,11 +59,13 @@ class HarnessToolTests(unittest.TestCase):
         policy = SpyPolicy()
         task = TaskSpec("hidden_01", "secret_category", "U0001", "hello", 7,
                         gold_doc_ids=["secret_doc"], allowed_tools=[], expected_state={},
-                        metadata={"answer": "secret", "verification_code": "123456"}, split="locked")
+                        metadata={"answer": "secret", "verification_code": "123456"}, split="locked",
+                        answer_expectations={"required_fact_keys": ["secret.answer"]})
         _, result = HarnessRunner(db, policy=policy).run(task)
         payload = str(policy.observed)
         assert result.leakage_checked
-        for secret in ("secret_category", "secret_doc", "secret", "123456", "allowed_tools", "expected_state"):
+        for secret in ("secret_category", "secret_doc", "secret", "123456", "allowed_tools", "expected_state",
+                       "secret.answer", "answer_expectations"):
             assert secret not in payload
 
  def test_rule_policy_gets_verification_and_confirmation_from_user_simulator(self):

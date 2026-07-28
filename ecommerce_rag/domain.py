@@ -32,6 +32,9 @@ class TaskSpec:
     initial_state: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
     split: str = "smoke"
+    # Hidden evaluation-only requirements. They must never be copied into an
+    # AgentObservation or prompt.
+    answer_expectations: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -47,6 +50,10 @@ class AgentObservation:
     history: list[dict[str, Any]] = field(default_factory=list)
     tool_schemas: list[dict[str, Any]] = field(default_factory=list)
     step: int = 0
+    # Derived only from tool results already visible in ``history``. This is not
+    # gold data; evidence-aware policies receive the normalized form so answer
+    # citations remain stable across heterogeneous tools.
+    evidence_ledger: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -101,6 +108,9 @@ class Trajectory:
     actions: list[dict[str, Any]] = field(default_factory=list)
     retry_spans: list[dict[str, Any]] = field(default_factory=list)
     user_simulator_spans: list[dict[str, Any]] = field(default_factory=list)
+    evidence_ledger: list[dict[str, Any]] = field(default_factory=list)
+    verification_spans: list[dict[str, Any]] = field(default_factory=list)
+    repair_spans: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -129,6 +139,16 @@ class GradeResult:
     leakage_checked: bool = False
     forbidden_tool_attempt: bool = False
     illegal_state_change: bool = False
+    answer_fact_applicable: bool = False
+    answer_fact_pass: bool | None = None
+    citation_binding_pass: bool | None = None
+    required_evidence_coverage: float | None = None
+    unsupported_high_risk_claims: list[dict[str, Any]] = field(default_factory=list)
+    contradicted_claims: list[dict[str, Any]] = field(default_factory=list)
+    omitted_required_facts: list[str] = field(default_factory=list)
+    repair_attempted: bool = False
+    repair_succeeded: bool = False
+    joint_success: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

@@ -19,6 +19,7 @@ from scripts.evidence_dev_postprocess import (
     build_audit_rows,
     conversion_errors,
     ensure_inventory_unchanged,
+    failure_attribution,
     mandatory_task_ids,
     open_readonly,
     rate,
@@ -269,6 +270,37 @@ def test_claim_splitter_keeps_full_date_and_does_not_emit_day_fragment() -> None
     claims = _atomic_claims("订单于2020年11月2日送达。")
     assert any(row["fact_key"] == "date" and row["claim_text"] == "2020年11月2日" for row in claims)
     assert not any(row["fact_key"] == "numeric_fact" and row["claim_text"] == "2日" for row in claims)
+
+
+def test_product_contract_marks_search_summary_as_insufficient_for_specs() -> None:
+    task_id = "product-01"
+    search = {
+        "call_id": "s1", "name": "search_catalog", "arguments": {},
+        "result": {"ok": True, "items": [{"product_id": "P00001", "title": "x", "category": "c"}]},
+    }
+    product = {
+        "call_id": "p1", "name": "get_product", "arguments": {"product_id": "P00001"},
+        "result": {"ok": True, "product": {"product_id": "P00001"}, "evidence": ["weight: 1kg"]},
+    }
+    by_variant = {
+        "base": [_stored(task_id, "base", trajectory={"tool_calls": [search, product]})],
+        "evidence_verify": [_stored(
+            task_id, "evidence_verify", operational=False, trajectory={"tool_calls": [search]},
+            grade={"failure_type": "missing-required-tool"},
+        )],
+        "evidence_verify_repair": [_stored(
+            task_id, "evidence_verify_repair", operational=False, trajectory={"tool_calls": [search]},
+            grade={"failure_type": "missing-required-tool"},
+        )],
+    }
+    tasks = {task_id: {
+        "task_id": task_id, "category": "product_qa", "user_goal": "specs",
+        "expected_tool_sequence": ["search_catalog", "get_product"],
+        "answer_expectations": {"required_fact_keys": ["product.evidence.*"]},
+    }}
+    result = failure_attribution(by_variant, tasks)
+    assert result["task_attributions"][0]["product_contract_assessment"]["classification"] == \
+        "search_evidence_insufficient"
 
 
 def _write_rows(path: Path, rows: list[dict]) -> None:

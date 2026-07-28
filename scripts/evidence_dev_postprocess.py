@@ -570,10 +570,14 @@ def _product_contract_context(row: StoredTrajectory) -> dict:
     searches = [call for call in row.trajectory.get("tool_calls") or [] if call.get("name") == "search_catalog"]
     products = [call for call in row.trajectory.get("tool_calls") or [] if call.get("name") == "get_product"]
     search_fields = sorted({key for call in searches for item in ((call.get("result") or {}).get("items") or []) for key in item})
+    product_result_fields = sorted({key for call in products for key in (call.get("result") or {})})
     product_fields = sorted({key for call in products for key in (((call.get("result") or {}).get("product") or {}).keys())})
+    product_evidence_count = sum(len((call.get("result") or {}).get("evidence") or []) for call in products)
     return {
         "search_catalog_result_fields": search_fields,
-        "get_product_result_fields": product_fields,
+        "get_product_result_fields": product_result_fields,
+        "get_product_product_fields": product_fields,
+        "get_product_evidence_item_count": product_evidence_count,
         "final_answer": row.trajectory.get("final_answer", ""),
         "contract_necessity_assessment": "unclear",
         "allowed_assessments": [
@@ -582,6 +586,47 @@ def _product_contract_context(row: StoredTrajectory) -> dict:
         ],
         "note": "Requires human comparison of observed answer facts with fields available from each tool.",
     }
+
+
+def _tool_call_summary(call: dict) -> dict:
+    result = call.get("result") if isinstance(call.get("result"), dict) else {}
+    summary = {
+        "call_id": call.get("call_id"),
+        "name": call.get("name"),
+        "arguments": call.get("arguments") or {},
+        "ok": bool(result.get("ok")),
+        "error": result.get("error"),
+    }
+    if call.get("name") == "search_catalog":
+        summary["result_item_count"] = len(result.get("items") or [])
+        summary["result_product_ids"] = [item.get("product_id") for item in result.get("items") or []]
+    elif call.get("name") == "get_policy":
+        summary["result_item_count"] = len(result.get("policies") or [])
+        summary["result_doc_ids"] = [item.get("doc_id") for item in result.get("policies") or []]
+    elif call.get("name") == "get_product":
+        summary["product_id"] = (result.get("product") or {}).get("product_id")
+        summary["evidence_item_count"] = len(result.get("evidence") or [])
+    return summary
+
+
+def _decision_summary(trajectory: dict) -> list[dict]:
+    rows = []
+    for call in trajectory.get("model_calls") or []:
+        trace = call.get("llm") if isinstance(call.get("llm"), dict) else {}
+        rows.append({
+            "step": call.get("step"),
+            "action": call.get("action"),
+            "resolution": trace.get("resolution"),
+            "attempts": [{
+                "attempt": attempt.get("attempt"),
+                "raw_output": attempt.get("raw_output"),
+                "parse_stage": attempt.get("parse_stage"),
+                "parse_error": attempt.get("parse_error"),
+                "prompt_tokens": attempt.get("prompt_tokens"),
+                "completion_tokens": attempt.get("completion_tokens"),
+            } for attempt in trace.get("attempts") or []],
+        })
+    return rows
 
 
 def _recommend_handoff_candidate(row: StoredTrajectory) -> str:
@@ -618,6 +663,13 @@ def failure_attribution(by_variant: dict[str, list[StoredTrajectory]], tasks: di
             "category": category,
             "operational_disagreement": len(set(operational.values())) > 1,
             "variants": {},
+            "task_contract": {
+                "user_goal": tasks[task_id].get("user_goal"),
+                "expected_tool_sequence": tasks[task_id].get("expected_tool_sequence") or [],
+                "gold_doc_ids": tasks[task_id].get("gold_doc_ids") or [],
+                "expected_state": tasks[task_id].get("expected_state") or {},
+                "required_fact_keys": (tasks[task_id].get("answer_expectations") or {}).get("required_fact_keys") or [],
+            },
             "attribution_status": "requires_human_confirmation",
         }
         for variant, row in variant_rows.items():
@@ -629,6 +681,12 @@ def failure_attribution(by_variant: dict[str, list[StoredTrajectory]], tasks: di
                 "successful_sequence": row.grade.get("successful_tool_sequence") or _tool_sequence(row, True),
                 "failed_or_empty_calls": row.grade.get("failed_or_empty_tool_calls") or [],
                 "handoff_observed": bool(row.grade.get("handoff_observed")),
+                "terminal_state_match": bool(row.grade.get("terminal_state_match")),
+                "state_diff": row.grade.get("state_diff") or {},
+                "retrievals": row.trajectory.get("retrievals") or [],
+                "tool_calls": [_tool_call_summary(call) for call in row.trajectory.get("tool_calls") or []],
+                "model_decisions": _decision_summary(row.trajectory),
+                "messages": row.trajectory.get("messages") or [],
                 "verification": _verification_summary(row),
                 "repair_spans": row.trajectory.get("repair_spans") or [],
                 "final_answer": row.trajectory.get("final_answer", ""),
@@ -642,6 +700,40 @@ def failure_attribution(by_variant: dict[str, list[StoredTrajectory]], tasks: di
                     "citation_only", "claim_extraction_error", "evidence_conversion_error",
                     "verifier_false_positive", "unclear",
                 ]
+        if category == "product_qa":
+            required = item["task_contract"]["required_fact_keys"]
+            search_fields = sorted({
+                field for variant in VARIANTS
+                for field in item["variants"][variant]["product_contract"]["search_catalog_result_fields"]
+            })
+            product_evidence = max(
+                item["variants"][variant]["product_contract"]["get_product_evidence_item_count"]
+                for variant in VARIANTS
+            )
+            missing_product_step = any(
+                item["variants"][variant]["failure_type"] == "missing-required-tool"
+                for variant in VARIANTS
+            )
+            if ("product.evidence.*" in required and missing_product_step and product_evidence > 0
+                    and "evidence" not in search_fields):
+                assessment = "search_evidence_insufficient"
+                rationale = (
+                    "The task requires product.evidence.*, search_catalog exposes only summary fields, "
+                    "and a paired get_product result contains specification evidence."
+                )
+            else:
+                assessment = "unclear"
+                rationale = "No deterministic contract-necessity conclusion was established from the paired traces."
+            item["product_contract_assessment"] = {
+                "classification": assessment,
+                "rationale": rationale,
+                "search_catalog_fields_across_variants": search_fields,
+                "paired_get_product_evidence_item_count_max": product_evidence,
+                "allowed_classes": [
+                    "business_required", "redundant_for_observed_answer",
+                    "search_evidence_insufficient", "unclear",
+                ],
+            }
         entries.append(item)
     failure_counts = {
         variant: dict(sorted(Counter(row.grade.get("failure_type") or "ok" for row in rows).items()))

@@ -1,0 +1,709 @@
+{
+  "contract": "evidence_phase_a_tasks_v2",
+  "dpo_pairs_generated": 0,
+  "final_ready": false,
+  "human_review_status": "pending",
+  "metrics": {
+    "base": {
+      "accepted_answer_error_rate": {
+        "denominator": 61,
+        "numerator": 5,
+        "rate": 0.08196721311475409
+      },
+      "accepted_answer_hard_pass": {
+        "denominator": 61,
+        "numerator": 56,
+        "rate": 0.9180327868852459
+      },
+      "answer_coverage": {
+        "denominator": 70,
+        "numerator": 70,
+        "rate": 1.0
+      },
+      "citation_binding_accepted_answers": {
+        "denominator": 61,
+        "numerator": 0,
+        "rate": 0.0
+      },
+      "completion_tokens": {
+        "per_task": {
+          "count": 80,
+          "mean": 205.7,
+          "p50": 195.5,
+          "p95": 387.0
+        },
+        "total": 16456
+      },
+      "contradicted_answer_rate": {
+        "denominator": 61,
+        "numerator": 5,
+        "rate": 0.08196721311475409
+      },
+      "final_hard_pass": {
+        "denominator": 80,
+        "numerator": 75,
+        "rate": 0.9375
+      },
+      "handoff_precision": {
+        "denominator": 5,
+        "numerator": 5,
+        "rate": 1.0
+      },
+      "handoff_rate": {
+        "denominator": 80,
+        "numerator": 5,
+        "rate": 0.0625
+      },
+      "handoff_recall": {
+        "denominator": 10,
+        "numerator": 5,
+        "rate": 0.5
+      },
+      "initial_answer_hard_pass": {
+        "denominator": 61,
+        "numerator": 56,
+        "rate": 0.9180327868852459
+      },
+      "initial_direct_handoff_count": 0,
+      "joint_success": {
+        "denominator": 80,
+        "numerator": 56,
+        "rate": 0.7
+      },
+      "latency_ms": {
+        "count": 80,
+        "mean": 6638.68576863315,
+        "p50": 6006.869364879094,
+        "p95": 12820.646045962349
+      },
+      "model_generations": {
+        "per_task": {
+          "count": 80,
+          "mean": 2.4375,
+          "p50": 2.0,
+          "p95": 4.0
+        },
+        "total": 195
+      },
+      "operational_success": {
+        "denominator": 80,
+        "numerator": 61,
+        "rate": 0.7625
+      },
+      "policy_compliance": {
+        "denominator": 80,
+        "numerator": 80,
+        "rate": 1.0
+      },
+      "prompt_tokens": {
+        "per_task": {
+          "count": 80,
+          "mean": 2725.1,
+          "p50": 2654.5,
+          "p95": 4791.0
+        },
+        "total": 218008
+      },
+      "repair_adopted": {
+        "denominator": 0,
+        "numerator": 0,
+        "rate": null
+      },
+      "repair_attempted": {
+        "denominator": 80,
+        "numerator": 0,
+        "rate": 0.0
+      },
+      "repair_diagnostic_improvement": {
+        "denominator": 0,
+        "numerator": 0,
+        "rate": null
+      },
+      "repair_extra_cost": {
+        "adopted": {
+          "count": 0,
+          "initial_hard_pass": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          },
+          "repair_hard_pass": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          }
+        },
+        "attempted_trajectories": 0,
+        "completion_tokens": {
+          "per_attempted_trajectory": {
+            "count": 0,
+            "mean": null,
+            "p50": null,
+            "p95": null
+          },
+          "total": 0
+        },
+        "generation_attempts": 0,
+        "prompt_tokens": {
+          "per_attempted_trajectory": {
+            "count": 0,
+            "mean": null,
+            "p50": null,
+            "p95": null
+          },
+          "total": 0
+        },
+        "rejected": {
+          "count": 0,
+          "initial_hard_pass": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          },
+          "repair_hard_pass": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          }
+        }
+      },
+      "repair_hard_recovery": {
+        "denominator": 0,
+        "numerator": 0,
+        "rate": null
+      },
+      "required_coverage": {
+        "denominator": 40,
+        "fully_covered": {
+          "denominator": 40,
+          "numerator": 12,
+          "rate": 0.3
+        },
+        "mean": 0.3,
+        "sum": 12.0
+      },
+      "task_count": 80,
+      "terminal_state_match": {
+        "denominator": 80,
+        "numerator": 76,
+        "rate": 0.95
+      },
+      "tool_calls": {
+        "per_task": {
+          "count": 80,
+          "mean": 0.9625,
+          "p50": 1.0,
+          "p95": 2.0
+        },
+        "total": 77
+      },
+      "unsupported_answer_rate": {
+        "denominator": 61,
+        "numerator": 18,
+        "rate": 0.29508196721311475
+      },
+      "verifier_wall_time_ms": {
+        "available": false,
+        "reason": "not independently recorded in frozen trace"
+      }
+    },
+    "evidence_verify": {
+      "accepted_answer_error_rate": {
+        "denominator": 55,
+        "numerator": 0,
+        "rate": 0.0
+      },
+      "accepted_answer_hard_pass": {
+        "denominator": 55,
+        "numerator": 55,
+        "rate": 1.0
+      },
+      "answer_coverage": {
+        "denominator": 70,
+        "numerator": 64,
+        "rate": 0.9142857142857143
+      },
+      "citation_binding_accepted_answers": {
+        "denominator": 55,
+        "numerator": 21,
+        "rate": 0.38181818181818183
+      },
+      "completion_tokens": {
+        "per_task": {
+          "count": 80,
+          "mean": 216.5875,
+          "p50": 203.5,
+          "p95": 437.0
+        },
+        "total": 17327
+      },
+      "contradicted_answer_rate": {
+        "denominator": 61,
+        "numerator": 0,
+        "rate": 0.0
+      },
+      "final_hard_pass": {
+        "denominator": 80,
+        "numerator": 80,
+        "rate": 1.0
+      },
+      "handoff_precision": {
+        "denominator": 11,
+        "numerator": 5,
+        "rate": 0.45454545454545453
+      },
+      "handoff_rate": {
+        "denominator": 80,
+        "numerator": 11,
+        "rate": 0.1375
+      },
+      "handoff_recall": {
+        "denominator": 10,
+        "numerator": 5,
+        "rate": 0.5
+      },
+      "initial_answer_hard_pass": {
+        "denominator": 61,
+        "numerator": 55,
+        "rate": 0.9016393442622951
+      },
+      "initial_direct_handoff_count": 0,
+      "joint_success": {
+        "denominator": 80,
+        "numerator": 50,
+        "rate": 0.625
+      },
+      "latency_ms": {
+        "count": 80,
+        "mean": 7301.273980861879,
+        "p50": 6534.291263553314,
+        "p95": 14976.467407075688
+      },
+      "model_generations": {
+        "per_task": {
+          "count": 80,
+          "mean": 2.3625,
+          "p50": 2.0,
+          "p95": 4.0
+        },
+        "total": 189
+      },
+      "operational_success": {
+        "denominator": 80,
+        "numerator": 50,
+        "rate": 0.625
+      },
+      "policy_compliance": {
+        "denominator": 80,
+        "numerator": 80,
+        "rate": 1.0
+      },
+      "prompt_tokens": {
+        "per_task": {
+          "count": 80,
+          "mean": 3461.9875,
+          "p50": 3155.0,
+          "p95": 7866.0
+        },
+        "total": 276959
+      },
+      "repair_adopted": {
+        "denominator": 0,
+        "numerator": 0,
+        "rate": null
+      },
+      "repair_attempted": {
+        "denominator": 80,
+        "numerator": 0,
+        "rate": 0.0
+      },
+      "repair_diagnostic_improvement": {
+        "denominator": 0,
+        "numerator": 0,
+        "rate": null
+      },
+      "repair_extra_cost": {
+        "adopted": {
+          "count": 0,
+          "initial_hard_pass": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          },
+          "repair_hard_pass": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          }
+        },
+        "attempted_trajectories": 0,
+        "completion_tokens": {
+          "per_attempted_trajectory": {
+            "count": 0,
+            "mean": null,
+            "p50": null,
+            "p95": null
+          },
+          "total": 0
+        },
+        "generation_attempts": 0,
+        "prompt_tokens": {
+          "per_attempted_trajectory": {
+            "count": 0,
+            "mean": null,
+            "p50": null,
+            "p95": null
+          },
+          "total": 0
+        },
+        "rejected": {
+          "count": 0,
+          "initial_hard_pass": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          },
+          "repair_hard_pass": {
+            "denominator": 0,
+            "numerator": 0,
+            "rate": null
+          }
+        }
+      },
+      "repair_hard_recovery": {
+        "denominator": 0,
+        "numerator": 0,
+        "rate": null
+      },
+      "required_coverage": {
+        "denominator": 40,
+        "fully_covered": {
+          "denominator": 40,
+          "numerator": 20,
+          "rate": 0.5
+        },
+        "mean": 0.5,
+        "sum": 20.0
+      },
+      "task_count": 80,
+      "terminal_state_match": {
+        "denominator": 80,
+        "numerator": 76,
+        "rate": 0.95
+      },
+      "tool_calls": {
+        "per_task": {
+          "count": 80,
+          "mean": 0.975,
+          "p50": 1.0,
+          "p95": 2.0
+        },
+        "total": 78
+      },
+      "unsupported_answer_rate": {
+        "denominator": 61,
+        "numerator": 11,
+        "rate": 0.18032786885245902
+      },
+      "verifier_wall_time_ms": {
+        "available": false,
+        "reason": "not independently recorded in frozen trace"
+      }
+    },
+    "evidence_verify_repair": {
+      "accepted_answer_error_rate": {
+        "denominator": 56,
+        "numerator": 0,
+        "rate": 0.0
+      },
+      "accepted_answer_hard_pass": {
+        "denominator": 56,
+        "numerator": 56,
+        "rate": 1.0
+      },
+      "answer_coverage": {
+        "denominator": 70,
+        "numerator": 65,
+        "rate": 0.9285714285714286
+      },
+      "citation_binding_accepted_answers": {
+        "denominator": 56,
+        "numerator": 34,
+        "rate": 0.6071428571428571
+      },
+      "completion_tokens": {
+        "per_task": {
+          "count": 80,
+          "mean": 378.9125,
+          "p50": 330.5,
+          "p95": 884.0
+        },
+        "total": 30313
+      },
+      "contradicted_answer_rate": {
+        "denominator": 61,
+        "numerator": 0,
+        "rate": 0.0
+      },
+      "final_hard_pass": {
+        "denominator": 80,
+        "numerator": 80,
+        "rate": 1.0
+      },
+      "handoff_precision": {
+        "denominator": 10,
+        "numerator": 5,
+        "rate": 0.5
+      },
+      "handoff_rate": {
+        "denominator": 80,
+        "numerator": 10,
+        "rate": 0.125
+      },
+      "handoff_recall": {
+        "denominator": 10,
+        "numerator": 5,
+        "rate": 0.5
+      },
+      "initial_answer_hard_pass": {
+        "denominator": 61,
+        "numerator": 55,
+        "rate": 0.9016393442622951
+      },
+      "initial_direct_handoff_count": 0,
+      "joint_success": {
+        "denominator": 80,
+        "numerator": 51,
+        "rate": 0.6375
+      },
+      "latency_ms": {
+        "count": 80,
+        "mean": 9640.380316262599,
+        "p50": 8599.410644499585,
+        "p95": 19074.348910013214
+      },
+      "model_generations": {
+        "per_task": {
+          "count": 80,
+          "mean": 3.4625,
+          "p50": 4.0,
+          "p95": 5.0
+        },
+        "total": 277
+      },
+      "operational_success": {
+        "denominator": 80,
+        "numerator": 51,
+        "rate": 0.6375
+      },
+      "policy_compliance": {
+        "denominator": 80,
+        "numerator": 80,
+        "rate": 1.0
+      },
+      "prompt_tokens": {
+        "per_task": {
+          "count": 80,
+          "mean": 5476.0875,
+          "p50": 5527.0,
+          "p95": 14143.0
+        },
+        "total": 438087
+      },
+      "repair_adopted": {
+        "denominator": 44,
+        "numerator": 14,
+        "rate": 0.3181818181818182
+      },
+      "repair_attempted": {
+        "denominator": 80,
+        "numerator": 44,
+        "rate": 0.55
+      },
+      "repair_diagnostic_improvement": {
+        "denominator": 44,
+        "numerator": 13,
+        "rate": 0.29545454545454547
+      },
+      "repair_extra_cost": {
+        "adopted": {
+          "count": 14,
+          "initial_hard_pass": {
+            "denominator": 14,
+            "numerator": 13,
+            "rate": 0.9285714285714286
+          },
+          "repair_hard_pass": {
+            "denominator": 14,
+            "numerator": 14,
+            "rate": 1.0
+          }
+        },
+        "attempted_trajectories": 44,
+        "completion_tokens": {
+          "per_attempted_trajectory": {
+            "count": 44,
+            "mean": 147.5681818181818,
+            "p50": 114.0,
+            "p95": 272.0
+          },
+          "total": 6493
+        },
+        "generation_attempts": 44,
+        "prompt_tokens": {
+          "per_attempted_trajectory": {
+            "count": 44,
+            "mean": 1831.0,
+            "p50": 1535.0,
+            "p95": 3679.0
+          },
+          "total": 80564
+        },
+        "rejected": {
+          "count": 30,
+          "initial_hard_pass": {
+            "denominator": 30,
+            "numerator": 25,
+            "rate": 0.8333333333333334
+          },
+          "repair_hard_pass": {
+            "denominator": 30,
+            "numerator": 24,
+            "rate": 0.8
+          }
+        }
+      },
+      "repair_hard_recovery": {
+        "denominator": 44,
+        "numerator": 1,
+        "rate": 0.022727272727272728
+      },
+      "required_coverage": {
+        "denominator": 40,
+        "fully_covered": {
+          "denominator": 40,
+          "numerator": 26,
+          "rate": 0.65
+        },
+        "mean": 0.65,
+        "sum": 26.0
+      },
+      "task_count": 80,
+      "terminal_state_match": {
+        "denominator": 80,
+        "numerator": 76,
+        "rate": 0.95
+      },
+      "tool_calls": {
+        "per_task": {
+          "count": 80,
+          "mean": 0.9625,
+          "p50": 1.0,
+          "p95": 2.0
+        },
+        "total": 77
+      },
+      "unsupported_answer_rate": {
+        "denominator": 61,
+        "numerator": 12,
+        "rate": 0.19672131147540983
+      },
+      "verifier_wall_time_ms": {
+        "available": false,
+        "reason": "not independently recorded in frozen trace"
+      }
+    }
+  },
+  "official_archive_ready": false,
+  "paired_cost_deltas_vs_base": {
+    "evidence_verify": {
+      "handoff_reduced_followup_calls": {
+        "available": false,
+        "reason": "counterfactual calls after handoff are not observable in frozen trajectories"
+      },
+      "paired_completion_token_delta": {
+        "count": 80,
+        "mean": 10.8875,
+        "p50": 1.0,
+        "p95": 90.0
+      },
+      "paired_generation_delta": {
+        "count": 80,
+        "mean": -0.075,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "paired_latency_ms_delta": {
+        "count": 80,
+        "mean": 662.5882122287294,
+        "p50": 532.1887844474986,
+        "p95": 3941.4044201839715
+      },
+      "paired_prompt_token_delta": {
+        "count": 80,
+        "mean": 736.8875,
+        "p50": 376.0,
+        "p95": 3524.0
+      },
+      "paired_tool_call_delta": {
+        "count": 80,
+        "mean": 0.0125,
+        "p50": 0.0,
+        "p95": 1.0
+      },
+      "repair_extra_generation_and_tokens": {
+        "note": "included in the paired deltas; per-repair totals are also reported from repair spans",
+        "repair_attempts": 0
+      }
+    },
+    "evidence_verify_repair": {
+      "handoff_reduced_followup_calls": {
+        "available": false,
+        "reason": "counterfactual calls after handoff are not observable in frozen trajectories"
+      },
+      "paired_completion_token_delta": {
+        "count": 80,
+        "mean": 173.2125,
+        "p50": 151.0,
+        "p95": 539.0
+      },
+      "paired_generation_delta": {
+        "count": 80,
+        "mean": 1.025,
+        "p50": 1.0,
+        "p95": 2.0
+      },
+      "paired_latency_ms_delta": {
+        "count": 80,
+        "mean": 3001.6945476294495,
+        "p50": 2170.287898858078,
+        "p95": 10452.40642502904
+      },
+      "paired_prompt_token_delta": {
+        "count": 80,
+        "mean": 2750.9875,
+        "p50": 2738.0,
+        "p95": 9632.0
+      },
+      "paired_tool_call_delta": {
+        "count": 80,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 1.0
+      },
+      "repair_extra_generation_and_tokens": {
+        "note": "included in the paired deltas; per-repair totals are also reported from repair spans",
+        "repair_attempts": 44
+      }
+    }
+  },
+  "provenance": {
+    "postprocess_code_commit": "92a4022",
+    "result_commit": "d3f5063",
+    "run_code_commit": "4112901"
+  },
+  "provenance_complete": false,
+  "run_name": "evidence_phase_a_dev_v3",
+  "schema_version": 3,
+  "selective_risk_note": "Final accepted-answer hard pass can rise because hard failures are handed off. Interpret it together with initial pass, answer coverage, handoff rate, and joint success."
+}

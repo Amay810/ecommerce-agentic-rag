@@ -1,0 +1,319 @@
+{
+  "checks": [
+    {
+      "detail": {
+        "rows": 80,
+        "unique": 80
+      },
+      "name": "manifest_has_80_unique_tasks",
+      "passed": true
+    },
+    {
+      "detail": {
+        "rows": 80,
+        "unique_tasks": 80
+      },
+      "name": "base:80_rows_80_unique_tasks",
+      "passed": true
+    },
+    {
+      "detail": {
+        "extra": [],
+        "missing": []
+      },
+      "name": "base:task_ids_match_manifest",
+      "passed": true
+    },
+    {
+      "detail": {
+        "rows": 80,
+        "unique": 80
+      },
+      "name": "base:trajectory_ids_unique",
+      "passed": true
+    },
+    {
+      "detail": 0,
+      "name": "base:generation_errors_zero",
+      "passed": true
+    },
+    {
+      "detail": 0,
+      "name": "base:fallback_only_zero",
+      "passed": true
+    },
+    {
+      "detail": 0,
+      "name": "base:repair_at_most_once",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "base:required_fields_complete",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "base:evidence_references_complete",
+      "passed": true
+    },
+    {
+      "detail": {
+        "rows": 80,
+        "unique_tasks": 80
+      },
+      "name": "evidence_verify:80_rows_80_unique_tasks",
+      "passed": true
+    },
+    {
+      "detail": {
+        "extra": [],
+        "missing": []
+      },
+      "name": "evidence_verify:task_ids_match_manifest",
+      "passed": true
+    },
+    {
+      "detail": {
+        "rows": 80,
+        "unique": 80
+      },
+      "name": "evidence_verify:trajectory_ids_unique",
+      "passed": true
+    },
+    {
+      "detail": 0,
+      "name": "evidence_verify:generation_errors_zero",
+      "passed": true
+    },
+    {
+      "detail": 0,
+      "name": "evidence_verify:fallback_only_zero",
+      "passed": true
+    },
+    {
+      "detail": 0,
+      "name": "evidence_verify:repair_at_most_once",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "evidence_verify:required_fields_complete",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "evidence_verify:evidence_references_complete",
+      "passed": true
+    },
+    {
+      "detail": {
+        "rows": 80,
+        "unique_tasks": 80
+      },
+      "name": "evidence_verify_repair:80_rows_80_unique_tasks",
+      "passed": true
+    },
+    {
+      "detail": {
+        "extra": [],
+        "missing": []
+      },
+      "name": "evidence_verify_repair:task_ids_match_manifest",
+      "passed": true
+    },
+    {
+      "detail": {
+        "rows": 80,
+        "unique": 80
+      },
+      "name": "evidence_verify_repair:trajectory_ids_unique",
+      "passed": true
+    },
+    {
+      "detail": 0,
+      "name": "evidence_verify_repair:generation_errors_zero",
+      "passed": true
+    },
+    {
+      "detail": 0,
+      "name": "evidence_verify_repair:fallback_only_zero",
+      "passed": true
+    },
+    {
+      "detail": 0,
+      "name": "evidence_verify_repair:repair_at_most_once",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "evidence_verify_repair:required_fields_complete",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "evidence_verify_repair:evidence_references_complete",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "trajectory_ids_unique_across_variants",
+      "passed": true
+    },
+    {
+      "detail": {
+        "rows": 80,
+        "unique": 80
+      },
+      "name": "base:report_ids_match_manifest",
+      "passed": true
+    },
+    {
+      "detail": {
+        "rows": 80,
+        "unique": 80
+      },
+      "name": "evidence_verify:report_ids_match_manifest",
+      "passed": true
+    },
+    {
+      "detail": {
+        "rows": 80,
+        "unique": 80
+      },
+      "name": "evidence_verify_repair:report_ids_match_manifest",
+      "passed": true
+    },
+    {
+      "detail": "hash/file set unchanged",
+      "name": "base:source_unchanged",
+      "passed": true
+    },
+    {
+      "detail": "hash/file set unchanged",
+      "name": "evidence_verify:source_unchanged",
+      "passed": true
+    },
+    {
+      "detail": "hash/file set unchanged",
+      "name": "evidence_verify_repair:source_unchanged",
+      "passed": true
+    }
+  ],
+  "contract": "evidence_phase_a_tasks_v2",
+  "details": {
+    "base": {
+      "evidence_error_count": 0,
+      "fallback_trajectories": 0,
+      "field_error_count": 0,
+      "generation_errors": 0,
+      "repeated_repairs": 0
+    },
+    "evidence_verify": {
+      "evidence_error_count": 0,
+      "fallback_trajectories": 0,
+      "field_error_count": 0,
+      "generation_errors": 0,
+      "repeated_repairs": 0
+    },
+    "evidence_verify_repair": {
+      "evidence_error_count": 0,
+      "fallback_trajectories": 0,
+      "field_error_count": 0,
+      "generation_errors": 0,
+      "repeated_repairs": 0
+    }
+  },
+  "manifest": {
+    "modified_at": "2026-07-28T10:49:33.424234+00:00",
+    "mtime_ns": 1785235773424234100,
+    "name": "evidence_phase_a_dev_v3_run_manifest.json",
+    "path": "E:\\cv_codex\\ecommerce-agentic-rag\\docs\\evidence_phase_a_dev_v3_run_manifest.json",
+    "sha256": "f9cc18d5a0bd71b30945bba10dbe59b3d53220bb6fbcf8acae1cd6b0475ed9b0",
+    "size": 3369
+  },
+  "passed": true,
+  "pbs_log": null,
+  "provenance": {
+    "postprocess_code_commit": "92a4022",
+    "result_commit": "d3f5063",
+    "run_code_commit": "4112901"
+  },
+  "provenance_complete": false,
+  "provenance_warning": "PBS log was not supplied to this local analysis. Structural results are usable for review, but the archive is not provenance-complete until the log is hashed.",
+  "read_mode": {
+    "checkpoint_performed": false,
+    "pragma_query_only": true,
+    "snapshot": true,
+    "sqlite_uri_mode": "ro"
+  },
+  "run_name": "evidence_phase_a_dev_v3",
+  "schema_version": 1,
+  "source_reports": [
+    {
+      "modified_at": "2026-07-28T10:49:33.415932+00:00",
+      "mtime_ns": 1785235773415932200,
+      "name": "evidence_phase_a_dev_v3_base_report.json",
+      "path": "E:\\cv_codex\\ecommerce-agentic-rag\\docs\\evidence_phase_a_dev_v3_base_report.json",
+      "sha256": "c7d4823b66bf7c236936319d4081a4a4d344db937d0462ee419aa85c3f8ebba1",
+      "size": 178885
+    },
+    {
+      "modified_at": "2026-07-28T10:49:33.424234+00:00",
+      "mtime_ns": 1785235773424234100,
+      "name": "evidence_phase_a_dev_v3_evidence_verify_report.json",
+      "path": "E:\\cv_codex\\ecommerce-agentic-rag\\docs\\evidence_phase_a_dev_v3_evidence_verify_report.json",
+      "sha256": "2d7421faadd13f34dbcef04ae168d0e866673efd2b449646c649ff9f52d1de02",
+      "size": 162666
+    },
+    {
+      "modified_at": "2026-07-28T10:49:33.415932+00:00",
+      "mtime_ns": 1785235773415932200,
+      "name": "evidence_phase_a_dev_v3_evidence_verify_repair_report.json",
+      "path": "E:\\cv_codex\\ecommerce-agentic-rag\\docs\\evidence_phase_a_dev_v3_evidence_verify_repair_report.json",
+      "sha256": "211749b41ce02ce9dd859fde05815ec47301e8117672e4be6656f0c68c0ae3e3",
+      "size": 155908
+    }
+  ],
+  "source_sqlite_files": {
+    "base": [
+      {
+        "modified_at": "2026-07-28T11:01:26.150399+00:00",
+        "mtime_ns": 1785236486150399200,
+        "name": "evidence_phase_a_dev_v3_base.sqlite",
+        "path": "C:\\Users\\K2332\\Desktop\\evidence_phase_a_dev_v3_base.sqlite",
+        "sha256": "087f37c655e5fb234a072e6e5294c7b071fcd3f35d6e910bab11ba6b53d5173f",
+        "size": 2252800
+      }
+    ],
+    "evidence_verify": [
+      {
+        "modified_at": "2026-07-28T11:02:42.942204+00:00",
+        "mtime_ns": 1785236562942203600,
+        "name": "evidence_phase_a_dev_v3_evidence_verify.sqlite",
+        "path": "C:\\Users\\K2332\\Desktop\\evidence_phase_a_dev_v3_evidence_verify.sqlite",
+        "sha256": "b0b7614b199f9d89771b0d4bbb8f68ac1ca78302fc8da64e054060e606f77225",
+        "size": 2592768
+      }
+    ],
+    "evidence_verify_repair": [
+      {
+        "modified_at": "2026-07-28T11:03:12.807446+00:00",
+        "mtime_ns": 1785236592807445700,
+        "name": "evidence_phase_a_dev_v3_evidence_verify_repair.sqlite",
+        "path": "C:\\Users\\K2332\\Desktop\\evidence_phase_a_dev_v3_evidence_verify_repair.sqlite",
+        "sha256": "b12abddb7b2f2c313d249cb041ecf3d88ff3ebf188e9811d2c0122d483e27c7c",
+        "size": 3018752
+      }
+    ]
+  },
+  "structural_integrity_passed": true,
+  "tasks": {
+    "modified_at": "2026-07-28T07:19:09.148696+00:00",
+    "mtime_ns": 1785223149148695700,
+    "name": "evidence_phase_a_tasks_v2.jsonl",
+    "path": "E:\\cv_codex\\ecommerce-agentic-rag\\ecommerce_rag\\data\\evidence_phase_a_tasks_v2.jsonl",
+    "sha256": "c3165aefd367186213a5abd5438cb82f527318109d8754e87921e94dc722e380",
+    "size": 161001
+  }
+}

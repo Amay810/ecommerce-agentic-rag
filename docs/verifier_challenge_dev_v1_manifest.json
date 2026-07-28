@@ -1,6 +1,10 @@
 {
+  "admission_applicable": false,
   "all_rows_require_user_confirmation": true,
   "control_per_family": 10,
+  "dataset_role": "development",
+  "evaluator_code_commit": "99dd59e3233d9b6b48dca9b1c7af67e30eda7637",
+  "evaluator_source_sha256": "4962e967633df611c3439ffd49725b28754c2f678affa9e3265c539b7f8b8dba",
   "families": {
     "budget_range": 25,
     "citation_binding": 25,
@@ -12,17 +16,19 @@
   "human_review_csv": {
     "name": "verifier_challenge_dev_v1.csv",
     "row_count": 150,
-    "sha256": "f415c6624fcd9071cc6d4554f90e53607c47ba7e8905771234b022cf98b7be46",
+    "sha256": "9e3c3383f2a14449b4a1b7c8b8297d0196e3a8bee366030db1af4cc40d773d22",
     "status_counts": {
-      "assistant_prefilled_pending_user_confirmation": 150
+      "user_confirmed": 150
     }
   },
   "jsonl_sha256": "8f5b4e1c36c21998e42d4cecba0f98c04873223f026d527ff159057136b2b08f",
-  "dataset_role": "development",
-  "admission_applicable": false,
+  "labels_frozen": true,
   "name": "verifier_challenge_dev_v1",
   "reuse_policy": "development/regression only; permanently ineligible for NSCC admission",
   "row_count": 150,
   "schema_version": 2,
-  "target_error_per_family": 15
+  "target_error_per_family": 15,
+  "verifier_code_commit": "99dd59e3233d9b6b48dca9b1c7af67e30eda7637",
+  "verifier_config_hash": "a96cf8c97c7746af91cea5c8769c53b642257ca814467167357e65292a253c08",
+  "verifier_source_sha256": "57acdb3366cb7ffb0d4914b4a59c6945fd10f671487b36f8f6a01581e74257ba"
 }

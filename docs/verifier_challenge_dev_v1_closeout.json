@@ -1,0 +1,62 @@
+{
+  "admission_applicable": false,
+  "challenge": "verifier_challenge_dev_v1",
+  "dataset_role": "development",
+  "manifest_sha256": "a66c15943bddd9b4dad11cf75e3dd6b2f9e2f6eedb8a4d3180746862b368f15d",
+  "nscc_smoke_eligible": false,
+  "permanent_constraints": [
+    "dev_v1 may be used to develop and regress verifier v2",
+    "dev_v1 metrics are not independent generalization evidence",
+    "dev_v1 can never unlock NSCC smoke regardless of its metrics"
+  ],
+  "report_sha256": "894b2d5712af813c19695eae219e6baffa3a0c25aadce43b60d052c5860f6015",
+  "reported_metrics": {
+    "automatic_decision_coverage": {
+      "denominator": 150,
+      "numerator": 150,
+      "rate": 1.0
+    },
+    "citation_incorrect_precision": {
+      "denominator": 25,
+      "numerator": 25,
+      "rate": 1.0
+    },
+    "citation_incorrect_recall": {
+      "denominator": 35,
+      "numerator": 25,
+      "rate": 0.7142857142857143
+    },
+    "contradiction_precision": {
+      "denominator": 50,
+      "numerator": 50,
+      "rate": 1.0
+    },
+    "contradiction_recall": {
+      "denominator": 50,
+      "numerator": 50,
+      "rate": 1.0
+    },
+    "supported_hard_failure_false_positive_rate": {
+      "denominator": 75,
+      "numerator": 0,
+      "rate": 0.0
+    },
+    "unknown_rate": {
+      "denominator": 150,
+      "numerator": 0,
+      "rate": 0.0
+    },
+    "unsupported_precision": {
+      "denominator": 25,
+      "numerator": 25,
+      "rate": 1.0
+    },
+    "unsupported_recall": {
+      "denominator": 25,
+      "numerator": 25,
+      "rate": 1.0
+    }
+  },
+  "schema_version": 1,
+  "status": "closed_as_development_regression"
+}

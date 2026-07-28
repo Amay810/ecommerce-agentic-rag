@@ -164,7 +164,8 @@ def build(db_path: Path, products_path: Path, seed: int) -> tuple[list[dict[str,
             forbidden: list[str] | None = None, gold: list[str] | None = None,
             expected_state: dict[str, Any] | None = None, initial_state: dict[str, Any] | None = None,
             metadata: dict[str, Any] | None = None, answer_expectations: dict[str, Any] | None = None,
-            semantic_spec: dict[str, Any] | None = None) -> None:
+            semantic_spec: dict[str, Any] | None = None,
+            expected_tool_sequence: list[str] | None = None) -> None:
         semantic_spec = semantic_spec or {}
         md = {**(metadata or {}), "phase_a": {
             "template_family": template_family,
@@ -179,6 +180,7 @@ def build(db_path: Path, products_path: Path, seed: int) -> tuple[list[dict[str,
             "expected_state": expected_state or {}, "initial_state": initial_state or {},
             "metadata": md, "split": split,
             "answer_expectations": answer_expectations or {},
+            "expected_tool_sequence": expected_tool_sequence or [],
         })
 
     for split, count in (("calibration", 20), ("dev", 10)):
@@ -187,8 +189,9 @@ def build(db_path: Path, products_path: Path, seed: int) -> tuple[list[dict[str,
             product = product_pool[split][i]
             family, template = templates["product_qa"][i % len(templates["product_qa"])]
             add(split, "product_qa", i, template.format(title=product["title"]), family,
-                allowed=["search_catalog"], gold=[f"product:{product['id']}"],
-                answer_expectations={"required_fact_keys": ["product.title"]},
+                allowed=["search_catalog", "get_product"], gold=[f"product:{product['id']}"],
+                expected_tool_sequence=["search_catalog", "get_product"],
+                answer_expectations={"required_fact_keys": ["product.evidence.*"]},
                 semantic_spec={"request": "product_facts", "surface": i % 5})
 
             rec = priced_pool[split][i]
@@ -253,7 +256,7 @@ def build(db_path: Path, products_path: Path, seed: int) -> tuple[list[dict[str,
             model = f"ZX-{split[:3].upper()}-{i + 1:04d}-MISSING"
             family, template = templates["recovery_no_answer"][i % len(templates["recovery_no_answer"])]
             add(split, "recovery_no_answer", i, template.format(model=model), family,
-                allowed=["search_catalog"], metadata={"abstention_expected": True},
+                allowed=["search_catalog"], metadata={"abstention_expected": True, "diagnostic_only": True},
                 semantic_spec={"request": "missing_product", "surface": i % 5})
 
     ids = [task["task_id"] for task in tasks]
@@ -281,7 +284,7 @@ def build(db_path: Path, products_path: Path, seed: int) -> tuple[list[dict[str,
     }
     template_overlap = split_values("calibration", "template_family") & split_values("dev", "template_family")
     manifest = {
-        "schema_version": 1, "seed": seed, "task_count": len(tasks),
+        "schema_version": 2, "contract": "evidence_phase_a_tasks_v2", "seed": seed, "task_count": len(tasks),
         "splits": dict(Counter(task["split"] for task in tasks)),
         "categories": dict(Counter(task["category"] for task in tasks)),
         "diversity": {
@@ -292,7 +295,7 @@ def build(db_path: Path, products_path: Path, seed: int) -> tuple[list[dict[str,
             "required_fact_combinations": dict(Counter(
                 ",".join(task["answer_expectations"].get("required_fact_keys", [])) or "none" for task in tasks)),
             "expected_action_sequences": dict(Counter(
-                "->".join(task["allowed_tools"]) or "none" for task in tasks)),
+                "->".join(task["expected_tool_sequence"] or task["allowed_tools"]) or "none" for task in tasks)),
         },
         "cross_split_overlap": {
             "product_ids": sorted(product_ids["calibration"] & product_ids["dev"]),

@@ -45,13 +45,16 @@ def aggregate(report_dir: Path, run_name: str, tasks_path: Path, human_audit: Pa
         safety = [row for row in details if tasks.get(row.get("task_id"), {}).get("category") == "safety"]
         table[variant] = {
             "joint_success": _rate(details, lambda row: row.get("joint_success")),
-            "operational_success": _rate(details, lambda row: row.get("success")),
+            "operational_success": _rate(details, lambda row: row.get("operational_success")),
+            "hard_verification_pass": _rate(details, lambda row: row.get("hard_verification_pass")),
             "answer_fact_pass": _rate(
                 [row for row in details if row.get("answer_fact_applicable")],
                 lambda row: row.get("answer_fact_pass")),
             "citation_binding_pass": _rate(
                 [row for row in details if row.get("answer_fact_applicable")],
                 lambda row: row.get("citation_binding_pass")),
+            "unsupported_claim_rate": _rate(details, lambda row: row.get("unsupported_high_risk_claims")),
+            "citation_diagnostic_rate": _rate(details, lambda row: row.get("citation_diagnostics")),
             "contradicted_high_risk_claim_rate": _rate(details, lambda row: row.get("contradicted_claims")),
             "required_evidence_coverage": (
                 sum(row["required_evidence_coverage"] for row in details
@@ -66,6 +69,12 @@ def aggregate(report_dir: Path, run_name: str, tasks_path: Path, human_audit: Pa
             "repair_success_rate": _rate(
                 [row for row in details if row.get("repair_attempted")],
                 lambda row: row.get("repair_succeeded")),
+            "repair_hard_recovery_rate": _rate(
+                [row for row in details if row.get("repair_attempted")],
+                lambda row: row.get("repair_hard_recovery")),
+            "repair_diagnostic_improvement_rate": _rate(
+                [row for row in details if row.get("repair_attempted")],
+                lambda row: row.get("repair_diagnostic_improvement")),
             "average_latency_ms": (
                 sum(float(row.get("latency_ms") or 0) for row in details) / len(details) if details else None),
             "average_model_generations": (
@@ -129,7 +138,7 @@ def aggregate(report_dir: Path, run_name: str, tasks_path: Path, human_audit: Pa
         for variant, report in reports.items()
     }
     return {
-        "schema_version": 1, "run_name": run_name, "errors": errors,
+        "schema_version": 2, "run_name": run_name, "errors": errors,
         "metrics": table, "human_calibration": human, "phase_b_checks": checks,
         "phase_b_ready": not errors and all(row["passed"] for row in checks),
         "failures": failures,

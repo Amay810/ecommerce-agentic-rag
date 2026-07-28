@@ -7,7 +7,8 @@ from pathlib import Path
 from ecommerce_rag.domain import TaskSpec
 from ecommerce_rag.domain import AgentAction
 from ecommerce_rag.domain import AgentObservation
-from ecommerce_rag.harness import HarnessRunner, RulePolicy
+from ecommerce_rag.harness import HarnessRunner, RulePolicy, _sequence_match
+from ecommerce_rag.domain import ToolCall
 from ecommerce_rag.orders import connect, seed_database
 from ecommerce_rag.tools import RetailTools
 
@@ -23,6 +24,19 @@ def _eligible(db):
 
 
 class HarnessToolTests(unittest.TestCase):
+ def test_expected_tool_sequence_is_an_ordered_successful_subsequence(self):
+    def call(name, ok=True):
+        arguments = {"product_id": "P00001"} if name == "get_product" else {}
+        result = {"ok": ok, "items": [{"product_id": "P00001"}]} if name == "search_catalog" else {"ok": ok}
+        return ToolCall(name, arguments, name, result, "now")
+    self.assertEqual(_sequence_match(["search_catalog", "get_product"],
+                                     [call("search_catalog"), call("search_catalog"), call("get_product")]),
+                     (True, None))
+    self.assertEqual(_sequence_match(["search_catalog", "get_product"],
+                                     [call("get_product"), call("search_catalog")]),
+                     (False, "wrong-tool-order"))
+    self.assertEqual(_sequence_match(["search_catalog", "get_product"], [call("search_catalog")]),
+                     (False, "missing-required-tool"))
  def test_explicit_policy_language_precedes_order_and_return_keywords(self):
     policy = RulePolicy()
     cases = {
@@ -60,12 +74,13 @@ class HarnessToolTests(unittest.TestCase):
         task = TaskSpec("hidden_01", "secret_category", "U0001", "hello", 7,
                         gold_doc_ids=["secret_doc"], allowed_tools=[], expected_state={},
                         metadata={"answer": "secret", "verification_code": "123456"}, split="locked",
-                        answer_expectations={"required_fact_keys": ["secret.answer"]})
+                        answer_expectations={"required_fact_keys": ["secret.answer"]},
+                        expected_tool_sequence=["secret_tool_a", "secret_tool_b"])
         _, result = HarnessRunner(db, policy=policy).run(task)
         payload = str(policy.observed)
         assert result.leakage_checked
         for secret in ("secret_category", "secret_doc", "secret", "123456", "allowed_tools", "expected_state",
-                       "secret.answer", "answer_expectations"):
+                       "secret.answer", "answer_expectations", "expected_tool_sequence", "secret_tool_a"):
             assert secret not in payload
 
  def test_rule_policy_gets_verification_and_confirmation_from_user_simulator(self):

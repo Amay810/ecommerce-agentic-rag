@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from .domain import AgentAction, AgentObservation, GradeResult, TaskSpec, Trajectory
-from .evidence import evidence_from_tool_call, verify_answer
+from .evidence import convert_tool_call_to_evidence, verify_answer
 from .orders import connect, seed_database, snapshot
 from .tool_schema import TOOL_SCHEMAS
 from .tools import RetailTools, WRITE_TOOLS
@@ -218,12 +218,42 @@ def _nested_diff(expected: dict[str, Any], actual: dict[str, Any], prefix: str =
     return diff
 
 
+def _sequence_match(expected: list[str], calls: list[Any]) -> tuple[bool | None, str | None]:
+    if not expected:
+        return None, None
+    successful = [call.name for call in calls if call.result.get("ok", False)]
+    cursor = 0
+    positions: list[int] = []
+    for name in expected:
+        try:
+            position = successful.index(name, cursor)
+        except ValueError:
+            if name in successful:
+                return False, "wrong-tool-order"
+            return False, "missing-required-tool"
+        positions.append(position)
+        cursor = position + 1
+    if expected == ["search_catalog", "get_product"]:
+        _, product_position = positions
+        successful_calls = [call for call in calls if call.result.get("ok", False)]
+        returned_ids = {
+            str(item.get("product_id"))
+            for call in successful_calls[:product_position] if call.name == "search_catalog"
+            for item in (call.result.get("items") or []) if isinstance(item, dict) and item.get("product_id")
+        }
+        requested = str(successful_calls[product_position].arguments.get("product_id", ""))
+        if requested not in returned_ids:
+            return False, "wrong-tool-order"
+    return True, None
+
+
 def classify_failure(*, forbidden_tool_attempt: bool, required_tool_failure: bool,
                      retrieval_gold_ok: bool, state_ok: bool, tool_recall: float,
-                     handoff_matches: bool) -> str | None:
+                     handoff_matches: bool, sequence_failure: str | None = None) -> str | None:
     """Return one operational failure cause without judging answer prose."""
     if forbidden_tool_attempt: return "forbidden-tool-attempt"
     if required_tool_failure: return "required-tool-failed"
+    if sequence_failure: return sequence_failure
     if not retrieval_gold_ok: return "retrieval-gold-missing"
     if not state_ok: return "state-mismatch"
     if tool_recall < 1: return "wrong-tool"
@@ -251,7 +281,11 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
     f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
     forbidden_tool_attempt = bool(observed & forbidden)
     illegal_change = any(c.name in forbidden and c.result.get("changed") for c in trajectory.tool_calls)
-    required_tool_failure = any(c.name in expected and not c.result.get("ok", False) for c in trajectory.tool_calls)
+    required_tool_failure = any(
+        name in observed and not any(c.name == name and c.result.get("ok", False) for c in trajectory.tool_calls)
+        for name in expected
+    )
+    sequence_match, sequence_failure = _sequence_match(task.expected_tool_sequence, trajectory.tool_calls)
     # A guardrail can preserve terminal state while the policy still makes an
     # impermissible decision. Keep those two facts separate.
     compliant = not forbidden_tool_attempt
@@ -259,7 +293,8 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
     state_ok = not state_diff
     handoff = any(c.name == "escalate_to_human" and c.result.get("ok") for c in trajectory.tool_calls)
     handoff_expected = bool(task.metadata.get("handoff_expected"))
-    success = state_ok and compliant and recall == 1.0 and handoff == handoff_expected and not required_tool_failure and retrieval_gold_ok
+    success = (state_ok and compliant and recall == 1.0 and handoff == handoff_expected
+               and not required_tool_failure and retrieval_gold_ok and sequence_match is not False)
     reward = (5.0 if success else 0.0) + (2.0 if compliant else 0.0) + (1.0 if retrieval_gold_ok else 0.0)
     reward -= 2.0 * len(observed - expected - ({"escalate_to_human"} if handoff_expected else set()))
     if handoff != handoff_expected: reward -= 3.0
@@ -272,6 +307,7 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
         state_ok=state_ok,
         tool_recall=recall,
         handoff_matches=handoff == handoff_expected,
+        sequence_failure=sequence_failure,
     )
     abstention_expected = bool(task.metadata.get("abstention_expected"))
     abstention_observed = any(x in trajectory.final_answer.lower() for x in ("无法", "不能", "不符合", "转人工"))
@@ -282,9 +318,10 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
         # Citation binding is reported for every variant but does not make the
         # citation-free base fail joint_success.
         require_citations=True,
+        user_messages=trajectory.messages,
     )
-    answer_ok = (not answer_grade["applicable"]) or answer_grade["answer_fact_pass"]
-    joint_success = success and answer_ok
+    answer_ok = bool(answer_grade["hard_verification_pass"])
+    joint_success = success and compliant and state_ok and answer_ok
     return GradeResult(
         task_id=task.task_id, success=success, policy_compliant=compliant,
         tool_precision=precision, tool_recall=recall, tool_f1=f1,
@@ -296,7 +333,7 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
         recovered=bool(trajectory.retry_spans), leakage_checked=leakage_checked,
         forbidden_tool_attempt=forbidden_tool_attempt, illegal_state_change=illegal_change,
         answer_fact_applicable=answer_grade["applicable"],
-        answer_fact_pass=answer_grade["answer_fact_pass"] if answer_grade["applicable"] else None,
+        answer_fact_pass=answer_ok,
         citation_binding_pass=answer_grade["citation_binding_pass"] if answer_grade["applicable"] else None,
         required_evidence_coverage=answer_grade["required_evidence_coverage"],
         unsupported_high_risk_claims=answer_grade["unsupported_high_risk_claims"],
@@ -305,6 +342,12 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
         repair_attempted=bool(trajectory.repair_spans),
         repair_succeeded=any(span.get("passed") for span in trajectory.repair_spans),
         joint_success=joint_success,
+        tool_sequence_match=sequence_match,
+        hard_verification_pass=answer_ok,
+        operational_success=success,
+        citation_diagnostics=answer_grade["citation_diagnostics"],
+        repair_hard_recovery=any(span.get("hard_recovery") for span in trajectory.repair_spans),
+        repair_diagnostic_improvement=any(span.get("diagnostic_improvement") for span in trajectory.repair_spans),
     )
 
 
@@ -337,6 +380,7 @@ class HarnessRunner:
         evidence_ledger: list[dict[str, Any]] = []
         verification_spans: list[dict[str, Any]] = []
         repair_spans: list[dict[str, Any]] = []
+        evidence_conversion_spans: list[dict[str, Any]] = []
         answer = ""; started = time.perf_counter()
         for step in range(self.max_steps):
             policy_evidence = copy.deepcopy(evidence_ledger) if getattr(self.policy, "uses_evidence", False) else []
@@ -368,10 +412,13 @@ class HarnessRunner:
                 result = tools.call(action.tool_name or "", **action.arguments)
                 history.append({"role": "tool", "name": action.tool_name, "content": json.dumps(result, ensure_ascii=False), "result": result})
                 call = tools.calls[-1]
-                evidence_ledger.extend(evidence_from_tool_call(
+                converted, conversion_span = convert_tool_call_to_evidence(
                     call.name, call.arguments, call.result, call.call_id,
                     start_index=len(evidence_ledger) + 1,
-                ))
+                )
+                evidence_ledger.extend(converted)
+                if conversion_span is not None:
+                    evidence_conversion_spans.append(conversion_span)
                 continue
             if action.action_type == "handoff":
                 # Identity is injected by the harness and must win: a policy that
@@ -399,7 +446,8 @@ class HarnessRunner:
             guardrail_spans=copy.deepcopy(tools.guardrails), handoff_spans=[asdict(c) for c in tools.calls if c.name == "escalate_to_human"],
             final_answer=answer, final_state=after, elapsed_ms=elapsed, observations=observations, actions=actions,
             user_simulator_spans=sim_spans, retry_spans=retry_spans, policy_name=type(self.policy).__name__,
-            evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans)
+            evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans,
+            evidence_conversion_spans=evidence_conversion_spans)
         return trajectory, grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
 
 

@@ -1,6 +1,7 @@
 """Build the seven-task confirmation set from the immutable v2 benchmark."""
 
 import argparse
+import copy
 import json
 from pathlib import Path
 
@@ -21,7 +22,13 @@ def select(tasks: list[dict]) -> list[dict]:
     missing = [task_id for task_id in TASK_IDS if task_id not in by_id]
     if missing:
         raise ValueError(f"missing confirmation tasks: {', '.join(missing)}")
-    return [by_id[task_id] for task_id in TASK_IDS]
+    selected = [copy.deepcopy(by_id[task_id]) for task_id in TASK_IDS]
+    for task in selected:
+        if task["category"] == "product_qa":
+            task["allowed_tools"] = ["search_catalog", "get_product"]
+            task["expected_tool_sequence"] = ["search_catalog", "get_product"]
+            task.setdefault("answer_expectations", {})["required_fact_keys"] = ["product.evidence.*"]
+    return selected
 
 
 def main() -> None:
@@ -35,6 +42,8 @@ def main() -> None:
     args.manifest.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text("".join(json.dumps(task, ensure_ascii=False) + "\n" for task in chosen), encoding="utf-8")
     args.manifest.write_text(json.dumps({
+        "schema_version": 3,
+        "contract": "contract_confirmation_v3",
         "source": str(args.tasks).replace("\\", "/"),
         "count": len(chosen),
         "scenarios": {
@@ -42,6 +51,7 @@ def main() -> None:
                 "task_id": task["task_id"],
                 "category": task["category"],
                 "handoff_expected": bool(task.get("metadata", {}).get("handoff_expected")),
+                "expected_tool_sequence": task.get("expected_tool_sequence", []),
             }
             for task in chosen
         },

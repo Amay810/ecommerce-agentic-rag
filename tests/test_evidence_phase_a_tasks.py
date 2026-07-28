@@ -24,6 +24,11 @@ class EvidencePhaseATaskTests(unittest.TestCase):
         self.assertEqual(manifest1["task_count"], 240)
         self.assertEqual(manifest1["splits"], {"calibration": 160, "dev": 80})
         self.assertTrue(all(not values for values in manifest1["cross_split_overlap"].values()))
+        product_tasks = [task for task in first if task["category"] == "product_qa"]
+        self.assertTrue(all(task["expected_tool_sequence"] == ["search_catalog", "get_product"]
+                            for task in product_tasks))
+        no_answer = [task for task in first if task["category"] == "recovery_no_answer"]
+        self.assertTrue(all(task["metadata"]["diagnostic_only"] for task in no_answer))
 
     def test_audit_has_exactly_four_rows_per_category(self):
         with tempfile.TemporaryDirectory() as directory:

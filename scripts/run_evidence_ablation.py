@@ -77,7 +77,8 @@ def main() -> None:
     }
     retriever = HybridRetriever(args.index)
     run_manifest = {
-        "schema_version": 1, "run_name": args.run_name, "task_count": len(tasks),
+        "schema_version": 2, "task_contract": "evidence_phase_a_tasks_v2",
+        "run_name": args.run_name, "task_count": len(tasks),
         "task_ids": [task.task_id for task in tasks], "variants": list(VARIANTS),
         "generator": base.generator_meta,
     }
@@ -94,7 +95,7 @@ def main() -> None:
             details.append({"trajectory_id": trajectory.trajectory_id, **result.to_dict(),
                             **_resource_metrics(trajectory)})
         report = {
-            "schema_version": 1, "variant": variant, "policy": type(policies[variant]).__name__,
+            "schema_version": 2, "variant": variant, "policy": type(policies[variant]).__name__,
             "task_ids": run_manifest["task_ids"], "summary": summarize(results, repeats=1),
             "details": details,
         }

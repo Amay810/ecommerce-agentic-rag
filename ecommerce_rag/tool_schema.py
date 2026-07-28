@@ -21,6 +21,7 @@ from typing import Any
 TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "name": "search_catalog",
+        "evidence_bearing": True,
         "description": "Search the product catalogue. Use for product questions and recommendations.",
         "parameters": {
             "type": "object",
@@ -35,6 +36,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     },
     {
         "name": "get_product",
+        "evidence_bearing": True,
         "description": "Fetch one product card by internal ID returned by search_catalog. Product names, model numbers and SKUs must be searched first.",
         "parameters": {
             "type": "object",
@@ -44,6 +46,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     },
     {
         "name": "compare_products",
+        "evidence_bearing": True,
         "description": "Compare two or more products by id.",
         "parameters": {
             "type": "object",
@@ -53,6 +56,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     },
     {
         "name": "get_policy",
+        "evidence_bearing": True,
         "description": "Fetch one policy category using its canonical key.",
         "parameters": {
             "type": "object",
@@ -66,6 +70,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     },
     {
         "name": "get_order",
+        "evidence_bearing": True,
         "description": "Read one order. Requires the caller's six-digit verification code.",
         "parameters": {
             "type": "object",
@@ -80,6 +85,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     },
     {
         "name": "check_return_eligibility",
+        "evidence_bearing": True,
         "description": "Check whether an order may be returned. Read-only.",
         "parameters": {
             "type": "object",
@@ -93,6 +99,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     },
     {
         "name": "create_return_request",
+        "evidence_bearing": True,
         "description": "WRITE. Only after eligibility passes and the user explicitly confirms.",
         "parameters": {
             "type": "object",
@@ -107,6 +114,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     },
     {
         "name": "escalate_to_human",
+        "evidence_bearing": False,
         "description": "Hand the conversation to a human agent.",
         "parameters": {
             "type": "object",

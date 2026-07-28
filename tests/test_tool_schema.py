@@ -13,6 +13,7 @@ from ecommerce_rag.tool_schema import (
     prompt_block,
     validate_arguments,
 )
+from ecommerce_rag.evidence import CONVERTER_TOOLS, EVIDENCE_BEARING_TOOLS
 from ecommerce_rag.tools import IDENTITY_GUARDED_TOOLS, READ_TOOLS, WRITE_TOOLS, RetailTools
 
 
@@ -106,6 +107,8 @@ class SchemaMatchesImplementationTests(unittest.TestCase):
 
 
 class IdentityGuardCoverageTests(unittest.TestCase):
+    def test_every_evidence_bearing_tool_has_a_converter(self):
+        self.assertEqual(EVIDENCE_BEARING_TOOLS, CONVERTER_TOOLS)
     """The central guard promises no order tool can be added without protection.
 
     That only holds if membership of IDENTITY_GUARDED_TOOLS is derived from the

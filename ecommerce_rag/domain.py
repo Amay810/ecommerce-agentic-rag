@@ -35,6 +35,7 @@ class TaskSpec:
     # Hidden evaluation-only requirements. They must never be copied into an
     # AgentObservation or prompt.
     answer_expectations: dict[str, Any] = field(default_factory=dict)
+    expected_tool_sequence: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -111,6 +112,7 @@ class Trajectory:
     evidence_ledger: list[dict[str, Any]] = field(default_factory=list)
     verification_spans: list[dict[str, Any]] = field(default_factory=list)
     repair_spans: list[dict[str, Any]] = field(default_factory=list)
+    evidence_conversion_spans: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -149,6 +151,12 @@ class GradeResult:
     repair_attempted: bool = False
     repair_succeeded: bool = False
     joint_success: bool = False
+    tool_sequence_match: bool | None = None
+    hard_verification_pass: bool = True
+    operational_success: bool = False
+    citation_diagnostics: list[dict[str, Any]] = field(default_factory=list)
+    repair_hard_recovery: bool = False
+    repair_diagnostic_improvement: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

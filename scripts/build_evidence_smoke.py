@@ -29,11 +29,13 @@ def main() -> None:
     if len(selected) != expected_count or set(counts.values()) != {args.per_category}:
         raise ValueError(f"expected {expected_count} tasks, {args.per_category} per category; got {dict(counts)}")
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
+        "contract": "evidence_phase_a_tasks_v2",
         "task_count": len(selected),
         "task_ids": [task["task_id"] for task in selected],
         "categories": dict(sorted(counts.items())),
         "variants": ["base", "evidence_verify", "evidence_verify_repair"],
+        "diagnostic_task_ids": [task["task_id"] for task in selected if task["metadata"].get("diagnostic_only")],
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.manifest.parent.mkdir(parents=True, exist_ok=True)

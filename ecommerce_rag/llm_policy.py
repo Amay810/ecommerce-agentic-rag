@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.request
 from dataclasses import dataclass, field
 from typing import Any, Callable
@@ -60,6 +61,12 @@ Available tools:
 
 Rules:
 - Use only a listed tool, with exactly its declared arguments and types.
+- Product IDs accepted by get_product are internal IDs such as P00042. A model
+  number, title, SKU, or external code must first be sent unchanged to
+  search_catalog; take the returned Pxxxxx and then call get_product before
+  answering a product-specification question.
+- get_policy accepts only: return, warranty, shipping, invoice, refund. Map
+  return_policy/退货 to return and 保修 to warranty; never invent another key.
 - Never call an order tool until the user has given you a six-digit verification
   code in this conversation. If you do not have it, do not call the tool with an
   empty or invented code — return final_answer with requires_user_response=true
@@ -375,6 +382,21 @@ class LLMPolicy:
                     "The user has not supplied a six-digit verification code. "
                     "Do not call the tool. Return final_answer with "
                     "requires_user_response=true and ask the user for it.")
+            if tool_name == "get_product":
+                product_id = arguments.get("product_id")
+                if isinstance(product_id, str) and re.fullmatch(r"P[0-9]{5}", product_id) is None:
+                    raise ActionParseError(
+                        "external_product_identifier",
+                        f"{product_id!r} is not an internal Pxxxxx product_id. Call search_catalog "
+                        "with that original identifier, read the returned Pxxxxx, then call get_product.")
+            if tool_name == "get_policy":
+                policy_type = arguments.get("policy_type")
+                canonical = {"return", "warranty", "shipping", "invoice", "refund"}
+                if isinstance(policy_type, str) and policy_type not in canonical:
+                    raise ActionParseError(
+                        "noncanonical_policy_type",
+                        f"{policy_type!r} is not canonical. Use exactly one of return, warranty, "
+                        "shipping, invoice, refund (return_policy/退货 -> return; 保修 -> warranty).")
             # A tool_call is executed on the spot, so the harness never sees this
             # flag. A policy that means "ask the user" has to say final_answer, or
             # the tool runs with whatever placeholder it left in the arguments.
@@ -471,6 +493,8 @@ class LLMPolicy:
                 record.update(parse_ok=False, parse_stage=exc.stage, parse_error=str(exc))
                 attempts.append(record)
                 error = f"[{exc.stage}] {exc}"
+                if result.truncated or exc.stage == "unbalanced_json":
+                    error += " Your output was truncated; make content significantly shorter and do not repeat it."
                 if attempt < self.max_parse_retries:
                     self.retry_count += 1
                 continue

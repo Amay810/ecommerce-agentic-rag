@@ -49,7 +49,9 @@ def main() -> None:
             observations, actions = trajectory.get("observations", []), trajectory.get("actions", [])
             for observation, action in zip(observations, actions):
                 add("observation_to_action", task_id, {"observation": observation, "chosen": action})
-            if grade.get("answer_fact_pass") and trajectory.get("evidence_ledger") and trajectory.get("final_answer"):
+            if (grade.get("hard_verification_pass") and not grade.get("unsupported_high_risk_claims")
+                    and not grade.get("omitted_required_facts") and grade.get("citation_binding_pass")
+                    and trajectory.get("evidence_ledger") and trajectory.get("final_answer")):
                 add("tool_evidence_to_grounded_answer", task_id, {
                     "evidence_ledger": trajectory["evidence_ledger"], "chosen": trajectory["final_answer"]})
             for span in trajectory.get("repair_spans", []):

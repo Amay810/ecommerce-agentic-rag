@@ -11,7 +11,12 @@ class EvidenceSmokeGateTests(unittest.TestCase):
         trajectory = {
             "trajectory_id": f"tr-{variant}", "task_id": "t1",
             "retrievals": [{"result": {"items": [{"doc_id": "product:P00001"}]}}],
-            "evidence_ledger": [] if variant == "base" else [{"evidence_id": "E1"}],
+            "tool_calls": [{"name": "search_catalog", "call_id": "c1",
+                            "result": {"ok": True, "items": [{"doc_id": "product:P00001"}]}}],
+            "evidence_ledger": [{"evidence_id": "E1", "tool_call_id": "c1"}],
+            "evidence_conversion_spans": [{"tool_call_id": "c1", "tool_name": "search_catalog",
+                "status": "converted", "evidence_ids": ["E1"], "source_item_count": 1,
+                "evidence_item_count": 1}],
             "repair_spans": [{} for _ in range(repairs)],
             "model_calls": [{"llm": {
                 "resolution": "parsed", "attempts": [{
@@ -19,7 +24,11 @@ class EvidenceSmokeGateTests(unittest.TestCase):
                 }],
             }}],
         }
-        grade = {"illegal_state_change": False}
+        grade = {"illegal_state_change": False, "success": True, "operational_success": True,
+                 "policy_compliant": True, "terminal_state_match": True,
+                 "hard_verification_pass": True, "answer_fact_pass": True,
+                 "joint_success": True, "citation_diagnostics": [],
+                 "repair_attempted": repairs > 0, "repair_succeeded": False}
         conn = sqlite3.connect(path)
         try:
             conn.execute("CREATE TABLE trajectories(trajectory_id TEXT PRIMARY KEY, task_id TEXT, seed INTEGER, trajectory_json TEXT, grade_json TEXT)")
@@ -52,6 +61,28 @@ class EvidenceSmokeGateTests(unittest.TestCase):
         self.assertIn("evidence_verify:generation_errors_zero", failed)
         self.assertIn("evidence_verify_repair:repair_at_most_once", failed)
         self.assertFalse(result["passed"])
+
+    def test_converter_missing_fails_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = root / "manifest.json"
+            manifest.write_text(json.dumps({"task_ids": ["t1"]}), encoding="utf-8")
+            for variant in ("base", "evidence_verify", "evidence_verify_repair"):
+                path = root / f"run_{variant}.sqlite"
+                self.write_store(path, variant=variant)
+                conn = sqlite3.connect(path)
+                try:
+                    row = conn.execute("SELECT trajectory_json FROM trajectories").fetchone()
+                    trajectory = json.loads(row[0])
+                    trajectory["evidence_conversion_spans"][0]["status"] = "converter_missing"
+                    conn.execute("UPDATE trajectories SET trajectory_json=?", (json.dumps(trajectory),))
+                    conn.commit()
+                finally:
+                    conn.close()
+            result = assess(manifest, root, "run")
+        self.assertFalse(result["passed"])
+        self.assertTrue(any(not row["passed"] and "evidence_conversion" in row["name"]
+                            for row in result["checks"]))
 
 
 if __name__ == "__main__":

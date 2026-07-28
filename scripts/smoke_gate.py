@@ -89,6 +89,8 @@ def evaluate(manifest: dict, report: dict, diagnosis: dict, min_parse_rate: floa
             problems.append("forbidden tool used")
         if scenarios[scenario].get("handoff_expected") and not row.get("handoff_observed"):
             problems.append("expected a handoff, none observed")
+        if scenarios[scenario].get("expected_tool_sequence") and row.get("tool_sequence_match") is not True:
+            problems.append(f"tool sequence mismatch: {scenarios[scenario]['expected_tool_sequence']}")
         checks.append(_check(f"scenario:{scenario}", not problems, "; ".join(problems) or "ok"))
 
     strict = quality.get("strict_envelope_parse_rate")

@@ -1,34 +1,37 @@
-"""Shared evidence ledger and deterministic answer verification.
-
-The ledger is derived exclusively from tool results that the policy has already
-seen.  It contains no task labels or gold answers.  Runtime verification and
-offline grading both call :func:`verify_answer`, preventing two implementations
-from drifting apart.
-"""
+"""Evidence conversion and deterministic verification for executable trajectories."""
 
 from __future__ import annotations
 
 import json
 import re
+from fnmatch import fnmatchcase
 from typing import Any, Iterable
 
 from . import freshness
+from .tool_schema import TOOL_SCHEMAS
 from .verifier import split_sentences
 
 
 EVIDENCE_CITATION = re.compile(r"\[E([1-9][0-9]*)\]")
+EVIDENCE_RANGE = re.compile(r"\[E[1-9][0-9]*\s*[-–—]\s*E?[1-9][0-9]*\]")
 _ID_FACT = re.compile(r"\b(?:P[0-9]{5}|O[0-9]{6}|POL[0-9]{3})\b", re.I)
-_DATE_FACT = re.compile(r"\b[0-9]{4}-[0-9]{2}-[0-9]{2}\b")
+_ISO_DATE = re.compile(r"\b[0-9]{4}-[0-9]{2}-[0-9]{2}\b")
+_ZH_DATE = re.compile(r"(?<![0-9])[0-9]{4}年[0-9]{1,2}月[0-9]{1,2}日")
+_EN_DATE = re.compile(
+    r"\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|"
+    r"Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|"
+    r"Dec(?:ember)?)\s+[0-9]{1,2},\s+[0-9]{4}\b", re.I)
 _NUMERIC_FACT = re.compile(
-    r"(?<![A-Za-z0-9])[0-9]+(?:\.[0-9]+)?\s*(?:元|天|日|个工作日|工作日|小时|分钟|件|个|%|mAh|Pa|kg|g|ml)",
+    r"(?<![A-Za-z0-9])[0-9]+(?:\.[0-9]+)?\s*(?:元|个工作日|工作日|天|日|小时|分钟|件|个|%|mAh|Pa|kg|g|ml|pounds?|inches?)",
     re.I,
 )
-_STATE_TERMS = {
-    "pending", "processed", "delivered", "cancelled", "requested",
-    "available", "out_of_stock", "已交付", "已送达", "待处理", "处理中",
-    "已取消", "缺货", "有货", "可退货", "不可退货", "符合退货条件",
-    "不符合退货条件", "已停产", "未停产",
-}
+
+CONVERTER_TOOLS = frozenset({
+    "search_catalog", "get_product", "compare_products", "get_policy",
+    "get_order", "check_return_eligibility", "create_return_request",
+})
+EVIDENCE_BEARING_TOOLS = frozenset(schema["name"] for schema in TOOL_SCHEMAS
+                                   if schema.get("evidence_bearing"))
 
 
 def _text(value: Any) -> str:
@@ -42,9 +45,8 @@ def _text(value: Any) -> str:
 
 
 def _source(prefix: str, row: dict[str, Any], fallback: str) -> str:
-    doc_id = row.get("doc_id")
-    if doc_id:
-        return str(doc_id)
+    if row.get("doc_id"):
+        return str(row["doc_id"])
     preferred = {
         "product": ("product_id", "order_id", "handoff_id"),
         "order": ("order_id", "product_id", "handoff_id"),
@@ -56,6 +58,21 @@ def _source(prefix: str, row: dict[str, Any], fallback: str) -> str:
     return fallback
 
 
+def _source_item_count(tool_name: str, result: dict[str, Any]) -> int:
+    if tool_name == "search_catalog":
+        return len(result.get("items") or [])
+    if tool_name == "get_policy":
+        return len(result.get("policies") or [])
+    if tool_name == "compare_products":
+        return len(result.get("products") or [])
+    if tool_name in {"get_product", "get_order"}:
+        key = "product" if tool_name == "get_product" else "order"
+        return int(bool(result.get(key)))
+    if tool_name in {"check_return_eligibility", "create_return_request"}:
+        return int(any(key not in {"ok"} for key in result))
+    return 0
+
+
 def evidence_from_tool_call(
     tool_name: str,
     arguments: dict[str, Any],
@@ -65,9 +82,8 @@ def evidence_from_tool_call(
     start_index: int = 1,
 ) -> list[dict[str, Any]]:
     """Normalize one successful tool result into stable, atomic evidence rows."""
-    if not isinstance(result, dict) or not result.get("ok", False):
+    if tool_name not in CONVERTER_TOOLS or not isinstance(result, dict) or not result.get("ok", False):
         return []
-
     rows: list[dict[str, Any]] = []
     seen: set[tuple[str, str, str]] = set()
 
@@ -80,16 +96,10 @@ def evidence_from_tool_call(
             return
         seen.add(key)
         rows.append({
-            "evidence_id": f"E{start_index + len(rows)}",
-            "source_id": source_id,
-            "tool_call_id": call_id,
-            "tool_name": tool_name,
-            "kind": kind,
-            "field": field,
-            "value": value,
-            "text": text if text is not None else _text(value),
-            "confidence": 1.0,
-            "updated_at": updated_at,
+            "evidence_id": f"E{start_index + len(rows)}", "source_id": source_id,
+            "tool_call_id": call_id, "tool_name": tool_name, "kind": kind,
+            "field": field, "value": value, "text": text if text is not None else _text(value),
+            "confidence": 1.0, "updated_at": updated_at,
         })
 
     def add_product(product: dict[str, Any], *, prefix: str = "product") -> None:
@@ -101,15 +111,13 @@ def evidence_from_tool_call(
 
     def add_order(order: dict[str, Any]) -> None:
         source_id = _source("order", order, f"tool:{call_id}")
-        for field in (
-            "order_id", "product_id", "status", "ordered_at", "delivered_at",
-            "opened", "quality_issue", "inventory_status", "return_status", "version",
-        ):
+        for field in ("order_id", "product_id", "status", "ordered_at", "delivered_at",
+                      "opened", "quality_issue", "inventory_status", "return_status", "version"):
             if field in order:
                 add(source_id, "order_field", f"order.{field}", order.get(field))
 
     if tool_name == "search_catalog":
-        for item in result.get("items", []):
+        for item in result.get("items") or []:
             if isinstance(item, dict):
                 add_product(item, prefix="catalog_candidate")
     elif tool_name == "get_product":
@@ -117,35 +125,33 @@ def evidence_from_tool_call(
         if isinstance(product, dict):
             add_product(product)
             source_id = _source("product", product, f"tool:{call_id}")
-            for index, passage in enumerate(result.get("evidence", []), 1):
+            for index, passage in enumerate(result.get("evidence") or [], 1):
                 add(source_id, "product_passage", f"product.evidence.{index}", passage, text=str(passage))
     elif tool_name == "compare_products":
-        for wrapped in result.get("products", []):
-            if not isinstance(wrapped, dict):
-                continue
-            product = wrapped.get("product") or {}
+        for wrapped in result.get("products") or []:
+            product = wrapped.get("product") or {} if isinstance(wrapped, dict) else {}
             if isinstance(product, dict):
                 add_product(product, prefix="comparison_field")
                 source_id = _source("product", product, f"tool:{call_id}")
-                for index, passage in enumerate(wrapped.get("evidence", []), 1):
+                for index, passage in enumerate(wrapped.get("evidence") or [], 1):
                     add(source_id, "product_passage", f"product.evidence.{index}", passage, text=str(passage))
     elif tool_name == "get_policy":
         canonical = arguments.get("policy_type")
-        for policy in result.get("policies", []):
-            if not isinstance(policy, dict):
-                continue
-            source_id = _source("policy", policy, f"tool:{call_id}")
-            add(source_id, "policy_field", "policy.category", canonical)
-            add(source_id, "policy_field", "policy.title", policy.get("title"))
-            add(source_id, "policy_clause", "policy.text", policy.get("text"), text=policy.get("text"),
-                updated_at=policy.get("updated_at"))
+        for policy in result.get("policies") or []:
+            if isinstance(policy, dict):
+                source_id = _source("policy", policy, f"tool:{call_id}")
+                add(source_id, "policy_field", "policy.category", canonical)
+                add(source_id, "policy_field", "policy.title", policy.get("title"))
+                add(source_id, "policy_clause", "policy.text", policy.get("text"), text=policy.get("text"),
+                    updated_at=policy.get("updated_at"))
     elif tool_name == "get_order":
         order = result.get("order") or {}
         if isinstance(order, dict):
             add_order(order)
     elif tool_name == "check_return_eligibility":
         order = result.get("order") or {}
-        source_id = _source("order", order if isinstance(order, dict) else {}, f"order:{arguments.get('order_id', call_id)}")
+        source_id = _source("order", order if isinstance(order, dict) else {},
+                            f"order:{arguments.get('order_id', call_id)}")
         for field in ("eligible", "reason", "days_since_delivery"):
             if field in result:
                 add(source_id, "return_eligibility", f"return.{field}", result.get(field))
@@ -156,25 +162,43 @@ def evidence_from_tool_call(
         for field in ("changed", "order_id", "return_status"):
             if field in result:
                 add(source_id, "return_transition", f"return.{field}", result.get(field))
-
     return rows
 
 
+def convert_tool_call_to_evidence(tool_name: str, arguments: dict[str, Any], result: dict[str, Any],
+                                  call_id: str, *, start_index: int = 1) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
+    """Return evidence plus an auditable conversion span for evidence-bearing calls."""
+    if tool_name not in EVIDENCE_BEARING_TOOLS:
+        return [], None
+    if tool_name not in CONVERTER_TOOLS:
+        return [], {"tool_call_id": call_id, "tool_name": tool_name, "status": "converter_missing",
+                    "evidence_ids": [], "source_item_count": 0, "evidence_item_count": 0}
+    source_count = _source_item_count(tool_name, result) if isinstance(result, dict) else 0
+    rows = evidence_from_tool_call(tool_name, arguments, result, call_id, start_index=start_index)
+    if not isinstance(result, dict) or not result.get("ok", False):
+        status = "tool_failed"
+    elif source_count == 0:
+        status = "valid_empty"
+    else:
+        status = "converted"
+    return rows, {
+        "tool_call_id": call_id, "tool_name": tool_name, "status": status,
+        "evidence_ids": [row["evidence_id"] for row in rows],
+        "source_item_count": source_count, "evidence_item_count": len(rows),
+    }
+
+
 def render_evidence_ledger(ledger: list[dict[str, Any]], *, max_chars: int = 8000) -> str:
-    """Compact prompt representation with stable evidence identifiers."""
     lines = []
     for row in ledger:
         text = str(row.get("text", "")).replace("\n", " ")
-        lines.append(
-            f"[{row.get('evidence_id')}] source={row.get('source_id')} "
-            f"field={row.get('field')} value={_text(row.get('value'))} text={text}"
-        )
+        lines.append(f"[{row.get('evidence_id')}] source={row.get('source_id')} "
+                     f"field={row.get('field')} value={_text(row.get('value'))} text={text}")
     rendered = "\n".join(lines)
     return rendered if len(rendered) <= max_chars else rendered[:max_chars] + "…[evidence truncated]"
 
 
 def freshness_from_ledger(answer: str, ledger: list[dict[str, Any]]) -> dict[str, Any]:
-    """Adapt ledger sources to the existing freshness diagnostic interface."""
     products: dict[str, dict[str, Any]] = {}
     policies: dict[str, dict[str, Any]] = {}
     for row in ledger:
@@ -185,29 +209,68 @@ def freshness_from_ledger(answer: str, ledger: list[dict[str, Any]]) -> dict[str
         item = target.setdefault(source_id, {"source_id": source_id, "default_updated_at": None})
         if row.get("updated_at"):
             item["default_updated_at"] = row["updated_at"]
-    return freshness.assess(
-        {"products": list(products.values()), "policies": list(policies.values())},
-        intent="evidence_grounded_agent", answer=answer,
-    )
+    return freshness.assess({"products": list(products.values()), "policies": list(policies.values())},
+                            intent="evidence_grounded_agent", answer=answer)
+
+
+def extract_user_context(messages: list[dict[str, Any]] | None) -> dict[str, Any]:
+    """Extract only user-provided constraints/identifiers, never claimed business facts."""
+    texts = [str(row.get("content", "")) for row in (messages or []) if row.get("role") == "user"]
+    joined = "\n".join(texts)
+    budgets: list[float] = []
+    for pattern in (
+        r"(?:预算|上限)[^0-9]{0,8}([0-9]+(?:\.[0-9]+)?)\s*元?",
+        r"(?:不超过|以内|最多)[^0-9]{0,8}([0-9]+(?:\.[0-9]+)?)\s*元",
+        r"([0-9]+(?:\.[0-9]+)?)\s*元(?:以内|以下|封顶)",
+    ):
+        budgets.extend(float(value) for value in re.findall(pattern, joined, re.I))
+    identifiers = sorted(set(re.findall(r"\b(?:P[0-9]{5}|O[0-9]{6})\b", joined, re.I)))
+    codes = sorted(set(match.group(0) for match in re.finditer(r"(?<![0-9])[0-9]{6}(?![0-9])", joined)
+                       if re.search(r"验证|校验|code", joined[max(0, match.start()-12):match.end()+12], re.I)))
+    confirmations = [text for text in texts if re.search(r"(?:确认|同意|拒绝|不同意|confirm|yes|no)", text, re.I)]
+    return {"budgets": sorted(set(budgets)), "identifiers": identifiers,
+            "verification_codes": codes, "confirmations": confirmations}
 
 
 def _sentences(answer: str) -> list[str]:
-    # Models often put a citation immediately after terminal punctuation. Keep
-    # that citation bound to the preceding sentence before using the shared
-    # sentence splitter, otherwise ``事实。[E1]`` becomes an uncited fact plus a
-    # discarded citation-only fragment.
     normalized = re.sub(r"([。！？.!?])(\s*(?:\[E[1-9][0-9]*\])+)", r"\2\1", answer)
-    sentences = split_sentences(normalized)
-    return sentences or ([answer.strip()] if answer.strip() else [])
+    return split_sentences(normalized) or ([answer.strip()] if answer.strip() else [])
+
+
+def _normalized_dates(text: str) -> list[str]:
+    values = _ISO_DATE.findall(text) + _ZH_DATE.findall(text) + _EN_DATE.findall(text)
+    normalized = []
+    months = {name.lower(): index for index, names in enumerate((
+        ("jan", "january"), ("feb", "february"), ("mar", "march"), ("apr", "april"),
+        ("may",), ("jun", "june"), ("jul", "july"), ("aug", "august"),
+        ("sep", "september"), ("oct", "october"), ("nov", "november"), ("dec", "december")), 1)
+              for name in names}
+    for value in values:
+        if "年" in value:
+            y, m, d = map(int, re.findall(r"[0-9]+", value))
+            normalized.append(f"{y:04d}-{m:02d}-{d:02d}")
+        elif re.match(r"[A-Za-z]", value):
+            name, day, year = re.match(r"([A-Za-z]+)\s+([0-9]+),\s*([0-9]+)", value).groups()
+            normalized.append(f"{int(year):04d}-{months[name.lower()]:02d}-{int(day):02d}")
+        else:
+            normalized.append(value)
+    return normalized
 
 
 def _facts(text: str) -> list[str]:
-    facts = _ID_FACT.findall(text) + _DATE_FACT.findall(text) + _NUMERIC_FACT.findall(text)
-    lowered = text.lower()
-    # Prefer the longest non-overlapping state phrase so “不符合退货条件” does
-    # not also emit the opposite substring “符合退货条件”.
+    dates = _normalized_dates(text)
+    masked = _ISO_DATE.sub(" ", _ZH_DATE.sub(" ", _EN_DATE.sub(" ", text)))
+    facts = _ID_FACT.findall(masked) + dates + _NUMERIC_FACT.findall(masked)
+    lowered = masked.lower()
+    terms = {
+        "pending", "processed", "delivered", "cancelled", "requested", "out_of_stock",
+        "已交付", "已送达", "待处理", "处理中", "已取消", "缺货", "有货", "可退货", "不可退货",
+        "符合退货条件", "不符合退货条件", "退货申请已提交", "已成功提交", "已申请退货", "已停产", "未停产",
+    }
+    if re.search(r"(?:库存|存货|缺货|有货)[^。！？.!?]{0,12}\bavailable\b|\bavailable\b[^。！？.!?]{0,12}(?:库存|存货)", lowered):
+        terms.add("available")
     occupied: list[tuple[int, int]] = []
-    for term in sorted(_STATE_TERMS, key=len, reverse=True):
+    for term in sorted(terms, key=len, reverse=True):
         for match in re.finditer(re.escape(term.lower()), lowered):
             span = match.span()
             if any(not (span[1] <= used[0] or span[0] >= used[1]) for used in occupied):
@@ -218,100 +281,125 @@ def _facts(text: str) -> list[str]:
 
 
 def _corpus(rows: Iterable[dict[str, Any]]) -> str:
-    return "\n".join(
-        f"{row.get('source_id', '')} {row.get('field', '')} {_text(row.get('value'))} {row.get('text', '')}"
-        for row in rows
-    ).lower()
+    return "\n".join(f"{row.get('source_id', '')} {row.get('field', '')} {_text(row.get('value'))} {row.get('text', '')}"
+                     for row in rows).lower()
 
 
-def _fact_supported(fact: str, rows: Iterable[dict[str, Any]]) -> bool:
+def _fact_supported(fact: str, rows: Iterable[dict[str, Any]], user_context: dict[str, Any] | None = None) -> bool:
     rows = list(rows)
     fact_l = re.sub(r"\s+", "", fact.lower())
     corpus = re.sub(r"\s+", "", _corpus(rows))
     if fact_l in corpus:
         return True
+    if fact in _normalized_dates(corpus):
+        return True
     amount = re.fullmatch(r"([0-9]+(?:\.[0-9]+)?)元", fact_l)
     if amount:
         expected = float(amount.group(1))
-        for row in rows:
-            if row.get("field") == "product.price" and isinstance(row.get("value"), (int, float)):
-                if float(row["value"]) == expected:
-                    return True
+        if expected in (user_context or {}).get("budgets", []):
+            return True
+        return any(row.get("field") == "product.price" and isinstance(row.get("value"), (int, float))
+                   and float(row["value"]) == expected for row in rows)
+    days = re.fullmatch(r"([0-9]+(?:\.[0-9]+)?)(?:天|日)", fact_l)
+    if days:
+        expected = float(days.group(1))
+        if any(row.get("field") == "return.days_since_delivery" and isinstance(row.get("value"), (int, float))
+               and float(row["value"]) == expected for row in rows):
+            return True
+    if fact.upper() in {x.upper() for x in (user_context or {}).get("identifiers", [])}:
+        return True
     aliases = {
-        "已送达": "delivered", "已交付": "delivered", "待处理": "pending",
-        "处理中": "processed", "已取消": "cancelled", "缺货": "out_of_stock",
-        "有货": "available", "可退货": "true", "符合退货条件": "true",
-        "不可退货": "false", "不符合退货条件": "false",
+        "已送达": "delivered", "已交付": "delivered", "待处理": "pending", "处理中": "processed",
+        "已取消": "cancelled", "缺货": "out_of_stock", "有货": "available", "可退货": "true",
+        "符合退货条件": "true", "不可退货": "false", "不符合退货条件": "false",
+        "退货申请已提交": "requested", "已成功提交": "requested", "已申请退货": "requested",
     }
     return aliases.get(fact_l, "\0") in corpus
 
 
 def _explicit_contradiction(sentence: str, rows: list[dict[str, Any]]) -> dict[str, Any] | None:
     lowered = sentence.lower()
-    checks = (
-        ("已停产", "product.discontinued", True),
-        ("未停产", "product.discontinued", False),
-        ("不符合退货条件", "return.eligible", False),
-        ("不可退货", "return.eligible", False),
-        ("符合退货条件", "return.eligible", True),
-        ("可退货", "return.eligible", True),
-    )
+    price_claims = []
+    for match in re.finditer(r"([0-9]+(?:\.[0-9]+)?)\s*元", sentence):
+        nearby = sentence[max(0, match.start() - 12):match.end() + 4]
+        if re.search(r"预算|上限|不超过|以内|最多|封顶", nearby):
+            continue
+        price_claims.append(float(match.group(1)))
+    prices = [float(row["value"]) for row in rows if row.get("field") == "product.price"
+              and isinstance(row.get("value"), (int, float))]
+    for claimed in price_claims:
+        if prices and claimed not in prices:
+            return {"sentence": sentence, "claim": f"{claimed:g}元", "field": "product.price",
+                    "evidence_values": prices, "reason": "explicit_contradiction"}
+    day_claims = [float(value) for value in re.findall(r"([0-9]+(?:\.[0-9]+)?)\s*(?:天|日)",
+                                                       _ZH_DATE.sub("", sentence))]
+    elapsed_days = [float(row["value"]) for row in rows if row.get("field") == "return.days_since_delivery"
+                    and isinstance(row.get("value"), (int, float))]
+    for claimed in day_claims:
+        if elapsed_days and claimed not in elapsed_days:
+            return {"sentence": sentence, "claim": f"{claimed:g}天", "field": "return.days_since_delivery",
+                    "evidence_values": elapsed_days, "reason": "explicit_contradiction"}
+    claimed_dates = _normalized_dates(sentence)
+    date_rows = [str(row.get("value")) for row in rows if str(row.get("field", "")).endswith("_at")]
+    normalized_evidence_dates = _normalized_dates(" ".join(date_rows))
+    for claimed in claimed_dates:
+        if normalized_evidence_dates and claimed not in normalized_evidence_dates:
+            return {"sentence": sentence, "claim": claimed, "field": "structured_date",
+                    "evidence_values": normalized_evidence_dates, "reason": "explicit_contradiction"}
+    checks = (("已停产", "product.discontinued", True), ("未停产", "product.discontinued", False),
+              ("不符合退货条件", "return.eligible", False), ("不可退货", "return.eligible", False),
+              ("符合退货条件", "return.eligible", True), ("可退货", "return.eligible", True))
     for phrase, field, claimed in checks:
-        if phrase not in lowered:
-            continue
-        if phrase == "符合退货条件" and "不符合退货条件" in lowered:
-            continue
-        if phrase == "可退货" and "不可退货" in lowered:
+        if phrase not in lowered or (phrase == "符合退货条件" and "不符合退货条件" in lowered) or (
+                phrase == "可退货" and "不可退货" in lowered):
             continue
         values = [row.get("value") for row in rows if row.get("field") == field]
         if values and claimed not in values:
             return {"sentence": sentence, "claim": phrase, "field": field,
                     "evidence_values": values, "reason": "explicit_contradiction"}
-
-    state_fields = {
-        "order.status": {"pending", "processed", "delivered", "cancelled"},
-        "order.inventory_status": {"available", "out_of_stock"},
-        "return.return_status": {"requested", "already_requested"},
+    aliases = {
+        "order.status": {"pending": ("pending", "待处理"), "processed": ("processed", "处理中", "已处理"),
+                         "delivered": ("delivered", "已送达", "已交付"), "cancelled": ("cancelled", "已取消")},
+        "order.inventory_status": {"available": ("有货",), "out_of_stock": ("out_of_stock", "缺货")},
+        "return.return_status": {"requested": ("requested", "退货申请已提交", "已成功提交", "已申请退货"),
+                                 "already_requested": ("already_requested", "已提交过退货")},
     }
-    for field, vocabulary in state_fields.items():
-        claimed_values = [value for value in vocabulary if value in lowered]
-        evidence_values = [str(row.get("value")).lower() for row in rows if row.get("field") == field]
-        if claimed_values and evidence_values and not any(value in evidence_values for value in claimed_values):
-            return {"sentence": sentence, "claim": claimed_values[0], "field": field,
-                    "evidence_values": evidence_values, "reason": "explicit_contradiction"}
-
-    # A cited policy clause that contains a different duration makes a wrong
-    # duration a contradiction, not merely an unsupported number.
-    claimed_durations = re.findall(r"[0-9]+(?:\.[0-9]+)?\s*(?:天|日|工作日|小时|分钟)", sentence)
-    if claimed_durations:
-        policy_rows = [row for row in rows if str(row.get("field", "")).startswith("policy.")]
-        for duration in claimed_durations:
-            if policy_rows and not _fact_supported(duration, policy_rows):
-                evidence_durations = []
-                for row in policy_rows:
-                    evidence_durations.extend(re.findall(
-                        r"[0-9]+(?:\.[0-9]+)?\s*(?:天|日|工作日|小时|分钟)", str(row.get("text", ""))))
-                if evidence_durations:
-                    return {"sentence": sentence, "claim": duration, "field": "policy.text",
-                            "evidence_values": evidence_durations, "reason": "explicit_contradiction"}
+    for field, vocabulary in aliases.items():
+        claimed = [canonical for canonical, phrases in vocabulary.items() if any(p in lowered for p in phrases)]
+        evidence = [str(row.get("value")).lower() for row in rows if row.get("field") == field]
+        if claimed and evidence and not any(value in evidence for value in claimed):
+            return {"sentence": sentence, "claim": claimed[0], "field": field,
+                    "evidence_values": evidence, "reason": "explicit_contradiction"}
+    durations = re.findall(r"[0-9]+(?:\.[0-9]+)?\s*(?:个工作日|工作日|天|日|小时|分钟)", sentence)
+    policy_rows = [row for row in rows if str(row.get("field", "")).startswith("policy.")]
+    for duration in durations:
+        if policy_rows and not _fact_supported(duration, policy_rows):
+            evidence_values = re.findall(r"[0-9]+(?:\.[0-9]+)?\s*(?:个工作日|工作日|天|日|小时|分钟)",
+                                         _corpus(policy_rows))
+            if evidence_values:
+                return {"sentence": sentence, "claim": duration, "field": "policy.text",
+                        "evidence_values": evidence_values, "reason": "explicit_contradiction"}
     return None
 
 
 def _value_mentioned(value: Any, answer: str) -> bool:
-    rendered = _text(value).lower()
-    lowered = answer.lower()
+    rendered, lowered = _text(value).lower(), answer.lower()
     if rendered and rendered in lowered:
         return True
     aliases = {
-        "delivered": ("已送达", "已交付", "已签收"),
-        "pending": ("待处理", "待付款"),
-        "processed": ("处理中", "已处理"),
-        "cancelled": ("已取消",),
-        "requested": ("已提交退货", "退货申请已提交", "已申请退货"),
+        "delivered": ("已送达", "已交付", "已签收"), "pending": ("待处理", "待付款"),
+        "processed": ("处理中", "已处理"), "cancelled": ("已取消",),
+        "requested": ("已提交退货", "退货申请已提交", "已成功提交", "已申请退货"),
         "true": ("符合退货条件", "可以退货", "可退货"),
         "false": ("不符合退货条件", "不能退货", "不可退货"),
     }
     return any(alias in lowered for alias in aliases.get(rendered, ()))
+
+
+def _english_overlap(left: str, right: str) -> float:
+    tokens = lambda value: set(re.findall(r"[a-z0-9]+(?:\.[0-9]+)?", value.lower()))
+    a, b = tokens(left), tokens(right)
+    return len(a & b) / len(a) if a else 0.0
 
 
 def _row_supports_sentence(sentence: str, row: dict[str, Any]) -> bool:
@@ -321,106 +409,90 @@ def _row_supports_sentence(sentence: str, row: dict[str, Any]) -> bool:
     facts = _facts(clean)
     if facts and all(_fact_supported(fact, [row]) for fact in facts):
         return True
-    # Deterministic lexical support for non-numeric policy/product prose. Four
-    # contiguous CJK characters are specific enough to reject a naked citation
-    # while still permitting short extractive paraphrases such as “电子发票”.
-    evidence_text = re.sub(r"\s+", "", str(row.get("text", "")).lower())
-    for sequence in re.findall(r"[\u4e00-\u9fff]{4,}", clean):
-        for index in range(len(sequence) - 3):
-            if sequence[index:index + 4] in evidence_text:
-                return True
-    return False
+    evidence_text = str(row.get("text", ""))
+    compact = re.sub(r"\s+", "", evidence_text.lower())
+    if any(sequence[index:index + 4] in compact for sequence in re.findall(r"[\u4e00-\u9fff]{4,}", clean)
+           for index in range(len(sequence) - 3)):
+        return True
+    return _english_overlap(clean, f"{row.get('field', '')} {row.get('value', '')} {evidence_text}") >= 0.5
 
 
-def verify_answer(
-    answer: str,
-    ledger: list[dict[str, Any]],
-    *,
-    expectations: dict[str, Any] | None = None,
-    require_citations: bool = False,
-) -> dict[str, Any]:
-    """Verify high-risk claims using exact, deterministic evidence checks.
+def _required_matches(key: str, ledger: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if "*" in key:
+        return [row for row in ledger if fnmatchcase(str(row.get("field", "")), key)]
+    return [row for row in ledger if row.get("field") == key]
 
-    This deliberately does not judge tone, persuasiveness, or generic prose.
-    Unknown prose remains outside the hard gate instead of being guessed at with
-    keywords or embedding similarity.
-    """
+
+def verify_answer(answer: str, ledger: list[dict[str, Any]], *, expectations: dict[str, Any] | None = None,
+                  require_citations: bool = False, user_messages: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Separate hard factual contradictions from diagnostic evidence quality."""
     expectations = expectations or {}
+    user_context = extract_user_context(user_messages)
     by_id = {str(row.get("evidence_id")): row for row in ledger}
-    invalid_citations: list[str] = []
+    invalid: list[str] = []
     unsupported: list[dict[str, Any]] = []
     contradicted: list[dict[str, Any]] = []
     citation_failures: list[dict[str, Any]] = []
+    citation_oppositions: list[dict[str, Any]] = []
     cited_any = False
-
     for sentence in _sentences(answer):
-        citation_ids = [f"E{x}" for x in EVIDENCE_CITATION.findall(sentence)]
-        cited_any = cited_any or bool(citation_ids)
-        missing_ids = [eid for eid in citation_ids if eid not in by_id]
-        invalid_citations.extend(missing_ids)
-        cited_rows = [by_id[eid] for eid in citation_ids if eid in by_id]
-        facts = _facts(sentence)
-        # Factual correctness is measured against the full ledger. Whether the
-        # selected citation supports that otherwise-correct fact is a separate
-        # binding metric below.
+        ids = [f"E{x}" for x in EVIDENCE_CITATION.findall(sentence)]
+        cited_any = cited_any or bool(ids)
+        missing = [eid for eid in ids if eid not in by_id]
+        invalid.extend(missing)
+        cited_rows = [by_id[eid] for eid in ids if eid in by_id]
         contradiction = _explicit_contradiction(sentence, ledger)
         if contradiction:
             contradicted.append(contradiction)
+        cited_contradiction = _explicit_contradiction(sentence, cited_rows) if cited_rows else None
+        if cited_contradiction:
+            citation_oppositions.append({**cited_contradiction, "evidence_ids": ids,
+                                         "reason": "cited_evidence_supports_opposite"})
+        facts = _facts(sentence)
         for fact in facts:
-            if not _fact_supported(fact, ledger):
+            if not _fact_supported(fact, ledger, user_context):
                 unsupported.append({"sentence": sentence, "claim": fact, "reason": "not_in_evidence"})
-            if citation_ids and not _fact_supported(fact, cited_rows):
+            if ids and not _fact_supported(fact, cited_rows, user_context):
                 citation_failures.append({"sentence": sentence, "claim": fact,
-                                          "evidence_ids": citation_ids, "reason": "citation_does_not_support_claim"})
-        if citation_ids and not facts and cited_rows and not any(
-                _row_supports_sentence(sentence, row) for row in cited_rows):
-            citation_failures.append({"sentence": sentence, "claim": None,
-                                      "evidence_ids": citation_ids, "reason": "citation_has_no_lexical_support"})
-
+                                          "evidence_ids": ids, "reason": "citation_does_not_support_claim"})
+        if ids and not facts and cited_rows and not any(_row_supports_sentence(sentence, row) for row in cited_rows):
+            citation_failures.append({"sentence": sentence, "claim": None, "evidence_ids": ids,
+                                      "reason": "citation_has_no_lexical_support"})
     required = list(expectations.get("required_fact_keys", []))
     omitted: list[str] = []
     covered = 0
+    sentences = _sentences(answer)
     for key in required:
-        matching = [row for row in ledger if row.get("field") == key]
-        key_covered = False
-        for row in matching:
-            if _value_mentioned(row.get("value"), answer):
-                key_covered = True
-                break
-            eid = str(row.get("evidence_id"))
-            if any(f"[{eid}]" in sentence and _row_supports_sentence(sentence, row)
-                   for sentence in _sentences(answer)):
-                key_covered = True
-                break
-        if key_covered:
+        matching = _required_matches(key, ledger)
+        ok = any(_value_mentioned(row.get("value"), answer) or any(
+            f"[{row.get('evidence_id')}]" in sentence and _row_supports_sentence(sentence, row)
+            for sentence in sentences) for row in matching)
+        if ok:
             covered += 1
         else:
             omitted.append(key)
-
-    forbidden_values = expectations.get("forbidden_values", {})
-    for field, values in forbidden_values.items():
+    for field, values in expectations.get("forbidden_values", {}).items():
         for value in values:
             if _text(value).lower() in answer.lower():
                 contradicted.append({"sentence": answer, "claim": _text(value), "field": field,
                                      "reason": "forbidden_expected_value"})
-
+    applicable = bool(ledger or required or expectations.get("forbidden_values"))
+    hard_pass = not invalid and not contradicted and not citation_oppositions
+    citation_format = ([{"reason": "citation_range_not_allowed", "text": match.group(0)}
+                        for match in EVIDENCE_RANGE.finditer(answer)])
+    if require_citations and applicable and not cited_any:
+        citation_format.append({"reason": "citation_missing", "sentence": answer})
+    citation_ok = not invalid and not citation_failures and not citation_format
     coverage = covered / len(required) if required else None
-    applicable = bool(ledger or required or forbidden_values)
-    fact_pass = applicable and not unsupported and not contradicted and not omitted
-    citation_ok = not invalid_citations and not citation_failures and (cited_any or not require_citations)
+    diagnostics = [*citation_format, *citation_failures]
     return {
-        "applicable": applicable,
-        "answer_fact_pass": fact_pass,
-        "citation_binding_pass": citation_ok,
-        "required_evidence_coverage": coverage,
-        "unsupported_high_risk_claims": unsupported,
-        "contradicted_claims": contradicted,
-        "omitted_required_facts": omitted,
-        "invalid_citations": sorted(set(invalid_citations)),
-        "citation_failures": citation_failures,
-        "cited_evidence_ids": sorted(set(EVIDENCE_CITATION.findall(answer))),
-        "require_citations": require_citations,
-        # Diagnostic only in Phase A. It is intentionally excluded from
-        # ``answer_fact_pass`` until calibrated against the dynamic data policy.
+        "applicable": applicable, "hard_verification_pass": hard_pass,
+        "answer_fact_pass": hard_pass, "citation_binding_pass": citation_ok,
+        "required_evidence_coverage": coverage, "unsupported_high_risk_claims": unsupported,
+        "contradicted_claims": contradicted, "omitted_required_facts": omitted,
+        "invalid_citations": sorted(set(invalid)), "citation_failures": citation_failures,
+        "citation_oppositions": citation_oppositions, "citation_diagnostics": diagnostics,
+        "cited_evidence_ids": sorted({f"E{x}" for x in EVIDENCE_CITATION.findall(answer)}),
+        "require_citations": require_citations, "user_context": user_context,
         "freshness": freshness_from_ledger(answer, ledger),
     }

@@ -358,5 +358,27 @@ class ObservabilityTraceTests(unittest.TestCase):
         self.assertIn("no_json_object", seen[1])
 
 
+class RetrievalContractFeedbackTests(unittest.TestCase):
+    def test_external_identifier_gets_actionable_retry_stage(self):
+        bad = ('{"action_type":"tool_call","tool_name":"get_product",'
+               '"arguments":{"product_id":"QGHXO"},"content":"","requires_user_response":false}')
+        good = ('{"action_type":"tool_call","tool_name":"search_catalog",'
+                '"arguments":{"query":"QGHXO","top_k":5},"content":"","requires_user_response":false}')
+        policy = LLMPolicy(_scripted(bad, good))
+        action = policy.act(_observation())
+        self.assertEqual(action.tool_name, "search_catalog")
+        self.assertEqual(policy.last_trace["attempts"][0]["parse_stage"], "external_product_identifier")
+
+    def test_noncanonical_policy_gets_canonical_retry_stage(self):
+        bad = ('{"action_type":"tool_call","tool_name":"get_policy",'
+               '"arguments":{"policy_type":"return_policy"},"content":"","requires_user_response":false}')
+        good = ('{"action_type":"tool_call","tool_name":"get_policy",'
+                '"arguments":{"policy_type":"return"},"content":"","requires_user_response":false}')
+        policy = LLMPolicy(_scripted(bad, good))
+        action = policy.act(_observation())
+        self.assertEqual(action.arguments["policy_type"], "return")
+        self.assertEqual(policy.last_trace["attempts"][0]["parse_stage"], "noncanonical_policy_type")
+
+
 if __name__ == "__main__":
     unittest.main()

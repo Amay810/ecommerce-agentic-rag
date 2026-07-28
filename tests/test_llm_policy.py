@@ -198,7 +198,7 @@ class ActionSemanticsTests(unittest.TestCase):
 
     def test_non_identity_tools_are_unaffected(self):
         policy = LLMPolicy(_scripted('{"action_type":"tool_call","tool_name":"get_policy","arguments":'
-                                     '{"policy_type":"退换货"},"content":"","requires_user_response":false}'))
+                                     '{"policy_type":"return"},"content":"","requires_user_response":false}'))
         action = policy.act(_observation())
         self.assertEqual(action.tool_name, "get_policy")
 

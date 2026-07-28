@@ -35,10 +35,10 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     },
     {
         "name": "get_product",
-        "description": "Fetch one product card by id.",
+        "description": "Fetch one product card by internal ID returned by search_catalog. Product names, model numbers and SKUs must be searched first.",
         "parameters": {
             "type": "object",
-            "properties": {"product_id": {"type": "string"}},
+            "properties": {"product_id": {"type": "string", "pattern": r"P[0-9]{5}"}},
             "required": ["product_id"],
         },
     },
@@ -53,10 +53,14 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     },
     {
         "name": "get_policy",
-        "description": "Fetch an after-sales policy document.",
+        "description": "Fetch one policy category using its canonical key.",
         "parameters": {
             "type": "object",
-            "properties": {"policy_type": {"type": "string", "description": "e.g. 退换货 / 保修 / 物流 / 发票 / 退款"}},
+            "properties": {"policy_type": {
+                "type": "string",
+                "enum": ["return", "warranty", "shipping", "invoice", "refund"],
+                "description": "Canonical policy key: return, warranty, shipping, invoice, or refund.",
+            }},
             "required": ["policy_type"],
         },
     },
@@ -194,6 +198,10 @@ def validate_arguments(tool_name: str, arguments: dict[str, Any]) -> None:
         if pattern and not (isinstance(value, str) and re.fullmatch(pattern, value)):
             raise ToolArgumentError(
                 f"{tool_name}.{name}: {value!r} does not match required pattern {pattern}")
+        choices = spec.get("enum")
+        if choices is not None and value not in choices:
+            raise ToolArgumentError(
+                f"{tool_name}.{name}: {value!r} is not one of {', '.join(map(str, choices))}")
         if spec.get("type") == "array":
             item_type = (spec.get("items") or {}).get("type")
             bad = [x for x in value if item_type and not _type_ok(x, item_type)]

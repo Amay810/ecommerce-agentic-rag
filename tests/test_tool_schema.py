@@ -143,7 +143,7 @@ class ValidateArgumentsTests(unittest.TestCase):
 
     def test_unknown_argument_is_rejected(self):
         with self.assertRaises(ToolArgumentError) as ctx:
-            validate_arguments("get_policy", {"policy_type": "退换货", "locale": "zh"})
+            validate_arguments("get_policy", {"policy_type": "return", "locale": "zh"})
         self.assertIn("locale", str(ctx.exception))
 
     def test_wrong_type_is_rejected(self):
@@ -169,6 +169,18 @@ class ValidateArgumentsTests(unittest.TestCase):
     def test_unknown_tool_is_rejected(self):
         with self.assertRaises(ToolArgumentError):
             validate_arguments("drop_database", {})
+
+    def test_product_detail_accepts_only_internal_ids(self):
+        validate_arguments("get_product", {"product_id": "P00001"})
+        for external_id in ("Ce-H22B12-S1", "QGHXO", "PSAMGLXTLC26"):
+            with self.subTest(external_id=external_id), self.assertRaises(ToolArgumentError):
+                validate_arguments("get_product", {"product_id": external_id})
+
+    def test_policy_type_is_a_canonical_enum(self):
+        for policy_type in ("return", "warranty", "shipping", "invoice", "refund"):
+            validate_arguments("get_policy", {"policy_type": policy_type})
+        with self.assertRaises(ToolArgumentError):
+            validate_arguments("get_policy", {"policy_type": "保修"})
 
 
 class PromptBlockTests(unittest.TestCase):

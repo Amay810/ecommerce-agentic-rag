@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+import json
 from dataclasses import asdict
 from pathlib import Path
 
@@ -25,9 +26,9 @@ class HarnessToolTests(unittest.TestCase):
  def test_explicit_policy_language_precedes_order_and_return_keywords(self):
     policy = RulePolicy()
     cases = {
-        "我想了解物流，有没有正式规则": "物流",
-        "别猜，查一下退款规定": "退款",
-        "别猜，查一下物流规定": "物流",
+        "我想了解物流，有没有正式规则": "shipping",
+        "别猜，查一下退款规定": "refund",
+        "别猜，查一下物流规定": "shipping",
     }
     for message, expected_type in cases.items():
         observation = AgentObservation(
@@ -114,3 +115,13 @@ class HarnessToolTests(unittest.TestCase):
         runner = HarnessRunner(db)
         _, first = runner.run(task); _, second = runner.run(task)
         assert first.success and second.success and first.reward == second.reward
+
+ def test_policy_tasks_declare_the_exact_gold_document(self):
+    mapping = {"退换货": "policy:POL001", "保修": "policy:POL002", "物流": "policy:POL003",
+               "发票": "policy:POL004", "退款": "policy:POL005"}
+    path = Path(__file__).parents[1] / "ecommerce_rag" / "data" / "harness_tasks_v2.jsonl"
+    tasks = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    policies = [task for task in tasks if task["category"] == "policy"]
+    assert len(policies) == 20
+    for task in policies:
+        assert task["gold_doc_ids"] == [mapping[task["metadata"]["policy_type"]]]

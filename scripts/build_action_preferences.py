@@ -4,11 +4,21 @@ from collections import defaultdict
 from pathlib import Path
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument("--store",required=True);p.add_argument("--output",required=True);a=p.parse_args();conn=sqlite3.connect(a.store)
-    try:rows=[(json.loads(t),json.loads(g)) for t,g in conn.execute("SELECT trajectory_json,grade_json FROM trajectories")]
+    p=argparse.ArgumentParser();p.add_argument("--store",required=True);p.add_argument("--grades");p.add_argument("--output",required=True);a=p.parse_args();conn=sqlite3.connect(a.store)
+    try:rows=[(trajectory_id,json.loads(t),json.loads(g)) for trajectory_id,t,g in conn.execute("SELECT trajectory_id,trajectory_json,grade_json FROM trajectories")]
     finally:conn.close()
+    if a.grades:
+        overlay={}
+        for line in Path(a.grades).read_text(encoding="utf-8").splitlines():
+            if not line.strip():continue
+            row=json.loads(line);trajectory_id=row["trajectory_id"]
+            if trajectory_id in overlay:raise ValueError(f"duplicate trajectory_id: {trajectory_id}")
+            overlay[trajectory_id]=row["grade"]
+        expected={trajectory_id for trajectory_id,_,_ in rows}
+        if set(overlay)!=expected:raise ValueError("grade sidecar trajectory ids do not exactly match the store")
+        rows=[(trajectory_id,t,overlay[trajectory_id]) for trajectory_id,t,_ in rows]
     groups=defaultdict(list)
-    for t,g in rows:
+    for _,t,g in rows:
         if t.get("policy_name")=="LLMPolicy":groups[t["task_id"]].append((t,g))
     pairs=[]
     for task_id,items in groups.items():

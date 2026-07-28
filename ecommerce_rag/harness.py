@@ -134,7 +134,7 @@ class RulePolicy:
         # words were incorrectly routed to personal-order or return workflows.
         policy_request = any(x in lower for x in ("政策", "规定", "规则", "条款", "policy"))
         if policy_request and order_id is None:
-            policy_type = next((x for x in ("退换货", "保修", "物流", "发票", "退款") if x in text), "return")
+            policy_type = next((key for label, key in (("退换货", "return"), ("保修", "warranty"), ("物流", "shipping"), ("发票", "invoice"), ("退款", "refund")) if label in text), "return")
             return AgentAction.tool_call("get_policy", policy_type=policy_type)
 
         is_return = any(x in lower for x in ("退货", "退款", "return"))
@@ -149,7 +149,7 @@ class RulePolicy:
         if len(product_ids) >= 2 or any(x in lower for x in ("比较", "对比", "compare")):
             return AgentAction.tool_call("compare_products", product_ids=[x.upper() for x in product_ids[:2]])
         if any(x in lower for x in ("政策", "保修", "发票", "换货", "policy")):
-            policy_type = next((x for x in ("退换货", "保修", "物流", "发票", "退款") if x in text), "return")
+            policy_type = next((key for label, key in (("退换货", "return"), ("保修", "warranty"), ("物流", "shipping"), ("发票", "invoice"), ("退款", "refund")) if label in text), "return")
             return AgentAction.tool_call("get_policy", policy_type=policy_type)
         return AgentAction.tool_call("search_catalog", query=observation.current_message or text, top_k=5)
 
@@ -217,12 +217,16 @@ def _nested_diff(expected: dict[str, Any], actual: dict[str, Any], prefix: str =
     return diff
 
 
-def classify_failure(task: TaskSpec, trajectory: Trajectory, compliant: bool, state_ok: bool, tool_recall: float) -> str | None:
-    if any(c.error for c in trajectory.tool_calls): return "wrong-arguments"
-    if not compliant: return "policy"
-    if not state_ok: return "recovery" if any(c.name in WRITE_TOOLS for c in trajectory.tool_calls) else "routing"
+def classify_failure(*, forbidden_tool_attempt: bool, required_tool_failure: bool,
+                     retrieval_gold_ok: bool, state_ok: bool, tool_recall: float,
+                     handoff_matches: bool) -> str | None:
+    """Return one operational failure cause without judging answer prose."""
+    if forbidden_tool_attempt: return "forbidden-tool-attempt"
+    if required_tool_failure: return "required-tool-failed"
+    if not retrieval_gold_ok: return "retrieval-gold-missing"
+    if not state_ok: return "state-mismatch"
     if tool_recall < 1: return "wrong-tool"
-    if task.gold_doc_ids and not trajectory.retrievals: return "retrieval"
+    if not handoff_matches: return "handoff-mismatch"
     return None
 
 
@@ -244,9 +248,12 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
     precision = tp / len(observed) if observed else (1.0 if not expected else 0.0)
     recall = tp / len(expected) if expected else 1.0
     f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    forbidden_tool_attempt = bool(observed & forbidden)
     illegal_change = any(c.name in forbidden and c.result.get("changed") for c in trajectory.tool_calls)
     required_tool_failure = any(c.name in expected and not c.result.get("ok", False) for c in trajectory.tool_calls)
-    compliant = not illegal_change and not any(c.name in forbidden and c.result.get("ok") for c in trajectory.tool_calls)
+    # A guardrail can preserve terminal state while the policy still makes an
+    # impermissible decision. Keep those two facts separate.
+    compliant = not forbidden_tool_attempt
     state_diff = _nested_diff(task.expected_state, trajectory.final_state)
     state_ok = not state_diff
     handoff = any(c.name == "escalate_to_human" and c.result.get("ok") for c in trajectory.tool_calls)
@@ -257,14 +264,20 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
     if handoff != handoff_expected: reward -= 3.0
     if illegal_change: reward -= 5.0
     reward -= 0.1 * max(0, len(trajectory.messages) - 2)
-    failure = classify_failure(task, trajectory, compliant, state_ok, recall)
-    if required_tool_failure: failure = "retrieval" if observed & {"search_catalog", "get_product", "compare_products", "get_policy"} else "wrong-arguments"
-    if not retrieval_gold_ok: failure = "retrieval"
+    failure = classify_failure(
+        forbidden_tool_attempt=forbidden_tool_attempt,
+        required_tool_failure=required_tool_failure,
+        retrieval_gold_ok=retrieval_gold_ok,
+        state_ok=state_ok,
+        tool_recall=recall,
+        handoff_matches=handoff == handoff_expected,
+    )
     abstention_expected = bool(task.metadata.get("abstention_expected"))
     abstention_observed = any(x in trajectory.final_answer.lower() for x in ("无法", "不能", "不符合", "转人工"))
     return GradeResult(task.task_id, success, compliant, precision, recall, f1, handoff_expected, handoff,
                        state_ok, state_diff, len(trajectory.messages), trajectory.elapsed_ms, round(reward, 3), failure,
-                       task.split, abstention_expected, abstention_observed, bool(trajectory.retry_spans), leakage_checked)
+                       task.split, abstention_expected, abstention_observed, bool(trajectory.retry_spans), leakage_checked,
+                       forbidden_tool_attempt, illegal_change)
 
 
 class HarnessRunner:

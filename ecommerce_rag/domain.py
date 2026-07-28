@@ -127,6 +127,8 @@ class GradeResult:
     abstention_observed: bool = False
     recovered: bool = False
     leakage_checked: bool = False
+    forbidden_tool_attempt: bool = False
+    illegal_state_change: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

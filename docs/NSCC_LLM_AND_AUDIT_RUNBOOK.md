@@ -1,111 +1,54 @@
-# NSCC LLMPolicy and human-audit runbook
+# NSCC LLM 运行手册
 
-## 1. Verify the existing local model
+## 当前状态
 
-```bash
-cd /scratch/users/ntu/s250045/ecommerce-agentic-rag-git
-module load miniforge3/25.3.1
-source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+- 360 条真实 Qwen3-4B 轨迹已经完成并固化；
+- 40 条人工审核已经完成；
+- v2 离线评分和 RL gate 已生成；
+- gate 未通过，preference pairs 为 0，不进行 DPO；
+- 不重复提交完整 360 条作业。
 
-test -s /scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507/config.json
-du -sh /scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507
-```
+## 七任务契约确认
 
-The e-commerce LLMPolicy job uses Qwen3-4B-Instruct-2507. The existing
-Qwen2.5-0.5B-Instruct directory is reserved for the medical Grounded-SFT work.
-No model download is required. Do not run AutoModel inference on the login node.
-
-## 2. Build the retrieval adjudication panel
-
-This job uses the existing multilingual embedding and 5k index. It does not
-load or call a generative LLM.
-
-```bash
-cd /scratch/users/ntu/s250045/ecommerce-agentic-rag-git
-qsub nscc/build_retrieval_audit_evidence.pbs
-tail -f output_erag_audit_evidence.log
-```
-
-Download `docs/retrieval_audit_panel_50.html` and open it directly in a browser.
-Review all cases and use its export button to save the completed CSV.
-
-## 3. Submit 360 real LLMPolicy trajectories
-
-The PBS runs:
-
-- dev: 60 tasks x 3;
-- locked: 60 tasks x 3;
-- total: 360 real LLMPolicy trajectories;
-- preference-pair export;
-- 40-row audit export;
-- fail-closed RL gate.
+下一次运行只确认原始 21 条失败对应的 7 个唯一任务：4 个政策任务和 3 个商品型号
+任务。作业不会覆盖原始 SQLite，并会对 7 个场景逐项检查成功、合规、终态与动作解析。
 
 ```bash
 cd /scratch/users/ntu/s250045/ecommerce-agentic-rag-git
 git pull --ff-only
-
-test -s ecommerce_rag/data/harness_tasks_v2.jsonl
-test -s ecommerce_rag/data/agent_env_v2.db
-test -s ecommerce_rag/index_5000/embeddings.npy
-
-LLM_JOB=$(qsub nscc/run_llm_policy_v2.pbs)
-echo "$LLM_JOB"
-qstat -u s250045
-tail -f output_agent_v2.log
+qsub nscc/run_llm_contract_confirmation.pbs
 ```
 
-The job refuses to mix with an existing
-`logs/harness_v2_llm_360.sqlite`. If an earlier run exists, archive it
-explicitly before resubmission.
+输出：
 
-Produced outputs (the job completed; the **run itself is invalid** — see below):
+- `logs/llm_contract_confirmation_v2.sqlite`
+- `docs/llm_contract_confirmation_v2_report.json`
+- `docs/llm_contract_confirmation_v2_diagnosis.json`
+- `docs/llm_contract_confirmation_v2_gate.json`
+- `output_llm_contract_confirmation.log`
 
-- `docs/harness_v2_llm_dev_pass3.json` — carries a `run_validity: invalid` block;
-- `docs/harness_v2_llm_locked_pass3.json` — carries a `run_validity: invalid` block;
-- `docs/trajectory_audit_40.csv` — 40-row template, **0 rows adjudicated**;
-- `docs/agent_rl_gate_v2.json`;
-- `logs/harness_v2_llm_360.sqlite` — 360 trajectories, all parse failures;
-- `logs/action_preferences.jsonl` — **empty (0 bytes)**. A policy that emits a
-  single action cannot generate preference pairs, so this is a downstream
-  symptom of the failed run, not a usable artifact.
+Gate 未通过时不扩大运行规模。Gate 通过只说明商品 ID 与政策类别工具契约得到模型端
+确认，不改变现有人工审核结论，也不自动授权 DPO。
 
-> **This batch is an invalid integration run.** `model_action_parse_failure`
-> fired on 360/360 trajectories and every step degraded to `escalate_to_human`.
-> Do not quote its numbers as Qwen agent capability. Before re-running: persist
-> raw model output and parse attempts in the trace, then verify with a 5–10 task
-> smoke run that actions parse and tools actually execute.
+## 离线重评分与 gate
 
-## 4. Audit 40 trajectories
-
-Copy or pull `docs/trajectory_audit_40.csv`, open it in Excel and follow
-`docs/HUMAN_AUDIT_GUIDE.md`.
-
-Fill all 40 values in:
-
-- `human_success`;
-- `human_policy_compliant`;
-- `review_notes`.
-
-Use lowercase `true` or `false`.
-
-## 5. Re-run the gate after audit
-
-Return the completed CSV to the same repository path, then run this light
-login-node command:
+这两步不加载生成模型，可在登录节点或本地运行：
 
 ```bash
-cd /scratch/users/ntu/s250045/ecommerce-agentic-rag-git
-module load miniforge3/25.3.1
-source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+python -m scripts.regrade_trajectories \
+  --tasks ecommerce_rag/data/harness_tasks_v2.jsonl \
+  --store logs/harness_v2_llm_360.sqlite \
+  --output-grades logs/harness_v2_llm_360_grades_v2.jsonl \
+  --output-report docs/harness_v2_llm_360_regraded_v2.json
 
-python -m ecommerce_rag.rl_gate   --tasks ecommerce_rag/data/harness_tasks_v2.jsonl   --store logs/harness_v2_llm_360.sqlite   --audit docs/trajectory_audit_40.csv   --preference-pairs logs/action_preferences.jsonl   --output docs/agent_rl_gate_v2.json
+python -m ecommerce_rag.rl_gate \
+  --tasks ecommerce_rag/data/harness_tasks_v2.jsonl \
+  --store logs/harness_v2_llm_360.sqlite \
+  --grades logs/harness_v2_llm_360_grades_v2.jsonl \
+  --audit docs/trajectory_audit_40.csv \
+  --preference-pairs logs/action_preferences.jsonl \
+  --output docs/agent_rl_gate_regraded_v2.json
 ```
 
-Interpretation:
-
-- agreement below 90%: inspect grader disagreements before training;
-- base LLM success at or above 95%: do not train because the gate treats
-  improvement headroom as insufficient;
-- fewer than 200 pairs: do not run DPO; more varied repeated trajectories are
-  required;
-- all checks true: next-action SFT/DPO may be considered, but is still optional.
+原始轨迹 SHA-256 必须保持：
+`37e13a3a19c5780793c4f3e99a7b095eaabf9feae9e7c3f5a54693b668fa1408`。

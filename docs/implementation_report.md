@@ -1,130 +1,34 @@
-# Credible implementation and evaluation report
+# 实现与评测报告
 
-## Delivered engineering
+## 系统
 
-- Amazon Reviews 2023 pinned 5,000-product corpus: 2,500 Electronics and
-  2,500 Home and Kitchen products, 1,125 reviews and 43,953 child chunks.
-- Multilingual dense retrieval, sparse inverted BM25, RRF, constraint filtering,
-  optional cross-encoder reranking and parent product cards.
-- Deterministic retail environment with 1,000 users, 10,000 orders and eight
-  typed tools.
-- Identity, policy eligibility and confirmation guardrails for every write.
-- TaskSpec, AgentObservation, ToolCall, Trajectory and GradeResult contracts.
-- run/replay/compare, terminal-state diff, failure taxonomy, pass@1 and pass^3.
-- Fail-closed Agent RL gate that rejects Oracle/Rule traces as training evidence.
+- 5,000 个 Amazon 商品、5 份政策文档和 43,953 个检索子块；
+- Dense + BM25 + RRF hybrid retrieval，可选 BGE reranker；
+- 1,000 用户、10,000 订单和 8 类 typed tools；
+- 身份验证、退货资格、用户确认和禁止写操作 guardrail；
+- TaskSpec → AgentObservation → Trajectory → GradeResult 契约；
+- run、replay、compare、数据库终态评分、人工审核和 fail-closed RL gate。
 
-## Retrieval evidence
+## 检索证据
 
-### NSCC scale set
+5k scale set 的 Hybrid Recall@5=0.9917、nDCG@5=0.9826、P95=125.73ms。
+BGE reranker 将 Recall@1 从 0.9542 提升至 0.9750，但 P95 从 108.37ms
+增加至 219.12ms，因此不全局启用。
 
-| Products | Recall@5 | nDCG@5 | P95 | Backend |
-|---:|---:|---:|---:|---|
-| 40 | 1.0000 | 0.9901 | 9.96ms | FAISS FlatIP |
-| 1,000 | 0.9958 | 0.9888 | 28.93ms | FAISS FlatIP |
-| 5,000 | 0.9917 | 0.9826 | 125.73ms | FAISS FlatIP |
+独立 v3 困难集 Recall@5=0.6889；其中 typo/alias=0.25，no-answer
+accuracy=0。这些结果保留为当前检索局限。
 
-At 5k, BGE reranking raises Recall@1 from 0.9542 to 0.9750 and nDCG@5
-from 0.9826 to 0.9958, but P95 rises from 108.37ms to 219.12ms. It is not
-enabled globally.
+## Agent 证据
 
-### Hard retrieval
+Qwen3-4B 完成 120 个任务、360 条真实轨迹。原始自动操作分为 94.17%；补充精确
+政策 gold 并将禁止工具“尝试”与“状态变更”分开后，v2 自动操作成功率为 84.17%，
+合规率 95%，数据库终态准确率 100%，非法状态变更率 0%。
 
-The v2 benchmark removes complete-title leakage. Its locked raw Recall@5 is
-0.8029, below the 0.85 target. A dev-calibrated threshold correctly abstains on
-75% of no-answer cases but drops Recall@5 to 0.4964, so threshold abstention is
-a recorded negative result.
+自动指标不判断全部自然语言质量。40 条系统抽样人工审核中，v2 success agreement
+为 80.0%，policy agreement 为 77.5%。抽样不是随机样本，比例不外推到 360 条。
+详细证据见 `docs/evaluation_closeout_v2.md`。
 
-A new v3 holdout excludes all v2 gold products and uses seed 20260722. Its
-Recall@5 is 0.6889:
+## RL 决策
 
-| Kind | Recall@5 |
-|---|---:|
-| Multi-constraint | 1.0000 |
-| Near-SKU multi-gold | 1.0000 |
-| Attribute without title | 0.6625 |
-| Alias/typo | 0.2500 |
-| No-answer accuracy | 0.0000 |
-
-The v3 result confirms that hard retrieval remains the primary limitation.
-
-## Agent evaluation
-
-The original 100% score is retained only as an Oracle feasibility upper bound.
-Normal policies receive no hidden TaskSpec fields.
-
-| Policy | Tasks × repeats | Success | pass^3 | Tool F1 | Compliance | Terminal state |
-|---|---:|---:|---:|---:|---:|---:|
-| Oracle | 60×3 | 1.000 | 1.000 | 0.944 | 1.000 | 1.000 |
-| Rule Policy | 60×3 | 0.950 | 0.950 | 0.917 | 1.000 | 1.000 |
-| LLMPolicy (Qwen3-4B) | 60×3 dev + 60×3 locked | invalid run | invalid run | invalid run | invalid run | invalid run |
-
-**LLMPolicy — invalid integration run.** The 360-trajectory job has been
-executed on NSCC and its outputs are retained, but the batch cannot be used to
-evaluate model capability: `model_action_parse_failure` occurred on 360/360
-trajectories and every step degraded to `escalate_to_human`. The reported
-`task_success = 0.1667` is exactly the always-escalate degenerate baseline (only
-safety tasks expect a handoff), and `policy_compliance = 1.000` is free for a
-policy that calls no tools. The failure taxonomy is misattributed because
-`classify_failure()` has no parse-failure bucket. Raw model output and parse
-attempts were not persisted, so the root cause — prompt, chat template, output
-format or parser — is not determinable from this run. See the `run_validity`
-block in `docs/harness_v2_llm_dev_pass3.json` and
-`docs/harness_v2_llm_locked_pass3.json`. A valid baseline requires: persist raw
-output plus parse attempts in the trace, pass a 5–10 task smoke run where
-actions parse and tools actually execute, then re-run the full 360.
-
-**Rule Policy 0.950 is an environment-and-grader baseline**, not a measure of
-agent generalisation: the task generator and the rule policy share highly
-similar keyword templates, and the dev/locked split changes order and product
-entities without changing the language distribution.
-
-**pass^3 currently carries no statistical meaning.** Rule Policy is
-deterministic and LLMPolicy runs with `do_sample=False`; the three repeats vary
-only `seed`, which nothing downstream consumes. pass^3 is therefore identical to
-pass@1 in every result file and should be read as a deterministic-repeat
-consistency check until a real source of variation (e.g. user-simulator
-paraphrasing) is introduced.
-
-All nine Rule failures are three policy tasks repeated three times. The policy
-treated ambiguous “物流/退款” words as personal-order or return requests before
-checking explicit “规则/规定” language. The routing priority was fixed and a
-fresh focused v3 holdout passed 30/30. Because the prior locked failures were
-inspected, the same locked set will not be represented as unseen after tuning.
-
-## Original regression
-
-A freshly rebuilt index reproduced the NSCC regression exactly:
-Recall@1=0.889, Recall@5=1.000 and MRR=0.963. Two genuine ranking regressions
-were isolated:
-
-1. a dense rank-1 pet-cleaning product lost an RRF tie to a generic vacuum;
-2. explicit comparison entities were present but ranked below a fused distractor.
-
-A small natural-language dense tie-break adjustment and explicit comparison
-entity priority restore the complete local 28-query result to Recall@1=0.944,
-Recall@3/5=1.000 and MRR=1.000. An NSCC confirmation run remains required.
-
-## Audits
-
-- The evidence builder turns the stratified 50-row set into a self-contained
-  HTML panel with structured constraints, complete proposed-gold facts, Hybrid
-  Top 10/20 candidates, per-constraint failures and editable adjudication. It
-  remains `AI-assisted pending human adjudication` until decisions are exported.
-- The real LLM job exports 40 readable trajectory rows with user request, tool
-  arguments, guardrails, terminal-state diff and grader decision.
-- Human/grader agreement must reach 90% before the gate can pass.
-
-## RL decision
-
-Current gate: `eligible=false`.
-
-Required before next-action SFT/DPO:
-
-- 360 real LLMPolicy trajectories;
-- 40 human-audited trajectories;
-- at least 90% grader/human agreement;
-- 200 successful/failed preference pairs;
-- base model success below 95%, otherwise training is unnecessary.
-
-PPO, multi-step GRPO and Agent Lightning training are outside the current
-delivery and are not claimed.
+当前 gate 为 `eligible=false`：两项人工一致性均低于 90%，并且同题三次确定性轨迹
+没有形成成功/失败 preference pair（0 对）。因此不进行或宣称 SFT/DPO/PPO/GRPO。

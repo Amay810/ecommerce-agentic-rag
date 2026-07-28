@@ -1,64 +1,23 @@
-# Completion status against the implementation plan
+# 当前状态
 
-Status date: 2026-07-22.
+状态日期：2026-07-28。
 
-## Completed locally
+## 已完成
 
-1. Documentation: README, scale table, implementation report, failure analysis,
-   resume bullets and cleanup manifest have been updated.
-2. Original 28 regression: exact compound-entity ordering and dense-score tie
-   handling were fixed. The local result improved from Recall@1 0.889 to 0.944;
-   Recall@3/5 are both 1.0.
-3. RulePolicy routing: explicit policy questions now take priority over ambiguous
-   order/refund keywords. A fresh 30-query v3 routing holdout scored 1.0.
-4. Retrieval audit: a stratified 50-row assisted sheet was generated with 10
-   budget, 10 multi-constraint, 10 typo/alias, 10 near-SKU and 10 no-answer
-   cases. Proposed product IDs were checked against the corpus; human sign-off
-   remains intentionally blank.
-5. Index timing: the loader now reports model-load, embedding, persistence,
-   total build time and index size. A local 40-product smoke measurement passed.
-6. Fresh v3 retrieval set: 150 queries use product IDs excluded from v2. The
-   honest local baseline has Recall@5 0.6889; typo/alias queries are the main
-   weakness and no-answer calibration remains unresolved.
-7. NSCC jobs: paths, environment and model cache settings were corrected. Jobs
-   now exist for formal index timing, v3 validation and 360 real LLMPolicy
-   trajectories.
+- Qwen3-4B 在 120 个任务上完成 360 条真实轨迹；原始 SQLite 已固化。
+- 40 条系统抽样轨迹已完成人工 success 与 policy compliance 审核。
+- 离线 v2 评分以 sidecar 保存，没有覆盖历史轨迹或历史 grade。
+- RL gate 同时计算 success agreement 与 policy agreement，并对 sidecar 缺失、重复和 ID 不匹配 fail-closed。
+- 商品详情工具只接受内部 `P[0-9]{5}`，政策工具使用五种规范类型并映射到精确语料类别。
 
-## Requires NSCC execution
+## 当前结论
 
-- `nscc/measure_index_builds.pbs`: formal 40/1,000/5,000 build timings.
-- `nscc/run_v3_validation.pbs`: FAISS confirmation of the v3 retrieval and
-  routing results.
-- `nscc/run_regression_only.pbs`: formal NSCC confirmation of the 28-query fix.
-- `nscc/build_retrieval_audit_evidence.pbs`: Hybrid Top 10/20 candidates,
-  constraint checks and a self-contained HTML adjudication panel.
-## Executed, but invalid
+- v2 自动操作成功率 84.17%，终态准确率 100%，策略合规率 95%。
+- 40 条审核中 success agreement=80.0%，policy agreement=77.5%。
+- preference pairs=0，RL gate 为 false，因此不进入 SFT/DPO。
 
-- `nscc/run_llm_policy_v2.pbs`: executed. Produced 360 trajectories and the
-  40-row audit template, but the batch is an **invalid integration run** —
-  `model_action_parse_failure` on 360/360, every step degraded to
-  `escalate_to_human`. Outputs are retained and marked via `run_validity` in
-  `docs/harness_v2_llm_*_pass3.json`. Blocked on: persist raw model output and
-  parse attempts in the trace, then a 5–10 task smoke run, then a full re-run.
+## 下一步
 
-## Requires human judgement
-
-- Review `docs/retrieval_audit_panel_50.html` and export the completed decisions;
-  until then it is not a human-labelled benchmark. Known blocker: the model-code
-  regex does not extract `ZX-xxx` from Chinese text, so the no-answer candidate
-  constraint checks are empty and that stratum cannot be adjudicated yet.
-- Review all 40 rows in `docs/trajectory_audit_40.csv` and rerun the fail-closed
-  RL gate. Currently **0 of 40 rows carry a human verdict**; the gate now reports
-  `human_audit_reviewed: 0`, `human_audit_status: "not_started"` and
-  `human_reward_agreement: null` instead of the earlier misleading `0.0`.
-  A row counts only when both `human_success` and `human_policy_compliant` are
-  strict booleans; anything else is tallied as `human_audit_malformed_rows`.
-  Note this is a *trajectory* audit and feeds `human_reward_agreement` only; the
-  separate `docs/retrieval_human_audit_50.csv` backs the retrieval gold and does
-  not contribute to the RL gate.
-
-## RL decision
-
-No Agent RL is claimed. Next-action SFT/DPO is allowed only if every gate check
-passes, including 360 real LLM trajectories, 40 audited rows, at least 90%
-grader agreement and at least 200 valid preference pairs.
+- 在 NSCC 仅重跑 7 个唯一失败任务，确认商品 ID 与政策类型契约。
+- 若工具契约确认通过，再单独研究最终回答 grounding 与推荐质量评分；不通过事后关键词规则拟合人工标签。
+- typo/alias 和 no-answer 属于独立的困难检索问题，使用 v3 retrieval benchmark 继续验证，不与这 21 条工具契约失败混为一谈。

@@ -26,6 +26,23 @@ IDENTITY_GUARDED_TOOLS = {"get_order", "check_return_eligibility", "create_retur
 #: and Arabic-Indic forms. An identity guard must be literal ASCII.
 _VERIFICATION_CODE = re.compile(r"[0-9]{6}")
 
+POLICY_CATEGORIES = {
+    "return": "退换货",
+    "warranty": "售后保修",
+    "shipping": "物流",
+    "invoice": "发票",
+    "refund": "退款",
+}
+POLICY_ALIASES = {
+    **POLICY_CATEGORIES,
+    "退换货": "退换货",
+    "保修": "售后保修",
+    "售后保修": "售后保修",
+    "物流": "物流",
+    "发票": "发票",
+    "退款": "退款",
+}
+
 
 class RetailTools:
     def __init__(self, db_path: Path | str, retriever: Any | None = None, today: date = date(2026, 7, 20)):
@@ -116,7 +133,10 @@ class RetailTools:
     def get_policy(self, policy_type: str) -> dict:
         if self.retriever is None:
             return {"ok": False, "error": "retriever_not_configured"}
-        chunks = self.retriever.search(policy_type, top_k=3, source_type="policy")
+        category = POLICY_ALIASES.get(policy_type)
+        if category is None:
+            return {"ok": False, "error": "unknown_policy_type"}
+        chunks = self.retriever.search(category, top_k=3, source_type="policy", category=category)
         return {"ok": bool(chunks), "policies": [{"doc_id": c["doc_id"], "title": c["title"], "text": c["text"]} for c in chunks]}
 
     def _verified_order(self, order_id: str, user_id: str, verification_code: str) -> tuple[dict | None, str | None]:

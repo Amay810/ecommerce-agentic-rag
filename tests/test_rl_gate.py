@@ -28,7 +28,7 @@ def _write_store(path: Path, count: int, success: bool = False) -> None:
                  " trajectory_json TEXT, grade_json TEXT)")
     for i in range(count):
         trajectory = {"policy_name": "LLMPolicy", "observations": [{"current_message": "hi", "step": 0}]}
-        grade = {"success": success, "terminal_state_match": True}
+        grade = {"success": success, "policy_compliant": True, "terminal_state_match": True}
         conn.execute("INSERT INTO trajectories VALUES (?,?,?,?,?)",
                      (f"tr{i}", f"t{i}", 0, json.dumps(trajectory), json.dumps(grade)))
     conn.commit()
@@ -59,6 +59,44 @@ class RLGateAuditAccountingTests(unittest.TestCase):
             self.assertEqual(result["human_audit_status"], "not_started")
             # the critical part: absence of judgement must not read as disagreement
             self.assertIsNone(result["human_reward_agreement"])
+
+    def test_complete_sidecar_drives_both_human_agreements(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            _write_tasks(d / "tasks.jsonl", 120)
+            _write_store(d / "store.db", 360, success=False)
+            sidecar = d / "grades.jsonl"
+            sidecar.write_text("".join(json.dumps({"trajectory_id": f"tr{i}", "grade": {
+                "success": i != 0, "policy_compliant": i != 1, "terminal_state_match": True,
+            }}) + "\n" for i in range(360)), encoding="utf-8")
+            rows = []
+            for i in range(40):
+                rows.append({"trajectory_id": f"tr{i}", "grader_success": "false",
+                             "human_success": str(i != 0).lower(),
+                             "human_policy_compliant": str(i != 1).lower()})
+            _write_audit(d / "audit.csv", rows)
+
+            result = rl_gate.assess(d / "tasks.jsonl", d / "store.db", d / "audit.csv", grades=sidecar)
+
+            self.assertTrue(result["checks"]["grade_sidecar_complete"])
+            self.assertEqual(result["human_success_agreement"], 1.0)
+            self.assertEqual(result["human_policy_agreement"], 1.0)
+
+    def test_incomplete_or_duplicate_sidecar_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            _write_tasks(d / "tasks.jsonl", 120)
+            _write_store(d / "store.db", 360)
+            row = json.dumps({"trajectory_id": "tr0", "grade": {
+                "success": False, "policy_compliant": True, "terminal_state_match": True}})
+            (d / "grades.jsonl").write_text(row + "\n" + row + "\n", encoding="utf-8")
+
+            result = rl_gate.assess(d / "tasks.jsonl", d / "store.db", grades=d / "grades.jsonl")
+
+            self.assertFalse(result["checks"]["grade_sidecar_complete"])
+            self.assertFalse(result["eligible"])
+            self.assertTrue(any("duplicate" in error for error in result["grade_sidecar_errors"]))
+            self.assertTrue(any("missing" in error for error in result["grade_sidecar_errors"]))
             self.assertFalse(result["checks"]["human_audit_at_least_40"])
             self.assertFalse(result["checks"]["human_reward_agreement_at_least_90pct"])
             self.assertFalse(result["eligible"])
@@ -145,6 +183,22 @@ class RLGateAuditAccountingTests(unittest.TestCase):
             self.assertEqual(result["human_audit_rows"], 0)
             self.assertEqual(result["human_audit_status"], "not_started")
             self.assertIsNone(result["human_reward_agreement"])
+
+    def test_utf8_bom_on_csv_header_is_accepted(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            _write_tasks(d / "tasks.jsonl", 120)
+            _write_store(d / "store.db", 360)
+            with open(d / "audit.csv", "w", encoding="utf-8-sig", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=AUDIT_FIELDS)
+                writer.writeheader()
+                writer.writerow({"trajectory_id": "tr0", "grader_success": "false",
+                                 "human_success": "false", "human_policy_compliant": "true"})
+
+            result = rl_gate.assess(d / "tasks.jsonl", d / "store.db", d / "audit.csv")
+
+            self.assertEqual(result["human_audit_reviewed"], 1)
+            self.assertEqual(result["human_audit_linkage_errors"], [])
 
 
 if __name__ == "__main__":

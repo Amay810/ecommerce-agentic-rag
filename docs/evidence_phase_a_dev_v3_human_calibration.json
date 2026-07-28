@@ -1,0 +1,65 @@
+{
+  "answer_level": {
+    "derived_fact_pass": {
+      "denominator": 96,
+      "numerator": 56,
+      "rate": 0.5833333333333334
+    },
+    "derived_overall_pass": {
+      "denominator": 96,
+      "numerator": 56,
+      "rate": 0.5833333333333334
+    },
+    "review_queue_count": 0
+  },
+  "claim_citation_calibration": {
+    "confusion_matrix": {
+      "auto=diagnostic_failure|human=correct": 6,
+      "auto=diagnostic_failure|human=incorrect": 1,
+      "auto=diagnostic_failure|human=not_required": 4,
+      "auto=missing_or_not_required|human=correct": 18,
+      "auto=missing_or_not_required|human=incorrect": 5,
+      "auto=missing_or_not_required|human=missing": 353,
+      "auto=missing_or_not_required|human=not_required": 175,
+      "auto=no_automatic_failure|human=correct": 66,
+      "auto=no_automatic_failure|human=incorrect": 6
+    },
+    "effective_sample_count": 634,
+    "reviewed": 634,
+    "unclear_rate": {
+      "denominator": 634,
+      "numerator": 0,
+      "rate": 0.0
+    }
+  },
+  "claim_fact_calibration": {
+    "confusion_matrix": {
+      "auto=contradicted|human=supported": 15,
+      "auto=unclassified|human=contradicted": 5,
+      "auto=unclassified|human=not_factual": 40,
+      "auto=unclassified|human=supported": 513,
+      "auto=unclassified|human=unsupported": 9,
+      "auto=unsupported|human=contradicted": 1,
+      "auto=unsupported|human=supported": 45,
+      "auto=unsupported|human=unsupported": 1
+    },
+    "effective_sample_count": 629,
+    "reviewed": 634,
+    "unclear_rate": {
+      "denominator": 634,
+      "numerator": 5,
+      "rate": 0.007886435331230283
+    }
+  },
+  "dpo_pairs_generated": 0,
+  "final_ready": false,
+  "human_review_status": "complete",
+  "review_scope": {
+    "answers": 96,
+    "claims": 634,
+    "task_groups": 32
+  },
+  "run_name": "evidence_phase_a_dev_v3",
+  "schema_version": 1,
+  "warning": "Calibration sample rates must not be extrapolated to all 80 tasks or used to construct DPO pairs."
+}

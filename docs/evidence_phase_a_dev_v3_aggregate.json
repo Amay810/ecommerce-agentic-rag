@@ -698,11 +698,11 @@
     }
   },
   "provenance": {
-    "postprocess_code_commit": "92a4022",
+    "postprocess_code_commit": "95ef475",
     "result_commit": "d3f5063",
     "run_code_commit": "4112901"
   },
-  "provenance_complete": false,
+  "provenance_complete": true,
   "run_name": "evidence_phase_a_dev_v3",
   "schema_version": 3,
   "selective_risk_note": "Final accepted-answer hard pass can rise because hard failures are handed off. Interpret it together with initial pass, answer coverage, handoff rate, and joint success."

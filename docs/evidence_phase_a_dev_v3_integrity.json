@@ -185,6 +185,11 @@
       "passed": true
     },
     {
+      "detail": "C:\\Users\\K2332\\Desktop\\output_evidence_ablation_v3.log",
+      "name": "pbs_log_exists",
+      "passed": true
+    },
+    {
       "detail": "hash/file set unchanged",
       "name": "base:source_unchanged",
       "passed": true
@@ -233,14 +238,21 @@
     "size": 3369
   },
   "passed": true,
-  "pbs_log": null,
+  "pbs_log": {
+    "modified_at": "2026-07-28T13:10:49.593937+00:00",
+    "mtime_ns": 1785244249593937300,
+    "name": "output_evidence_ablation_v3.log",
+    "path": "C:\\Users\\K2332\\Desktop\\output_evidence_ablation_v3.log",
+    "sha256": "b8d458eb662160620e257eb09180d982905d7b2622694bc70d3cd15e9982ddc7",
+    "size": 7346
+  },
   "provenance": {
-    "postprocess_code_commit": "92a4022",
+    "postprocess_code_commit": "95ef475",
     "result_commit": "d3f5063",
     "run_code_commit": "4112901"
   },
-  "provenance_complete": false,
-  "provenance_warning": "PBS log was not supplied to this local analysis. Structural results are usable for review, but the archive is not provenance-complete until the log is hashed.",
+  "provenance_complete": true,
+  "provenance_warning": null,
   "read_mode": {
     "checkpoint_performed": false,
     "pragma_query_only": true,

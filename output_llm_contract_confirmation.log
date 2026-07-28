@@ -1,0 +1,98 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:   1%|          | 1/199 [00:01<05:03,  1.53s/it]Loading weights:   2%|▏         | 3/199 [00:02<01:55,  1.70it/s]Loading weights:  11%|█         | 22/199 [00:02<00:13, 13.27it/s]Loading weights:  14%|█▎        | 27/199 [00:02<00:10, 15.77it/s]Loading weights:  19%|█▉        | 38/199 [00:02<00:07, 21.78it/s]Loading weights:  23%|██▎       | 45/199 [00:03<00:05, 27.07it/s]Loading weights:  25%|██▌       | 50/199 [00:03<00:08, 18.34it/s]Loading weights:  27%|██▋       | 54/199 [00:03<00:08, 17.04it/s]Loading weights:  35%|███▌      | 70/199 [00:03<00:03, 32.67it/s]Loading weights:  39%|███▊      | 77/199 [00:04<00:03, 35.61it/s]Loading weights:  46%|████▌     | 91/199 [00:04<00:02, 49.15it/s]Loading weights:  65%|██████▍   | 129/199 [00:04<00:00, 104.13it/s]Loading weights:  73%|███████▎  | 146/199 [00:04<00:00, 114.95it/s]Loading weights:  81%|████████▏ | 162/199 [00:04<00:00, 109.63it/s]Loading weights:  88%|████████▊ | 176/199 [00:04<00:00, 108.30it/s]Loading weights:  95%|█████████▍| 189/199 [00:04<00:00, 108.31it/s]Loading weights: 100%|██████████| 199/199 [00:04<00:00, 40.46it/s] 
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:01<08:01,  1.21s/it]Loading weights:   1%|          | 4/398 [00:01<01:44,  3.78it/s]Loading weights:   4%|▎         | 14/398 [00:01<00:25, 15.26it/s]Loading weights:   5%|▌         | 20/398 [00:01<00:17, 21.06it/s]Loading weights:   6%|▋         | 25/398 [00:04<01:15,  4.93it/s]Loading weights:   9%|▊         | 34/398 [00:04<00:43,  8.30it/s]Loading weights:  10%|▉         | 38/398 [00:04<00:37,  9.60it/s]Loading weights:  11%|█▏        | 45/398 [00:04<00:25, 13.81it/s]Loading weights:  13%|█▎        | 50/398 [00:04<00:21, 16.48it/s]Loading weights:  15%|█▍        | 58/398 [00:04<00:14, 23.35it/s]Loading weights:  16%|█▌        | 63/398 [00:05<00:13, 25.56it/s]Loading weights:  17%|█▋        | 68/398 [00:05<00:11, 28.13it/s]Loading weights:  18%|█▊        | 73/398 [00:05<00:11, 29.14it/s]Loading weights:  20%|█▉        | 78/398 [00:05<00:12, 25.68it/s]Loading weights:  21%|██        | 82/398 [00:05<00:11, 26.62it/s]Loading weights:  23%|██▎       | 91/398 [00:06<00:10, 30.48it/s]Loading weights:  26%|██▌       | 102/398 [00:06<00:06, 42.37it/s]Loading weights:  27%|██▋       | 107/398 [00:06<00:06, 41.93it/s]Loading weights:  28%|██▊       | 113/398 [00:06<00:06, 43.86it/s]Loading weights:  30%|██▉       | 119/398 [00:06<00:06, 45.82it/s]Loading weights:  31%|███       | 124/398 [00:06<00:05, 46.62it/s]Loading weights:  32%|███▏      | 129/398 [00:06<00:05, 45.63it/s]Loading weights:  34%|███▍      | 136/398 [00:06<00:05, 45.68it/s]Loading weights:  35%|███▌      | 141/398 [00:06<00:05, 46.47it/s]Loading weights:  37%|███▋      | 146/398 [00:07<00:05, 43.27it/s]Loading weights:  38%|███▊      | 151/398 [00:07<00:06, 37.70it/s]Loading weights:  40%|███▉      | 158/398 [00:07<00:06, 39.82it/s]Loading weights:  41%|████▏     | 165/398 [00:07<00:05, 46.20it/s]Loading weights:  43%|████▎     | 170/398 [00:08<00:10, 21.80it/s]Loading weights:  45%|████▍     | 179/398 [00:08<00:07, 30.79it/s]Loading weights:  46%|████▋     | 185/398 [00:08<00:06, 31.13it/s]Loading weights:  48%|████▊     | 191/398 [00:08<00:06, 34.17it/s]Loading weights:  51%|█████     | 201/398 [00:08<00:04, 42.44it/s]Loading weights:  52%|█████▏    | 207/398 [00:08<00:04, 44.87it/s]Loading weights:  54%|█████▎    | 213/398 [00:09<00:04, 42.26it/s]Loading weights:  56%|█████▌    | 221/398 [00:09<00:04, 42.22it/s]Loading weights:  57%|█████▋    | 226/398 [00:09<00:04, 40.81it/s]Loading weights:  59%|█████▉    | 235/398 [00:09<00:03, 46.68it/s]Loading weights:  61%|██████    | 242/398 [00:09<00:03, 51.32it/s]Loading weights:  62%|██████▏   | 248/398 [00:09<00:03, 48.39it/s]Loading weights:  64%|██████▍   | 256/398 [00:09<00:02, 55.56it/s]Loading weights:  66%|██████▌   | 262/398 [00:09<00:02, 55.13it/s]Loading weights:  67%|██████▋   | 268/398 [00:10<00:02, 53.00it/s]Loading weights:  70%|██████▉   | 277/398 [00:10<00:02, 56.38it/s]Loading weights:  71%|███████▏  | 284/398 [00:10<00:01, 58.29it/s]Loading weights:  73%|███████▎  | 290/398 [00:10<00:01, 55.40it/s]Loading weights:  75%|███████▌  | 299/398 [00:10<00:01, 57.95it/s]Loading weights:  77%|███████▋  | 305/398 [00:10<00:01, 57.02it/s]Loading weights:  78%|███████▊  | 312/398 [00:10<00:01, 55.67it/s]Loading weights:  80%|████████  | 320/398 [00:10<00:01, 59.04it/s]Loading weights:  82%|████████▏ | 326/398 [00:11<00:01, 57.93it/s]Loading weights:  84%|████████▍ | 334/398 [00:11<00:01, 57.64it/s]Loading weights:  86%|████████▌ | 342/398 [00:11<00:01, 51.88it/s]Loading weights:  88%|████████▊ | 350/398 [00:11<00:00, 56.46it/s]Loading weights:  89%|████████▉ | 356/398 [00:11<00:00, 49.03it/s]Loading weights:  91%|█████████ | 363/398 [00:11<00:00, 53.39it/s]Loading weights:  93%|█████████▎| 369/398 [00:11<00:00, 50.07it/s]Loading weights:  95%|█████████▍| 377/398 [00:12<00:00, 51.46it/s]Loading weights:  96%|█████████▌| 383/398 [00:13<00:01, 11.83it/s]Loading weights:  97%|█████████▋| 387/398 [00:16<00:02,  4.66it/s]Loading weights:  99%|█████████▉| 394/398 [00:16<00:00,  6.73it/s]Loading weights: 100%|██████████| 398/398 [00:16<00:00, 23.74it/s]
+Building prefix dict from the default dictionary ...
+Dumping model to file cache /var/tmp/pbs.15017680.pbs101/jieba.cache
+Loading model cost 0.705 seconds.
+Prefix dict has been built successfully.
+{
+  "trajectories": 7,
+  "tasks": 7,
+  "repeats": 1,
+  "task_success": 0.5714285714285714,
+  "policy_compliance": 1.0,
+  "tool_call_f1": 0.5714285714285714,
+  "handoff_precision": 0.0,
+  "handoff_recall": 1.0,
+  "average_turns": 2.0,
+  "average_latency_ms": 12635.042415299851,
+  "average_reward": 3.2857142857142856,
+  "pass@1": 0.5714285714285714,
+  "pass^3": null,
+  "failure_taxonomy": {
+    "retrieval-gold-missing": 3
+  },
+  "leakage_checked_rate": 1.0,
+  "terminal_state_accuracy": 1.0,
+  "answer_fact_applicable_rate": 0.5714285714285714,
+  "answer_fact_pass_rate": 1.0,
+  "citation_binding_pass_rate": 0.0,
+  "joint_success": 0.5714285714285714,
+  "repair_attempt_rate": 0.0,
+  "repair_success_rate": null
+}
+{
+  "trajectories": 7,
+  "steps_with_llm_trace": 11,
+  "instrumented": true,
+  "quality": {
+    "effective_action_parse_rate": 0.7273,
+    "strict_envelope_parse_rate": 0.7273,
+    "recovered_parse_rate": 0.0,
+    "illegal_tool_rate": 0.0,
+    "generation_error_rate": 0.0,
+    "fallback_only_trajectory_rate": 0.4286,
+    "avg_non_fallback_tool_calls": 0.5714,
+    "trajectories_with_real_tool_call_rate": 0.5714,
+    "truncation_rate": 0.0
+  },
+  "envelope_violations": {},
+  "resolutions": {
+    "parsed": 8,
+    "fallback_handoff": 3
+  },
+  "parse_stages": {
+    "schema_violation": 6
+  },
+  "finish_reasons": {
+    "stop": 14
+  },
+  "generations": 14,
+  "prompt_tokens": {
+    "min": 717,
+    "median": 813,
+    "max": 944,
+    "mean": 821.36
+  },
+  "completion_tokens": {
+    "min": 39,
+    "median": 44,
+    "max": 92,
+    "mean": 56.0
+  },
+  "generators": [
+    {
+      "backend": "local",
+      "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+      "max_new_tokens": 512,
+      "enable_thinking_supported": true,
+      "chat_template_present": true
+    }
+  ]
+}
+  [PASS] instrumented                         trace present
+  [PASS] diagnosis_has_required_metrics       all present
+  [PASS] trajectory_count                     expected 7, got 7
+  [PASS] generation_error_rate_is_zero        generation_error_rate=0.0
+  [FAIL] fallback_only_trajectory_rate_is_zero fallback_only_trajectory_rate=0.4286
+  [PASS] illegal_tool_rate_is_zero            illegal_tool_rate=0.0
+  [FAIL] effective_action_parse_rate          0.7273 (threshold 0.9)
+  [PASS] all_scenarios_ran                    all present
+  [PASS] scenario:v2_dev_policy_02            ok
+  [PASS] scenario:v2_dev_policy_07            ok
+  [FAIL] scenario:v2_dev_product_qa_02        failure_type=retrieval-gold-missing
+  [FAIL] scenario:v2_dev_product_qa_07        failure_type=retrieval-gold-missing
+  [PASS] scenario:v2_locked_policy_12         ok
+  [PASS] scenario:v2_locked_policy_17         ok
+  [FAIL] scenario:v2_locked_product_qa_14     failure_type=retrieval-gold-missing
+
+smoke failed; fix the reported checks before spending a full run

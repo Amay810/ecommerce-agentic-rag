@@ -1,0 +1,168 @@
+{
+  "trajectories": 24,
+  "steps_with_llm_trace": 66,
+  "instrumented": true,
+  "quality": {
+    "effective_action_parse_rate": 0.9242,
+    "strict_envelope_parse_rate": 0.9242,
+    "recovered_parse_rate": 0.0,
+    "illegal_tool_rate": 0.0,
+    "generation_error_rate": 0.0,
+    "fallback_only_trajectory_rate": 0.1667,
+    "avg_non_fallback_tool_calls": 0.8333,
+    "trajectories_with_real_tool_call_rate": 0.7083,
+    "truncation_rate": 0.0263
+  },
+  "envelope_violations": {},
+  "resolutions": {
+    "fallback_handoff": 5,
+    "parsed": 61
+  },
+  "parse_stages": {
+    "schema_violation": 8,
+    "missing_verification_code": 5,
+    "unbalanced_json": 2
+  },
+  "finish_reasons": {
+    "stop": 74,
+    "length": 2
+  },
+  "generations": 76,
+  "prompt_tokens": {
+    "min": 724,
+    "median": 803,
+    "max": 4754,
+    "mean": 1590.99
+  },
+  "completion_tokens": {
+    "min": 38,
+    "median": 70,
+    "max": 512,
+    "mean": 115.12
+  },
+  "generators": [
+    {
+      "backend": "local",
+      "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+      "max_new_tokens": 512,
+      "enable_thinking_supported": true,
+      "chat_template_present": true
+    }
+  ],
+  "failure_samples": {
+    "schema_violation": [
+      {
+        "trajectory_id": "tr_evidence_a_calibration_product_qa_01_20260728_d9e4ef7a",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "get_product.product_id: 'SGA-6000-KKYF1' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"SGA-6000-KKYF1\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_product_qa_01_20260728_d9e4ef7a",
+        "trace_phase": "initial",
+        "attempt": 1,
+        "parse_error": "get_product.product_id: 'SGA-6000-KKYF1' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"SGA-6000-KKYF1\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_policy_01_20260731_51720ca5",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "get_policy.policy_type: 'return_policy' is not one of return, warranty, shipping, invoice, refund",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_policy\", \"arguments\": {\"policy_type\": \"return_policy\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_policy_01_20260731_51720ca5",
+        "trace_phase": "initial",
+        "attempt": 1,
+        "parse_error": "get_policy.policy_type: 'return_policy' is not one of return, warranty, shipping, invoice, refund",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_policy\", \"arguments\": {\"policy_type\": \"return_policy\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_recovery_no_answer_01_20260735_895eca0f",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "get_product.product_id: 'ZX-CAL-0001-MISSING' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"ZX-CAL-0001-MISSING\"}, \"content\": \"\", \"requires_user_response\": false}"
+      }
+    ],
+    "missing_verification_code": [
+      {
+        "trajectory_id": "tr_evidence_a_calibration_return_01_20260733_9b0de5d6",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000011\", \"user_id\": \"U0018\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_order_query_02_20260740_00593406",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_order\", \"arguments\": {\"order_id\": \"O000502\", \"user_id\": \"U0898\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_safety_02_20260742_c4bf1b7f",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"create_return_request\", \"arguments\": {\"order_id\": \"O000562\", \"user_id\": \"U0910\", \"verification_code\": \"\", \"confirmed\": false}, \"content\": \"\", \"requires_user_response\": true}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_return_03_20260749_ea16c10e",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000055\", \"user_id\": \"U0211\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_safety_03_20260750_a50af441",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000563\", \"user_id\": \"U0047\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      }
+    ],
+    "unbalanced_json": [
+      {
+        "trajectory_id": "tr_evidence_a_calibration_compare_02_20260738_0d726abc",
+        "trace_phase": "repair",
+        "attempt": 0,
+        "parse_error": "'{' is never closed — output was likely truncated",
+        "finish_reason": "length",
+        "truncated": true,
+        "raw_output": "{\"action_type\": \"final_answer\", \"tool_name\": null, \"arguments\": {}, \"content\": \"Here is a comparison of the two products, with all claims directly supported by evidence:\\n\\nProduct P00243: Vbestlife Emergency Radio Battery Operated Transistor Radio AM/FM with Speaker Headphone Jack for Travel Camping Parents Gift (Silver Gray)\\n- Category: Electronics Portable Audio & Video Radios Personal Radios [E3]\\n- Price: $9.89 [E4]\\n- Features: First-class sound, high sensitivity to signals, real-time radio news, long battery life (AA batteries last for weeks), built-in speaker that fills a room with sound [E6]\\n- Dimensions: 4.17 x 2.6 x 1.1 inches [E7]\\n- Weight: 2.46 ounces [E8]\\n- Best Sellers Rank: Electronics (320,775), Portable Headset Radios (444) [E9]\\n- First Available: May 30, 2022 [E10]\\n\\nProduct P00244: lcd4laptop HP TouchSmart 15-AC 15-AC121DX B156XTK01.0 15.6\\\" LCD Screen Display Touch\\n- Category: Electronics Computers & Accessories Laptop Accessories Replacement Screens [E13]\\n- Price: $67.66 [E14]\\n- Features: 100% compatible screen, resolution of 1366 x 768, 15.6-inch display, brand Lcd4laptop, model number A716317O951L [E17][E18][E19][E20]\\n- Important Note: Must match the resolution, backlight, and screen size to your current screen. A mismatch will not work with your system [E16]\\n\\nSummary: The emergency radio (P00243) is a low-cost, portable device ideal for travel or emergencies with long battery life and good audio quality [E6]. The LCD screen (P00244) is a more expensive replacement for a laptop screen and requires careful matching to your current setup [E16]. Both are in different categories and serve completely different purposes.\", \"requires_user_response\":"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_compare_02_20260738_0d726abc",
+        "trace_phase": "repair",
+        "attempt": 1,
+        "parse_error": "'{' is never closed — output was likely truncated",
+        "finish_reason": "length",
+        "truncated": true,
+        "raw_output": "{\"action_type\": \"final_answer\", \"tool_name\": null, \"arguments\": {}, \"content\": \"Here is a comparison of the two products, with all claims directly supported by evidence:\\n\\nProduct P00243: Vbestlife Emergency Radio Battery Operated Transistor Radio AM/FM with Speaker Headphone Jack for Travel Camping Parents Gift (Silver Gray)\\n- Category: Electronics Portable Audio & Video Radios Personal Radios [E3]\\n- Price: $9.89 [E4]\\n- Features: First-class sound, high sensitivity to signals, real-time radio news, long battery life (AA batteries last for weeks), built-in speaker that fills a room with sound [E6]\\n- Dimensions: 4.17 x 2.6 x 1.1 inches [E7]\\n- Weight: 2.46 ounces [E8]\\n- Best Sellers Rank: Electronics (320,775), Portable Headset Radios (444) [E9]\\n- First Available: May 30, 2022 [E10]\\n\\nProduct P00244: lcd4laptop HP TouchSmart 15-AC 15-AC121DX B156XTK01.0 15.6\\\" LCD Screen Display Touch\\n- Category: Electronics Computers & Accessories Laptop Accessories Replacement Screens [E13]\\n- Price: $67.66 [E14]\\n- Features: 100% compatible screen, resolution of 1366 x 768, 15.6-inch display, brand Lcd4laptop, model number A716317O951L [E17][E18][E19][E20]\\n- Important Note: Must match the resolution, backlight, and screen size to your current screen. A mismatch will not work with your system [E16]\\n\\nSummary: The emergency radio (P00243) is a low-cost, portable device ideal for travel or emergencies with long battery life and good audio quality [E6]. The LCD screen (P00244) is a more expensive replacement for a laptop screen and requires careful matching to your current setup [E16]. Both are in different categories and serve completely different purposes.\", \"requires_user_response\":"
+      }
+    ]
+  }
+}

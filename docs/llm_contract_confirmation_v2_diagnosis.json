@@ -1,0 +1,98 @@
+{
+  "trajectories": 7,
+  "steps_with_llm_trace": 11,
+  "instrumented": true,
+  "quality": {
+    "effective_action_parse_rate": 0.7273,
+    "strict_envelope_parse_rate": 0.7273,
+    "recovered_parse_rate": 0.0,
+    "illegal_tool_rate": 0.0,
+    "generation_error_rate": 0.0,
+    "fallback_only_trajectory_rate": 0.4286,
+    "avg_non_fallback_tool_calls": 0.5714,
+    "trajectories_with_real_tool_call_rate": 0.5714,
+    "truncation_rate": 0.0
+  },
+  "envelope_violations": {},
+  "resolutions": {
+    "parsed": 8,
+    "fallback_handoff": 3
+  },
+  "parse_stages": {
+    "schema_violation": 6
+  },
+  "finish_reasons": {
+    "stop": 14
+  },
+  "generations": 14,
+  "prompt_tokens": {
+    "min": 717,
+    "median": 813,
+    "max": 944,
+    "mean": 821.36
+  },
+  "completion_tokens": {
+    "min": 39,
+    "median": 44,
+    "max": 92,
+    "mean": 56.0
+  },
+  "generators": [
+    {
+      "backend": "local",
+      "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+      "max_new_tokens": 512,
+      "enable_thinking_supported": true,
+      "chat_template_present": true
+    }
+  ],
+  "failure_samples": {
+    "schema_violation": [
+      {
+        "trajectory_id": "tr_v2_dev_product_qa_02_20260721_00466682",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "get_product.product_id: 'Ce-H22B12-S1' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"Ce-H22B12-S1\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_v2_dev_product_qa_02_20260721_00466682",
+        "trace_phase": "initial",
+        "attempt": 1,
+        "parse_error": "get_product.product_id: 'Ce-H22B12-S1' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"Ce-H22B12-S1\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_v2_dev_product_qa_07_20260726_c8510a16",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "get_product.product_id: 'QGHXO' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"QGHXO\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_v2_dev_product_qa_07_20260726_c8510a16",
+        "trace_phase": "initial",
+        "attempt": 1,
+        "parse_error": "get_product.product_id: 'QGHXO' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"QGHXO\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_v2_locked_product_qa_14_20260783_edd6b339",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "get_product.product_id: 'PSAMGLXTLC26' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"PSAMGLXTLC26\"}, \"content\": \"\", \"requires_user_response\": false}"
+      }
+    ]
+  }
+}

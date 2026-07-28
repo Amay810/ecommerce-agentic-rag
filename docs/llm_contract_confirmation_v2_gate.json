@@ -1,0 +1,89 @@
+{
+  "passed": false,
+  "checks": [
+    {
+      "check": "instrumented",
+      "status": "PASS",
+      "detail": "trace present"
+    },
+    {
+      "check": "diagnosis_has_required_metrics",
+      "status": "PASS",
+      "detail": "all present"
+    },
+    {
+      "check": "trajectory_count",
+      "status": "PASS",
+      "detail": "expected 7, got 7"
+    },
+    {
+      "check": "generation_error_rate_is_zero",
+      "status": "PASS",
+      "detail": "generation_error_rate=0.0"
+    },
+    {
+      "check": "fallback_only_trajectory_rate_is_zero",
+      "status": "FAIL",
+      "detail": "fallback_only_trajectory_rate=0.4286"
+    },
+    {
+      "check": "illegal_tool_rate_is_zero",
+      "status": "PASS",
+      "detail": "illegal_tool_rate=0.0"
+    },
+    {
+      "check": "effective_action_parse_rate",
+      "status": "FAIL",
+      "detail": "0.7273 (threshold 0.9)"
+    },
+    {
+      "check": "all_scenarios_ran",
+      "status": "PASS",
+      "detail": "all present"
+    },
+    {
+      "check": "scenario:v2_dev_policy_02",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:v2_dev_policy_07",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:v2_dev_product_qa_02",
+      "status": "FAIL",
+      "detail": "failure_type=retrieval-gold-missing"
+    },
+    {
+      "check": "scenario:v2_dev_product_qa_07",
+      "status": "FAIL",
+      "detail": "failure_type=retrieval-gold-missing"
+    },
+    {
+      "check": "scenario:v2_locked_policy_12",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:v2_locked_policy_17",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "check": "scenario:v2_locked_product_qa_14",
+      "status": "FAIL",
+      "detail": "failure_type=retrieval-gold-missing"
+    }
+  ],
+  "warnings": [],
+  "failed_checks": [
+    "fallback_only_trajectory_rate_is_zero",
+    "effective_action_parse_rate",
+    "scenario:v2_dev_product_qa_02",
+    "scenario:v2_dev_product_qa_07",
+    "scenario:v2_locked_product_qa_14"
+  ],
+  "verdict": "smoke failed; fix the reported checks before spending a full run"
+}

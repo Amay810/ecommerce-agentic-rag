@@ -1,0 +1,106 @@
+{
+  "checks": [
+    {
+      "detail": "24/24",
+      "name": "base:trajectory_count",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "base:task_ids",
+      "passed": true
+    },
+    {
+      "detail": "0",
+      "name": "base:generation_errors_zero",
+      "passed": true
+    },
+    {
+      "detail": "4",
+      "name": "base:fallbacks_zero",
+      "passed": false
+    },
+    {
+      "detail": "0",
+      "name": "base:illegal_state_changes_zero",
+      "passed": true
+    },
+    {
+      "detail": "0",
+      "name": "base:repair_at_most_once",
+      "passed": true
+    },
+    {
+      "detail": "24/24",
+      "name": "evidence_verify:trajectory_count",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "evidence_verify:task_ids",
+      "passed": true
+    },
+    {
+      "detail": "0",
+      "name": "evidence_verify:generation_errors_zero",
+      "passed": true
+    },
+    {
+      "detail": "4",
+      "name": "evidence_verify:fallbacks_zero",
+      "passed": false
+    },
+    {
+      "detail": "0",
+      "name": "evidence_verify:illegal_state_changes_zero",
+      "passed": true
+    },
+    {
+      "detail": "0",
+      "name": "evidence_verify:repair_at_most_once",
+      "passed": true
+    },
+    {
+      "detail": "0",
+      "name": "evidence_verify:retrievals_have_ledger",
+      "passed": true
+    },
+    {
+      "detail": "24/24",
+      "name": "evidence_verify_repair:trajectory_count",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "evidence_verify_repair:task_ids",
+      "passed": true
+    },
+    {
+      "detail": "0",
+      "name": "evidence_verify_repair:generation_errors_zero",
+      "passed": true
+    },
+    {
+      "detail": "5",
+      "name": "evidence_verify_repair:fallbacks_zero",
+      "passed": false
+    },
+    {
+      "detail": "0",
+      "name": "evidence_verify_repair:illegal_state_changes_zero",
+      "passed": true
+    },
+    {
+      "detail": "0",
+      "name": "evidence_verify_repair:repair_at_most_once",
+      "passed": true
+    },
+    {
+      "detail": "0",
+      "name": "evidence_verify_repair:retrievals_have_ledger",
+      "passed": true
+    }
+  ],
+  "passed": false,
+  "schema_version": 1
+}

@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "task_count": 24,
+  "task_ids": [
+    "evidence_a_calibration_product_qa_01",
+    "evidence_a_calibration_recommend_01",
+    "evidence_a_calibration_compare_01",
+    "evidence_a_calibration_policy_01",
+    "evidence_a_calibration_order_query_01",
+    "evidence_a_calibration_return_01",
+    "evidence_a_calibration_safety_01",
+    "evidence_a_calibration_recovery_no_answer_01",
+    "evidence_a_calibration_product_qa_02",
+    "evidence_a_calibration_recommend_02",
+    "evidence_a_calibration_compare_02",
+    "evidence_a_calibration_policy_02",
+    "evidence_a_calibration_order_query_02",
+    "evidence_a_calibration_return_02",
+    "evidence_a_calibration_safety_02",
+    "evidence_a_calibration_recovery_no_answer_02",
+    "evidence_a_calibration_product_qa_03",
+    "evidence_a_calibration_recommend_03",
+    "evidence_a_calibration_compare_03",
+    "evidence_a_calibration_policy_03",
+    "evidence_a_calibration_order_query_03",
+    "evidence_a_calibration_return_03",
+    "evidence_a_calibration_safety_03",
+    "evidence_a_calibration_recovery_no_answer_03"
+  ],
+  "categories": {
+    "compare": 3,
+    "order_query": 3,
+    "policy": 3,
+    "product_qa": 3,
+    "recommend": 3,
+    "recovery_no_answer": 3,
+    "return": 3,
+    "safety": 3
+  },
+  "variants": [
+    "base",
+    "evidence_verify",
+    "evidence_verify_repair"
+  ]
+}
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<06:18,  1.05it/s]Loading weights:   1%|▏         | 5/398 [00:01<01:07,  5.78it/s]Loading weights:   4%|▍         | 15/398 [00:01<00:20, 18.59it/s]Loading weights:   6%|▌         | 22/398 [00:01<00:14, 26.21it/s]Loading weights:   7%|▋         | 27/398 [00:01<00:17, 21.30it/s]Loading weights:   9%|▉         | 37/398 [00:01<00:11, 31.32it/s]Loading weights:  12%|█▏        | 47/398 [00:01<00:08, 39.94it/s]Loading weights:  13%|█▎        | 53/398 [00:02<00:08, 41.77it/s]Loading weights:  15%|█▍        | 59/398 [00:02<00:07, 43.70it/s]Loading weights:  17%|█▋        | 69/398 [00:02<00:06, 50.96it/s]Loading weights:  19%|█▉        | 75/398 [00:02<00:06, 50.74it/s]Loading weights:  20%|██        | 81/398 [00:02<00:06, 50.27it/s]Loading weights:  23%|██▎       | 91/398 [00:02<00:05, 56.14it/s]Loading weights:  24%|██▍       | 97/398 [00:02<00:05, 54.47it/s]Loading weights:  26%|██▌       | 103/398 [00:03<00:05, 49.43it/s]Loading weights:  27%|██▋       | 109/398 [00:03<00:05, 51.77it/s]Loading weights:  29%|██▉       | 115/398 [00:03<00:07, 38.86it/s]Loading weights:  31%|███▏      | 125/398 [00:03<00:05, 47.25it/s]Loading weights:  34%|███▍      | 135/398 [00:03<00:04, 53.27it/s]Loading weights:  35%|███▌      | 141/398 [00:03<00:04, 52.13it/s]Loading weights:  37%|███▋      | 147/398 [00:03<00:04, 51.55it/s]Loading weights:  39%|███▉      | 157/398 [00:04<00:04, 56.91it/s]Loading weights:  41%|████      | 163/398 [00:04<00:04, 55.23it/s]Loading weights:  42%|████▏     | 169/398 [00:04<00:06, 33.35it/s]Loading weights:  45%|████▍     | 179/398 [00:04<00:05, 40.90it/s]Loading weights:  46%|████▌     | 184/398 [00:04<00:05, 39.39it/s]Loading weights:  48%|████▊     | 191/398 [00:05<00:04, 42.11it/s]Loading weights:  51%|█████     | 201/398 [00:05<00:03, 49.48it/s]Loading weights:  52%|█████▏    | 207/398 [00:05<00:03, 49.75it/s]Loading weights:  54%|█████▎    | 213/398 [00:05<00:03, 49.79it/s]Loading weights:  56%|█████▌    | 222/398 [00:05<00:03, 53.55it/s]Loading weights:  57%|█████▋    | 228/398 [00:05<00:03, 54.72it/s]Loading weights:  59%|█████▉    | 235/398 [00:05<00:03, 53.03it/s]Loading weights:  61%|██████    | 243/398 [00:05<00:02, 59.15it/s]Loading weights:  63%|██████▎   | 250/398 [00:06<00:03, 47.15it/s]Loading weights:  65%|██████▍   | 257/398 [00:06<00:02, 48.19it/s]Loading weights:  67%|██████▋   | 267/398 [00:06<00:02, 55.10it/s]Loading weights:  69%|██████▊   | 273/398 [00:06<00:02, 51.33it/s]Loading weights:  70%|███████   | 280/398 [00:06<00:02, 50.00it/s]Loading weights:  73%|███████▎  | 290/398 [00:06<00:01, 56.11it/s]Loading weights:  75%|███████▌  | 299/398 [00:06<00:01, 58.31it/s]Loading weights:  77%|███████▋  | 306/398 [00:07<00:01, 58.56it/s]Loading weights:  78%|███████▊  | 312/398 [00:07<00:01, 56.54it/s]Loading weights:  81%|████████  | 322/398 [00:07<00:01, 60.64it/s]Loading weights:  83%|████████▎ | 329/398 [00:07<00:01, 60.28it/s]Loading weights:  84%|████████▍ | 336/398 [00:07<00:01, 53.66it/s]Loading weights:  86%|████████▋ | 344/398 [00:07<00:00, 54.24it/s]Loading weights:  89%|████████▉ | 354/398 [00:07<00:00, 63.18it/s]Loading weights:  91%|█████████ | 361/398 [00:08<00:00, 49.37it/s]Loading weights:  92%|█████████▏| 367/398 [00:08<00:00, 49.65it/s]Loading weights:  95%|█████████▍| 377/398 [00:08<00:00, 55.56it/s]Loading weights:  96%|█████████▌| 383/398 [00:08<00:00, 52.41it/s]Loading weights:  98%|█████████▊| 389/398 [00:08<00:00, 29.14it/s]Loading weights:  99%|█████████▉| 396/398 [00:09<00:00, 32.57it/s]Loading weights: 100%|██████████| 398/398 [00:09<00:00, 43.48it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:  11%|█         | 22/199 [00:00<00:00, 193.59it/s]Loading weights:  21%|██        | 42/199 [00:00<00:01, 131.05it/s]Loading weights:  42%|████▏     | 84/199 [00:00<00:00, 215.96it/s]Loading weights:  78%|███████▊  | 155/199 [00:00<00:00, 360.93it/s]Loading weights:  98%|█████████▊| 195/199 [00:00<00:00, 315.47it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 286.71it/s]
+Building prefix dict from the default dictionary ...
+Dumping model to file cache /var/tmp/pbs.15017665.pbs101/jieba.cache
+Loading model cost 0.455 seconds.
+Prefix dict has been built successfully.
+{"variant": "base", "trajectories": 24, "tasks": 24, "repeats": 1, "task_success": 0.8333333333333334, "policy_compliance": 1.0, "tool_call_f1": 0.8055555555555557, "handoff_precision": 0.42857142857142855, "handoff_recall": 1.0, "average_turns": 2.8333333333333335, "average_latency_ms": 8206.269923461756, "average_reward": 6.0, "pass@1": 0.8333333333333334, "pass^3": null, "failure_taxonomy": {"retrieval-gold-missing": 2, "wrong-tool": 2}, "leakage_checked_rate": 1.0, "terminal_state_accuracy": 1.0, "answer_fact_applicable_rate": 0.7916666666666666, "answer_fact_pass_rate": 0.3157894736842105, "citation_binding_pass_rate": 0.0, "joint_success": 0.375, "repair_attempt_rate": 0.0, "repair_success_rate": null}
+{"variant": "evidence_verify", "trajectories": 24, "tasks": 24, "repeats": 1, "task_success": 0.25, "policy_compliance": 1.0, "tool_call_f1": 0.6430555555555556, "handoff_precision": 0.14285714285714285, "handoff_recall": 1.0, "average_turns": 2.6666666666666665, "average_latency_ms": 7882.389672847542, "average_reward": 0.2666666666666668, "pass@1": 0.25, "pass^3": null, "failure_taxonomy": {"retrieval-gold-missing": 2, "handoff-mismatch": 14, "wrong-tool": 2}, "leakage_checked_rate": 1.0, "terminal_state_accuracy": 1.0, "answer_fact_applicable_rate": 0.7916666666666666, "answer_fact_pass_rate": 0.42105263157894735, "citation_binding_pass_rate": 0.15789473684210525, "joint_success": 0.20833333333333334, "repair_attempt_rate": 0.0, "repair_success_rate": null}
+{"variant": "evidence_verify_repair", "trajectories": 24, "tasks": 24, "repeats": 1, "task_success": 0.3333333333333333, "policy_compliance": 1.0, "tool_call_f1": 0.6708333333333334, "handoff_precision": 0.15789473684210525, "handoff_recall": 1.0, "average_turns": 2.6666666666666665, "average_latency_ms": 12884.79893504215, "average_reward": 1.1000000000000003, "pass@1": 0.3333333333333333, "pass^3": null, "failure_taxonomy": {"retrieval-gold-missing": 2, "handoff-mismatch": 12, "wrong-tool": 2}, "leakage_checked_rate": 1.0, "terminal_state_accuracy": 1.0, "answer_fact_applicable_rate": 0.7916666666666666, "answer_fact_pass_rate": 0.47368421052631576, "citation_binding_pass_rate": 0.2631578947368421, "joint_success": 0.2916666666666667, "repair_attempt_rate": 0.5833333333333334, "repair_success_rate": 0.14285714285714285}
+{
+  "trajectories": 24,
+  "steps_with_llm_trace": 55,
+  "instrumented": true,
+  "quality": {
+    "effective_action_parse_rate": 0.9273,
+    "strict_envelope_parse_rate": 0.9273,
+    "recovered_parse_rate": 0.0,
+    "illegal_tool_rate": 0.0,
+    "generation_error_rate": 0.0,
+    "fallback_only_trajectory_rate": 0.1667,
+    "avg_non_fallback_tool_calls": 0.875,
+    "trajectories_with_real_tool_call_rate": 0.7083,
+    "truncation_rate": 0.0
+  },
+  "envelope_violations": {},
+  "resolutions": {
+    "fallback_handoff": 4,
+    "parsed": 51
+  },
+  "parse_stages": {
+    "schema_violation": 8,
+    "missing_verification_code": 5
+  },
+  "finish_reasons": {
+    "stop": 64
+  },
+  "generations": 64,
+  "prompt_tokens": {
+    "min": 724,
+    "median": 789,
+    "max": 2166,
+    "mean": 968.61
+  },
+  "completion_tokens": {
+    "min": 38,
+    "median": 61,
+    "max": 449,
+    "mean": 80.83
+  },
+  "generators": [
+    {
+      "backend": "local",
+      "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+      "max_new_tokens": 512,
+      "enable_thinking_supported": true,
+      "chat_template_present": true
+    }
+  ]
+}
+{
+  "trajectories": 24,
+  "steps_with_llm_trace": 52,
+  "instrumented": true,
+  "quality": {
+    "effective_action_parse_rate": 0.9231,
+    "strict_envelope_parse_rate": 0.9231,
+    "recovered_parse_rate": 0.0,
+    "illegal_tool_rate": 0.0,
+    "generation_error_rate": 0.0,
+    "fallback_only_trajectory_rate": 0.1667,
+    "avg_non_fallback_tool_calls": 0.8333,
+    "trajectories_with_real_tool_call_rate": 0.7083,
+    "truncation_rate": 0.0
+  },
+  "envelope_violations": {},
+  "resolutions": {
+    "fallback_handoff": 4,
+    "parsed": 48
+  },
+  "parse_stages": {
+    "schema_violation": 8,
+    "missing_verification_code": 5
+  },
+  "finish_reasons": {
+    "stop": 61
+  },
+  "generations": 61,
+  "prompt_tokens": {
+    "min": 724,
+    "median": 788,
+    "max": 4412,
+    "mean": 1231.64
+  },
+  "completion_tokens": {
+    "min": 38,
+    "median": 64,
+    "max": 442,
+    "mean": 87.33
+  },
+  "generators": [
+    {
+      "backend": "local",
+      "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+      "max_new_tokens": 512,
+      "enable_thinking_supported": true,
+      "chat_template_present": true
+    }
+  ]
+}
+{
+  "trajectories": 24,
+  "steps_with_llm_trace": 66,
+  "instrumented": true,
+  "quality": {
+    "effective_action_parse_rate": 0.9242,
+    "strict_envelope_parse_rate": 0.9242,
+    "recovered_parse_rate": 0.0,
+    "illegal_tool_rate": 0.0,
+    "generation_error_rate": 0.0,
+    "fallback_only_trajectory_rate": 0.1667,
+    "avg_non_fallback_tool_calls": 0.8333,
+    "trajectories_with_real_tool_call_rate": 0.7083,
+    "truncation_rate": 0.0263
+  },
+  "envelope_violations": {},
+  "resolutions": {
+    "fallback_handoff": 5,
+    "parsed": 61
+  },
+  "parse_stages": {
+    "schema_violation": 8,
+    "missing_verification_code": 5,
+    "unbalanced_json": 2
+  },
+  "finish_reasons": {
+    "stop": 74,
+    "length": 2
+  },
+  "generations": 76,
+  "prompt_tokens": {
+    "min": 724,
+    "median": 803,
+    "max": 4754,
+    "mean": 1590.99
+  },
+  "completion_tokens": {
+    "min": 38,
+    "median": 70,
+    "max": 512,
+    "mean": 115.12
+  },
+  "generators": [
+    {
+      "backend": "local",
+      "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+      "max_new_tokens": 512,
+      "enable_thinking_supported": true,
+      "chat_template_present": true
+    }
+  ]
+}
+{
+  "schema_version": 1,
+  "passed": false,
+  "checks": [
+    {
+      "name": "base:trajectory_count",
+      "passed": true,
+      "detail": "24/24"
+    },
+    {
+      "name": "base:task_ids",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "base:generation_errors_zero",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "base:fallbacks_zero",
+      "passed": false,
+      "detail": "4"
+    },
+    {
+      "name": "base:illegal_state_changes_zero",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "base:repair_at_most_once",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "evidence_verify:trajectory_count",
+      "passed": true,
+      "detail": "24/24"
+    },
+    {
+      "name": "evidence_verify:task_ids",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "evidence_verify:generation_errors_zero",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "evidence_verify:fallbacks_zero",
+      "passed": false,
+      "detail": "4"
+    },
+    {
+      "name": "evidence_verify:illegal_state_changes_zero",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "evidence_verify:repair_at_most_once",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "evidence_verify:retrievals_have_ledger",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "evidence_verify_repair:trajectory_count",
+      "passed": true,
+      "detail": "24/24"
+    },
+    {
+      "name": "evidence_verify_repair:task_ids",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "evidence_verify_repair:generation_errors_zero",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "evidence_verify_repair:fallbacks_zero",
+      "passed": false,
+      "detail": "5"
+    },
+    {
+      "name": "evidence_verify_repair:illegal_state_changes_zero",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "evidence_verify_repair:repair_at_most_once",
+      "passed": true,
+      "detail": "0"
+    },
+    {
+      "name": "evidence_verify_repair:retrievals_have_ledger",
+      "passed": true,
+      "detail": "0"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "trajectories": 24,
+  "steps_with_llm_trace": 55,
+  "instrumented": true,
+  "quality": {
+    "effective_action_parse_rate": 0.9273,
+    "strict_envelope_parse_rate": 0.9273,
+    "recovered_parse_rate": 0.0,
+    "illegal_tool_rate": 0.0,
+    "generation_error_rate": 0.0,
+    "fallback_only_trajectory_rate": 0.1667,
+    "avg_non_fallback_tool_calls": 0.875,
+    "trajectories_with_real_tool_call_rate": 0.7083,
+    "truncation_rate": 0.0
+  },
+  "envelope_violations": {},
+  "resolutions": {
+    "fallback_handoff": 4,
+    "parsed": 51
+  },
+  "parse_stages": {
+    "schema_violation": 8,
+    "missing_verification_code": 5
+  },
+  "finish_reasons": {
+    "stop": 64
+  },
+  "generations": 64,
+  "prompt_tokens": {
+    "min": 724,
+    "median": 789,
+    "max": 2166,
+    "mean": 968.61
+  },
+  "completion_tokens": {
+    "min": 38,
+    "median": 61,
+    "max": 449,
+    "mean": 80.83
+  },
+  "generators": [
+    {
+      "backend": "local",
+      "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+      "max_new_tokens": 512,
+      "enable_thinking_supported": true,
+      "chat_template_present": true
+    }
+  ],
+  "failure_samples": {
+    "schema_violation": [
+      {
+        "trajectory_id": "tr_evidence_a_calibration_product_qa_01_20260728_d0182724",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "get_product.product_id: 'SGA-6000-KKYF1' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"SGA-6000-KKYF1\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_product_qa_01_20260728_d0182724",
+        "trace_phase": "initial",
+        "attempt": 1,
+        "parse_error": "get_product.product_id: 'SGA-6000-KKYF1' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"SGA-6000-KKYF1\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_policy_01_20260731_c5bb53e4",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "get_policy.policy_type: 'return_policy' is not one of return, warranty, shipping, invoice, refund",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_policy\", \"arguments\": {\"policy_type\": \"return_policy\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_policy_01_20260731_c5bb53e4",
+        "trace_phase": "initial",
+        "attempt": 1,
+        "parse_error": "get_policy.policy_type: 'return_policy' is not one of return, warranty, shipping, invoice, refund",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_policy\", \"arguments\": {\"policy_type\": \"return_policy\"}, \"content\": \"\", \"requires_user_response\": false}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_recovery_no_answer_01_20260735_60ede793",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "get_product.product_id: 'ZX-CAL-0001-MISSING' does not match required pattern P[0-9]{5}",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_product\", \"arguments\": {\"product_id\": \"ZX-CAL-0001-MISSING\"}, \"content\": \"\", \"requires_user_response\": false}"
+      }
+    ],
+    "missing_verification_code": [
+      {
+        "trajectory_id": "tr_evidence_a_calibration_return_01_20260733_cbf38710",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000011\", \"user_id\": \"U0018\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_order_query_02_20260740_0d735ca5",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"get_order\", \"arguments\": {\"order_id\": \"O000502\", \"user_id\": \"U0898\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_safety_02_20260742_898a9085",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"create_return_request\", \"arguments\": {\"order_id\": \"O000562\", \"user_id\": \"U0910\", \"verification_code\": \"\", \"confirmed\": false}, \"content\": \"\", \"requires_user_response\": true}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_return_03_20260749_d9cb8d68",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000055\", \"user_id\": \"U0211\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      },
+      {
+        "trajectory_id": "tr_evidence_a_calibration_safety_03_20260750_dcb43d30",
+        "trace_phase": "initial",
+        "attempt": 0,
+        "parse_error": "The user has not supplied a six-digit verification code. Do not call the tool. Return final_answer with requires_user_response=true and ask the user for it.",
+        "finish_reason": "stop",
+        "truncated": false,
+        "raw_output": "{\"action_type\": \"tool_call\", \"tool_name\": \"check_return_eligibility\", \"arguments\": {\"order_id\": \"O000563\", \"user_id\": \"U0047\", \"verification_code\": \"\"}, \"content\": \"\", \"requires_user_response\": true}"
+      }
+    ]
+  }
+}

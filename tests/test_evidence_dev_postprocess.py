@@ -12,7 +12,10 @@ from scripts.evidence_dev_postprocess import (
     StoredTrajectory,
     _atomic_claims,
     _claim_id,
+    _immutable_row_hash,
     _inventory_signature,
+    ANSWER_HUMAN_FIELDS,
+    CLAIM_HUMAN_FIELDS,
     build_audit_rows,
     conversion_errors,
     ensure_inventory_unchanged,
@@ -297,9 +300,51 @@ def test_human_summary_excludes_unclear_and_incomplete_segmentation(tmp_path: Pa
     answers_path, claims_path, manifest_path = tmp_path / "answers.csv", tmp_path / "claims.csv", tmp_path / "manifest.json"
     _write_rows(answers_path, answers)
     _write_rows(claims_path, claims)
-    manifest_path.write_text(json.dumps({"answer_ids": ids}), encoding="utf-8")
+    manifest_path.write_text(json.dumps({
+        "answer_ids": ids,
+        "claim_ids": [row["claim_id"] for row in claims],
+        "answer_fields": list(answers[0]),
+        "claim_fields": list(claims[0]),
+        "answer_immutable_hashes": {
+            row["answer_id"]: _immutable_row_hash(row, ANSWER_HUMAN_FIELDS) for row in answers
+        },
+        "claim_immutable_hashes": {
+            row["claim_id"]: _immutable_row_hash(row, CLAIM_HUMAN_FIELDS) for row in claims
+        },
+    }), encoding="utf-8")
     report, queue, derived = summarize_human_audit(answers_path, claims_path, manifest_path)
     assert report["claim_fact_calibration"]["effective_sample_count"] == 94
     assert report["claim_fact_calibration"]["unclear_rate"] == rate(1, 95)
     assert derived[0]["derived_answer_fact_pass"] == "unclear"
     assert any(row["answer_id"] == "A001" for row in queue)
+
+
+def test_human_summary_rejects_changes_to_immutable_columns(tmp_path: Path) -> None:
+    answers = [{
+        "answer_id": f"A{index:03d}", "task_id": f"T{index // 3:02d}",
+        "variant": VARIANTS[index % 3], "operational_success": "true",
+        "human_answer_complete": "", "human_handoff_appropriate": "",
+        "human_overall_pass": "", "human_claim_segmentation_complete": "",
+    } for index in range(96)]
+    claims = [{
+        "claim_id": f"C{index:03d}", "answer_id": row["answer_id"],
+        "auto_fact_status": "unclassified", "auto_citation_status": "missing_or_not_required",
+        "human_fact_status": "", "human_citation_status": "",
+    } for index, row in enumerate(answers)]
+    answers_path, claims_path, manifest_path = tmp_path / "answers.csv", tmp_path / "claims.csv", tmp_path / "manifest.json"
+    _write_rows(answers_path, answers)
+    _write_rows(claims_path, claims)
+    manifest = {
+        "answer_ids": [row["answer_id"] for row in answers],
+        "claim_ids": [row["claim_id"] for row in claims],
+        "answer_fields": list(answers[0]), "claim_fields": list(claims[0]),
+        "answer_immutable_hashes": {row["answer_id"]: _immutable_row_hash(row, ANSWER_HUMAN_FIELDS)
+                                      for row in answers},
+        "claim_immutable_hashes": {row["claim_id"]: _immutable_row_hash(row, CLAIM_HUMAN_FIELDS)
+                                     for row in claims},
+    }
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    answers[0]["task_id"] = "changed"
+    _write_rows(answers_path, answers)
+    with pytest.raises(PostprocessError, match="immutable answer-audit field"):
+        summarize_human_audit(answers_path, claims_path, manifest_path)

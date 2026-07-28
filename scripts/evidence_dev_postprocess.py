@@ -49,6 +49,11 @@ REQUIRED_GRADE_FIELDS = {
 FACT_STATUS = {"supported", "contradicted", "unsupported", "not_factual", "unclear"}
 CITATION_STATUS = {"correct", "incorrect", "missing", "not_required", "unclear"}
 BOOL_OR_BLANK = {"", "true", "false"}
+ANSWER_HUMAN_FIELDS = {
+    "human_answer_complete", "human_handoff_appropriate", "human_overall_pass",
+    "human_claim_segmentation_complete", "missing_claim_notes", "review_notes",
+}
+CLAIM_HUMAN_FIELDS = {"human_fact_status", "human_citation_status", "review_notes"}
 _CITATION_RE = re.compile(r"\[(E\d+)\]")
 _PRODUCT_ID_RE = re.compile(r"\bP[0-9]{5}\b")
 _SENTENCE_BOUNDARY = re.compile(r"(?:\r?\n)+|(?<=[。！？；;])")
@@ -390,6 +395,19 @@ def _token_counts(row: StoredTrajectory) -> tuple[int, int, int]:
     )
 
 
+def _repair_token_counts(row: StoredTrajectory) -> tuple[int, int, int]:
+    prompt = completion = generations = 0
+    for repair in row.trajectory.get("repair_spans") or []:
+        trace = repair.get("llm")
+        if not isinstance(trace, dict):
+            continue
+        for attempt in trace.get("attempts") or []:
+            prompt += int(attempt.get("prompt_tokens") or 0)
+            completion += int(attempt.get("completion_tokens") or 0)
+            generations += 1
+    return prompt, completion, generations
+
+
 def variant_metrics(rows: list[StoredTrajectory]) -> dict:
     applicable = [row for row in rows if row.grade.get("answer_fact_applicable")]
     expected_answers = [row for row in rows if not row.grade.get("handoff_expected")]
@@ -411,6 +429,9 @@ def variant_metrics(rows: list[StoredTrajectory]) -> dict:
     required = [float(row.grade["required_evidence_coverage"]) for row in applicable
                 if row.grade.get("required_evidence_coverage") is not None]
     repairs = [row for row in rows if row.grade.get("repair_attempted")]
+    repair_tokens = [_repair_token_counts(row) for row in repairs]
+    adopted_repairs = [row for row in repairs if row.grade.get("repair_succeeded")]
+    rejected_repairs = [row for row in repairs if not row.grade.get("repair_succeeded")]
     handoff_tp = sum(row.grade.get("handoff_expected") and row.grade.get("handoff_observed") for row in rows)
     handoff_fp = sum(not row.grade.get("handoff_expected") and row.grade.get("handoff_observed") for row in rows)
     handoff_fn = sum(row.grade.get("handoff_expected") and not row.grade.get("handoff_observed") for row in rows)
@@ -447,6 +468,36 @@ def variant_metrics(rows: list[StoredTrajectory]) -> dict:
         "repair_hard_recovery": rate(sum(bool(row.grade.get("repair_hard_recovery")) for row in repairs), len(repairs)),
         "repair_diagnostic_improvement": rate(
             sum(bool(row.grade.get("repair_diagnostic_improvement")) for row in repairs), len(repairs)),
+        "repair_extra_cost": {
+            "attempted_trajectories": len(repairs),
+            "generation_attempts": sum(item[2] for item in repair_tokens),
+            "prompt_tokens": {"total": sum(item[0] for item in repair_tokens),
+                              "per_attempted_trajectory": distribution(item[0] for item in repair_tokens)},
+            "completion_tokens": {"total": sum(item[1] for item in repair_tokens),
+                                  "per_attempted_trajectory": distribution(item[1] for item in repair_tokens)},
+            "adopted": {
+                "count": len(adopted_repairs),
+                "initial_hard_pass": rate(
+                    sum(bool((_initial_verification(row) or {}).get("hard_verification_pass"))
+                        for row in adopted_repairs), len(adopted_repairs)),
+                "repair_hard_pass": rate(
+                    sum(bool((next((span for span in row.trajectory.get("verification_spans") or []
+                                    if span.get("phase") == "repair"), {})
+                              ).get("hard_verification_pass")) for row in adopted_repairs),
+                    len(adopted_repairs)),
+            },
+            "rejected": {
+                "count": len(rejected_repairs),
+                "initial_hard_pass": rate(
+                    sum(bool((_initial_verification(row) or {}).get("hard_verification_pass"))
+                        for row in rejected_repairs), len(rejected_repairs)),
+                "repair_hard_pass": rate(
+                    sum(bool((next((span for span in row.trajectory.get("verification_spans") or []
+                                    if span.get("phase") == "repair"), {})
+                              ).get("hard_verification_pass")) for row in rejected_repairs),
+                    len(rejected_repairs)),
+            },
+        },
         "latency_ms": distribution(row.grade.get("latency_ms") or row.trajectory.get("elapsed_ms") or 0 for row in rows),
         "prompt_tokens": {"total": sum(item[0] for item in totals), "per_task": distribution(item[0] for item in totals)},
         "completion_tokens": {"total": sum(item[1] for item in totals), "per_task": distribution(item[1] for item in totals)},
@@ -772,6 +823,11 @@ def _csv_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
+def _immutable_row_hash(row: dict, mutable_fields: set[str]) -> str:
+    fixed = {key: str(value) for key, value in row.items() if key not in mutable_fields}
+    return hashlib.sha256(_csv_json(fixed).encode("utf-8")).hexdigest()
+
+
 def build_audit_rows(
     selected: list[str], by_variant: dict[str, list[StoredTrajectory]], tasks: dict[str, dict], selection: dict
 ) -> tuple[list[dict], list[dict]]:
@@ -997,6 +1053,14 @@ def run_analysis(args: argparse.Namespace) -> dict:
             "answer_count": len(answer_rows),
             "claim_ids": [row["claim_id"] for row in claim_rows],
             "claim_count": len(claim_rows),
+            "answer_fields": list(answer_rows[0]),
+            "claim_fields": list(claim_rows[0]),
+            "answer_immutable_hashes": {
+                row["answer_id"]: _immutable_row_hash(row, ANSWER_HUMAN_FIELDS) for row in answer_rows
+            },
+            "claim_immutable_hashes": {
+                row["claim_id"]: _immutable_row_hash(row, CLAIM_HUMAN_FIELDS) for row in claim_rows
+            },
             "source_sqlite_files": source_inventory,
             "source_reports": report_records,
             "answer_template_sha256": _sha256(outputs["answers"]),
@@ -1041,6 +1105,22 @@ def summarize_human_audit(answers_path: Path, claims_path: Path, manifest_path: 
         raise PostprocessError("claim audit rows/IDs differ from the audit manifest")
     if set(row.get("answer_id") for row in claims) - expected_answers:
         raise PostprocessError("claim audit contains unknown answer IDs")
+    if answer_fields != manifest.get("answer_fields"):
+        raise PostprocessError("answer audit header differs from the audit manifest")
+    if claim_fields != manifest.get("claim_fields"):
+        raise PostprocessError("claim audit header differs from the audit manifest")
+    answer_hashes = manifest.get("answer_immutable_hashes") or {}
+    claim_hashes = manifest.get("claim_immutable_hashes") or {}
+    if set(answer_hashes) != expected_answers or any(
+        _immutable_row_hash(row, ANSWER_HUMAN_FIELDS) != answer_hashes.get(row["answer_id"])
+        for row in answers
+    ):
+        raise PostprocessError("an immutable answer-audit field was changed")
+    if set(claim_hashes) != expected_claims or any(
+        _immutable_row_hash(row, CLAIM_HUMAN_FIELDS) != claim_hashes.get(row["claim_id"])
+        for row in claims
+    ):
+        raise PostprocessError("an immutable claim-audit field was changed")
     for row in answers:
         for field in ("human_answer_complete", "human_handoff_appropriate", "human_overall_pass",
                       "human_claim_segmentation_complete"):

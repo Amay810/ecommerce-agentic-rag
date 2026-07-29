@@ -1,5 +1,19 @@
 # Terminal-only grounding main experiment
 
+## Final status
+
+This experiment is closed as `negative_or_inconclusive`. The blinded 40-pair
+review found identical fact-pass rates for base and terminal-grounded answers
+(34/40, 85.0%), with a paired difference of 0 and a 10,000-sample paired-bootstrap
+95% interval of [-7.5 pp, +7.5 pp]. Completeness changed from 80.0% to 82.5%, and
+the total contradiction rate remained 15.0%. Both immutability gates passed.
+
+The reviewer was a dedicated Codex context restricted to the blinded review file;
+this is not reported as external human annotation. The full result and provenance
+are recorded in `docs/answer_postprocess_blind_audit_v1_closeout.md`. Do not run
+v3, retune this method, or start the conditional canonical-product, external
+benchmark, verifier, SFT, or DPO work.
+
 ## Frozen scope
 
 The Qwen3-4B model, terminal-grounding prompt, deterministic decoding settings,

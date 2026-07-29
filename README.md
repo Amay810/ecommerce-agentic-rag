@@ -91,7 +91,18 @@ Gate 当前为 `eligible=false`。Guardrail 令非法数据库变更为 0，但 
 - 工具层将政策类型映射到精确语料类别，同时兼容已有中文调用方；
 - JSON Schema 在工具执行前校验类型、pattern 和 enum。
 
-下一次模型运行只覆盖已识别的 7 个唯一失败任务，确认工具契约后再决定是否扩量。
+## Terminal-grounding 盲审收尾
+
+Qwen3-4B terminal-grounding v2 在 80 条冻结 dev 轨迹上完整运行，61 条 eligible
+答案被重生成，19 条按协议透传；两个结构与不变性 gate 均通过。冻结的 40-task
+Codex 盲审中，base 与 grounded 的 fact pass 均为 34/40（85.0%），配对差值为 0，
+10,000 次 bootstrap 95% 区间为 [-7.5pp, +7.5pp]。完整性由 80.0% 变为 82.5%，
+矛盾率均为 15.0%。
+
+因此预注册 positive gate 未通过，正式状态为 `negative_or_inconclusive`。该结果不
+解释为质量提升，也不继续 v3、prompt/token 调参、verifier、canonical-product、
+外部 benchmark、SFT 或 DPO。审核者是隔离上下文中的 Codex，不宣称外部人工标注。
+完整证据见 [terminal-grounding v2 closeout](docs/answer_postprocess_blind_audit_v1_closeout.md)。
 
 ## 本地验证
 

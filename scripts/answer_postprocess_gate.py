@@ -92,8 +92,11 @@ def main() -> None:
                        "detail": report_failures})
         if args.reference_run_report:
             reference = json.loads(args.reference_run_report.read_text(encoding="utf-8"))
-            stable_fields = ("generation_config_hash", "verifier_code_commit", "verifier_config_hash",
-                             "verifier_role", "verifier_gate_applied")
+            stable_fields = (
+                "model", "max_new_tokens", "generation_config_hash", "grounding_prompt_sha256",
+                "verifier_code_commit", "verifier_config_hash", "verifier_role",
+                "verifier_gate_applied",
+            )
             drift = [field for field in stable_fields if run_report.get(field) != reference.get(field)]
             checks.append({"name": "frozen_smoke_to_dev_configuration", "passed": not drift,
                            "detail": drift})

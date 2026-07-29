@@ -22,6 +22,7 @@ GROUNDING_SYSTEM = """You revise a completed customer-support draft using only t
 Return plain answer text, not JSON. Preserve the user's language. Do not call tools, request new information,
 or claim that an operation occurred unless the evidence says so. Cite factual statements with individual [E#] ids.
 If evidence is insufficient, state the limitation rather than inventing a fact."""
+GROUNDING_PROMPT_SHA256 = hashlib.sha256(GROUNDING_SYSTEM.encode("utf-8")).hexdigest()
 
 
 def stable_hash(value: Any) -> str:

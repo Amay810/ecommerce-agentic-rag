@@ -10,7 +10,12 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
-from ecommerce_rag.answer_postprocess import AnswerPostprocessor, PostprocessResult, stable_hash
+from ecommerce_rag.answer_postprocess import (
+    AnswerPostprocessor,
+    GROUNDING_PROMPT_SHA256,
+    PostprocessResult,
+    stable_hash,
+)
 from ecommerce_rag.claim_verifier import verifier_config_hash
 from ecommerce_rag.llm_policy import LLMPolicy
 
@@ -51,6 +56,30 @@ def ratio(n: int, d: int) -> dict[str, Any]:
     return {"numerator": n, "denominator": d, "rate": n / d if d else None}
 
 
+def terminal_generation(expected_max_new_tokens: int | None) -> tuple[Any, dict[str, Any]]:
+    policy = LLMPolicy.from_env()
+    actual_max_new_tokens = policy.generator_meta.get("max_new_tokens")
+    if not isinstance(actual_max_new_tokens, int) or actual_max_new_tokens <= 0:
+        raise ValueError("local generator did not report a valid max_new_tokens")
+    if expected_max_new_tokens is not None and actual_max_new_tokens != expected_max_new_tokens:
+        raise ValueError(
+            "actual max_new_tokens does not match the frozen expectation: "
+            f"{actual_max_new_tokens} != {expected_max_new_tokens}"
+        )
+    generation_config = {
+        **policy.generator_meta,
+        "model_family": "Qwen3-4B-Instruct-2507",
+        "enable_thinking": False,
+        "do_sample": False,
+        "temperature": 0,
+        "max_new_tokens": actual_max_new_tokens,
+        "chat_template": "model_default",
+    }
+    if not str(policy.generator_meta.get("model", "")).endswith("Qwen3-4B-Instruct-2507"):
+        raise ValueError("terminal-grounded v2 requires Qwen3-4B-Instruct-2507")
+    return policy.generate, generation_config
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-store", type=Path, required=True)
@@ -59,6 +88,7 @@ def main() -> None:
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--expected-count", type=int, default=80)
     parser.add_argument("--task-manifest", type=Path)
+    parser.add_argument("--expected-max-new-tokens", type=int)
     args = parser.parse_args()
     if args.output_jsonl.exists() or args.report.exists():
         raise FileExistsError("refusing to overwrite answer-postprocess artifacts")
@@ -75,15 +105,7 @@ def main() -> None:
     generation_config: dict[str, Any] = {}
     generator = None
     if args.mode == "terminal_grounded":
-        policy = LLMPolicy.from_env()
-        generator = policy.generate
-        generation_config = {
-            **policy.generator_meta, "model_family": "Qwen3-4B-Instruct-2507",
-            "enable_thinking": False, "do_sample": False, "temperature": 0,
-            "max_new_tokens": 512, "chat_template": "model_default",
-        }
-        if not str(policy.generator_meta.get("model", "")).endswith("Qwen3-4B-Instruct-2507"):
-            raise ValueError("terminal-grounded v1 requires Qwen3-4B-Instruct-2507")
+        generator, generation_config = terminal_generation(args.expected_max_new_tokens)
     processor = AnswerPostprocessor(generator, generation_config=generation_config)
     output_rows = []
     failures = []
@@ -119,6 +141,9 @@ def main() -> None:
                                for reason in sorted({row["ineligible_reason"] for row in output_rows
                                                      if row["ineligible_reason"]})},
         "changed_answers_eligible": ratio(sum(row["changed"] for row in eligible), len(eligible)),
+        "model": generation_config.get("model"),
+        "max_new_tokens": generation_config.get("max_new_tokens"),
+        "grounding_prompt_sha256": GROUNDING_PROMPT_SHA256,
         "generation_config_hash": stable_hash(generation_config) if generation_config else None,
         "verifier_code_commit": verifier_code_commit(),
         "verifier_config_hash": verifier_config_hash(),

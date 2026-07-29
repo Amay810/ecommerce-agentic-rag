@@ -182,7 +182,11 @@ class LLMPolicy:
         backend = os.getenv("ARAG_AGENT_BACKEND", "openai").lower()
         if backend == "local":
             model = os.getenv("ARAG_LOCAL_MODEL", "Qwen/Qwen2.5-1.5B-Instruct")
-            generate, meta = cls._local_generator(model)
+            raw_max_new_tokens = os.getenv("ARAG_LOCAL_MAX_NEW_TOKENS", "512").strip()
+            if not re.fullmatch(r"[1-9][0-9]*", raw_max_new_tokens):
+                raise ValueError("ARAG_LOCAL_MAX_NEW_TOKENS must be a positive integer")
+            max_new_tokens = int(raw_max_new_tokens)
+            generate, meta = cls._local_generator(model, max_new_tokens=max_new_tokens)
             return cls(generate, generator_meta=meta)
         base_url = os.getenv("ARAG_LLM_BASE_URL", "https://api.openai.com/v1")
         model = os.getenv("ARAG_LLM_MODEL", "gpt-4o-mini")

@@ -27,7 +27,8 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
 
 class DiagnosticOnlyProtocolTests(unittest.TestCase):
     def test_pbs_jobs_do_not_depend_on_locked_verifier_admission(self) -> None:
-        for name in ("run_answer_postprocess_smoke_v1.pbs", "run_answer_postprocess_dev_v1.pbs"):
+        for name in ("run_answer_postprocess_smoke_v1.pbs", "run_answer_postprocess_dev_v1.pbs",
+                     "run_answer_postprocess_smoke_v2.pbs", "run_answer_postprocess_dev_v2.pbs"):
             text = (ROOT / "nscc" / name).read_text(encoding="utf-8")
             self.assertNotIn("check_verifier_admission", text)
             self.assertNotIn("verifier_challenge_locked_v2_report", text)
@@ -268,10 +269,12 @@ class BlindAuditWorkflowTests(unittest.TestCase):
         common = {
             "mode": "terminal_grounded", "verifier_code_commit": "commit",
             "verifier_config_hash": "verifier", "verifier_role": "diagnostic_only",
-            "verifier_gate_applied": False,
+            "verifier_gate_applied": False, "model": "model", "max_new_tokens": 1024,
+            "grounding_prompt_sha256": "prompt",
         }
         report.write_text(json.dumps({**common, "generation_config_hash": "config"}), encoding="utf-8")
-        reference.write_text(json.dumps({**common, "generation_config_hash": "different"}), encoding="utf-8")
+        reference.write_text(json.dumps({**common, "generation_config_hash": "different",
+                                         "grounding_prompt_sha256": "different-prompt"}), encoding="utf-8")
         output = self.root / "drift_gate.json"
         argv = [
             "gate", "--base-store", str(self.store_path), "--sidecar", str(self.grounded_path),
@@ -284,6 +287,9 @@ class BlindAuditWorkflowTests(unittest.TestCase):
         self.assertFalse(result["passed"])
         self.assertFalse(next(row for row in result["checks"]
                               if row["name"] == "frozen_smoke_to_dev_configuration")["passed"])
+        drift = next(row for row in result["checks"]
+                     if row["name"] == "frozen_smoke_to_dev_configuration")["detail"]
+        self.assertEqual(set(drift), {"generation_config_hash", "grounding_prompt_sha256"})
 
     def test_sidecar_gate_rejects_changed_ineligible_answer(self) -> None:
         rows = read_rows(self.grounded_path)

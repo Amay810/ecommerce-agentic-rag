@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "mode": "shadow",
+  "source_store": "evidence_phase_a_dev_v3_base.sqlite",
+  "all_tasks": 80,
+  "eligible": {
+    "numerator": 61,
+    "denominator": 80,
+    "rate": 0.7625
+  },
+  "pass_through": {
+    "numerator": 19,
+    "denominator": 80,
+    "rate": 0.2375
+  },
+  "ineligible_reasons": {
+    "base_handoff": 5,
+    "no_evidence": 14
+  },
+  "changed_answers_eligible": {
+    "numerator": 0,
+    "denominator": 61,
+    "rate": 0.0
+  },
+  "model": null,
+  "max_new_tokens": null,
+  "grounding_prompt_sha256": "8b26bcbbb06386e58cfeba75c3c688abf15502eabb0047cf5f63f5143f74fe87",
+  "generation_config_hash": null,
+  "verifier_code_commit": "99dd59e3233d9b6b48dca9b1c7af67e30eda7637",
+  "verifier_config_hash": "a96cf8c97c7746af91cea5c8769c53b642257ca814467167357e65292a253c08",
+  "verifier_role": "diagnostic_only",
+  "verifier_gate_applied": false,
+  "action_mutation_allowed": false,
+  "handoff_mutation_allowed": false
+}
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<05:29,  1.20it/s]Loading weights:   1%|▏         | 5/398 [00:00<00:59,  6.60it/s]Loading weights:   4%|▍         | 15/398 [00:01<00:18, 20.67it/s]Loading weights:   5%|▌         | 20/398 [00:01<00:14, 25.95it/s]Loading weights:   6%|▋         | 25/398 [00:01<00:20, 18.63it/s]Loading weights:   8%|▊         | 33/398 [00:01<00:13, 27.65it/s]Loading weights:  10%|▉         | 38/398 [00:01<00:13, 26.20it/s]Loading weights:  12%|█▏        | 48/398 [00:02<00:09, 36.19it/s]Loading weights:  14%|█▍        | 57/398 [00:02<00:07, 42.69it/s]Loading weights:  16%|█▌        | 64/398 [00:02<00:07, 44.63it/s]Loading weights:  18%|█▊        | 70/398 [00:02<00:06, 47.77it/s]Loading weights:  20%|██        | 80/398 [00:02<00:05, 54.17it/s]Loading weights:  22%|██▏       | 86/398 [00:02<00:05, 53.05it/s]Loading weights:  23%|██▎       | 92/398 [00:02<00:05, 52.22it/s]Loading weights:  26%|██▌       | 102/398 [00:03<00:05, 56.72it/s]Loading weights:  27%|██▋       | 108/398 [00:03<00:05, 49.11it/s]Loading weights:  29%|██▊       | 114/398 [00:03<00:05, 47.50it/s]Loading weights:  31%|███       | 124/398 [00:03<00:05, 53.69it/s]Loading weights:  33%|███▎      | 130/398 [00:03<00:05, 52.46it/s]Loading weights:  34%|███▍      | 136/398 [00:03<00:05, 51.84it/s]Loading weights:  37%|███▋      | 146/398 [00:03<00:04, 57.70it/s]Loading weights:  38%|███▊      | 152/398 [00:03<00:04, 55.66it/s]Loading weights:  40%|███▉      | 158/398 [00:04<00:04, 53.76it/s]Loading weights:  42%|████▏     | 166/398 [00:04<00:03, 58.79it/s]Loading weights:  43%|████▎     | 172/398 [00:04<00:06, 35.84it/s]Loading weights:  45%|████▍     | 178/398 [00:04<00:05, 39.09it/s]Loading weights:  46%|████▌     | 183/398 [00:04<00:05, 35.84it/s]Loading weights:  48%|████▊     | 191/398 [00:04<00:05, 41.32it/s]Loading weights:  51%|█████     | 201/398 [00:05<00:04, 48.94it/s]Loading weights:  52%|█████▏    | 207/398 [00:05<00:03, 49.16it/s]Loading weights:  54%|█████▎    | 213/398 [00:05<00:03, 49.11it/s]Loading weights:  56%|█████▌    | 223/398 [00:05<00:03, 55.43it/s]Loading weights:  58%|█████▊    | 229/398 [00:05<00:03, 54.07it/s]Loading weights:  59%|█████▉    | 235/398 [00:05<00:03, 47.38it/s]Loading weights:  61%|██████    | 242/398 [00:05<00:03, 51.52it/s]Loading weights:  62%|██████▏   | 248/398 [00:06<00:03, 48.00it/s]Loading weights:  65%|██████▍   | 257/398 [00:06<00:02, 52.78it/s]Loading weights:  67%|██████▋   | 266/398 [00:06<00:02, 51.80it/s]Loading weights:  68%|██████▊   | 272/398 [00:06<00:02, 50.00it/s]Loading weights:  70%|███████   | 279/398 [00:06<00:02, 50.09it/s]Loading weights:  73%|███████▎  | 289/398 [00:06<00:01, 55.93it/s]Loading weights:  74%|███████▍  | 295/398 [00:06<00:01, 54.45it/s]Loading weights:  76%|███████▌  | 301/398 [00:07<00:02, 47.76it/s]Loading weights:  77%|███████▋  | 308/398 [00:07<00:01, 51.73it/s]Loading weights:  79%|███████▉  | 314/398 [00:07<00:01, 48.22it/s]Loading weights:  81%|████████  | 322/398 [00:07<00:01, 52.19it/s]Loading weights:  82%|████████▏ | 328/398 [00:07<00:01, 45.86it/s]Loading weights:  84%|████████▍ | 335/398 [00:07<00:01, 46.20it/s]Loading weights:  87%|████████▋ | 345/398 [00:07<00:00, 53.21it/s]Loading weights:  89%|████████▉ | 355/398 [00:08<00:00, 58.17it/s]Loading weights:  91%|█████████ | 361/398 [00:08<00:00, 55.86it/s]Loading weights:  92%|█████████▏| 367/398 [00:08<00:00, 54.43it/s]Loading weights:  95%|█████████▍| 377/398 [00:08<00:00, 59.51it/s]Loading weights:  96%|█████████▌| 383/398 [00:08<00:00, 53.65it/s]Loading weights:  98%|█████████▊| 389/398 [00:08<00:00, 34.71it/s]Loading weights:  99%|█████████▉| 395/398 [00:09<00:00, 35.71it/s]Loading weights: 100%|██████████| 398/398 [00:09<00:00, 43.57it/s]
+{
+  "schema_version": 1,
+  "mode": "terminal_grounded",
+  "source_store": "evidence_phase_a_dev_v3_base.sqlite",
+  "all_tasks": 80,
+  "eligible": {
+    "numerator": 61,
+    "denominator": 80,
+    "rate": 0.7625
+  },
+  "pass_through": {
+    "numerator": 19,
+    "denominator": 80,
+    "rate": 0.2375
+  },
+  "ineligible_reasons": {
+    "base_handoff": 5,
+    "no_evidence": 14
+  },
+  "changed_answers_eligible": {
+    "numerator": 61,
+    "denominator": 61,
+    "rate": 1.0
+  },
+  "model": "/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507",
+  "max_new_tokens": 1024,
+  "grounding_prompt_sha256": "8b26bcbbb06386e58cfeba75c3c688abf15502eabb0047cf5f63f5143f74fe87",
+  "generation_config_hash": "7c6c2f0ee1a6596680162f620c56a0c781b9dd906d178c7220cc8feee762784c",
+  "verifier_code_commit": "99dd59e3233d9b6b48dca9b1c7af67e30eda7637",
+  "verifier_config_hash": "a96cf8c97c7746af91cea5c8769c53b642257ca814467167357e65292a253c08",
+  "verifier_role": "diagnostic_only",
+  "verifier_gate_applied": false,
+  "action_mutation_allowed": false,
+  "handoff_mutation_allowed": false
+}
+{
+  "schema_version": 1,
+  "mode": "shadow",
+  "passed": true,
+  "checks": [
+    {
+      "name": "exact_row_count",
+      "passed": true,
+      "detail": {
+        "base": 80,
+        "sidecar": 80
+      }
+    },
+    {
+      "name": "unique_task_ids",
+      "passed": true
+    },
+    {
+      "name": "exact_task_ids",
+      "passed": true
+    },
+    {
+      "name": "action_and_terminal_immutability",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "diagnostic_only_run_contract",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "frozen_smoke_to_dev_configuration",
+      "passed": true,
+      "detail": []
+    }
+  ]
+}
+{
+  "schema_version": 1,
+  "mode": "terminal_grounded",
+  "passed": true,
+  "checks": [
+    {
+      "name": "exact_row_count",
+      "passed": true,
+      "detail": {
+        "base": 80,
+        "sidecar": 80
+      }
+    },
+    {
+      "name": "unique_task_ids",
+      "passed": true
+    },
+    {
+      "name": "exact_task_ids",
+      "passed": true
+    },
+    {
+      "name": "action_and_terminal_immutability",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "diagnostic_only_run_contract",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "frozen_smoke_to_dev_configuration",
+      "passed": true,
+      "detail": []
+    }
+  ]
+}

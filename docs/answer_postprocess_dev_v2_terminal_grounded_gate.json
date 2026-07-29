@@ -1,0 +1,38 @@
+{
+  "checks": [
+    {
+      "detail": {
+        "base": 80,
+        "sidecar": 80
+      },
+      "name": "exact_row_count",
+      "passed": true
+    },
+    {
+      "name": "unique_task_ids",
+      "passed": true
+    },
+    {
+      "name": "exact_task_ids",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "action_and_terminal_immutability",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "diagnostic_only_run_contract",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "frozen_smoke_to_dev_configuration",
+      "passed": true
+    }
+  ],
+  "mode": "terminal_grounded",
+  "passed": true,
+  "schema_version": 1
+}

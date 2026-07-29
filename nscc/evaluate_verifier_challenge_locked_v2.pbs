@@ -1,0 +1,19 @@
+#!/bin/bash
+#PBS -N verifier-locked-v2
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=4:mem=8gb
+#PBS -l walltime=00:20:00
+#PBS -j oe
+#PBS -o output_verifier_challenge_locked_v2.log
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+test -s docs/verifier_challenge_locked_v2.csv
+test -s docs/verifier_challenge_locked_v2_manifest.json
+python -m scripts.evaluate_verifier_challenge \
+  --challenge-csv docs/verifier_challenge_locked_v2.csv \
+  --manifest docs/verifier_challenge_locked_v2_manifest.json \
+  --dataset-role locked \
+  --output docs/verifier_challenge_locked_v2_report.json

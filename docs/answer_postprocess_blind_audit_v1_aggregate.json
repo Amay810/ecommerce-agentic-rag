@@ -1,0 +1,168 @@
+{
+  "all_80_answer_coverage": {
+    "changed_eligible": {
+      "denominator": 61,
+      "numerator": 61,
+      "rate": 1.0
+    },
+    "eligible": {
+      "denominator": 80,
+      "numerator": 61,
+      "rate": 0.7625
+    },
+    "nonempty_terminal_grounded_eligible": {
+      "denominator": 61,
+      "numerator": 61,
+      "rate": 1.0
+    },
+    "pass_through": {
+      "denominator": 80,
+      "numerator": 19,
+      "rate": 0.2375
+    }
+  },
+  "answer_completeness": {
+    "base": {
+      "denominator": 40,
+      "numerator": 32,
+      "rate": 0.8
+    },
+    "omission_rate_base": {
+      "denominator": 40,
+      "numerator": 8,
+      "rate": 0.2
+    },
+    "omission_rate_terminal_grounded": {
+      "denominator": 40,
+      "numerator": 7,
+      "rate": 0.175
+    },
+    "paired_difference": 0.025,
+    "terminal_grounded": {
+      "denominator": 40,
+      "numerator": 33,
+      "rate": 0.825
+    }
+  },
+  "contradictions": {
+    "base": {
+      "denominator": 40,
+      "numerator": 6,
+      "rate": 0.15
+    },
+    "new_in_terminal_grounded": 1,
+    "terminal_grounded": {
+      "denominator": 40,
+      "numerator": 6,
+      "rate": 0.15
+    },
+    "unclear_policy": "count_as_present"
+  },
+  "decision_checks": {
+    "completeness_drop_at_most_5pp": true,
+    "contradictions_do_not_increase": true,
+    "fact_ci_lower_above_zero": false,
+    "fact_delta_positive": false,
+    "positive_result": false,
+    "trajectory_immutability_passed": true
+  },
+  "fact_pass_sensitivity_excluding_unclear_pairs": {
+    "base": {
+      "denominator": 40,
+      "numerator": 34,
+      "rate": 0.85
+    },
+    "pairs": 40,
+    "terminal_grounded": {
+      "denominator": 40,
+      "numerator": 34,
+      "rate": 0.85
+    }
+  },
+  "incremental_generation_cost": {
+    "completion_tokens": {
+      "count": 61,
+      "mean": 136.44262295081967,
+      "p95_nearest_rank": 357.0
+    },
+    "latency_ms": {
+      "count": 61,
+      "mean": 4975.655432023322,
+      "p95_nearest_rank": 12963.766469154507
+    },
+    "prompt_tokens": {
+      "count": 61,
+      "mean": 1148.655737704918,
+      "p95_nearest_rank": 2651.0
+    }
+  },
+  "name": "answer_postprocess_blind_audit_v1_aggregate",
+  "primary_human_fact_pass": {
+    "base": {
+      "denominator": 40,
+      "numerator": 34,
+      "rate": 0.85
+    },
+    "discordant_pairs": {
+      "base_only_pass": 1,
+      "grounded_only_pass": 1
+    },
+    "paired_bootstrap_95_ci": {
+      "lower_95": -0.075,
+      "samples": 10000,
+      "seed": 20260818,
+      "upper_95": 0.075
+    },
+    "paired_difference": 0.0,
+    "terminal_grounded": {
+      "denominator": 40,
+      "numerator": 34,
+      "rate": 0.85
+    },
+    "unclear_policy": "count_as_failure"
+  },
+  "provenance": {
+    "aggregation_config_sha256": "3226ac7e342cf51e4ba1daadffd54159508c575c33a6b236a96094f669f8b012",
+    "mapping_sha256": "38f56032de2339b8547c4f7aad836bf824654ad38051ffc750352bd633cb5ee4",
+    "package_manifest_sha256": "dcd7558baaa51bc4e06b1ff44a0bb53192df573d92a8e650a9923e8fa05f1773",
+    "review_sha256": "442039999f41da34804aefd1ef21f9e284c4a6bf9288eadb9f19f474b66daffb",
+    "shadow_gate_sha256": "050bf979a7259055f34081b500271c3b8544f017f854db1e8f1ae851442122c5",
+    "shadow_sidecar_sha256": "f58a14e7d26a1db73f3d9c053d4df09ebc689495686cf7029755a854ee7d7785",
+    "terminal_grounded_gate_sha256": "64a66279db22f488df211b3827ead030089fb5528f01f6bb0a626620b9a10cf1",
+    "terminal_grounded_sidecar_sha256": "c039eaf6c5ce8acd456c3ec6e76ff2d7c08448a2aaafff437eb46c6c81eaec6b"
+  },
+  "schema_version": 1,
+  "status": "negative_or_inconclusive",
+  "verifier_diagnostics_not_used_for_decision": {
+    "shadow": {
+      "citation_status_counts": {
+        "missing": 136,
+        "not_required": 129
+      },
+      "claim_count": 265,
+      "fact_status_counts": {
+        "contradicted": 3,
+        "not_factual": 129,
+        "supported": 109,
+        "unknown": 15,
+        "unsupported": 9
+      }
+    },
+    "terminal_grounded": {
+      "citation_status_counts": {
+        "correct": 48,
+        "incorrect": 7,
+        "missing": 88,
+        "not_required": 139
+      },
+      "claim_count": 282,
+      "fact_status_counts": {
+        "contradicted": 3,
+        "not_factual": 139,
+        "supported": 117,
+        "unknown": 14,
+        "unsupported": 9
+      }
+    }
+  }
+}

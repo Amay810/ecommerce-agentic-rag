@@ -1,0 +1,41 @@
+#!/bin/bash
+#PBS -N ecommerce-evidence-audit32
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=1:mem=64gb
+#PBS -l walltime=05:00:00
+#PBS -j oe
+#PBS -o output_evidence_audit32.log
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
+module load cuda/11.8.0
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+export HF_HOME=/scratch/users/ntu/s250045/cache/huggingface-ecommerce
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export TOKENIZERS_PARALLELISM=false
+export ARAG_AGENT_BACKEND=local
+export ARAG_LOCAL_MODEL="${ARAG_LOCAL_MODEL:-/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507}"
+export ERAG_EMBED_MODEL=/scratch/users/ntu/s250045/cache/huggingface-ecommerce/hub/models--sentence-transformers--paraphrase-multilingual-MiniLM-L12-v2/snapshots/e8f8c211226b894fcb81acc59f3b34ba3efd5f42
+
+RUN=evidence_phase_a_audit32_v1
+DB=ecommerce_rag/data/agent_env_evidence_phase_a.db
+TASKS=ecommerce_rag/data/evidence_phase_a_audit32.jsonl
+MANIFEST=ecommerce_rag/data/evidence_phase_a_audit32_manifest.json
+mkdir -p logs docs
+test -s ecommerce_rag/data/evidence_phase_a_tasks.jsonl
+test -s ecommerce_rag/index_5000/embeddings.npy
+test -s "$ARAG_LOCAL_MODEL/config.json"
+python -c "from ecommerce_rag.orders import seed_database; seed_database('$DB', seed=20260728)"
+python -m scripts.build_evidence_smoke \
+  --tasks ecommerce_rag/data/evidence_phase_a_tasks.jsonl \
+  --output "$TASKS" --manifest "$MANIFEST" --per-category 4
+python -m scripts.run_evidence_ablation \
+  --tasks "$TASKS" --db "$DB" --index ecommerce_rag/index_5000 \
+  --store-dir logs --report-dir docs --run-name "$RUN"
+python -m scripts.prepare_evidence_audit \
+  --template docs/evidence_phase_a_audit_32.csv \
+  --store "logs/${RUN}_evidence_verify_repair.sqlite" \
+  --variant evidence_verify_repair \
+  --output docs/evidence_phase_a_audit_32_prefilled.csv

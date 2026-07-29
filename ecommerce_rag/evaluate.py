@@ -161,11 +161,16 @@ def main() -> None:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--testset", default=str(config.DATA_DIR / "eval_questions.jsonl"))
+    parser.add_argument("--index", type=Path, default=config.INDEX_DIR)
     parser.add_argument("--with-llm-metrics", action="store_true")
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
-    agent = CustomerSupportAgent(HybridRetriever(), enable_logging=False)
+    agent = CustomerSupportAgent(HybridRetriever(index_dir=args.index), enable_logging=False)
     report = evaluate(Path(args.testset), agent, with_llm_metrics=args.with_llm_metrics and bool(config.LLM_API_KEY))
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report["summary"], ensure_ascii=False, indent=2))
     print(json.dumps(report["details"], ensure_ascii=False, indent=2))
 

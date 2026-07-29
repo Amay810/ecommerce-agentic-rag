@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -N ecommerce-evidence-export
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=4:mem=16gb
+#PBS -l walltime=00:30:00
+#PBS -j oe
+#PBS -o output_evidence_export.log
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+
+python -m scripts.export_evidence_training_candidates \
+  --tasks ecommerce_rag/data/evidence_phase_a_tasks.jsonl \
+  --stores logs/evidence_phase_a_smoke_v1_base.sqlite \
+           logs/evidence_phase_a_smoke_v1_evidence_verify.sqlite \
+           logs/evidence_phase_a_smoke_v1_evidence_verify_repair.sqlite \
+  --output logs/evidence_phase_a_training_candidates_v1.jsonl \
+  --manifest docs/evidence_phase_a_training_candidates_v1_manifest.json

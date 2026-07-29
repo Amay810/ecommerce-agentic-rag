@@ -42,7 +42,7 @@ class GroundingChecker:
         return {"ratio": grounded / len(sentences), "per_sentence": rows, "unsupported": unsupported}
 
 
-def citation_check(answer: str) -> dict:
+def citation_check(answer: str, evidence_count: int | None = None) -> dict:
     # 必须在去掉 [资料N] 标记之前判断引用，否则 TAG.search 永远命中不到。
     missing = []
     for raw in SENT_SPLIT.split(answer):
@@ -52,7 +52,9 @@ def citation_check(answer: str) -> dict:
             continue
         if NUMERIC_FACT.search(clean) and not TAG.search(sent):
             missing.append(clean)
-    return {"ok": not missing, "missing": missing}
+    indices = [int(x) for x in re.findall(r"\[资料(\d+)\]", answer)]
+    invalid = [x for x in indices if evidence_count is not None and not 1 <= x <= evidence_count]
+    return {"ok": not missing and not invalid, "missing": missing, "invalid_indices": invalid}
 
 
 def consistency_check(answer: str, context: str) -> dict:

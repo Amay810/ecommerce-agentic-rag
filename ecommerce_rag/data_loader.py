@@ -6,6 +6,7 @@ route product QA, recommendation, comparison, and policy questions differently.
 """
 
 import json
+import time
 from pathlib import Path
 from typing import Iterable
 
@@ -83,12 +84,16 @@ def build_product_chunks(products: Iterable[dict]) -> tuple[list[dict], dict[str
 
         if p.get("description"):
             add("desc", f"{p['title']}：{p['description']}", 0)
-        if p.get("attributes"):
-            add("attr", f"{p['title']} 规格参数：" + "；".join(f"{k} {v}" for k, v in p["attributes"].items()), 0)
+        for i, (key, value) in enumerate(list(p.get("attributes", {}).items())[:8]):
+            add("attr", f"{p['title']} specification: {key} {value}", i)
         for i, qa in enumerate(p.get("qa", [])):
             add("qa", f"{p['title']} 问：{qa['q']} 答：{qa['a']}", i)
-        if p.get("reviews"):
-            add("review", f"{p['title']} 用户评价：" + " ".join(p["reviews"]), 0)
+        # Separate review chunks improve evidence density and scale to roughly
+        # 25k-50k retrievable units for a 5k-product corpus.
+        for i, review in enumerate(p.get("reviews", [])[:5]):
+            review_text = review.get("text", "") if isinstance(review, dict) else str(review)
+            if review_text.strip():
+                add("review", f"{p['title']} user review: {review_text}", i)
     return chunks, parents
 
 
@@ -123,41 +128,71 @@ def build_chunks(products: list[dict], policies: list[dict]) -> tuple[list[dict]
     return product_chunks + policy_chunks, {**product_parents, **policy_parents}
 
 
-def build_index(index_dir: Path = config.INDEX_DIR) -> None:
+def build_index(index_dir: Path = config.INDEX_DIR, product_path: Path = config.PRODUCT_DATA_PATH,
+                policy_path: Path = config.POLICY_DATA_PATH) -> dict:
+    started = time.perf_counter()
     import numpy as np
     from sentence_transformers import SentenceTransformer
 
-    products = load_products()
-    policies = load_policies()
+    products = load_products(product_path)
+    policies = load_policies(policy_path)
     chunks, parents = build_chunks(products, policies)
     index_dir.mkdir(parents=True, exist_ok=True)
 
+    model_load_started = time.perf_counter()
     model = SentenceTransformer(config.EMBED_MODEL)
+    model_load_ms = (time.perf_counter() - model_load_started) * 1000
+    embedding_started = time.perf_counter()
     embeddings = model.encode(
         [c["text"] for c in chunks],
         normalize_embeddings=True,
         convert_to_numpy=True,
         show_progress_bar=True,
     ).astype("float32")
+    embedding_ms = (time.perf_counter() - embedding_started) * 1000
+    persist_started = time.perf_counter()
     np.save(index_dir / "embeddings.npy", embeddings)
     with open(index_dir / "chunks.jsonl", "w", encoding="utf-8") as f:
         for c in chunks:
             f.write(json.dumps(c, ensure_ascii=False) + "\n")
     with open(index_dir / "parents.json", "w", encoding="utf-8") as f:
         json.dump(parents, f, ensure_ascii=False, indent=2)
-    print(f"Indexed {len(products)} products + {len(policies)} policies -> {len(chunks)} chunks")
+    persist_ms = (time.perf_counter() - persist_started) * 1000
+    stats = {
+        "products": len(products),
+        "policies": len(policies),
+        "chunks": len(chunks),
+        "parents": len(parents),
+        "embed_model": config.EMBED_MODEL,
+        "model_load_ms": round(model_load_ms, 2),
+        "embedding_ms": round(embedding_ms, 2),
+        "persist_ms": round(persist_ms, 2),
+        "build_time_ms": round((time.perf_counter() - started) * 1000, 2),
+        "index_size_bytes": sum(p.stat().st_size for p in index_dir.rglob("*") if p.is_file()),
+    }
+    print(json.dumps(stats, ensure_ascii=False, indent=2))
+    return stats
 
 
 if __name__ == "__main__":
-    import sys
+    import argparse
     from collections import Counter
-
-    products = load_products()
-    policies = load_policies()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--products", type=Path, default=config.PRODUCT_DATA_PATH)
+    parser.add_argument("--policies", type=Path, default=config.POLICY_DATA_PATH)
+    parser.add_argument("--index-dir", type=Path, default=config.INDEX_DIR)
+    parser.add_argument("--stats-output", type=Path)
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args()
+    products = load_products(args.products)
+    policies = load_policies(args.policies)
     chunks, parents = build_chunks(products, policies)
-    if "--dry-run" in sys.argv:
+    if args.dry_run:
         print(f"{len(products)} products + {len(policies)} policies -> {len(chunks)} chunks, {len(parents)} parents")
         print("source types:", dict(Counter(c["source_type"] for c in chunks)))
         print("chunk types:", dict(Counter(c["chunk_type"] for c in chunks)))
     else:
-        build_index()
+        stats = build_index(args.index_dir, args.products, args.policies)
+        if args.stats_output:
+            args.stats_output.parent.mkdir(parents=True, exist_ok=True)
+            args.stats_output.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")

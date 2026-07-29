@@ -33,6 +33,12 @@ def final_decision(grounding_ratio: float, verdict: str, citation_ok: bool) -> d
 
 
 class CustomerSupportAgent:
+    """Legacy retrieval-oriented controller retained for regression coverage.
+
+    Agent v2 orchestration lives in :mod:`ecommerce_rag.harness` with
+    :class:`ecommerce_rag.llm_policy.LLMPolicy` and ``RetailTools``.
+    """
+
     def __init__(self, retriever, enable_logging: bool = True):
         self.retriever = retriever
         self.grounder = verifier.GroundingChecker(retriever.model)
@@ -154,32 +160,19 @@ class CustomerSupportAgent:
 
         fused = reciprocal_rank_fusion(doc_rankings)
         ranked = sorted(fused.items(), key=lambda x: -x[1])
-        rrf_top_ids = {d for d, _ in ranked[: config.TOP_K]}
-
-        # Pre-compute which entity docs need guaranteed injection (not already in RRF top-K).
-        # Dedup by doc_id in case two entities map to the same product.
-        guaranteed: list[tuple[str, str]] = []  # (entity_label, doc_id)
-        seen_guaranteed: set[str] = set()
+        # Exact title matches for explicitly named comparison entities are the
+        # primary evidence and must precede generic fused candidates.
+        entity_docs: list[tuple[str, str]] = []
+        seen_entity_docs: set[str] = set()
         for entity in sub_queries:
             did = self._entity_title_match(entity)
-            if did and did not in rrf_top_ids and did not in seen_guaranteed:
-                guaranteed.append((entity, did))
-                seen_guaranteed.add(did)
+            if did and did not in seen_entity_docs:
+                entity_docs.append((entity, did))
+                seen_entity_docs.add(did)
 
-        # Reserve spots for guaranteed docs; reduce RRF portion to stay within TOP_K.
-        rrf_limit = max(config.TOP_K - len(guaranteed), 1)
         result: list[dict] = []
         in_result: set[str] = set()
-        for did, rrf_score in ranked[:rrf_limit]:
-            chunk = dict(best_by_doc[did])
-            chunk["score"] = rrf_score
-            result.append(chunk)
-            in_result.add(did)
-
-        # Inject guaranteed docs (title-matched, bypasses semantic ranking bias).
-        for entity, did in guaranteed:
-            if did in in_result:
-                continue
+        for entity, did in entity_docs:
             if did in best_by_doc:
                 chunk = dict(best_by_doc[did])
             else:
@@ -192,6 +185,16 @@ class CustomerSupportAgent:
                 result.append(chunk)
                 in_result.add(did)
                 trace.append(f"保底注入：{did}（实体='{entity}'，标题匹配）")
+
+        for did, rrf_score in ranked:
+            if did in in_result:
+                continue
+            chunk = dict(best_by_doc[did])
+            chunk["score"] = rrf_score
+            result.append(chunk)
+            in_result.add(did)
+            if len(result) >= config.TOP_K:
+                break
 
         top_sim = max((c.get("dense_sim", 0.0) for c in result), default=0.0)
         trace.append(f"复合查询合并：{len(result)} 候选（≤TOP_K），实体={sub_queries}")
@@ -274,7 +277,7 @@ class CustomerSupportAgent:
                 answer = "已找到相关资料，但当前未配置大模型 API，无法生成完整自然语言回答。请查看下方来源或配置 ERAG_LLM_API_KEY。"
 
         grounding = self.grounder.check(answer, [c["text"] for c in chunks])
-        citations = verifier.citation_check(answer)
+        citations = verifier.citation_check(answer, len({c.get("doc_id") for c in chunks}))
         consistency = verifier.consistency_check(answer, context) if config.LLM_API_KEY else {"verdict": "跳过", "problems": [], "raw": ""}
         decision = final_decision(grounding["ratio"], consistency["verdict"], citations["ok"])
         trace.append(

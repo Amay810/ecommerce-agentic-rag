@@ -1,0 +1,60 @@
+#!/bin/bash
+#PBS -N ecommerce-evidence-postprocess-v3
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=4:mem=16gb
+#PBS -l walltime=01:00:00
+#PBS -j oe
+#PBS -o output_evidence_postprocess_v3.log
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+
+RUN=evidence_phase_a_dev_v3
+TASKS=ecommerce_rag/data/evidence_phase_a_tasks_v2.jsonl
+MANIFEST=docs/evidence_phase_a_dev_v3_run_manifest.json
+RESULT_COMMIT=d3f5063
+# 4112901 is the parent of the result-only commit and is the code used by dev_v3.
+RUN_CODE_COMMIT="${RUN_CODE_COMMIT:-4112901}"
+POSTPROCESS_CODE_COMMIT="$(git rev-parse HEAD)"
+PBS_LOG_PATH="${PBS_LOG_PATH:-output_evidence_ablation_v3.log}"
+
+test -s "$TASKS"
+test -s "$MANIFEST"
+test -s "$PBS_LOG_PATH"
+git cat-file -e "${RUN_CODE_COMMIT}^{commit}"
+git cat-file -e "${RESULT_COMMIT}^{commit}"
+
+for variant in base evidence_verify evidence_verify_repair; do
+  test -s "logs/${RUN}_${variant}.sqlite"
+  test -s "docs/${RUN}_${variant}_report.json"
+done
+
+for output in \
+  docs/evidence_phase_a_dev_v3_integrity.json \
+  docs/evidence_phase_a_dev_v3_aggregate.json \
+  docs/evidence_phase_a_dev_v3_failure_attribution.json \
+  docs/audit_32_answers.csv \
+  docs/audit_32_claims.csv \
+  docs/audit_32_manifest.json; do
+  if [ -e "$output" ]; then
+    echo "ERROR: refusing to overwrite $output"
+    exit 1
+  fi
+done
+
+python -m scripts.evidence_dev_postprocess analyze \
+  --manifest "$MANIFEST" \
+  --tasks "$TASKS" \
+  --report-dir docs \
+  --base-store "logs/${RUN}_base.sqlite" \
+  --evidence-verify-store "logs/${RUN}_evidence_verify.sqlite" \
+  --evidence-verify-repair-store "logs/${RUN}_evidence_verify_repair.sqlite" \
+  --pbs-log "$PBS_LOG_PATH" \
+  --run-code-commit "$RUN_CODE_COMMIT" \
+  --result-commit "$RESULT_COMMIT" \
+  --postprocess-code-commit "$POSTPROCESS_CODE_COMMIT" \
+  --output-dir docs
+
+echo "Read-only dev_v3 post-processing completed. No model job or final split was run."

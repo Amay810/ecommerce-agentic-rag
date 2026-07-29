@@ -4,6 +4,7 @@
 Run: python -m pytest tests/test_support_case.py   (or: python tests/test_support_case.py)
 """
 
+import unittest
 import tempfile
 from pathlib import Path
 
@@ -57,70 +58,60 @@ def _handoff_result() -> dict:
     }
 
 
-def test_from_agent_result_fields():
-    case = SupportCase.from_agent_result(_answer_result())
-    assert case.case_id.startswith("sc_")
-    # stable id reproducible from same query+trace+ts
-    assert case.case_id == make_case_id(case.query, case.trace, case.ts)
-    assert case.intent == "product_qa" and case.action == "caution"
-    # confidence == max dense_sim
-    assert abs(case.confidence - 0.71) < 1e-9
-    # citation_index: same doc_id shares index; new doc gets next index
-    idx = {e["chunk_id"]: e["citation_index"] for e in case.evidence}
-    assert idx["product:P006:desc:0"] == 1 and idx["product:P006:qa:0"] == 1
-    assert idx["policy:POL001:body:0"] == 2
-    # snapshot split + reserved version fields
-    assert len(case.snapshot["products"]) == 1 and len(case.snapshot["policies"]) == 1
-    prod = case.snapshot["products"][0]
-    assert prod["doc_id"] == "product:P006" and prod["price"] == 79
-    assert prod["version"] is None and prod["default_updated_at"] is None
-    assert case.snapshot["policies"][0]["policy_type"] == "退换货"
-
-
-def test_needs_review_rules():
-    # caution -> review; low grounding even if action ok -> review; clean ok -> not review; handoff -> review
-    assert SupportCase.from_agent_result(_answer_result()).needs_review is True
-    assert SupportCase.from_agent_result(_handoff_result()).needs_review is True
-    assert SupportCase.from_agent_result(_ok_result()).needs_review is False
-    # citation failure alone triggers review
-    assert SupportCase.compute_needs_review("ok", 0.9, False, "一致") is True
-    # contradiction verdict triggers review
-    assert SupportCase.compute_needs_review("ok", 0.9, True, "矛盾") is True
-
-
-def test_store_roundtrip():
-    with tempfile.TemporaryDirectory() as d:
-        db = Path(d) / "support.db"
-        for r in (_answer_result(), _ok_result(), _handoff_result()):
-            store.insert_case(SupportCase.from_agent_result(r), db_path=db)
-        assert store.count(db_path=db) == 3
-        assert len(store.needs_review(db_path=db)) == 2  # caution + handoff
-        rows = store.recent(5, db_path=db)
-        assert len(rows) == 3
-        # JSON columns rehydrate
-        export = Path(d) / "cases.jsonl"
-        n = store.export_jsonl(export, db_path=db)
-        assert n == 3
-        first = export.read_text(encoding="utf-8").splitlines()[0]
-        assert '"snapshot"' in first and '"evidence"' in first
-
-
-def test_insert_is_idempotent():
-    with tempfile.TemporaryDirectory() as d:
-        db = Path(d) / "support.db"
+class SupportCaseTests(unittest.TestCase):
+    def test_from_agent_result_fields(self):
         case = SupportCase.from_agent_result(_answer_result())
-        store.insert_case(case, db_path=db)
-        store.insert_case(case, db_path=db)  # same case_id -> upsert, no duplicate
-        assert store.count(db_path=db) == 1
+        assert case.case_id.startswith("sc_")
+        # stable id reproducible from same query+trace+ts
+        assert case.case_id == make_case_id(case.query, case.trace, case.ts)
+        assert case.intent == "product_qa" and case.action == "caution"
+        # confidence == max dense_sim
+        assert abs(case.confidence - 0.71) < 1e-9
+        # citation_index: same doc_id shares index; new doc gets next index
+        idx = {e["chunk_id"]: e["citation_index"] for e in case.evidence}
+        assert idx["product:P006:desc:0"] == 1 and idx["product:P006:qa:0"] == 1
+        assert idx["policy:POL001:body:0"] == 2
+        # snapshot split + reserved version fields
+        assert len(case.snapshot["products"]) == 1 and len(case.snapshot["policies"]) == 1
+        prod = case.snapshot["products"][0]
+        assert prod["doc_id"] == "product:P006" and prod["price"] == 79
+        assert prod["version"] is None and prod["default_updated_at"] is None
+        assert case.snapshot["policies"][0]["policy_type"] == "退换货"
 
+    def test_needs_review_rules(self):
+        # caution -> review; low grounding even if action ok -> review; clean ok -> not review; handoff -> review
+        assert SupportCase.from_agent_result(_answer_result()).needs_review is True
+        assert SupportCase.from_agent_result(_handoff_result()).needs_review is True
+        assert SupportCase.from_agent_result(_ok_result()).needs_review is False
+        # citation failure alone triggers review
+        assert SupportCase.compute_needs_review("ok", 0.9, False, "一致") is True
+        # contradiction verdict triggers review
+        assert SupportCase.compute_needs_review("ok", 0.9, True, "矛盾") is True
 
-def _run_all():
-    fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
-    for fn in fns:
-        fn()
-        print(f"PASS {fn.__name__}")
-    print(f"\nAll {len(fns)} tests passed.")
+    def test_store_roundtrip(self):
+        with tempfile.TemporaryDirectory() as d:
+            db = Path(d) / "support.db"
+            for r in (_answer_result(), _ok_result(), _handoff_result()):
+                store.insert_case(SupportCase.from_agent_result(r), db_path=db)
+            assert store.count(db_path=db) == 3
+            assert len(store.needs_review(db_path=db)) == 2  # caution + handoff
+            rows = store.recent(5, db_path=db)
+            assert len(rows) == 3
+            # JSON columns rehydrate
+            export = Path(d) / "cases.jsonl"
+            n = store.export_jsonl(export, db_path=db)
+            assert n == 3
+            first = export.read_text(encoding="utf-8").splitlines()[0]
+            assert '"snapshot"' in first and '"evidence"' in first
+
+    def test_insert_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as d:
+            db = Path(d) / "support.db"
+            case = SupportCase.from_agent_result(_answer_result())
+            store.insert_case(case, db_path=db)
+            store.insert_case(case, db_path=db)  # same case_id -> upsert, no duplicate
+            assert store.count(db_path=db) == 1
 
 
 if __name__ == "__main__":
-    _run_all()
+    unittest.main()

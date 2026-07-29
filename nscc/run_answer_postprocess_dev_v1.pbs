@@ -1,0 +1,36 @@
+#!/bin/bash
+#PBS -N answer-post-dev-v1
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=1:mem=64gb
+#PBS -l walltime=06:00:00
+#PBS -j oe
+#PBS -o output_answer_postprocess_dev_v1.log
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
+module load cuda/11.8.0
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+export HF_HOME=/scratch/users/ntu/s250045/cache/huggingface-ecommerce
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+export ARAG_AGENT_BACKEND=local
+export ARAG_LOCAL_MODEL=/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507
+BASE=logs/evidence_phase_a_dev_v3_base.sqlite
+test -s "$BASE"
+python -c "import json; assert json.load(open('docs/answer_postprocess_smoke_v1_shadow_gate.json'))['passed']; assert json.load(open('docs/answer_postprocess_smoke_v1_terminal_grounded_gate.json'))['passed']"
+python -m scripts.run_answer_postprocess --base-store "$BASE" --mode shadow --expected-count 80 \
+  --output-jsonl logs/answer_postprocess_dev_v1_shadow.jsonl \
+  --report docs/answer_postprocess_dev_v1_shadow_report.json
+python -m scripts.run_answer_postprocess --base-store "$BASE" --mode terminal_grounded --expected-count 80 \
+  --output-jsonl logs/answer_postprocess_dev_v1_terminal_grounded.jsonl \
+  --report docs/answer_postprocess_dev_v1_terminal_grounded_report.json
+python -m scripts.answer_postprocess_gate --base-store "$BASE" --mode shadow --expected-count 80 \
+  --sidecar logs/answer_postprocess_dev_v1_shadow.jsonl \
+  --run-report docs/answer_postprocess_dev_v1_shadow_report.json \
+  --reference-run-report docs/answer_postprocess_smoke_v1_shadow_report.json \
+  --output docs/answer_postprocess_dev_v1_shadow_gate.json
+python -m scripts.answer_postprocess_gate --base-store "$BASE" --mode terminal_grounded --expected-count 80 \
+  --sidecar logs/answer_postprocess_dev_v1_terminal_grounded.jsonl \
+  --run-report docs/answer_postprocess_dev_v1_terminal_grounded_report.json \
+  --reference-run-report docs/answer_postprocess_smoke_v1_terminal_grounded_report.json \
+  --output docs/answer_postprocess_dev_v1_terminal_grounded_gate.json

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Streamlit demo for the standalone e-commerce Agentic RAG system."""
+"""Legacy Streamlit demo for the earlier retrieval-oriented pipeline.
+
+The supported Agent v2 runtime is ``python -m ecommerce_rag.harness``. This
+module remains available for historical demos and regression coverage.
+"""
 
 import streamlit as st
 

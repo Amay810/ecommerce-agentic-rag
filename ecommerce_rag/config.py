@@ -42,6 +42,7 @@ TOP_K = int(os.environ.get("ERAG_TOP_K", "5"))
 DENSE_K = int(os.environ.get("ERAG_DENSE_K", "20"))
 BM25_K = int(os.environ.get("ERAG_BM25_K", "20"))
 RRF_K = int(os.environ.get("ERAG_RRF_K", "60"))
+DENSE_SCORE_WEIGHT = float(os.environ.get("ERAG_DENSE_SCORE_WEIGHT", "0.03"))
 
 # 可选 cross-encoder 重排：用开关控制，方便做 before/after 对照评测。
 # 关闭时走纯 hybrid(dense+BM25+RRF)；开启时对融合后的前 RERANK_CANDIDATES 个候选精排再取 TOP_K。

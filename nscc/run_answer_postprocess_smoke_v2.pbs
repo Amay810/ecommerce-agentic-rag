@@ -1,0 +1,39 @@
+#!/bin/bash
+#PBS -N answer-post-smoke-v2
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=1:mem=64gb
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o output_answer_postprocess_smoke_v2.log
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+module load miniforge3/25.3.1
+module load cuda/11.8.0
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+export HF_HOME=/scratch/users/ntu/s250045/cache/huggingface-ecommerce
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+export ARAG_AGENT_BACKEND=local
+export ARAG_LOCAL_MODEL=/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507
+export ARAG_LOCAL_MAX_NEW_TOKENS=1024
+BASE=logs/evidence_phase_a_dev_v3_base.sqlite
+TASKS=docs/answer_postprocess_smoke_v1_manifest.json
+test -s "$BASE"
+python -m scripts.run_answer_postprocess --base-store "$BASE" --mode shadow \
+  --task-manifest "$TASKS" --expected-count 12 \
+  --output-jsonl logs/answer_postprocess_smoke_v2_shadow.jsonl \
+  --report docs/answer_postprocess_smoke_v2_shadow_report.json
+python -m scripts.run_answer_postprocess --base-store "$BASE" --mode terminal_grounded \
+  --task-manifest "$TASKS" --expected-count 12 --expected-max-new-tokens 1024 \
+  --output-jsonl logs/answer_postprocess_smoke_v2_terminal_grounded.jsonl \
+  --report docs/answer_postprocess_smoke_v2_terminal_grounded_report.json
+python -m scripts.answer_postprocess_gate --base-store "$BASE" --mode shadow \
+  --task-manifest "$TASKS" --expected-count 12 \
+  --sidecar logs/answer_postprocess_smoke_v2_shadow.jsonl \
+  --run-report docs/answer_postprocess_smoke_v2_shadow_report.json \
+  --output docs/answer_postprocess_smoke_v2_shadow_gate.json
+python -m scripts.answer_postprocess_gate --base-store "$BASE" --mode terminal_grounded \
+  --task-manifest "$TASKS" --expected-count 12 \
+  --sidecar logs/answer_postprocess_smoke_v2_terminal_grounded.jsonl \
+  --run-report docs/answer_postprocess_smoke_v2_terminal_grounded_report.json \
+  --output docs/answer_postprocess_smoke_v2_terminal_grounded_gate.json

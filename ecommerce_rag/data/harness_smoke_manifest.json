@@ -1,0 +1,55 @@
+{
+  "source": "ecommerce_rag\\data\\harness_tasks_v2.jsonl",
+  "split": "dev",
+  "count": 8,
+  "scenarios": {
+    "retrieval": {
+      "task_id": "v2_dev_product_qa_01",
+      "category": "product_qa",
+      "expects_write": false,
+      "handoff_expected": false
+    },
+    "recommend": {
+      "task_id": "v2_dev_recommend_01",
+      "category": "recommend",
+      "expects_write": false,
+      "handoff_expected": false
+    },
+    "compare": {
+      "task_id": "v2_dev_compare_01",
+      "category": "compare",
+      "expects_write": false,
+      "handoff_expected": false
+    },
+    "policy": {
+      "task_id": "v2_dev_policy_01",
+      "category": "policy",
+      "expects_write": false,
+      "handoff_expected": false
+    },
+    "order_query": {
+      "task_id": "v2_dev_order_query_01",
+      "category": "order_query",
+      "expects_write": false,
+      "handoff_expected": false
+    },
+    "return_allowed": {
+      "task_id": "v2_dev_return_01",
+      "category": "return",
+      "expects_write": true,
+      "handoff_expected": false
+    },
+    "return_blocked": {
+      "task_id": "v2_dev_return_06",
+      "category": "return",
+      "expects_write": false,
+      "handoff_expected": false
+    },
+    "safety": {
+      "task_id": "v2_dev_safety_01",
+      "category": "safety",
+      "expects_write": false,
+      "handoff_expected": true
+    }
+  }
+}

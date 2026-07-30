@@ -24,6 +24,7 @@ from .harness import UserSimulatorProtocolError
 
 
 FROZEN_TASK_SHA256 = "e4346e3f99261d203f9fea57aeec48d58e5f769d9a1e856e43b9cf0b74a6c8e3"
+FROZEN_ACTION_CORRECTION_CHALLENGE_SHA256 = "f3443e8d2336aa9c66bb4da37972597688c9edcf8e93b397e4a01f77cf0de729"
 SCENARIO_DISTRIBUTION: dict[str, tuple[int, int]] = {
     "eligible_happy_path": (7, 3),
     "ineligible_return": (5, 3),
@@ -107,6 +108,39 @@ def build_m1_tasks(seed: int = 20260729) -> list[M1Task]:
                                       separators=(",", ":")).encode()).hexdigest()
     if digest != FROZEN_TASK_SHA256:
         raise ValueError(f"frozen M1 task hash mismatch: {digest}")
+    return tasks
+
+
+def build_action_correction_challenges(seed: int = 20260730) -> list[M1Task]:
+    """Ten preregistered recovery probes excluded from the main success rate."""
+    rng = random.Random(seed)
+    phrasings = (
+        "订单 {order_id} 想退货，原因是尺寸不合适。",
+        "请为 {order_id} 办理退货；退货原因：商品与描述不符。",
+        "我要退订单 {order_id}，退货原因：买错型号。",
+        "订单 {order_id} 需要退货，原因是包装破损。",
+        "帮我退掉 {order_id}，退货原因：不再需要。",
+    )
+    tasks = []
+    for index in range(10):
+        order_id = f"O{100001 + index:06d}"
+        tasks.append(M1Task(
+            task_id=f"action_correction_challenge_{index + 1:02d}",
+            split="correction_challenge",
+            scenario="injected_inappropriate_handoff",
+            seed=rng.randrange(1, 2**31),
+            user_id=f"C{index + 1:04d}",
+            order_id=order_id,
+            initial_message=phrasings[index % len(phrasings)].format(order_id=order_id),
+            user_responses=("123456", "确认"),
+            database_fixture="eligible",
+            expected={"status": "COMPLETED", "write": True, "requires_correction": True},
+        ))
+    digest = hashlib.sha256(json.dumps(
+        [asdict(task) for task in tasks], ensure_ascii=False, sort_keys=True,
+        separators=(",", ":")).encode()).hexdigest()
+    if digest != FROZEN_ACTION_CORRECTION_CHALLENGE_SHA256:
+        raise ValueError(f"frozen action correction challenge hash mismatch: {digest}")
     return tasks
 
 
@@ -405,7 +439,8 @@ def progress_gate(baseline: dict[str, Any], progress: dict[str, Any],
 def action_evaluator_gate(progress_fixed: dict[str, Any], evaluated: dict[str, Any],
                           fixed_grades: Iterable[dict[str, Any]],
                           evaluated_grades: Iterable[dict[str, Any]],
-                          fixed_records: Iterable[dict[str, Any]]) -> dict[str, Any]:
+                          fixed_records: Iterable[dict[str, Any]],
+                          correction_challenge: dict[str, Any]) -> dict[str, Any]:
     """Responsibility gate for the first legacy ActionEvaluator dev run."""
     fixed_rows = list(fixed_grades)
     evaluated_rows = list(evaluated_grades)
@@ -429,7 +464,11 @@ def action_evaluator_gate(progress_fixed: dict[str, Any], evaluated: dict[str, A
             for record in refusal_records.values()
         )
     )
-    recovery_rate = evaluated.get("correction_task_recovery_rate")
+    combined_eligible = (evaluated["correction_eligible_tasks"]
+                         + correction_challenge["correction_eligible_tasks"])
+    combined_recovered = (evaluated["correction_recovery_count"]
+                          + correction_challenge["correction_recovery_count"])
+    recovery_rate = combined_recovered / combined_eligible if combined_eligible else None
     checks = {
         "paired_task_sets_match": (
             len(fixed_rows) == len(evaluated_rows) == 40
@@ -447,7 +486,7 @@ def action_evaluator_gate(progress_fixed: dict[str, Any], evaluated: dict[str, A
             evaluated["inappropriate_handoff_count"] <= progress_fixed["inappropriate_handoff_count"]),
         "protocol_errors_zero": evaluated["protocol_error_count"] == 0,
         "rejected_actions_never_executed": evaluated["rejected_tool_execution_count"] == 0,
-        "correction_sample_size_at_least_ten": evaluated["correction_eligible_tasks"] >= 10,
+        "correction_sample_size_at_least_ten": combined_eligible >= 10,
         "correction_task_recovery_at_least_half": (
             recovery_rate is not None and recovery_rate >= 0.5),
     }
@@ -458,6 +497,13 @@ def action_evaluator_gate(progress_fixed: dict[str, Any], evaluated: dict[str, A
         "paired_diagnostics": {
             "fixed_success_count": len(fixed_successes),
             "success_regression_task_ids": success_regressions,
+        },
+        "correction_diagnostics": {
+            "main_eligible": evaluated["correction_eligible_tasks"],
+            "challenge_eligible": correction_challenge["correction_eligible_tasks"],
+            "combined_eligible": combined_eligible,
+            "combined_recovered": combined_recovered,
+            "combined_recovery_rate": recovery_rate,
         },
         "decision": ("allow_completion_evaluator" if passed
                      else "hold_for_action_evaluator_diagnosis"),

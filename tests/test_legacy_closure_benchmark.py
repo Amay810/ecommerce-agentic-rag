@@ -8,9 +8,11 @@ from ecommerce_rag.domain import AgentAction
 from ecommerce_rag.harness import UserSimulatorProtocolError, _requested_input_type
 from ecommerce_rag.legacy_closure_benchmark import (
     FROZEN_TASK_SHA256,
+    FROZEN_ACTION_CORRECTION_CHALLENGE_SHA256,
     TypedScenarioUser,
     _redact,
     action_evaluator_gate,
+    build_action_correction_challenges,
     build_m1_tasks,
     clone_database,
     prepare_database,
@@ -24,6 +26,16 @@ def test_frozen_m1_manifest_shape_and_hash():
     assert len(tasks) == len({task.task_id for task in tasks}) == 60
     assert sum(task.split == "dev" for task in tasks) == 40
     assert sum(task.split == "locked" for task in tasks) == 20
+
+
+def test_frozen_action_correction_challenge_is_separate_from_main_tasks():
+    tasks = build_action_correction_challenges()
+    assert FROZEN_ACTION_CORRECTION_CHALLENGE_SHA256 == (
+        "f3443e8d2336aa9c66bb4da37972597688c9edcf8e93b397e4a01f77cf0de729")
+    assert len(tasks) == len({task.task_id for task in tasks}) == 10
+    assert {task.split for task in tasks} == {"correction_challenge"}
+    assert not ({task.task_id for task in tasks}
+                & {task.task_id for task in build_m1_tasks()})
 
 
 def test_database_is_pristine_and_clones_are_independent(tmp_path):
@@ -156,6 +168,7 @@ def _action_summary(success_count, *, eligible=10, recovered=5):
         "protocol_error_count": 0,
         "rejected_tool_execution_count": 0,
         "correction_eligible_tasks": eligible,
+        "correction_recovery_count": recovered,
         "correction_task_recovery_rate": recovered / eligible if eligible else None,
     }
 
@@ -185,7 +198,8 @@ def test_action_evaluator_gate_uses_paired_gain_and_fixed_refusal_proof():
     fixed_records = fixed_records[:37] + fixed_records[-3:]
     gate = action_evaluator_gate(
         _action_summary(20), _action_summary(21),
-        fixed_grades, evaluated_grades, fixed_records)
+        fixed_grades, evaluated_grades, fixed_records,
+        _action_summary(0, eligible=0, recovered=0))
     assert gate["passed"]
     assert gate["decision"] == "allow_completion_evaluator"
 
@@ -210,7 +224,8 @@ def test_action_evaluator_gate_holds_when_correction_sample_is_too_small():
         })
     gate = action_evaluator_gate(
         _action_summary(20), _action_summary(21, eligible=2, recovered=2),
-        fixed_grades, evaluated_grades, fixed_records)
+        fixed_grades, evaluated_grades, fixed_records,
+        _action_summary(0, eligible=7, recovered=4))
     assert not gate["passed"]
     assert not gate["checks"]["correction_sample_size_at_least_ten"]
 

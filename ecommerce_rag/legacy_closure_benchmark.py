@@ -283,6 +283,7 @@ def trajectory_record(task: M1Task, config: str, trajectory: Trajectory,
         "elapsed_ms": trajectory.elapsed_ms,
         "format_retries": sum(span.get("retries", 0) for span in trajectory.retry_spans),
         "correction_spans": trajectory.correction_spans,
+        "semantic_fact_spans": trajectory.semantic_fact_spans,
         "rejected_tool_dispatch_attempts": trajectory.rejected_tool_dispatch_attempts,
         "harness_grade": grade_result.to_dict(),
     }

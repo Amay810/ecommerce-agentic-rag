@@ -20,6 +20,7 @@ from .orders import connect, seed_database, snapshot
 from .tool_schema import TOOL_SCHEMAS
 from .tools import RetailTools, WRITE_TOOLS
 from .legacy_closure import LegacyActionEvaluator, LegacyTaskProgressReducer, TaskProgress
+from .semantic_facts import SessionSemanticFactPipeline, UserTurnContext
 
 
 class AgentPolicy(Protocol):
@@ -423,6 +424,7 @@ class HarnessRunner:
                  progress_reducer: LegacyTaskProgressReducer | None = None,
                  expose_task_progress: bool = False,
                  action_evaluator: LegacyActionEvaluator | None = None,
+                 semantic_fact_pipeline_factory: Any | None = None,
                  user_simulator_factory: Any | None = None):
         self.db_path, self.retriever = Path(db_path), retriever
         self.policy, self.max_steps = policy or OraclePolicy(), max_steps
@@ -433,6 +435,7 @@ class HarnessRunner:
         self.progress_reducer = progress_reducer
         self.expose_task_progress = expose_task_progress
         self.action_evaluator = action_evaluator
+        self.semantic_fact_pipeline_factory = semantic_fact_pipeline_factory
         self.user_simulator_factory = user_simulator_factory or UserSimulator
 
     def _reset(self, task: TaskSpec) -> None:
@@ -453,6 +456,13 @@ class HarnessRunner:
         order_id = task.metadata.get("order_id")
         tools = RetailTools(self.db_path, self.retriever)
         simulator = self.user_simulator_factory(task)
+        semantic_pipeline: SessionSemanticFactPipeline | None = None
+        semantic_pipeline_init_failed = False
+        if self.semantic_fact_pipeline_factory is not None:
+            try:
+                semantic_pipeline = self.semantic_fact_pipeline_factory()
+            except Exception:  # shadow diagnostics must not change agent behavior
+                semantic_pipeline_init_failed = True
         if isinstance(self.policy, OraclePolicy): self.policy.bind(task)
         history: list[dict[str, Any]] = [{"role": "user", "content": task.user_goal}]
         messages: list[dict[str, str]] = [{"role": "user", "content": task.user_goal}]
@@ -463,9 +473,28 @@ class HarnessRunner:
         evidence_conversion_spans: list[dict[str, Any]] = []
         progress_spans: list[dict[str, Any]] = []
         correction_spans: list[dict[str, Any]] = []
+        semantic_fact_spans: list[dict[str, Any]] = []
+        if semantic_pipeline_init_failed:
+            semantic_fact_spans.append({
+                "source_user_turn_id": None,
+                "events": [],
+                "validation_codes": ["pipeline_init_failed"],
+                "cache_hit": False,
+                "extractor_called": False,
+            })
+        user_turn_id = 0
+
+        def extract_semantic_facts(content: str, requested_input_type: str | None) -> None:
+            nonlocal user_turn_id
+            if semantic_pipeline is not None:
+                result = semantic_pipeline.process(UserTurnContext(
+                    user_turn_id, content, requested_input_type))
+                semantic_fact_spans.append(result.to_dict())
+            user_turn_id += 1
+
         answer = ""; failed_closed = False; rejected_tool_dispatch_attempts = 0
         started = time.perf_counter()
-
+        extract_semantic_facts(task.user_goal, None)
         def decide(observation: AgentObservation, *, phase: str,
                    parse_retry_budget: int | None = None) -> tuple[AgentAction, int, dict[str, Any] | None]:
             retries_before = int(getattr(self.policy, "retry_count", 0))
@@ -616,6 +645,7 @@ class HarnessRunner:
                                   "response": response})
                 if response is None:
                     answer = action.content; break
+                extract_semantic_facts(response, requested_input_type)
                 history.append({"role": "user", "content": response}); messages.append({"role": "user", "content": response}); continue
             answer = action.content; messages.append({"role": "assistant", "content": answer}); break
         else: answer = "达到最大交互步数，已停止。"
@@ -630,7 +660,8 @@ class HarnessRunner:
             evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans,
             evidence_conversion_spans=evidence_conversion_spans, progress_spans=progress_spans,
             correction_spans=correction_spans, failed_closed=failed_closed,
-            rejected_tool_dispatch_attempts=rejected_tool_dispatch_attempts)
+            rejected_tool_dispatch_attempts=rejected_tool_dispatch_attempts,
+            semantic_fact_spans=semantic_fact_spans)
         return trajectory, grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
 
 

@@ -137,6 +137,8 @@ def main() -> None:
         "intentional_context_difference": "legacy_progress exposes deterministic task_progress in SESSION",
         "gate_policy": {
             "version": "progress_responsibility_v2",
+            "v1_result_unchanged": True,
+            "change_reason": "fix requested-input classification and align the gate with the read-only progress layer",
             "p95_is_diagnostic_only": True,
             "handoff_regression_scope": "new inappropriate handoff on baseline-success tasks only",
         },

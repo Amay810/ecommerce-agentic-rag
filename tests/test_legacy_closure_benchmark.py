@@ -132,6 +132,20 @@ def test_progress_gate_rejects_new_handoff_on_baseline_success():
         "new_inappropriate_handoff_on_baseline_success_task_ids"] == ["3"]
 
 
+def test_progress_gate_rejects_duplicate_or_missing_task_pairs():
+    baseline = {"success_rate": .5, "illegal_state_change_count": 1,
+                "inappropriate_handoff_count": 0, "p95_latency_ms": 100,
+                "protocol_error_count": 0}
+    progress = {**baseline}
+    records = [{"progress_spans": [{"step": 0}]} for _ in range(40)]
+    baseline_grades = [_grade(str(index), success=index < 20) for index in range(40)]
+    progress_grades = [_grade(str(index), success=index < 20) for index in range(39)]
+    progress_grades.append(_grade("38", success=False))
+    gate = progress_gate(baseline, progress, baseline_grades, progress_grades, records)
+    assert not gate["passed"]
+    assert not gate["checks"]["paired_task_sets_match"]
+
+
 def test_record_redaction_removes_credentials_without_destroying_order_ids():
     payload = _redact({
         "verification_code": "123456",

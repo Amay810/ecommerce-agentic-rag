@@ -324,8 +324,10 @@ def progress_gate(baseline: dict[str, Any], progress: dict[str, Any],
     baseline completed successfully counts as a regression at this layer.
     """
     records = list(progress_records)
-    baseline_by_task = {row["task_id"]: row for row in baseline_grades}
-    progress_by_task = {row["task_id"]: row for row in progress_grades}
+    baseline_rows = list(baseline_grades)
+    progress_rows = list(progress_grades)
+    baseline_by_task = {row["task_id"]: row for row in baseline_rows}
+    progress_by_task = {row["task_id"]: row for row in progress_rows}
     paired_tasks = sorted(set(baseline_by_task) & set(progress_by_task))
     baseline_successes = [task_id for task_id in paired_tasks
                           if baseline_by_task[task_id]["success"]]
@@ -338,8 +340,11 @@ def progress_gate(baseline: dict[str, Any], progress: dict[str, Any],
     ]
     checks = {
         "derived_state_present": len(records) == 40 and all(record.get("progress_spans") for record in records),
-        "paired_task_sets_match": (len(baseline_by_task) == len(progress_by_task) == 40
-                                   and len(paired_tasks) == 40),
+        "paired_task_sets_match": (
+            len(baseline_rows) == len(progress_rows) == 40
+            and len(baseline_by_task) == len(progress_by_task) == 40
+            and set(baseline_by_task) == set(progress_by_task)
+        ),
         "baseline_successes_preserved": not success_regressions,
         "success_not_below_baseline": progress["success_rate"] >= baseline["success_rate"],
         "illegal_state_change_not_increased": progress["illegal_state_change_count"] <= baseline["illegal_state_change_count"],

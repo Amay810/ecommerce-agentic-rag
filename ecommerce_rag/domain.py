@@ -113,6 +113,7 @@ class Trajectory:
     verification_spans: list[dict[str, Any]] = field(default_factory=list)
     repair_spans: list[dict[str, Any]] = field(default_factory=list)
     evidence_conversion_spans: list[dict[str, Any]] = field(default_factory=list)
+    progress_spans: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

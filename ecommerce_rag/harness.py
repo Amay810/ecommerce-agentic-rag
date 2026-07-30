@@ -19,6 +19,7 @@ from .evidence import convert_tool_call_to_evidence, verify_answer
 from .orders import connect, seed_database, snapshot
 from .tool_schema import TOOL_SCHEMAS
 from .tools import RetailTools, WRITE_TOOLS
+from .legacy_closure import LegacyTaskProgressReducer, TaskProgress
 
 
 class AgentPolicy(Protocol):
@@ -188,22 +189,43 @@ class UserSimulator:
         self.task = task
         self.turn = 0
 
-    def respond(self, action: AgentAction) -> str | None:
+    def respond(self, action: AgentAction, requested_input_type: str | None = None) -> str | None:
         self.turn += 1
         request = action.content.lower()
         behavior = self.task.metadata.get("user_behavior", {})
-        if _asks_for_verification_code(action.content):
+        if requested_input_type == "verification_code" or _asks_for_verification_code(action.content):
             if behavior.get("disclose_verification", True) is False:
                 return "我不愿提供验证码，请转人工。"
             return str(behavior.get("verification_code", self.task.metadata.get("verification_code", "000000")))
-        if "确认" in request or "confirm" in request:
+        if requested_input_type == "confirmation" or "确认" in request or "confirm" in request:
             mode = behavior.get("confirmation", self.task.metadata.get("confirmed", False))
             if mode == "change_goal":
                 return "先不退了，改为只查询订单状态。"
             return "确认提交退货" if mode is True else "不确认，请不要修改订单。"
-        if "订单号" in request:
+        if requested_input_type == "order_id" or "订单号" in request:
             return self.task.metadata.get("order_id")
+        if requested_input_type == "return_reason":
+            return behavior.get("return_reason", self.task.metadata.get("return_reason"))
         return None
+
+
+class UserSimulatorProtocolError(ValueError):
+    """A typed scripted user has responses, but none match the requested input."""
+
+
+def _requested_input_type(action: AgentAction, progress: TaskProgress | None) -> str | None:
+    if not action.requires_user_response:
+        return None
+    lowered = action.content.lower()
+    if _asks_for_verification_code(action.content):
+        return "verification_code"
+    if "确认" in lowered or "confirm" in lowered:
+        return "confirmation"
+    if "订单号" in lowered or "order id" in lowered:
+        return "order_id"
+    if "原因" in lowered or "reason" in lowered:
+        return "return_reason"
+    return progress.requested_input_type if progress else None
 
 
 def _nested_diff(expected: dict[str, Any], actual: dict[str, Any], prefix: str = "") -> dict[str, Any]:
@@ -368,9 +390,18 @@ def grade(task: TaskSpec, trajectory: Trajectory, *, leakage_checked: bool = Fal
 
 
 class HarnessRunner:
-    def __init__(self, db_path: Path | str, retriever: Any | None = None, policy: AgentPolicy | None = None, max_steps: int = 8):
+    def __init__(self, db_path: Path | str, retriever: Any | None = None,
+                 policy: AgentPolicy | None = None, max_steps: int = 8, *,
+                 progress_reducer: LegacyTaskProgressReducer | None = None,
+                 expose_task_progress: bool = False,
+                 user_simulator_factory: Any | None = None):
         self.db_path, self.retriever = Path(db_path), retriever
         self.policy, self.max_steps = policy or OraclePolicy(), max_steps
+        if expose_task_progress and progress_reducer is None:
+            raise ValueError("expose_task_progress requires a progress_reducer")
+        self.progress_reducer = progress_reducer
+        self.expose_task_progress = expose_task_progress
+        self.user_simulator_factory = user_simulator_factory or UserSimulator
 
     def _reset(self, task: TaskSpec) -> None:
         if not task.initial_state: return
@@ -388,7 +419,8 @@ class HarnessRunner:
     def run(self, task: TaskSpec) -> tuple[Trajectory, GradeResult]:
         random.seed(task.seed); self._reset(task)
         order_id = task.metadata.get("order_id")
-        tools, simulator = RetailTools(self.db_path, self.retriever), UserSimulator(task)
+        tools = RetailTools(self.db_path, self.retriever)
+        simulator = self.user_simulator_factory(task)
         if isinstance(self.policy, OraclePolicy): self.policy.bind(task)
         history: list[dict[str, Any]] = [{"role": "user", "content": task.user_goal}]
         messages: list[dict[str, str]] = [{"role": "user", "content": task.user_goal}]
@@ -397,11 +429,18 @@ class HarnessRunner:
         verification_spans: list[dict[str, Any]] = []
         repair_spans: list[dict[str, Any]] = []
         evidence_conversion_spans: list[dict[str, Any]] = []
+        progress_spans: list[dict[str, Any]] = []
         answer = ""; started = time.perf_counter()
         for step in range(self.max_steps):
             policy_evidence = copy.deepcopy(evidence_ledger) if getattr(self.policy, "uses_evidence", False) else []
+            progress = self.progress_reducer.derive(history) if self.progress_reducer else None
+            session: dict[str, Any] = {"user_id": task.user_id}
+            if progress is not None:
+                progress_spans.append({"step": step, **progress.to_dict()})
+                if self.expose_task_progress:
+                    session["task_progress"] = progress.to_dict()
             observation = AgentObservation(
-                history[-1].get("content", ""), {"user_id": task.user_id},
+                history[-1].get("content", ""), session,
                 copy.deepcopy(history), copy.deepcopy(TOOL_SCHEMAS), step,
                 evidence_ledger=policy_evidence,
             )
@@ -423,7 +462,12 @@ class HarnessRunner:
             for span in getattr(self.policy, "last_repair_spans", []) or []:
                 repair_spans.append({"step": step, **copy.deepcopy(span)})
             model_calls.append(call_record)
-            actions.append(asdict(action)); history.append({"role": "assistant", "content": action.content, "action": action.action_type})
+            requested_input_type = _requested_input_type(action, progress)
+            actions.append(asdict(action)); history.append({
+                "role": "assistant", "content": action.content, "action": action.action_type,
+                "requires_user_response": action.requires_user_response,
+                "requested_input_type": requested_input_type,
+            })
             if action.action_type == "tool_call":
                 result = tools.call(action.tool_name or "", **action.arguments)
                 history.append({"role": "tool", "name": action.tool_name, "content": json.dumps(result, ensure_ascii=False), "result": result})
@@ -447,8 +491,17 @@ class HarnessRunner:
                 answer = action.content or "已转人工处理。"; messages.append({"role": "assistant", "content": answer}); break
             if action.action_type == "final_answer" and action.requires_user_response:
                 messages.append({"role": "assistant", "content": action.content})
-                response = simulator.respond(action)
-                sim_spans.append({"step": step, "request": action.content, "response": response})
+                try:
+                    response = simulator.respond(action, requested_input_type)
+                except UserSimulatorProtocolError as exc:
+                    sim_spans.append({"step": step, "request": action.content,
+                                      "requested_input_type": requested_input_type,
+                                      "response": None, "protocol_error": str(exc)})
+                    answer = action.content
+                    break
+                sim_spans.append({"step": step, "request": action.content,
+                                  "requested_input_type": requested_input_type,
+                                  "response": response})
                 if response is None:
                     answer = action.content; break
                 history.append({"role": "user", "content": response}); messages.append({"role": "user", "content": response}); continue
@@ -463,7 +516,7 @@ class HarnessRunner:
             final_answer=answer, final_state=after, elapsed_ms=elapsed, observations=observations, actions=actions,
             user_simulator_spans=sim_spans, retry_spans=retry_spans, policy_name=type(self.policy).__name__,
             evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans,
-            evidence_conversion_spans=evidence_conversion_spans)
+            evidence_conversion_spans=evidence_conversion_spans, progress_spans=progress_spans)
         return trajectory, grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
 
 

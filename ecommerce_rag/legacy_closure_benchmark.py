@@ -13,6 +13,7 @@ import random
 import re
 import sqlite3
 import statistics
+from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
@@ -233,7 +234,8 @@ def trajectory_record(task: M1Task, config: str, trajectory: Trajectory,
     waiting = bool(trajectory.actions and trajectory.actions[-1].get("requires_user_response")
                    and (not trajectory.user_simulator_spans
                         or trajectory.user_simulator_spans[-1].get("response") is None))
-    status = "HANDED_OFF" if handoff else "WAITING_USER" if waiting else "COMPLETED"
+    status = ("FAILED" if trajectory.failed_closed else "HANDED_OFF" if handoff
+              else "WAITING_USER" if waiting else "COMPLETED")
     order_state = trajectory.final_state.get(task.order_id, {})
     record = {
         "task_id": task.task_id, "split": task.split, "scenario": task.scenario,
@@ -246,6 +248,8 @@ def trajectory_record(task: M1Task, config: str, trajectory: Trajectory,
         "decision_steps": len(trajectory.actions), "llm_calls": len(trajectory.model_calls),
         "elapsed_ms": trajectory.elapsed_ms,
         "format_retries": sum(span.get("retries", 0) for span in trajectory.retry_spans),
+        "correction_spans": trajectory.correction_spans,
+        "rejected_tool_dispatch_attempts": trajectory.rejected_tool_dispatch_attempts,
         "harness_grade": grade_result.to_dict(),
     }
     return _redact(record)
@@ -274,6 +278,10 @@ def grade_record(task: M1Task, record: dict[str, Any]) -> dict[str, Any]:
                                           if call["name"] == "create_return_request"))
     protocol_error = any(span.get("protocol_error") for span in record["simulator_spans"])
     duplicate_writes = max(0, len(changed_writes) - 1)
+    corrections = record.get("correction_spans", [])
+    first_correction = corrections[0] if corrections else None
+    correction_eligible = bool(
+        first_correction and first_correction.get("theoretically_recoverable"))
     success = bool(status_ok and bool(successful_writes) == expected_write and terminal_ok
                    and workflow_ok and not inappropriate_handoff and not illegal
                    and not protocol_error and duplicate_writes == 0)
@@ -286,6 +294,12 @@ def grade_record(task: M1Task, record: dict[str, Any]) -> dict[str, Any]:
         "duplicate_writes": duplicate_writes,
         "decision_steps": record["decision_steps"], "llm_calls": record["llm_calls"],
         "elapsed_ms": record["elapsed_ms"], "format_retries": record["format_retries"],
+        "semantic_retries": len(corrections),
+        "correction_eligible": correction_eligible,
+        "correction_accepted": bool(
+            correction_eligible and first_correction.get("accepted")),
+        "correction_reason": first_correction.get("reason") if first_correction else None,
+        "rejected_tool_execution_count": int(record.get("rejected_tool_dispatch_attempts", 0)),
     }
 
 
@@ -295,6 +309,10 @@ def aggregate(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
         raise ValueError("no grade rows")
     latencies = sorted(float(row["elapsed_ms"]) for row in values)
     p95 = latencies[max(0, int(len(latencies) * .95 + .999999) - 1)]
+    correction_eligible = sum(bool(row.get("correction_eligible")) for row in values)
+    correction_accepted = sum(bool(row.get("correction_accepted")) for row in values)
+    correction_recovered = sum(
+        bool(row.get("correction_eligible")) and bool(row["success"]) for row in values)
     return {
         "tasks": len(values),
         "success_count": sum(bool(row["success"]) for row in values),
@@ -307,6 +325,20 @@ def aggregate(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
         "mean_decision_steps": statistics.mean(row["decision_steps"] for row in values),
         "mean_llm_calls": statistics.mean(row["llm_calls"] for row in values),
         "format_retries": sum(int(row["format_retries"]) for row in values),
+        "semantic_retries": sum(int(row.get("semantic_retries", 0)) for row in values),
+        "correction_eligible_tasks": correction_eligible,
+        "correction_accept_count": correction_accepted,
+        "correction_accept_rate": (correction_accepted / correction_eligible
+                                   if correction_eligible else None),
+        "correction_recovery_count": correction_recovered,
+        "correction_task_recovery_rate": (correction_recovered / correction_eligible
+                                          if correction_eligible else None),
+        "correction_reason_counts": dict(sorted(Counter(
+            str(row["correction_reason"]) for row in values
+            if row.get("correction_reason")
+        ).items())),
+        "rejected_tool_execution_count": sum(
+            int(row.get("rejected_tool_execution_count", 0)) for row in values),
         "mean_latency_ms": statistics.mean(latencies),
         "p95_latency_ms": p95,
     }
@@ -367,4 +399,66 @@ def progress_gate(baseline: dict[str, Any], progress: dict[str, Any],
                           if baseline["p95_latency_ms"] else None),
         },
         "decision": "allow_action_evaluator" if passed else "hold_for_progress_diagnosis",
+    }
+
+
+def action_evaluator_gate(progress_fixed: dict[str, Any], evaluated: dict[str, Any],
+                          fixed_grades: Iterable[dict[str, Any]],
+                          evaluated_grades: Iterable[dict[str, Any]],
+                          fixed_records: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Responsibility gate for the first legacy ActionEvaluator dev run."""
+    fixed_rows = list(fixed_grades)
+    evaluated_rows = list(evaluated_grades)
+    fixed_by_task = {row["task_id"]: row for row in fixed_rows}
+    evaluated_by_task = {row["task_id"]: row for row in evaluated_rows}
+    paired = sorted(set(fixed_by_task) & set(evaluated_by_task))
+    fixed_successes = [task_id for task_id in paired if fixed_by_task[task_id]["success"]]
+    success_regressions = [task_id for task_id in fixed_successes
+                           if not evaluated_by_task[task_id]["success"]]
+
+    refusal_task_ids = {"m1_dev_03_01", "m1_dev_03_04", "m1_dev_03_07"}
+    refusal_records = {record["task_id"]: record for record in fixed_records
+                       if record["task_id"] in refusal_task_ids}
+    refusal_reducer_safe = (
+        set(refusal_records) == refusal_task_ids
+        and all(
+            any(span.get("blocked_by") == "return_reason_refused"
+                and "return_reason_collected" not in span.get("completed", [])
+                and span.get("allowed_next_actions") == ["handoff"]
+                for span in record.get("progress_spans", []))
+            for record in refusal_records.values()
+        )
+    )
+    recovery_rate = evaluated.get("correction_task_recovery_rate")
+    checks = {
+        "paired_task_sets_match": (
+            len(fixed_rows) == len(evaluated_rows) == 40
+            and len(fixed_by_task) == len(evaluated_by_task) == 40
+            and set(fixed_by_task) == set(evaluated_by_task)
+        ),
+        "fixed_refusal_reducer_safe": refusal_reducer_safe,
+        "fixed_successes_preserved": not success_regressions,
+        "success_improves_by_at_least_one_task": (
+            evaluated["success_count"] >= progress_fixed["success_count"] + 1),
+        "illegal_state_change_zero": evaluated["illegal_state_change_count"] == 0,
+        "terminal_state_accuracy_not_decreased": (
+            evaluated["terminal_state_accuracy"] >= progress_fixed["terminal_state_accuracy"]),
+        "inappropriate_handoff_not_increased": (
+            evaluated["inappropriate_handoff_count"] <= progress_fixed["inappropriate_handoff_count"]),
+        "protocol_errors_zero": evaluated["protocol_error_count"] == 0,
+        "rejected_actions_never_executed": evaluated["rejected_tool_execution_count"] == 0,
+        "correction_sample_size_at_least_ten": evaluated["correction_eligible_tasks"] >= 10,
+        "correction_task_recovery_at_least_half": (
+            recovery_rate is not None and recovery_rate >= 0.5),
+    }
+    passed = all(checks.values())
+    return {
+        "passed": passed,
+        "checks": checks,
+        "paired_diagnostics": {
+            "fixed_success_count": len(fixed_successes),
+            "success_regression_task_ids": success_regressions,
+        },
+        "decision": ("allow_completion_evaluator" if passed
+                     else "hold_for_action_evaluator_diagnosis"),
     }

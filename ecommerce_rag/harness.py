@@ -19,7 +19,7 @@ from .evidence import convert_tool_call_to_evidence, verify_answer
 from .orders import connect, seed_database, snapshot
 from .tool_schema import TOOL_SCHEMAS
 from .tools import RetailTools, WRITE_TOOLS
-from .legacy_closure import LegacyTaskProgressReducer, TaskProgress
+from .legacy_closure import LegacyActionEvaluator, LegacyTaskProgressReducer, TaskProgress
 
 
 class AgentPolicy(Protocol):
@@ -422,13 +422,17 @@ class HarnessRunner:
                  policy: AgentPolicy | None = None, max_steps: int = 8, *,
                  progress_reducer: LegacyTaskProgressReducer | None = None,
                  expose_task_progress: bool = False,
+                 action_evaluator: LegacyActionEvaluator | None = None,
                  user_simulator_factory: Any | None = None):
         self.db_path, self.retriever = Path(db_path), retriever
         self.policy, self.max_steps = policy or OraclePolicy(), max_steps
         if expose_task_progress and progress_reducer is None:
             raise ValueError("expose_task_progress requires a progress_reducer")
+        if action_evaluator is not None and progress_reducer is None:
+            raise ValueError("action_evaluator requires a progress_reducer")
         self.progress_reducer = progress_reducer
         self.expose_task_progress = expose_task_progress
+        self.action_evaluator = action_evaluator
         self.user_simulator_factory = user_simulator_factory or UserSimulator
 
     def _reset(self, task: TaskSpec) -> None:
@@ -458,7 +462,39 @@ class HarnessRunner:
         repair_spans: list[dict[str, Any]] = []
         evidence_conversion_spans: list[dict[str, Any]] = []
         progress_spans: list[dict[str, Any]] = []
-        answer = ""; started = time.perf_counter()
+        correction_spans: list[dict[str, Any]] = []
+        answer = ""; failed_closed = False; rejected_tool_dispatch_attempts = 0
+        started = time.perf_counter()
+
+        def decide(observation: AgentObservation, *, phase: str,
+                   parse_retry_budget: int | None = None) -> tuple[AgentAction, int, dict[str, Any] | None]:
+            retries_before = int(getattr(self.policy, "retry_count", 0))
+            original_budget = getattr(self.policy, "max_parse_retries", None)
+            if parse_retry_budget is not None and original_budget is not None:
+                self.policy.max_parse_retries = min(original_budget, parse_retry_budget)
+            action_started = time.perf_counter()
+            try:
+                decided = self.policy.act(observation)
+            finally:
+                if parse_retry_budget is not None and original_budget is not None:
+                    self.policy.max_parse_retries = original_budget
+            retries_after = int(getattr(self.policy, "retry_count", 0))
+            retries_used = retries_after - retries_before
+            if retries_used:
+                retry_spans.append({"step": observation.step, "retries": retries_used,
+                                    "reason": "invalid_model_action", "phase": phase})
+            trace = copy.deepcopy(getattr(self.policy, "last_trace", None))
+            call_record = {
+                "step": observation.step,
+                "phase": phase,
+                "latency_ms": (time.perf_counter() - action_started) * 1000,
+                "action": asdict(decided),
+            }
+            if trace:
+                call_record["llm"] = trace
+            model_calls.append(call_record)
+            return decided, retries_used, trace
+
         for step in range(self.max_steps):
             policy_evidence = copy.deepcopy(evidence_ledger) if getattr(self.policy, "uses_evidence", False) else []
             progress = self.progress_reducer.derive(history) if self.progress_reducer else None
@@ -473,30 +509,78 @@ class HarnessRunner:
                 evidence_ledger=policy_evidence,
             )
             observations.append(asdict(observation))
-            retries_before = int(getattr(self.policy, "retry_count", 0))
-            action_started = time.perf_counter(); action = self.policy.act(observation)
-            retries_after = int(getattr(self.policy, "retry_count", 0))
-            if retries_after > retries_before:
-                retry_spans.append({"step": step, "retries": retries_after - retries_before, "reason": "invalid_model_action"})
-            call_record = {"step": step, "latency_ms": (time.perf_counter()-action_started)*1000, "action": asdict(action)}
-            # Policies that talk to a model expose the raw generation and the exact
-            # parse stage; without it a failed run cannot be attributed to the
-            # prompt, the chat template, the output format or the parser.
-            policy_trace = getattr(self.policy, "last_trace", None)
-            if policy_trace:
-                call_record["llm"] = copy.deepcopy(policy_trace)
+            action, initial_format_retries, policy_trace = decide(
+                observation, phase="initial_action")
             for span in getattr(self.policy, "last_verification_spans", []) or []:
                 verification_spans.append({"step": step, **copy.deepcopy(span)})
             for span in getattr(self.policy, "last_repair_spans", []) or []:
                 repair_spans.append({"step": step, **copy.deepcopy(span)})
-            model_calls.append(call_record)
             requested_input_type = _requested_input_type(action, progress)
+            parser_fallback = bool(
+                policy_trace and policy_trace.get("resolution") == "fallback_handoff")
+            if self.action_evaluator is not None and progress is not None and not parser_fallback:
+                evaluation = self.action_evaluator.evaluate(
+                    action, progress, requested_input_type=requested_input_type)
+                if not evaluation.accepted:
+                    rejected_action = asdict(action)
+                    correction_observation = AgentObservation(
+                        observation.current_message,
+                        {**observation.session,
+                         "action_evaluator_feedback": copy.deepcopy(evaluation.feedback)},
+                        copy.deepcopy(observation.history),
+                        copy.deepcopy(observation.tool_schemas),
+                        observation.step,
+                        evidence_ledger=copy.deepcopy(observation.evidence_ledger),
+                    )
+                    original_budget = int(getattr(self.policy, "max_parse_retries", 0))
+                    corrected, _correction_format_retries, corrected_trace = decide(
+                        correction_observation,
+                        phase="semantic_correction",
+                        parse_retry_budget=max(0, original_budget - initial_format_retries),
+                    )
+                    corrected_requested_input = _requested_input_type(corrected, progress)
+                    corrected_parser_fallback = bool(
+                        corrected_trace and corrected_trace.get("resolution") == "fallback_handoff")
+                    second = (self.action_evaluator.evaluate(
+                        corrected, progress,
+                        requested_input_type=corrected_requested_input)
+                        if not corrected_parser_fallback else None)
+                    accepted = bool(second and second.accepted)
+                    correction_spans.append({
+                        "step": step,
+                        "rejected_action": rejected_action,
+                        "reason": evaluation.reason,
+                        "violations": list(evaluation.violations),
+                        "feedback": copy.deepcopy(evaluation.feedback),
+                        "corrected_action": asdict(corrected),
+                        "accepted": accepted,
+                        "theoretically_recoverable": evaluation.theoretically_recoverable,
+                        "second_rejection_reason": None if accepted else (
+                            "model_action_parse_failure" if corrected_parser_fallback
+                            else second.reason if second else "semantic_correction_failed"),
+                    })
+                    if accepted:
+                        action = corrected
+                        requested_input_type = corrected_requested_input
+                    else:
+                        action = AgentAction.answer("无法在安全约束内继续处理，已停止。")
+                        requested_input_type = None
+                        failed_closed = True
             actions.append(asdict(action)); history.append({
                 "role": "assistant", "content": action.content, "action": action.action_type,
                 "requires_user_response": action.requires_user_response,
                 "requested_input_type": requested_input_type,
             })
             if action.action_type == "tool_call":
+                rejected_here = any(
+                    span["step"] == step and span["rejected_action"] == asdict(action)
+                    for span in correction_spans
+                )
+                if rejected_here:
+                    rejected_tool_dispatch_attempts += 1
+                    failed_closed = True
+                    answer = "拒绝的工具动作未执行，流程已安全停止。"
+                    break
                 result = tools.call(action.tool_name or "", **action.arguments)
                 history.append({"role": "tool", "name": action.tool_name, "content": json.dumps(result, ensure_ascii=False), "result": result})
                 call = tools.calls[-1]
@@ -544,7 +628,9 @@ class HarnessRunner:
             final_answer=answer, final_state=after, elapsed_ms=elapsed, observations=observations, actions=actions,
             user_simulator_spans=sim_spans, retry_spans=retry_spans, policy_name=type(self.policy).__name__,
             evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans,
-            evidence_conversion_spans=evidence_conversion_spans, progress_spans=progress_spans)
+            evidence_conversion_spans=evidence_conversion_spans, progress_spans=progress_spans,
+            correction_spans=correction_spans, failed_closed=failed_closed,
+            rejected_tool_dispatch_attempts=rejected_tool_dispatch_attempts)
         return trajectory, grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
 
 

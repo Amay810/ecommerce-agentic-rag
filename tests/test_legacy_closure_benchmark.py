@@ -10,6 +10,7 @@ from ecommerce_rag.legacy_closure_benchmark import (
     FROZEN_TASK_SHA256,
     TypedScenarioUser,
     _redact,
+    action_evaluator_gate,
     build_m1_tasks,
     clone_database,
     prepare_database,
@@ -144,6 +145,74 @@ def test_progress_gate_rejects_duplicate_or_missing_task_pairs():
     gate = progress_gate(baseline, progress, baseline_grades, progress_grades, records)
     assert not gate["passed"]
     assert not gate["checks"]["paired_task_sets_match"]
+
+
+def _action_summary(success_count, *, eligible=10, recovered=5):
+    return {
+        "success_count": success_count,
+        "illegal_state_change_count": 0,
+        "terminal_state_accuracy": .9,
+        "inappropriate_handoff_count": 0,
+        "protocol_error_count": 0,
+        "rejected_tool_execution_count": 0,
+        "correction_eligible_tasks": eligible,
+        "correction_task_recovery_rate": recovered / eligible if eligible else None,
+    }
+
+
+def test_action_evaluator_gate_uses_paired_gain_and_fixed_refusal_proof():
+    fixed_grades = [_grade(str(index), success=index < 20) for index in range(40)]
+    evaluated_grades = [_grade(str(index), success=index < 21) for index in range(40)]
+    fixed_records = [{"task_id": str(index), "progress_spans": [], "tool_events": [],
+                      "database_state": {"return_status": None}}
+                     for index in range(40)]
+    for task_id in ("m1_dev_03_01", "m1_dev_03_04", "m1_dev_03_07"):
+        fixed_grades.append(_grade(task_id, success=False))
+        evaluated_grades.append(_grade(task_id, success=False))
+        fixed_records.append({
+            "task_id": task_id,
+            "progress_spans": [{
+                "blocked_by": "return_reason_refused",
+                "completed": [],
+                "allowed_next_actions": ["handoff"],
+            }],
+            "tool_events": [],
+            "database_state": {"return_status": None},
+        })
+    # Keep the formal gate shape at exactly 40 paired tasks.
+    fixed_grades = fixed_grades[:37] + fixed_grades[-3:]
+    evaluated_grades = evaluated_grades[:37] + evaluated_grades[-3:]
+    fixed_records = fixed_records[:37] + fixed_records[-3:]
+    gate = action_evaluator_gate(
+        _action_summary(20), _action_summary(21),
+        fixed_grades, evaluated_grades, fixed_records)
+    assert gate["passed"]
+    assert gate["decision"] == "allow_completion_evaluator"
+
+
+def test_action_evaluator_gate_holds_when_correction_sample_is_too_small():
+    fixed_grades = [_grade(str(index), success=index < 20) for index in range(37)]
+    evaluated_grades = [_grade(str(index), success=index < 21) for index in range(37)]
+    fixed_records = [{"task_id": str(index), "progress_spans": [], "tool_events": [],
+                      "database_state": {"return_status": None}}
+                     for index in range(37)]
+    for task_id in ("m1_dev_03_01", "m1_dev_03_04", "m1_dev_03_07"):
+        fixed_grades.append(_grade(task_id, success=False))
+        evaluated_grades.append(_grade(task_id, success=False))
+        fixed_records.append({
+            "task_id": task_id,
+            "progress_spans": [{
+                "blocked_by": "return_reason_refused", "completed": [],
+                "allowed_next_actions": ["handoff"],
+            }],
+            "tool_events": [],
+            "database_state": {"return_status": None},
+        })
+    gate = action_evaluator_gate(
+        _action_summary(20), _action_summary(21, eligible=2, recovered=2),
+        fixed_grades, evaluated_grades, fixed_records)
+    assert not gate["passed"]
+    assert not gate["checks"]["correction_sample_size_at_least_ten"]
 
 
 def test_record_redaction_removes_credentials_without_destroying_order_ids():

@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Any
+
+from .domain import AgentAction
 
 
 _ORDER_ID = re.compile(r"O[0-9]{6}", re.I)
@@ -13,6 +15,20 @@ _REASON = re.compile(r"(?:退货原因|原因)\s*[:：]\s*(.+)", re.I)
 _RETURN_INTENT = ("退货", "退换", "return")
 _AFFIRMATIVE = {"确认", "确认提交", "确认提交退货", "同意", "yes", "confirm"}
 _NEGATIVE = {"取消", "不确认", "不同意", "no"}
+_REASON_REFUSALS = {
+    "不提供", "拒绝提供", "不想提供", "不愿提供", "不给",
+    "不提供退货原因", "拒绝说明原因", "拒绝提供退货原因",
+}
+
+
+def _return_reason_refused(text: str) -> bool:
+    normalized = re.sub(r"[\s，。！？,.!?：:]", "", text).lower()
+    if normalized in _REASON_REFUSALS:
+        return True
+    return bool(re.fullmatch(
+        r"(?:我)?(?:不愿|不想|拒绝|不|无法)(?:提供|说明|告知|透露|给)?(?:退货)?原因",
+        normalized,
+    ))
 
 
 @dataclass(frozen=True)
@@ -29,6 +45,63 @@ class TaskProgress:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class ActionEvaluation:
+    accepted: bool
+    reason: str | None = None
+    violations: tuple[str, ...] = ()
+    feedback: dict[str, Any] = field(default_factory=dict)
+    theoretically_recoverable: bool = False
+
+
+class LegacyActionEvaluator:
+    """Deterministic pre-execution checks for the legacy action contract."""
+
+    @staticmethod
+    def _reject(progress: TaskProgress, violations: list[str]) -> ActionEvaluation:
+        return ActionEvaluation(
+            False,
+            violations[0],
+            tuple(violations),
+            {
+                "reason": violations[0],
+                "violations": violations,
+                "completed": list(progress.completed),
+                "pending": list(progress.pending),
+                "blocked_by": progress.blocked_by,
+                "allowed_next_actions": list(progress.allowed_next_actions),
+            },
+            True,
+        )
+
+    def evaluate(self, action: AgentAction, progress: TaskProgress, *,
+                 requested_input_type: str | None = None) -> ActionEvaluation:
+        if progress.workflow != "return_resolution":
+            return ActionEvaluation(True)
+        if action.action_type == "tool_call" and action.tool_name == "create_return_request":
+            violations: list[str] = []
+            if "return_reason_collected" not in progress.completed:
+                violations.append("return_reason_missing")
+            if "explicit_confirmation" not in progress.completed:
+                violations.append("explicit_confirmation_missing")
+            if "create_return_request" not in progress.allowed_next_actions:
+                violations.append("action_not_allowed_for_progress")
+            if violations:
+                return self._reject(progress, violations)
+        if (action.action_type == "handoff"
+                and "handoff" not in progress.allowed_next_actions):
+            return self._reject(progress, ["inappropriate_handoff"])
+        if action.action_type == "tool_call":
+            key = action.tool_name or ""
+            if key not in progress.allowed_next_actions:
+                return self._reject(progress, ["action_not_allowed_for_progress"])
+        if action.action_type == "final_answer" and action.requires_user_response:
+            key = f"ask_user:{requested_input_type}" if requested_input_type else "ask_user:unknown"
+            if key not in progress.allowed_next_actions:
+                return self._reject(progress, ["action_not_allowed_for_progress"])
+        return ActionEvaluation(True)
 
 
 class LegacyTaskProgressReducer:
@@ -77,7 +150,14 @@ class LegacyTaskProgressReducer:
                     facts["verification_available"] = True
                 reason = _REASON.search(content)
                 if reason and reason.group(1).strip():
-                    facts["return_reason"] = reason.group(1).strip()
+                    candidate = reason.group(1).strip()
+                    if _return_reason_refused(candidate):
+                        facts["return_reason"] = None
+                        facts["blocked_by"] = "return_reason_refused"
+                    else:
+                        facts["return_reason"] = candidate
+                        if facts["blocked_by"] == "return_reason_refused":
+                            facts["blocked_by"] = None
                     facts["confirmation"] = None
                 normalized = content.strip().lower()
                 if requested_input_type == "confirmation":
@@ -85,8 +165,15 @@ class LegacyTaskProgressReducer:
                         facts["confirmation"] = True
                     elif normalized in _NEGATIVE:
                         facts["confirmation"] = False
-                elif requested_input_type == "return_reason" and normalized not in _NEGATIVE:
-                    facts["return_reason"] = content
+                elif requested_input_type == "return_reason" and reason is None:
+                    if _return_reason_refused(content):
+                        facts["return_reason"] = None
+                        facts["confirmation"] = None
+                        facts["blocked_by"] = "return_reason_refused"
+                    elif normalized not in _NEGATIVE:
+                        facts["return_reason"] = content
+                        if facts["blocked_by"] == "return_reason_refused":
+                            facts["blocked_by"] = None
                 requested_input_type = None
                 continue
             if role != "tool":
@@ -135,8 +222,10 @@ class LegacyTaskProgressReducer:
             return TaskProgress("return_resolution", tuple(completed), ("identity_verification",), "user_input",
                                 ("ask_user:verification_code",), "verification_code", "identity_required")
         if facts["eligibility"] is None:
+            allowed = (("check_return_eligibility",) if facts["order_loaded"]
+                       else ("get_order", "check_return_eligibility"))
             return TaskProgress("return_resolution", tuple(completed), ("eligibility",), None,
-                                ("check_return_eligibility",), None, "identity_available")
+                                allowed, None, "identity_available")
         if facts["eligibility"] is False:
             return TaskProgress("return_resolution", tuple(completed), (), None,
                                 ("final_answer",), None, "ineligible", eligible=False)

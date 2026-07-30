@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from ecommerce_rag.domain import AgentAction, TaskSpec
 from ecommerce_rag.harness import HarnessRunner
 from ecommerce_rag.legacy_closure import LegacyTaskProgressReducer
@@ -56,6 +58,65 @@ def test_eligible_order_without_user_reason_requests_reason_before_confirmation(
     assert progress.pending == ("return_reason",)
     assert progress.requested_input_type == "return_reason"
     assert progress.allowed_next_actions == ("ask_user:return_reason",)
+
+
+@pytest.mark.parametrize(
+    "refusal",
+    ["不提供退货原因", "拒绝说明原因", "不提供", "退货原因：不提供"],
+)
+def test_return_reason_refusal_blocks_write_and_is_not_stored(refusal):
+    history = [
+        {"role": "user", "content": "我要退货，订单 O000001，验证码 123456"},
+        {"role": "tool", "name": "check_return_eligibility",
+         "result": {"ok": True, "eligible": True,
+                    "order": {"order_id": "O000001"}}},
+        {"role": "assistant", "content": "请提供退货原因",
+         "requested_input_type": "return_reason"},
+        {"role": "user", "content": refusal},
+    ]
+    reducer = LegacyTaskProgressReducer()
+    facts = reducer.facts(history)
+    progress = reducer.derive(history)
+    assert facts["return_reason"] is None
+    assert progress.blocked_by == "return_reason_refused"
+    assert "return_reason_collected" not in progress.completed
+    assert progress.allowed_next_actions == ("handoff",)
+    assert progress.requested_input_type is None
+
+
+def test_real_return_reason_is_preserved_and_advances_to_confirmation():
+    history = [
+        {"role": "user", "content": "我要退货，订单 O000001，验证码 123456"},
+        {"role": "tool", "name": "check_return_eligibility",
+         "result": {"ok": True, "eligible": True,
+                    "order": {"order_id": "O000001"}}},
+        {"role": "assistant", "content": "请提供退货原因",
+         "requested_input_type": "return_reason"},
+        {"role": "user", "content": "不合适"},
+    ]
+    reducer = LegacyTaskProgressReducer()
+    facts = reducer.facts(history)
+    progress = reducer.derive(history)
+    assert facts["return_reason"] == "不合适"
+    assert facts["blocked_by"] is None
+    assert progress.blocked_by != "return_reason_refused"
+    assert "return_reason_collected" in progress.completed
+    assert progress.allowed_next_actions == ("ask_user:confirmation",)
+
+
+def test_identity_available_allows_legacy_get_order_or_direct_eligibility_check():
+    progress = LegacyTaskProgressReducer().derive([
+        {"role": "user", "content": "订单 O000001 要退货，验证码 123456"},
+    ])
+    assert progress.allowed_next_actions == (
+        "get_order", "check_return_eligibility")
+
+    loaded = LegacyTaskProgressReducer().derive([
+        {"role": "user", "content": "订单 O000001 要退货，验证码 123456"},
+        {"role": "tool", "name": "get_order",
+         "result": {"ok": True, "order": {"order_id": "O000001"}}},
+    ])
+    assert loaded.allowed_next_actions == ("check_return_eligibility",)
 
 
 def test_harness_exposes_progress_only_when_enabled_and_never_exposes_gold(tmp_path):

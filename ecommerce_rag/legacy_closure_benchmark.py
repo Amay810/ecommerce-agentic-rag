@@ -287,6 +287,7 @@ def trajectory_record(task: M1Task, config: str, trajectory: Trajectory,
         "elapsed_ms": trajectory.elapsed_ms,
         "format_retries": sum(span.get("retries", 0) for span in trajectory.retry_spans),
         "correction_spans": trajectory.correction_spans,
+        "constraint_spans": getattr(trajectory, "constraint_spans", []),
         "semantic_fact_spans": trajectory.semantic_fact_spans,
         "rejected_tool_dispatch_attempts": trajectory.rejected_tool_dispatch_attempts,
         "harness_grade": grade_result.to_dict(),
@@ -596,4 +597,84 @@ def protocol_fix_gate(summary: dict[str, Any], grades: Iterable[dict[str, Any]],
             "observe_policy_failure_type_change": (
                 "re-attribute first causal failure; watch for error migration"),
         },
+    }
+
+
+def action_constraint_gate(protocol_fixed: dict[str, Any], constrained: dict[str, Any],
+                           fixed_grades: Iterable[dict[str, Any]],
+                           constrained_grades: Iterable[dict[str, Any]],
+                           constrained_records: Iterable[dict[str, Any]], *,
+                           locked_executed: bool = False) -> dict[str, Any]:
+    """Gate for legacy_task_closure_action_constraint_dev_v1.
+
+    Dynamic action mask is a runtime-system gain, not a base-model gain.
+    """
+    fixed_rows = list(fixed_grades)
+    constrained_rows = list(constrained_grades)
+    fixed_by = {row["task_id"]: row for row in fixed_rows}
+    constrained_by = {row["task_id"]: row for row in constrained_rows}
+    records = list(constrained_records)
+    fixed_successes = [task_id for task_id, row in fixed_by.items() if row["success"]]
+    regressions = [task_id for task_id in fixed_successes
+                   if not constrained_by.get(task_id, {}).get("success")]
+    observe_recovered = sorted(
+        task_id for task_id in PROTOCOL_FIX_OBSERVE_POLICY_TASK_IDS
+        if (not fixed_by.get(task_id, {}).get("success")
+            and constrained_by.get(task_id, {}).get("success"))
+    )
+    observe_premature_final = []
+    for record in records:
+        if record["task_id"] not in PROTOCOL_FIX_OBSERVE_POLICY_TASK_IDS:
+            continue
+        if record.get("status") != "COMPLETED":
+            continue
+        writes = [event for event in record.get("tool_events", [])
+                  if event.get("name") == "create_return_request" and event.get("result", {}).get("ok")]
+        if not writes:
+            # Completed without a successful write while identity was the issue:
+            # treat as premature terminal migration.
+            observe_premature_final.append(record["task_id"])
+    extra_llm = sum(
+        int(span.get("llm_calls_added") or 0)
+        for record in records
+        for span in record.get("constraint_spans", [])
+    )
+    correction_calls = sum(len(record.get("correction_spans") or []) for record in records)
+    remaps = sum(
+        1 for record in records
+        for span in record.get("constraint_spans", [])
+        if span.get("remapped")
+    )
+    checks = {
+        "paired_task_sets_match": (
+            len(fixed_rows) == len(constrained_rows) == 40
+            and set(fixed_by) == set(constrained_by)
+        ),
+        "locked_not_executed": locked_executed is False,
+        "protocol_fixed_successes_preserved": not regressions,
+        "observe_policy_recovers_at_least_one": bool(observe_recovered),
+        "no_observe_premature_final_migration": not observe_premature_final,
+        "no_extra_constraint_llm_calls": extra_llm == 0,
+        "no_action_evaluator_correction_spans": correction_calls == 0,
+        "illegal_state_change_zero": constrained.get("illegal_state_change_count") == 0,
+        "protocol_errors_zero": constrained.get("protocol_error_count") == 0,
+        "duplicate_writes_zero": constrained.get("duplicate_writes") == 0,
+    }
+    passed = all(checks.values())
+    return {
+        "passed": passed,
+        "checks": checks,
+        "diagnostics": {
+            "protocol_fixed_success_count": protocol_fixed.get("success_count"),
+            "constrained_success_count": constrained.get("success_count"),
+            "success_regression_task_ids": regressions,
+            "observe_policy_recovered_task_ids": observe_recovered,
+            "observe_premature_final_task_ids": observe_premature_final,
+            "constraint_remap_count": remaps,
+            "constraint_extra_llm_calls": extra_llm,
+            "correction_span_count": correction_calls,
+        },
+        "decision": ("accept_action_constraint" if passed
+                     else "hold_for_action_constraint_diagnosis"),
+        "capability_claim": "runtime_system_constraint_not_base_model",
     }

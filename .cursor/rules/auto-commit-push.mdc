@@ -1,0 +1,14 @@
+---
+description: After finishing substantive code changes, commit and push without waiting to be asked
+alwaysApply: true
+---
+
+# Auto-commit completed work
+
+When a task that changes the repository is finished (features, fixes, tests, docs, scripts):
+
+1. Create a git commit for the relevant changes (follow the repo commit-message style).
+2. Push the current branch to `origin` with `-u` if needed.
+3. Do **not** wait for an extra "please commit" message unless the user explicitly said not to commit yet.
+4. Never commit secrets, `.env`, credentials, or scratch dirs (`.tmp_pytest/`, local logs artifacts).
+5. If push needs auth or fails, report the error and stop; do not force-push `main`/`master`.

@@ -71,6 +71,8 @@ Structured AgentCase rows: `ecommerce_rag/data/agent_cases_dev_failures_v1.jsonl
 ## Capability claim boundary
 
 - RulePolicy paired replay of the four protocol targets: **verified in unit/integration tests**.
-- Formal Qwen evidence for Agent capability gain: **pending**
-  `legacy_task_closure_protocol_fix_dev_v1`.
-- Do not describe P0 as proven Qwen end-to-end improvement until that run completes.
+- Formal Qwen `legacy_task_closure_protocol_fix_dev_v1`: **passed** (`38/40`,
+  `accept_protocol_fix`, commit `5fb8448…`, frozen local Qwen3-4B).
+- Remaining `m1_dev_07_01/03`: still `policy` / inappropriate handoff (observe only).
+- Next formal protocol: `legacy_task_closure_action_constraint_dev_v1`
+  (dynamic allowlist remap, no ActionEvaluator correction call).

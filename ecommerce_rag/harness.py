@@ -19,6 +19,7 @@ from .evidence import convert_tool_call_to_evidence, verify_answer
 from .orders import connect, seed_database, snapshot
 from .tool_schema import TOOL_SCHEMAS
 from .tools import RetailTools, WRITE_TOOLS
+from .action_constraint import apply_action_constraint
 from .legacy_closure import LegacyActionEvaluator, LegacyTaskProgressReducer, TaskProgress
 from .semantic_facts import SessionSemanticFactPipeline, UserTurnContext
 
@@ -437,6 +438,7 @@ class HarnessRunner:
                  progress_reducer: LegacyTaskProgressReducer | None = None,
                  expose_task_progress: bool = False,
                  action_evaluator: LegacyActionEvaluator | None = None,
+                 enforce_action_constraint: bool = False,
                  semantic_fact_pipeline_factory: Any | None = None,
                  user_simulator_factory: Any | None = None):
         self.db_path, self.retriever = Path(db_path), retriever
@@ -445,9 +447,14 @@ class HarnessRunner:
             raise ValueError("expose_task_progress requires a progress_reducer")
         if action_evaluator is not None and progress_reducer is None:
             raise ValueError("action_evaluator requires a progress_reducer")
+        if enforce_action_constraint and progress_reducer is None:
+            raise ValueError("enforce_action_constraint requires a progress_reducer")
+        if action_evaluator is not None and enforce_action_constraint:
+            raise ValueError("action_evaluator and enforce_action_constraint are mutually exclusive")
         self.progress_reducer = progress_reducer
         self.expose_task_progress = expose_task_progress
         self.action_evaluator = action_evaluator
+        self.enforce_action_constraint = enforce_action_constraint
         self.semantic_fact_pipeline_factory = semantic_fact_pipeline_factory
         self.user_simulator_factory = user_simulator_factory or UserSimulator
 
@@ -486,6 +493,7 @@ class HarnessRunner:
         evidence_conversion_spans: list[dict[str, Any]] = []
         progress_spans: list[dict[str, Any]] = []
         correction_spans: list[dict[str, Any]] = []
+        constraint_spans: list[dict[str, Any]] = []
         semantic_fact_spans: list[dict[str, Any]] = []
         if semantic_pipeline_init_failed:
             semantic_fact_spans.append({
@@ -560,6 +568,15 @@ class HarnessRunner:
             requested_input_type = _requested_input_type(action, progress)
             parser_fallback = bool(
                 policy_trace and policy_trace.get("resolution") == "fallback_handoff")
+            if (self.enforce_action_constraint and progress is not None
+                    and not parser_fallback):
+                constrained = apply_action_constraint(
+                    action, progress, requested_input_type=requested_input_type)
+                constraint_spans.append(constrained.to_span(step=step))
+                action = constrained.action
+                requested_input_type = _requested_input_type(action, progress)
+                if constrained.fail_closed:
+                    failed_closed = True
             if self.action_evaluator is not None and progress is not None and not parser_fallback:
                 evaluation = self.action_evaluator.evaluate(
                     action, progress, requested_input_type=requested_input_type)
@@ -672,7 +689,8 @@ class HarnessRunner:
             user_simulator_spans=sim_spans, retry_spans=retry_spans, policy_name=type(self.policy).__name__,
             evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans,
             evidence_conversion_spans=evidence_conversion_spans, progress_spans=progress_spans,
-            correction_spans=correction_spans, failed_closed=failed_closed,
+            correction_spans=correction_spans, constraint_spans=constraint_spans,
+            failed_closed=failed_closed,
             rejected_tool_dispatch_attempts=rejected_tool_dispatch_attempts,
             semantic_fact_spans=semantic_fact_spans)
         return trajectory, grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))

@@ -10,3 +10,7 @@ ecommerce_rag/data/amazon_smoke_*.jsonl
 ecommerce_rag/data/amazon_smoke_*.stats.json
 *.log
 ecommerce_rag/data/agent_env_evidence_phase_a.db
+
+.tmp_pytest/
+.pytest_cache/
+

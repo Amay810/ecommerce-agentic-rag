@@ -182,6 +182,18 @@ def _asks_for_verification_code(text: str) -> bool:
     return _SIX_DIGIT_CODE.search(text) is not None
 
 
+_RETURN_REASON_REQUESTS = (
+    re.compile(r"(?:请|麻烦)?(?:提供|告知|告诉|说明).{0,16}(?:退货)?原因"),
+    re.compile(r"(?:退货)?原因.{0,8}(?:是什么|为何|呢|吗|请说明|请提供)"),
+    re.compile(r"(?:what|provide|tell|state).{0,24}(?:return )?reason", re.I),
+)
+
+
+def _asks_for_return_reason(text: str) -> bool:
+    """Whether the utterance explicitly asks the user for a return reason."""
+    return any(pattern.search(text) for pattern in _RETURN_REASON_REQUESTS)
+
+
 class UserSimulator:
     """Deterministic hidden user state; only its utterances reach the policy."""
 
@@ -193,19 +205,32 @@ class UserSimulator:
         self.turn += 1
         request = action.content.lower()
         behavior = self.task.metadata.get("user_behavior", {})
-        if requested_input_type == "verification_code" or _asks_for_verification_code(action.content):
+        if requested_input_type == "verification_code":
             if behavior.get("disclose_verification", True) is False:
                 return "我不愿提供验证码，请转人工。"
             return str(behavior.get("verification_code", self.task.metadata.get("verification_code", "000000")))
-        if requested_input_type == "confirmation" or "确认" in request or "confirm" in request:
+        if requested_input_type == "confirmation":
             mode = behavior.get("confirmation", self.task.metadata.get("confirmed", False))
             if mode == "change_goal":
                 return "先不退了，改为只查询订单状态。"
             return "确认提交退货" if mode is True else "不确认，请不要修改订单。"
-        if requested_input_type == "order_id" or "订单号" in request:
+        if requested_input_type == "order_id":
             return self.task.metadata.get("order_id")
         if requested_input_type == "return_reason":
             return behavior.get("return_reason", self.task.metadata.get("return_reason"))
+        if _asks_for_verification_code(action.content):
+            if behavior.get("disclose_verification", True) is False:
+                return "我不愿提供验证码，请转人工。"
+            return str(behavior.get("verification_code", self.task.metadata.get("verification_code", "000000")))
+        if _asks_for_return_reason(action.content):
+            return behavior.get("return_reason", self.task.metadata.get("return_reason"))
+        if "确认" in request or "confirm" in request:
+            mode = behavior.get("confirmation", self.task.metadata.get("confirmed", False))
+            if mode == "change_goal":
+                return "先不退了，改为只查询订单状态。"
+            return "确认提交退货" if mode is True else "不确认，请不要修改订单。"
+        if "订单号" in request:
+            return self.task.metadata.get("order_id")
         return None
 
 
@@ -219,12 +244,15 @@ def _requested_input_type(action: AgentAction, progress: TaskProgress | None) ->
     lowered = action.content.lower()
     if _asks_for_verification_code(action.content):
         return "verification_code"
+    # A question may recap that an order is confirmed/eligible before asking
+    # for the missing return reason.  Classify the information being requested,
+    # not an earlier status word in the same answer.
+    if _asks_for_return_reason(action.content):
+        return "return_reason"
     if "确认" in lowered or "confirm" in lowered:
         return "confirmation"
     if "订单号" in lowered or "order id" in lowered:
         return "order_id"
-    if "原因" in lowered or "reason" in lowered:
-        return "return_reason"
     return progress.requested_input_type if progress else None
 
 

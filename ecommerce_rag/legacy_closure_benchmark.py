@@ -313,16 +313,53 @@ def aggregate(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
 
 
 def progress_gate(baseline: dict[str, Any], progress: dict[str, Any],
+                  baseline_grades: Iterable[dict[str, Any]],
+                  progress_grades: Iterable[dict[str, Any]],
                   progress_records: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Apply the frozen v2 responsibility gate for read-only TaskProgress.
+
+    Latency remains a reported diagnostic.  It is deliberately not a gate:
+    progress can add necessary user turns that an unsafe baseline skipped.
+    Handoff is paired so only a newly inappropriate handoff on a task the
+    baseline completed successfully counts as a regression at this layer.
+    """
     records = list(progress_records)
+    baseline_by_task = {row["task_id"]: row for row in baseline_grades}
+    progress_by_task = {row["task_id"]: row for row in progress_grades}
+    paired_tasks = sorted(set(baseline_by_task) & set(progress_by_task))
+    baseline_successes = [task_id for task_id in paired_tasks
+                          if baseline_by_task[task_id]["success"]]
+    success_regressions = [task_id for task_id in baseline_successes
+                           if not progress_by_task[task_id]["success"]]
+    new_handoffs_on_baseline_successes = [
+        task_id for task_id in baseline_successes
+        if (not baseline_by_task[task_id]["inappropriate_handoff"]
+            and progress_by_task[task_id]["inappropriate_handoff"])
+    ]
     checks = {
         "derived_state_present": len(records) == 40 and all(record.get("progress_spans") for record in records),
+        "paired_task_sets_match": (len(baseline_by_task) == len(progress_by_task) == 40
+                                   and len(paired_tasks) == 40),
+        "baseline_successes_preserved": not success_regressions,
         "success_not_below_baseline": progress["success_rate"] >= baseline["success_rate"],
         "illegal_state_change_not_increased": progress["illegal_state_change_count"] <= baseline["illegal_state_change_count"],
-        "inappropriate_handoff_not_increased": progress["inappropriate_handoff_count"] <= baseline["inappropriate_handoff_count"],
-        "p95_within_1_10x": progress["p95_latency_ms"] <= baseline["p95_latency_ms"] * 1.10,
+        "no_new_inappropriate_handoff_on_baseline_success": not new_handoffs_on_baseline_successes,
         "protocol_errors_zero": progress["protocol_error_count"] == 0,
     }
     passed = all(checks.values())
-    return {"passed": passed, "checks": checks,
-            "decision": "allow_action_evaluator" if passed else "revert_progress_exposure"}
+    return {
+        "passed": passed,
+        "checks": checks,
+        "paired_diagnostics": {
+            "baseline_success_count": len(baseline_successes),
+            "success_regression_task_ids": success_regressions,
+            "new_inappropriate_handoff_on_baseline_success_task_ids": new_handoffs_on_baseline_successes,
+        },
+        "latency_diagnostic": {
+            "baseline_p95_latency_ms": baseline["p95_latency_ms"],
+            "progress_p95_latency_ms": progress["p95_latency_ms"],
+            "p95_ratio": (progress["p95_latency_ms"] / baseline["p95_latency_ms"]
+                          if baseline["p95_latency_ms"] else None),
+        },
+        "decision": "allow_action_evaluator" if passed else "hold_for_progress_diagnosis",
+    }

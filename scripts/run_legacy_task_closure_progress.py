@@ -114,10 +114,15 @@ def main() -> None:
                                 "completion_tokens": sum(item[1] for item in counts)}
         summaries[config].update(token_counts[config])
     progress_records = [record for record in records if record["config"] == "legacy_progress"]
-    gate = progress_gate(summaries["legacy_baseline"], summaries["legacy_progress"], progress_records)
+    baseline_grades = [grade for grade in grades if grade["config"] == "legacy_baseline"]
+    progress_grades = [grade for grade in grades if grade["config"] == "legacy_progress"]
+    gate = progress_gate(
+        summaries["legacy_baseline"], summaries["legacy_progress"],
+        baseline_grades, progress_grades, progress_records,
+    )
     report = {
-        "schema_version": 1,
-        "protocol": "legacy_task_closure_progress_dev_v1",
+        "schema_version": 2,
+        "protocol": "legacy_task_closure_progress_dev_v2",
         "split": "dev",
         "locked_executed": False,
         "code_commit": commit,
@@ -130,6 +135,11 @@ def main() -> None:
         "system_prompt_sha256": _hash(SYSTEM_PROMPT),
         "tool_schema_sha256": _hash(TOOL_SCHEMAS),
         "intentional_context_difference": "legacy_progress exposes deterministic task_progress in SESSION",
+        "gate_policy": {
+            "version": "progress_responsibility_v2",
+            "p95_is_diagnostic_only": True,
+            "handoff_regression_scope": "new inappropriate handoff on baseline-success tasks only",
+        },
         "summaries": summaries,
         "gate": gate,
     }

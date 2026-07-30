@@ -5,7 +5,7 @@ import sqlite3
 import pytest
 
 from ecommerce_rag.domain import AgentAction
-from ecommerce_rag.harness import UserSimulatorProtocolError
+from ecommerce_rag.harness import UserSimulatorProtocolError, _requested_input_type
 from ecommerce_rag.legacy_closure_benchmark import (
     FROZEN_TASK_SHA256,
     TypedScenarioUser,
@@ -51,17 +51,85 @@ def test_typed_user_does_not_consume_confirmation_as_verification():
     assert user.respond(action, "confirmation") == "确认"
 
 
+@pytest.mark.parametrize(
+    ("task_id", "question"),
+    [
+        ("m1_dev_03_01", "订单已确认可退货，请告诉我退货的具体原因。"),
+        ("m1_dev_03_04", "已确认该订单符合条件；还需要您提供退货原因。"),
+        ("m1_dev_03_07", "I confirmed eligibility. What is the return reason?"),
+    ],
+)
+def test_return_reason_question_wins_over_confirmation_recap(task_id, question):
+    action = AgentAction.answer(question, requires_user_response=True)
+    assert _requested_input_type(action, None) == "return_reason", task_id
+
+
+def test_confirmation_question_wins_when_reason_is_only_a_recap():
+    action = AgentAction.answer(
+        "退货原因是商品不合适，请确认是否提交。", requires_user_response=True)
+    assert _requested_input_type(action, None) == "confirmation"
+
+
+def test_typed_user_consumes_return_reason_for_mixed_wording():
+    user = TypedScenarioUser(["不提供退货原因"])
+    action = AgentAction.answer(
+        "订单已确认可退货，请告诉我退货的具体原因。", requires_user_response=True)
+    kind = _requested_input_type(action, None)
+    assert kind == "return_reason"
+    assert user.respond(action, kind) == "不提供退货原因"
+    assert user.responses == []
+
+
+def _grade(task_id, *, success, handoff=False):
+    return {"task_id": task_id, "success": success,
+            "inappropriate_handoff": handoff}
+
+
 def test_progress_gate_enforces_layer_responsibility():
     baseline = {"success_rate": .5, "illegal_state_change_count": 1,
                 "inappropriate_handoff_count": 0, "p95_latency_ms": 100,
                 "protocol_error_count": 0}
-    progress = {**baseline, "p95_latency_ms": 110}
+    progress = {**baseline, "p95_latency_ms": 150}
     records = [{"progress_spans": [{"step": 0}]} for _ in range(40)]
-    assert progress_gate(baseline, progress, records)["passed"]
+    baseline_grades = [_grade(str(index), success=index < 20) for index in range(40)]
+    progress_grades = [_grade(str(index), success=index < 20) for index in range(40)]
+    gate = progress_gate(baseline, progress, baseline_grades, progress_grades, records)
+    assert gate["passed"]
+    assert gate["latency_diagnostic"]["p95_ratio"] == 1.5
     progress["success_rate"] = .475
-    failed = progress_gate(baseline, progress, records)
+    progress_grades[0] = _grade("0", success=False)
+    failed = progress_gate(baseline, progress, baseline_grades, progress_grades, records)
     assert not failed["passed"]
-    assert failed["decision"] == "revert_progress_exposure"
+    assert failed["decision"] == "hold_for_progress_diagnosis"
+    assert failed["paired_diagnostics"]["success_regression_task_ids"] == ["0"]
+
+
+def test_progress_gate_ignores_safer_handoff_on_existing_failure_only():
+    baseline = {"success_rate": .5, "illegal_state_change_count": 1,
+                "inappropriate_handoff_count": 0, "p95_latency_ms": 100,
+                "protocol_error_count": 0}
+    progress = {**baseline, "inappropriate_handoff_count": 1}
+    records = [{"progress_spans": [{"step": 0}]} for _ in range(40)]
+    baseline_grades = [_grade(str(index), success=index < 20) for index in range(40)]
+    progress_grades = [_grade(str(index), success=index < 20, handoff=index == 30)
+                       for index in range(40)]
+    assert progress_gate(baseline, progress, baseline_grades,
+                         progress_grades, records)["passed"]
+
+
+def test_progress_gate_rejects_new_handoff_on_baseline_success():
+    baseline = {"success_rate": .5, "illegal_state_change_count": 1,
+                "inappropriate_handoff_count": 0, "p95_latency_ms": 100,
+                "protocol_error_count": 0}
+    progress = {**baseline}
+    records = [{"progress_spans": [{"step": 0}]} for _ in range(40)]
+    baseline_grades = [_grade(str(index), success=index < 20) for index in range(40)]
+    progress_grades = [_grade(str(index), success=index < 20, handoff=index == 3)
+                       for index in range(40)]
+    gate = progress_gate(baseline, progress, baseline_grades, progress_grades, records)
+    assert not gate["passed"]
+    assert gate["paired_diagnostics"][
+        "new_inappropriate_handoff_on_baseline_success_task_ids"] == ["3"]
 
 
 def test_record_redaction_removes_credentials_without_destroying_order_ids():

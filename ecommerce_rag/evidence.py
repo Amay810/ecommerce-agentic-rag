@@ -159,7 +159,8 @@ def evidence_from_tool_call(
             add_order(order)
     elif tool_name == "create_return_request":
         source_id = f"order:{result.get('order_id') or arguments.get('order_id') or call_id}"
-        for field in ("changed", "order_id", "return_status"):
+        for field in ("changed", "order_id", "return_status", "request_id",
+                      "idempotent_replay", "status"):
             if field in result:
                 add(source_id, "return_transition", f"return.{field}", result.get(field))
     return rows

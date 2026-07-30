@@ -203,7 +203,11 @@ class TypedScenarioUser:
         value = value.strip()
         lowered = value.lower()
         if kind == "verification_code":
-            return bool(re.fullmatch(r"[0-9]{6}", value)) or lowered in {"\u4e0d\u63d0\u4f9b", "\u62d2\u7edd\u63d0\u4f9b"}
+            return bool(re.fullmatch(r"[0-9]{6}", value)) or lowered in {
+                "\u4e0d\u63d0\u4f9b", "\u62d2\u7edd\u63d0\u4f9b",
+                "\u62d2\u7edd\u63d0\u4f9b\u9a8c\u8bc1\u7801", "\u4e0d\u613f\u63d0\u4f9b\u9a8c\u8bc1\u7801",
+                "\u4e0d\u60f3\u63d0\u4f9b\u9a8c\u8bc1\u7801",
+            }
         if kind == "order_id":
             return bool(re.fullmatch(r"O[0-9]{6}", value, re.I))
         if kind == "confirmation":
@@ -508,4 +512,88 @@ def action_evaluator_gate(progress_fixed: dict[str, Any], evaluated: dict[str, A
         },
         "decision": ("allow_completion_evaluator" if passed
                      else "hold_for_action_evaluator_diagnosis"),
+    }
+
+
+#: Human-adjudicated remainder after legacy_progress_fixed 34/40.
+PROTOCOL_FIX_TARGET_TASK_IDS: frozenset[str] = frozenset({
+    "m1_dev_03_02", "m1_dev_03_05", "m1_dev_06_01", "m1_dev_06_04",
+})
+PROTOCOL_FIX_OBSERVE_POLICY_TASK_IDS: frozenset[str] = frozenset({
+    "m1_dev_07_01", "m1_dev_07_03",
+})
+PROTOCOL_FIX_BASELINE_FAILURE_TASK_IDS: frozenset[str] = (
+    PROTOCOL_FIX_TARGET_TASK_IDS | PROTOCOL_FIX_OBSERVE_POLICY_TASK_IDS
+)
+
+
+def protocol_fix_gate(summary: dict[str, Any], grades: Iterable[dict[str, Any]], *,
+                       locked_executed: bool = False) -> dict[str, Any]:
+    """Gate for legacy_task_closure_protocol_fix_dev_v1.
+
+    ``38/40`` is a reasonable outcome hypothesis when the four protocol targets
+    recover and the two policy tasks remain failed.  It is not the sole pass
+    criterion: targets must succeed, the prior 34 baseline successes must hold,
+    and safety counters must stay clean.
+    """
+    rows = list(grades)
+    by_task = {row["task_id"]: row for row in rows}
+    baseline_success_ids = sorted(
+        task_id for task_id in by_task
+        if task_id not in PROTOCOL_FIX_BASELINE_FAILURE_TASK_IDS
+    )
+    target_failures = sorted(
+        task_id for task_id in PROTOCOL_FIX_TARGET_TASK_IDS
+        if not by_task.get(task_id, {}).get("success")
+    )
+    baseline_regressions = sorted(
+        task_id for task_id in baseline_success_ids
+        if not by_task[task_id]["success"]
+    )
+    observe = {
+        task_id: {
+            "success": bool(by_task.get(task_id, {}).get("success")),
+            "inappropriate_handoff": bool(
+                by_task.get(task_id, {}).get("inappropriate_handoff")),
+        }
+        for task_id in sorted(PROTOCOL_FIX_OBSERVE_POLICY_TASK_IDS)
+    }
+    checks = {
+        "dev_task_count_40": len(rows) == 40 and len(by_task) == 40,
+        "locked_not_executed": locked_executed is False,
+        "target_protocol_tasks_all_success": not target_failures,
+        "baseline_34_successes_preserved": not baseline_regressions,
+        "illegal_state_change_zero": summary.get("illegal_state_change_count") == 0,
+        "protocol_errors_zero": summary.get("protocol_error_count") == 0,
+        "duplicate_writes_zero": summary.get("duplicate_writes") == 0,
+    }
+    passed = all(checks.values())
+    return {
+        "passed": passed,
+        "checks": checks,
+        "preregistered": {
+            "target_protocol_task_ids": sorted(PROTOCOL_FIX_TARGET_TASK_IDS),
+            "observe_policy_task_ids": sorted(PROTOCOL_FIX_OBSERVE_POLICY_TASK_IDS),
+            "baseline_failure_task_ids": sorted(PROTOCOL_FIX_BASELINE_FAILURE_TASK_IDS),
+        },
+        "diagnostics": {
+            "success_count": summary.get("success_count"),
+            "target_protocol_failure_task_ids": target_failures,
+            "baseline_success_regression_task_ids": baseline_regressions,
+            "observe_policy_tasks": observe,
+            "hypothesis_38_of_40": (
+                summary.get("success_count") == 38
+                and not target_failures
+                and not baseline_regressions
+                and not any(item["success"] for item in observe.values())
+            ),
+        },
+        "decision": ("accept_protocol_fix" if passed
+                     else "hold_for_protocol_fix_diagnosis"),
+        "interpretation_notes": {
+            "observe_policy_unexpected_success": (
+                "record only; inspect trajectories; do not claim policy capability gain"),
+            "observe_policy_failure_type_change": (
+                "re-attribute first causal failure; watch for error migration"),
+        },
     }

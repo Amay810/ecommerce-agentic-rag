@@ -100,7 +100,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "name": "create_return_request",
         "evidence_bearing": True,
-        "description": "WRITE. Only after eligibility passes and the user explicitly confirms.",
+        "description": "WRITE. Only after eligibility passes and the user explicitly confirms. If an active return request already exists, returns ok=true, changed=false, idempotent_replay=true with the existing request_id.",
         "parameters": {
             "type": "object",
             "properties": {

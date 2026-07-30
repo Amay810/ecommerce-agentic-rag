@@ -239,3 +239,81 @@ def test_record_redaction_removes_credentials_without_destroying_order_ids():
     assert "123456" not in str(payload)
     assert payload["prompt"] == "user supplied [REDACTED] for O000001"
     assert payload["arguments"]["order_id"] == "O000001"
+
+
+def _protocol_grades(*, fail=(), observe_success=()):
+    from ecommerce_rag.legacy_closure_benchmark import (
+        PROTOCOL_FIX_BASELINE_FAILURE_TASK_IDS,
+        PROTOCOL_FIX_OBSERVE_POLICY_TASK_IDS,
+        PROTOCOL_FIX_TARGET_TASK_IDS,
+        build_m1_tasks,
+    )
+    fail = set(fail)
+    observe_success = set(observe_success)
+    grades = []
+    for task in build_m1_tasks():
+        if task.split != "dev":
+            continue
+        success = task.task_id not in fail
+        if task.task_id in PROTOCOL_FIX_OBSERVE_POLICY_TASK_IDS:
+            success = task.task_id in observe_success
+        grades.append({
+            "task_id": task.task_id,
+            "success": success,
+            "inappropriate_handoff": (
+                task.task_id in PROTOCOL_FIX_OBSERVE_POLICY_TASK_IDS and not success),
+            "illegal_state_change": False,
+            "protocol_error": False,
+            "duplicate_writes": 0,
+        })
+    assert len(grades) == 40
+    assert PROTOCOL_FIX_TARGET_TASK_IDS <= PROTOCOL_FIX_BASELINE_FAILURE_TASK_IDS
+    return grades
+
+
+def test_protocol_fix_gate_passes_on_targets_and_preserved_baseline():
+    from ecommerce_rag.legacy_closure_benchmark import protocol_fix_gate
+
+    fail = {"m1_dev_07_01", "m1_dev_07_03"}
+    grades = _protocol_grades(fail=fail)
+    summary = {
+        "success_count": 38,
+        "illegal_state_change_count": 0,
+        "protocol_error_count": 0,
+        "duplicate_writes": 0,
+    }
+    gate = protocol_fix_gate(summary, grades, locked_executed=False)
+    assert gate["passed"]
+    assert gate["diagnostics"]["hypothesis_38_of_40"]
+    assert gate["decision"] == "accept_protocol_fix"
+
+
+def test_protocol_fix_gate_rejects_baseline_regression_and_missed_target():
+    from ecommerce_rag.legacy_closure_benchmark import protocol_fix_gate
+
+    grades = _protocol_grades(fail={"m1_dev_03_02", "m1_dev_01_01", "m1_dev_07_01", "m1_dev_07_03"})
+    summary = {
+        "success_count": 36,
+        "illegal_state_change_count": 0,
+        "protocol_error_count": 0,
+        "duplicate_writes": 0,
+    }
+    gate = protocol_fix_gate(summary, grades, locked_executed=False)
+    assert not gate["passed"]
+    assert "m1_dev_03_02" in gate["diagnostics"]["target_protocol_failure_task_ids"]
+    assert "m1_dev_01_01" in gate["diagnostics"]["baseline_success_regression_task_ids"]
+
+
+def test_protocol_fix_gate_rejects_locked_or_safety_counters():
+    from ecommerce_rag.legacy_closure_benchmark import protocol_fix_gate
+
+    grades = _protocol_grades(fail={"m1_dev_07_01", "m1_dev_07_03"})
+    summary = {
+        "success_count": 38,
+        "illegal_state_change_count": 1,
+        "protocol_error_count": 0,
+        "duplicate_writes": 0,
+    }
+    assert not protocol_fix_gate(summary, grades, locked_executed=False)["passed"]
+    summary["illegal_state_change_count"] = 0
+    assert not protocol_fix_gate(summary, grades, locked_executed=True)["passed"]

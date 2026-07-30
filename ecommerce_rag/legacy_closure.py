@@ -19,6 +19,10 @@ _REASON_REFUSALS = {
     "不提供", "拒绝提供", "不想提供", "不愿提供", "不给",
     "不提供退货原因", "拒绝说明原因", "拒绝提供退货原因",
 }
+_VERIFICATION_REFUSALS = {
+    "不提供", "拒绝提供", "不想提供", "不愿提供", "不给",
+    "拒绝提供验证码", "不愿提供验证码", "不想提供验证码", "拒绝验证",
+}
 
 
 def _return_reason_refused(text: str) -> bool:
@@ -27,6 +31,17 @@ def _return_reason_refused(text: str) -> bool:
         return True
     return bool(re.fullmatch(
         r"(?:我)?(?:不愿|不想|拒绝|不|无法)(?:提供|说明|告知|透露|给)?(?:退货)?原因",
+        normalized,
+    ))
+
+
+def _verification_code_refused(text: str) -> bool:
+    """Typed verification refusals only; free-language expansion is semantic shadow."""
+    normalized = re.sub(r"[\s，。！？,.!?：:]", "", text).lower()
+    if normalized in _VERIFICATION_REFUSALS:
+        return True
+    return bool(re.fullmatch(
+        r"(?:我)?(?:不愿|不想|拒绝|不|无法)(?:提供|给)?(?:六位)?验证码",
         normalized,
     ))
 
@@ -148,6 +163,8 @@ class LegacyTaskProgressReducer:
                     facts["order_id"] = new_order
                 if _CODE.search(content):
                     facts["verification_available"] = True
+                    if facts["blocked_by"] == "verification_code_refused":
+                        facts["blocked_by"] = None
                 reason = _REASON.search(content)
                 if reason and reason.group(1).strip():
                     candidate = reason.group(1).strip()
@@ -160,7 +177,11 @@ class LegacyTaskProgressReducer:
                             facts["blocked_by"] = None
                     facts["confirmation"] = None
                 normalized = content.strip().lower()
-                if requested_input_type == "confirmation":
+                if requested_input_type == "verification_code":
+                    if _verification_code_refused(content) and not _CODE.search(content):
+                        facts["verification_available"] = False
+                        facts["blocked_by"] = "verification_code_refused"
+                elif requested_input_type == "confirmation":
                     if normalized in _AFFIRMATIVE:
                         facts["confirmation"] = True
                     elif normalized in _NEGATIVE:

@@ -167,6 +167,11 @@ class RetailTools:
         reason = "quality_issue" if order["quality_issue"] else "seven_day_return" if eligible else "return_window_expired_or_opened"
         return {"ok": True, "eligible": eligible, "reason": reason, "days_since_delivery": days, "order": order}
 
+    @staticmethod
+    def _return_request_id(order_id: str) -> str:
+        """Stable id for the active return request of an order (no separate request table)."""
+        return f"RR-{order_id}"
+
     def create_return_request(self, order_id: str, user_id: str, verification_code: str, confirmed: bool) -> dict:
         eligibility = self.check_return_eligibility(order_id, user_id, verification_code)
         if not eligibility.get("ok") or not eligibility.get("eligible") or not confirmed:
@@ -175,6 +180,7 @@ class RetailTools:
                 reason = "confirmation_required"
             self.guardrails.append({"tool": "create_return_request", "blocked": True, "reason": reason, "order_id": order_id})
             return {"ok": False, "changed": False, "error": reason}
+        request_id = self._return_request_id(order_id)
         conn = orders.connect(self.db_path)
         try:
             cur = conn.execute(
@@ -182,8 +188,33 @@ class RetailTools:
                 (order_id,),
             )
             conn.commit()
-            changed = cur.rowcount == 1
-            return {"ok": changed, "changed": changed, "order_id": order_id, "return_status": "requested" if changed else "already_requested"}
+            if cur.rowcount == 1:
+                return {
+                    "ok": True,
+                    "changed": True,
+                    "idempotent_replay": False,
+                    "request_id": request_id,
+                    "status": "active",
+                    "order_id": order_id,
+                    "return_status": "requested",
+                }
+            row = conn.execute(
+                "SELECT return_status FROM orders WHERE order_id=?", (order_id,)
+            ).fetchone()
+            if row and row["return_status"] == "requested":
+                # Goal already satisfied: an active return request exists.
+                return {
+                    "ok": True,
+                    "changed": False,
+                    "idempotent_replay": True,
+                    "request_id": request_id,
+                    "status": "active",
+                    "order_id": order_id,
+                    "return_status": "requested",
+                }
+            self.guardrails.append({"tool": "create_return_request", "blocked": True,
+                                    "reason": "return_status_conflict", "order_id": order_id})
+            return {"ok": False, "changed": False, "error": "return_status_conflict", "order_id": order_id}
         finally:
             conn.close()
 

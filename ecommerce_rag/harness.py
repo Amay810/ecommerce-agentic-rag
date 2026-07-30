@@ -111,7 +111,16 @@ class RulePolicy:
         product_ids = re.findall(r"P\d{5}", text, flags=re.I)
         code = _extract(r"(?<![A-Za-z0-9])\d{6}(?!\d)", text)
 
-        if any(x in lower for x in ("不愿提供验证码", "拒绝验证", "转人工")):
+        progress = observation.session.get("task_progress") or {}
+        blocked_by = progress.get("blocked_by")
+        if blocked_by in {
+            "verification_code_refused",
+            "return_reason_refused",
+            "identity_verification_failed",
+            "order_ownership_mismatch",
+        }:
+            return AgentAction.handoff(str(blocked_by), user_id=user_id, order_id=order_id)
+        if any(x in lower for x in ("不愿提供验证码", "拒绝验证", "拒绝提供验证码", "转人工")):
             return AgentAction.handoff("identity_verification_unavailable", user_id=user_id, order_id=order_id)
 
         if last_tool and not last_tool["result"].get("ok", False):
@@ -122,7 +131,11 @@ class RulePolicy:
         if last_tool and last_tool.get("name") in {"search_catalog", "get_product", "compare_products", "get_policy", "get_order"}:
             return AgentAction.answer("已根据工具返回的证据完成处理。")
         if last_tool and last_tool.get("name") == "create_return_request":
+            if last_tool["result"].get("idempotent_replay"):
+                return AgentAction.answer("该订单已有有效退货申请，无需重复提交。")
             return AgentAction.answer("退货申请已提交。")
+        if last_tool and last_tool.get("name") == "escalate_to_human":
+            return AgentAction.answer("已转人工处理。")
         if last_tool and last_tool.get("name") == "check_return_eligibility":
             if not last_tool["result"].get("eligible"):
                 return AgentAction.answer("该订单当前不符合退货条件。")

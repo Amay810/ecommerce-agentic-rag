@@ -118,6 +118,9 @@ class HarnessToolTests(unittest.TestCase):
         ok = tools.call("create_return_request", order_id=order["order_id"], user_id=order["user_id"], verification_code=code, confirmed=True)
         again = tools.call("create_return_request", order_id=order["order_id"], user_id=order["user_id"], verification_code=code, confirmed=True)
         assert ok["changed"] is True and again["changed"] is False
+        assert ok["ok"] is True and again["ok"] is True
+        assert again["idempotent_replay"] is True
+        assert ok["request_id"] == again["request_id"] == f"RR-{order['order_id']}"
 
 
  def test_harness_terminal_state_is_deterministic(self):

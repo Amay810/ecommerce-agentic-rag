@@ -19,13 +19,31 @@ FAILURE_OWNERS = frozenset({
 })
 
 MEMORY_STATUSES = frozenset({"candidate", "approved", "rejected", "quarantined"})
-AGENT_CASE_SCHEMA_VERSION = 1
+CAUSAL_CREDITS = frozenset({
+    "policy", "constraint", "evaluator", "unknown", "none", "seed",
+})
+AGENT_CASE_SCHEMA_VERSION = 2
 
-_CREDENTIAL = re.compile(r"(?<![A-Za-z0-9])[0-9]{6}(?![A-Za-z0-9])")
+# Six-digit codes; do not treat ISO fractional seconds (".123456") as credentials.
+_CREDENTIAL = re.compile(r"(?<![A-Za-z0-9.])[0-9]{6}(?![A-Za-z0-9])")
 _HIDDEN_KEYS = frozenset({
     "category", "gold_doc_ids", "allowed_tools", "forbidden_tools",
     "expected_state", "initial_state", "metadata", "answer_expectations",
     "expected_tool_sequence", "harness_grade",
+})
+# System / provenance fields: never credential-redact string values in place.
+_REDACT_SKIP_KEYS = frozenset({
+    "created_at", "approved_at", "case_id", "task_id", "trajectory_id",
+    "progress_signature", "source_hash", "code_commit", "task_manifest_sha256",
+    "schema_version", "step", "memory_status", "failure_owner", "causal_credit",
+    "approved_by", "approval_reason", "workflow", "tool_result_type",
+    "first_causal_failure", "intervention", "split", "step_outcome",
+})
+# Only these payloads are scanned for credentials at admission time.
+_CREDENTIAL_SCAN_KEYS = frozenset({
+    "user_goal", "evidence_quotes", "chosen_action", "raw_policy_action",
+    "constrained_action", "executed_action", "tool_result", "validated_facts",
+    "terminal_state", "reusable_pattern", "avoid_pattern",
 })
 
 
@@ -59,12 +77,28 @@ class AgentCase:
     memory_approved: bool = False
     created_at: str = ""
     schema_version: int = AGENT_CASE_SCHEMA_VERSION
+    # Decision-level flywheel fields (v1.1).
+    step: int | None = None
+    raw_policy_action: dict[str, Any] = field(default_factory=dict)
+    constrained_action: dict[str, Any] = field(default_factory=dict)
+    executed_action: dict[str, Any] = field(default_factory=dict)
+    step_outcome: str = ""
+    terminal_outcome: dict[str, Any] = field(default_factory=dict)
+    causal_credit: str = "unknown"
+    constraint_remapped: bool = False
+    policy_followed_advice: bool | None = None
+    source_hash: str = ""
+    approved_by: str = ""
+    approved_at: str = ""
+    approval_reason: str = ""
 
     def __post_init__(self) -> None:
         if self.failure_owner not in FAILURE_OWNERS:
             raise ValueError(f"unknown failure_owner: {self.failure_owner}")
         if self.memory_status not in MEMORY_STATUSES:
             raise ValueError(f"unknown memory_status: {self.memory_status}")
+        if self.causal_credit not in CAUSAL_CREDITS:
+            raise ValueError(f"unknown causal_credit: {self.causal_credit}")
         if self.split in {"dev", "locked"} and self.training_approved:
             raise ValueError("formal dev/locked cases must set training_approved=false")
         if self.split in {"dev", "locked"} and (self.memory_approved or self.memory_status == "approved"):
@@ -75,6 +109,12 @@ class AgentCase:
             self.progress_signature = progress_signature_from_progress(self.progress_before)
         if not self.workflow:
             self.workflow = str(self.progress_before.get("workflow") or "")
+        if not self.executed_action and self.chosen_action:
+            self.executed_action = dict(self.chosen_action)
+        if not self.chosen_action and self.executed_action:
+            self.chosen_action = dict(self.executed_action)
+        if not self.source_hash and self.source:
+            self.source_hash = provenance_hash(self.source, self.task_id, self.step)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -83,6 +123,14 @@ class AgentCase:
     def from_dict(cls, payload: dict[str, Any]) -> "AgentCase":
         known = {key: payload[key] for key in cls.__dataclass_fields__ if key in payload}
         return cls(**known)
+
+
+def provenance_hash(source: dict[str, Any], task_id: str | None, step: int | None) -> str:
+    blob = json.dumps(
+        {"source": source or {}, "task_id": task_id, "step": step},
+        ensure_ascii=False, sort_keys=True, default=str,
+    )
+    return hashlib.sha256(blob.encode()).hexdigest()[:24]
 
 
 def progress_signature_from_progress(progress: dict[str, Any]) -> str:
@@ -113,24 +161,48 @@ def redact_text(value: str) -> str:
     return _CREDENTIAL.sub("[REDACTED]", value)
 
 
-def _redact_any(value: Any) -> Any:
+def _redact_any(value: Any, *, parent_key: str | None = None) -> Any:
     if isinstance(value, str):
+        if parent_key in _REDACT_SKIP_KEYS:
+            return value
         return redact_text(value)
     if isinstance(value, list):
-        return [_redact_any(item) for item in value]
+        return [_redact_any(item, parent_key=parent_key) for item in value]
     if isinstance(value, dict):
-        return {key: _redact_any(item) for key, item in value.items()
-                if key not in _HIDDEN_KEYS and key != "verification_code"}
+        out: dict[str, Any] = {}
+        for key, item in value.items():
+            if key in _HIDDEN_KEYS or key == "verification_code":
+                continue
+            if key in _REDACT_SKIP_KEYS:
+                out[key] = item
+            else:
+                out[key] = _redact_any(item, parent_key=key)
+        return out
     return value
 
 
-def contains_credential(value: Any) -> bool:
+def contains_credential(value: Any, *, parent_key: str | None = None) -> bool:
     if isinstance(value, str):
+        if parent_key in _REDACT_SKIP_KEYS:
+            return False
         return _CREDENTIAL.search(value) is not None
     if isinstance(value, list):
-        return any(contains_credential(item) for item in value)
+        return any(contains_credential(item, parent_key=parent_key) for item in value)
     if isinstance(value, dict):
-        return any(contains_credential(item) for item in value.values())
+        for key, item in value.items():
+            if key in _REDACT_SKIP_KEYS:
+                continue
+            if contains_credential(item, parent_key=key):
+                return True
+        return False
+    return False
+
+
+def case_has_credential(case: AgentCase) -> bool:
+    payload = case.to_dict()
+    for key in _CREDENTIAL_SCAN_KEYS:
+        if key in payload and contains_credential(payload[key], parent_key=key):
+            return True
     return False
 
 
@@ -144,6 +216,29 @@ def contains_hidden_fields(value: Any) -> bool:
     return False
 
 
+def _terminal_verifiable(case: AgentCase) -> bool:
+    terminal = case.terminal_state if isinstance(case.terminal_state, dict) else {}
+    outcome = case.terminal_outcome if isinstance(case.terminal_outcome, dict) else {}
+    if "illegal_state_change" in terminal or "illegal_state_change" in outcome:
+        return True
+    if "final_state" in terminal or "return_status" in terminal:
+        return True
+    if outcome.get("success") is not None:
+        return True
+    return False
+
+
+def _has_attribution(case: AgentCase) -> bool:
+    source = case.source or {}
+    if source.get("attribution") or source.get("attribution_source"):
+        return True
+    if case.causal_credit in {"policy", "constraint", "evaluator", "seed"}:
+        return True
+    if case.first_causal_failure:
+        return True
+    return False
+
+
 @dataclass(frozen=True)
 class AdmissionResult:
     accepted: bool
@@ -154,12 +249,23 @@ class AdmissionResult:
         return asdict(self)
 
 
-def admit_for_memory(case: AgentCase, *, approve: bool = False) -> AdmissionResult:
-    """Gate a case into Memory. Dev/locked never approve."""
+def admit_for_memory(
+    case: AgentCase,
+    *,
+    approve: bool = False,
+    approved_by: str = "",
+    approval_reason: str = "",
+    require_paired_replay: bool = True,
+) -> AdmissionResult:
+    """Gate a case into Memory. Candidates are loose; approved is strict.
+
+    Dev/locked never approve. Constraint-remapped raw policy actions are never
+    treated as approvable success experience.
+    """
     reasons: list[str] = []
     if case.split in {"dev", "locked"}:
         return AdmissionResult(False, "quarantined", ("source_split_forbidden",))
-    if contains_credential(case.to_dict()):
+    if case_has_credential(case):
         reasons.append("credential_present")
     if contains_hidden_fields(case.to_dict()):
         reasons.append("hidden_grader_fields")
@@ -173,13 +279,50 @@ def admit_for_memory(case: AgentCase, *, approve: bool = False) -> AdmissionResu
         reasons.append("progress_signature_missing")
     if reasons:
         return AdmissionResult(False, "rejected", tuple(reasons))
-    if approve:
-        return AdmissionResult(True, "approved", ())
-    return AdmissionResult(True, "candidate", ())
+    if not approve:
+        return AdmissionResult(True, "candidate", ())
+
+    # --- strict approval gate ---
+    strict: list[str] = []
+    if not case.success and case.failure_owner == "none":
+        strict.append("failure_owner_required_for_failed_case")
+    if case.success and not _terminal_verifiable(case):
+        strict.append("terminal_state_not_verifiable")
+    if not (case.source_hash or (case.source or {}).get("source_hash")):
+        strict.append("provenance_hash_missing")
+    if not _has_attribution(case):
+        strict.append("attribution_source_missing")
+    if case.constraint_remapped and case.success:
+        # Remap credit belongs to constraint, not raw policy success memory.
+        if case.causal_credit == "policy":
+            strict.append("remapped_success_cannot_credit_policy")
+        raw = case.raw_policy_action or {}
+        chosen = case.chosen_action or {}
+        if raw and chosen and raw == chosen:
+            strict.append("remapped_raw_policy_cannot_be_success_experience")
+    if require_paired_replay and not case.paired_replay_result:
+        strict.append("paired_replay_required")
+    by = approved_by or case.approved_by
+    reason = approval_reason or case.approval_reason
+    if not by:
+        strict.append("approved_by_missing")
+    if not reason:
+        strict.append("approval_reason_missing")
+    if strict:
+        return AdmissionResult(False, "rejected", tuple(strict))
+    return AdmissionResult(True, "approved", ())
 
 
 def sanitize_case(case: AgentCase) -> AgentCase:
     payload = _redact_any(case.to_dict())
+    # Preserve timestamps / ids that must not be credential-mutated.
+    payload["created_at"] = case.created_at
+    if case.approved_at:
+        payload["approved_at"] = case.approved_at
+    if case.source_hash:
+        payload["source_hash"] = case.source_hash
+    if case.case_id:
+        payload["case_id"] = case.case_id
     return AgentCase.from_dict(payload)
 
 
@@ -325,8 +468,10 @@ def build_dev_failure_agent_cases(*, code_commit: str = "") -> list[AgentCase]:
                 "task_manifest_sha256": FROZEN_TASK_SHA256,
                 "code_commit": code_commit,
                 "attribution": "human_adjudicated_from_frozen_manifest_and_closeout",
+                "attribution_source": "dev_failure_case_specs",
                 "locked_executed": False,
                 "audit_only": True,
             },
+            causal_credit="none",
         ))
     return cases

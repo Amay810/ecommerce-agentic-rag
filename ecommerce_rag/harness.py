@@ -23,9 +23,9 @@ from .action_constraint import apply_action_constraint
 from .agent_case_memory import (
     advice_used,
     build_memory_advice,
-    candidate_from_trajectory,
+    candidates_from_trajectory,
     memory_enabled,
-    write_candidate,
+    write_candidates,
 )
 from .legacy_closure import LegacyActionEvaluator, LegacyTaskProgressReducer, TaskProgress
 from .semantic_facts import SessionSemanticFactPipeline, UserTurnContext
@@ -608,32 +608,61 @@ class HarnessRunner:
             observations.append(asdict(observation))
             action, initial_format_retries, policy_trace = decide(
                 observation, phase="initial_action")
+            requested_input_type = _requested_input_type(action, progress)
+            raw_policy_action = {
+                **asdict(action),
+                "requested_input_type": requested_input_type,
+            }
             for span in getattr(self.policy, "last_verification_spans", []) or []:
                 verification_spans.append({"step": step, **copy.deepcopy(span)})
             for span in getattr(self.policy, "last_repair_spans", []) or []:
                 repair_spans.append({"step": step, **copy.deepcopy(span)})
-            requested_input_type = _requested_input_type(action, progress)
             parser_fallback = bool(
                 policy_trace and policy_trace.get("resolution") == "fallback_handoff")
+            # Attribute Memory adoption on the *raw* policy action, before constraint.
+            if memory_spans and memory_spans[-1].get("step") == step:
+                advice_payload = memory_spans[-1].get("memory_advice") or {}
+                followed = advice_used(advice_payload, raw_policy_action)
+                memory_spans[-1].update({
+                    "raw_policy_action": raw_policy_action,
+                    "memory_preferred_actions": list(
+                        advice_payload.get("preferred_actions") or []),
+                    "policy_followed_advice": followed,
+                    "advice_used": followed,
+                })
+            constraint_remapped = False
             if (self.enforce_action_constraint and progress is not None
                     and not parser_fallback):
                 constrained = apply_action_constraint(
                     action, progress, requested_input_type=requested_input_type)
                 constraint_spans.append(constrained.to_span(step=step))
+                constraint_remapped = bool(constrained.remapped)
                 action = constrained.action
                 requested_input_type = _requested_input_type(action, progress)
                 if constrained.fail_closed:
                     failed_closed = True
+            constrained_action = {
+                **asdict(action),
+                "requested_input_type": requested_input_type,
+            }
             if memory_spans and memory_spans[-1].get("step") == step:
-                memory_spans[-1]["chosen_action"] = asdict(action)
-                memory_spans[-1]["advice_used"] = advice_used(
-                    memory_spans[-1].get("memory_advice") or {}, asdict(action))
-                if constraint_spans and constraint_spans[-1].get("step") == step:
-                    memory_spans[-1]["constraint_result"] = {
-                        "remapped": constraint_spans[-1].get("remapped"),
-                        "fail_closed": constraint_spans[-1].get("fail_closed"),
-                        "reason": constraint_spans[-1].get("reason"),
-                    }
+                memory_spans[-1].update({
+                    "constrained_action": constrained_action,
+                    "constraint_remapped": constraint_remapped,
+                    "constraint_result": {
+                        "remapped": constraint_remapped,
+                        "fail_closed": bool(
+                            constraint_spans
+                            and constraint_spans[-1].get("step") == step
+                            and constraint_spans[-1].get("fail_closed")
+                        ),
+                        "reason": (
+                            constraint_spans[-1].get("reason")
+                            if constraint_spans and constraint_spans[-1].get("step") == step
+                            else None
+                        ),
+                    },
+                })
             if self.action_evaluator is not None and progress is not None and not parser_fallback:
                 evaluation = self.action_evaluator.evaluate(
                     action, progress, requested_input_type=requested_input_type)
@@ -682,6 +711,13 @@ class HarnessRunner:
                         action = AgentAction.answer("无法在安全约束内继续处理，已停止。")
                         requested_input_type = None
                         failed_closed = True
+            executed_action = {
+                **asdict(action),
+                "requested_input_type": requested_input_type,
+            }
+            if memory_spans and memory_spans[-1].get("step") == step:
+                memory_spans[-1]["executed_action"] = executed_action
+                memory_spans[-1]["chosen_action"] = executed_action
             actions.append(asdict(action)); history.append({
                 "role": "assistant", "content": action.content, "action": action.action_type,
                 "requires_user_response": action.requires_user_response,
@@ -753,14 +789,14 @@ class HarnessRunner:
         grade_result = grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
         if self.enable_case_writeback:
             try:
-                candidate = candidate_from_trajectory(
+                cases = candidates_from_trajectory(
                     task_id=task.task_id,
                     split=task.split,
                     user_goal=task.user_goal,
                     trajectory=trajectory,
                     grade=grade_result,
                 )
-                write_candidate(candidate, db_path=self.case_memory_db, approve=False)
+                write_candidates(cases, db_path=self.case_memory_db)
             except Exception:
                 pass
         return trajectory, grade_result

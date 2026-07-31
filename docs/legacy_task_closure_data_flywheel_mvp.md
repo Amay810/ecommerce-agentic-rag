@@ -1,9 +1,10 @@
-# Data Flywheel MVP
+# Data Flywheel MVP (v1.1)
 
-Close the loop without expanding the eval suite:
+Engineering loop is closed. **Policy capability improvement from Memory is not
+yet claimed** — attribution and off/on evidence come next.
 
 ```text
-Agent run → Trajectory → AgentCase → admission → Case Memory
+Agent run → Trajectory → decision-level AgentCase → admission → Case Memory
 → similar-state retrieval → memory_advice prior → Policy
 → Action Constraint → candidate writeback
 ```
@@ -12,33 +13,63 @@ Agent run → Trajectory → AgentCase → admission → Case Memory
 
 | Step | Module | Notes |
 |---|---|---|
-| 6A Store | `ecommerce_rag/agent_case_store.py` | SQLite only; no Chroma |
-| 6B Admission | `admit_for_memory` / `sanitize_case` | `dev`/`locked` → quarantined; credentials / hidden grader fields rejected |
-| 6C Retrieval | `query_memory_candidates` + `build_memory_advice` | workflow + pending/guard + allowed intersection |
-| 6D Prior | `HarnessRunner` session `memory_advice` | fail-open; never expands allowlist |
-| 6E Constraint | existing `apply_action_constraint` | final legality |
-| 6F Writeback | `candidate_from_trajectory` | status `candidate` only unless explicitly approved |
-| 6G Demo | `scripts/demo_agent_case_flywheel.py` + `tests/test_agent_case_flywheel.py` | one closed loop |
+| Store | `agent_case_store.py` | SQLite source of truth |
+| Admission | `admit_for_memory` | candidates loose; **approved** strict |
+| Retrieval | `build_memory_advice` | SQL only; never expands allowlist |
+| Prior | harness `memory_advice` | fail-open |
+| Constraint | `apply_action_constraint` | final legality |
+| Writeback | `candidates_from_trajectory` | **one case per decision step** |
+| Demo | `python -m scripts.demo_agent_case_flywheel` | seed → query → list |
 
-## Safety rails
+## Attribution (v1.1)
 
-- Memory off → previous Agent behavior
-- Memory failure does not block the task
-- Memory cannot authorize write tools
-- Formal `dev`/`locked` never `memory_approved`
-- Credentials never enter Memory
-- Illegal state change remains a hard reject on success cases
+Memory spans record, in order:
+
+```text
+raw_policy_action
+memory_preferred_actions
+policy_followed_advice   # computed BEFORE constraint
+constrained_action
+constraint_remapped
+executed_action
+```
+
+`advice_used` is an alias of `policy_followed_advice`. Constraint remaps must not
+be counted as Memory adoption.
+
+Decision cases store `causal_credit`. Remapped steps are never marked
+`success=true` for Memory preferred experience.
+
+## Approval gate (strict)
+
+Approved cases require provenance hash, attribution source, verifiable terminal
+state, `approved_by` / `approved_at` / `approval_reason`, and
+`paired_replay_result`. Failed cases cannot use `failure_owner=none`. Remapped
+raw policy actions cannot be approved as policy success memory.
+
+## Credential hygiene
+
+Redaction/scanning skips system fields (`created_at`, hashes, ids). Six-digit
+matches after `.` (ISO fractional seconds) are ignored.
 
 ## Flags
 
 ```text
-ERAG_AGENT_CASE_DB          # default: logs/agent_cases.db
-ERAG_AGENT_CASE_MEMORY=1    # inject memory_advice
-ERAG_AGENT_CASE_WRITEBACK=1 # persist candidates after each run
+ERAG_AGENT_CASE_DB
+ERAG_AGENT_CASE_MEMORY=1
+ERAG_AGENT_CASE_WRITEBACK=1
 ```
 
-## Done when
+## Demo
 
-One approved train case is retrieved on a similar task, Policy observation receives
-an action prior inside `allowed_next_actions`, Constraint still adjudicates, and
-the run writes a new candidate case. No large-scale score chase required.
+```powershell
+python -m scripts.demo_agent_case_flywheel --db logs/demo_cases.db seed-train-identity
+python -m scripts.demo_agent_case_flywheel --db logs/demo_cases.db query-identity
+python -m scripts.demo_agent_case_flywheel --db logs/demo_cases.db list
+```
+
+## Claim boundary
+
+- Storage / isolation / retrieval / inject / writeback: **accepted as MVP**.
+- “Memory improved Policy”: **not claimed** until Memory off/on shows
+  `policy_followed_advice` gains without constraint credit laundering.

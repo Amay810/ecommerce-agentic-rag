@@ -40,6 +40,10 @@ _SCHEMA = {
     "created_at": "TEXT",
     "user_goal": "TEXT",
     "task_id": "TEXT",
+    "step": "INTEGER",
+    "causal_credit": "TEXT",
+    "constraint_remapped": "INTEGER",
+    "source_hash": "TEXT",
     "payload_json": "TEXT",
 }
 
@@ -79,13 +83,22 @@ def _row_from_case(case: AgentCase) -> dict[str, Any]:
         "source_split": case.split,
         "workflow": case.workflow or progress.get("workflow") or "",
         "progress_signature": case.progress_signature or "",
-        "pending": ",".join(progress.get("pending") or ()),
-        "blocked_by": progress.get("blocked_by"),
+        "pending": ",".join(
+            str(item) for item in (progress.get("pending") or ())
+            if not isinstance(progress.get("pending"), str)
+        ) if not isinstance(progress.get("pending"), str) else str(progress.get("pending") or ""),
+        "blocked_by": (
+            progress.get("blocked_by")
+            if not isinstance(progress.get("blocked_by"), (list, tuple))
+            else ",".join(str(item) for item in progress.get("blocked_by") or ())
+        ),
         "guard_state": progress.get("guard_state"),
         "eligible": "" if progress.get("eligible") is None else str(progress.get("eligible")),
         "cancelled": int(bool(progress.get("cancelled"))),
         "allowed_actions_json": json.dumps(case.allowed_actions, ensure_ascii=False),
-        "chosen_action_json": json.dumps(case.chosen_action, ensure_ascii=False),
+        "chosen_action_json": json.dumps(
+            case.executed_action or case.chosen_action, ensure_ascii=False
+        ),
         "tool_result_type": case.tool_result_type or "",
         "terminal_state_json": json.dumps(case.terminal_state, ensure_ascii=False),
         "success": int(bool(case.success)),
@@ -99,6 +112,10 @@ def _row_from_case(case: AgentCase) -> dict[str, Any]:
         "created_at": case.created_at or "",
         "user_goal": case.user_goal,
         "task_id": case.task_id,
+        "step": case.step,
+        "causal_credit": case.causal_credit,
+        "constraint_remapped": int(bool(case.constraint_remapped)),
+        "source_hash": case.source_hash or "",
         "payload_json": json.dumps(case.to_dict(), ensure_ascii=False),
     }
 

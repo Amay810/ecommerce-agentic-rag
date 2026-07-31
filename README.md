@@ -130,11 +130,12 @@ Closeouts: `docs/legacy_task_closure_protocol_fix_dev_v1_closeout.md`,
 Gains through 40/40 are **not** claimed as base-model training. Locked and LoRA
 are not opened merely to chase this score.
 
-**Data Flywheel MVP** (next stage, not a score chase): SQLite AgentCase store →
-admission/isolation → structured Memory retrieval → `memory_advice` action prior →
-Action Constraint → candidate writeback. Formal `dev`/`locked` cases stay audit-only.
+**Data Flywheel MVP** (engineering loop closed; Memory→Policy gain not yet
+proven): SQLite AgentCase store → admission/isolation → structured Memory
+retrieval → `memory_advice` prior → Action Constraint → decision-level
+candidate writeback. Formal `dev`/`locked` cases stay audit-only.
 Flags: `ERAG_AGENT_CASE_MEMORY`, `ERAG_AGENT_CASE_WRITEBACK` (default off).
-Demo: `scripts/demo_agent_case_flywheel.py`. Spec:
+Demo: `python -m scripts.demo_agent_case_flywheel`. Spec:
 `docs/legacy_task_closure_data_flywheel_mvp.md`.
 
 原始实验历史、SQLite、sidecar 和中间报告冻结在 [`agent-v2-raw`](https://github.com/Amay810/ecommerce-agentic-rag/tree/agent-v2-raw)。发布树移除资产及 SHA-256 记录在 [release manifest](docs/release_manifest_agent_v2.json)。

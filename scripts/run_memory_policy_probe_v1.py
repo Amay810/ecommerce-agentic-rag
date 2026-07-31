@@ -50,6 +50,14 @@ def _git(*args: str) -> str:
     ).stdout.strip()
 
 
+def _resolve_commit(value: str) -> str:
+    """Accept short or full SHAs via git rev-parse."""
+    try:
+        return _git("rev-parse", "--verify", value)
+    except subprocess.CalledProcessError as exc:
+        raise ValueError(f"cannot resolve expected commit: {value}") from exc
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -59,14 +67,18 @@ def main() -> None:
     parser.add_argument("--approved-by", default="probe_operator")
     parser.add_argument(
         "--approval-reason",
-        default="memory_policy_probe_v1 curated train seeds",
+        default=(
+            "memory_policy_probe_v1 curated_contract_seed "
+            "(experience_case=false; not trajectory paired replay)"
+        ),
     )
     parser.add_argument("--max-steps", type=int, default=8)
     args = parser.parse_args()
 
     commit = _git("rev-parse", "HEAD")
-    if commit != args.expected_code_commit:
-        raise ValueError(f"code commit drift: {commit} != {args.expected_code_commit}")
+    expected = _resolve_commit(args.expected_code_commit)
+    if commit != expected:
+        raise ValueError(f"code commit drift: {commit} != {expected}")
     if _git("status", "--porcelain"):
         raise ValueError("memory_policy_probe_v1 requires a clean worktree")
     assert_frozen_manifests()
@@ -136,16 +148,17 @@ def main() -> None:
              if s.get("step") == off["probe_step"]),
             {},
         )
-        preferred = offline_preferred(
-            off_decision.get("progress") or {"workflow": "return_resolution",
-                                             "allowed_next_actions": [task.preferred_action],
-                                             "pending": [],
-                                             "guard_state": "",
-                                             "blocked_by": "user_input"},
+        preferred_payload = offline_preferred(
+            off_decision.get("progress") or {
+                "workflow": "return_resolution",
+                "allowed_next_actions": [task.preferred_action],
+                "pending": [],
+                "guard_state": "",
+                "blocked_by": "user_input",
+            },
             db_path=args.case_db,
+            fallback_expected_action=task.preferred_action,
         )
-        if not preferred:
-            preferred = [task.preferred_action]
         pair = score_pair(
             task=task,
             off_trajectory=off["trajectory"],
@@ -154,7 +167,7 @@ def main() -> None:
             on_grade=on["grade"],
             probe_step_off=off["probe_step"],
             probe_step_on=on["probe_step"],
-            offline_preferred_actions=preferred,
+            offline_preferred_payload=preferred_payload,
         )
         pairs.append(pair)
 

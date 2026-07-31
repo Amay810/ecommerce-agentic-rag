@@ -249,6 +249,15 @@ class AdmissionResult:
         return asdict(self)
 
 
+def is_curated_contract_seed(case: AgentCase) -> bool:
+    source = case.source or {}
+    return (
+        source.get("source_kind") == "curated_contract_seed"
+        and source.get("validation_type") == "deterministic_contract_check"
+        and source.get("experience_case") is False
+    )
+
+
 def admit_for_memory(
     case: AgentCase,
     *,
@@ -261,6 +270,9 @@ def admit_for_memory(
 
     Dev/locked never approve. Constraint-remapped raw policy actions are never
     treated as approvable success experience.
+
+    Curated contract seeds (``source_kind=curated_contract_seed``) may approve
+    without a trajectory paired-replay artifact; they are not experience cases.
     """
     reasons: list[str] = []
     if case.split in {"dev", "locked"}:
@@ -300,7 +312,17 @@ def admit_for_memory(
         chosen = case.chosen_action or {}
         if raw and chosen and raw == chosen:
             strict.append("remapped_raw_policy_cannot_be_success_experience")
-    if require_paired_replay and not case.paired_replay_result:
+    curated = is_curated_contract_seed(case)
+    if curated:
+        if (case.source or {}).get("contract_check_ok") is not True:
+            strict.append("contract_check_required")
+        if case.paired_replay_result:
+            # Refuse to launder curated seeds as trajectory replay evidence.
+            if case.paired_replay_result.get("kind") not in {
+                None, "deterministic_contract_check",
+            }:
+                strict.append("curated_seed_must_not_claim_trajectory_replay")
+    elif require_paired_replay and not case.paired_replay_result:
         strict.append("paired_replay_required")
     by = approved_by or case.approved_by
     reason = approval_reason or case.approval_reason

@@ -54,9 +54,11 @@ terminal success alone (Constraint can rescue both arms).
 
 ### Positive
 
-- ≥4 off-arm raw Policy errors
-- Memory repairs ≥ half of them
-- no `off correct → on wrong` regressions
+- retrieval coverage **24/24** (no fallback credited as retrieval)
+- ≥4 off-arm raw Policy errors (vs task expected action)
+- Memory repairs ≥ half of them, with
+  `retrieval_matched && policy_followed_advice && on matches scoring preferred`
+- no `off correct → on wrong` regressions under retrieval
 - constraint remap count decreases
 - terminal success does not drop
 - illegal state change = 0
@@ -68,19 +70,35 @@ terminal success alone (Constraint can rescue both arms).
 
 ### Negative / inconclusive
 
-- no raw-Policy gain, remap not down, or regressions
+- retrieval coverage < 24/24, or no raw-Policy gain, remap not down, or regressions
 → keep AgentCase Store; leave runtime Memory **default off**;
   do **not** “rescue” with semantic retrieval or LoRA
+
+## Train case evidence type
+
+Probe Memory priors are **`curated_contract_seed`**:
+
+```text
+source_kind=curated_contract_seed
+validation_type=deterministic_contract_check
+experience_case=false
+```
+
+They are not flywheel experience cases and do not claim trajectory paired replay.
 
 ## Run
 
 ```powershell
+$probeCommit = git rev-parse HEAD
+
 python -m scripts.run_memory_policy_probe_v1 `
   --output-dir logs/memory_policy_probe_v1 `
-  --expected-code-commit <HEAD> `
+  --expected-code-commit $probeCommit `
   --case-db logs/memory_policy_probe_v1/cases.db `
   --seed-train
 ```
+
+Short SHAs are accepted (`git rev-parse` resolution).
 
 ## Next only if Positive
 

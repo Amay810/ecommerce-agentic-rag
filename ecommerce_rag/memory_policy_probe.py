@@ -192,6 +192,14 @@ def train_case_from_spec(spec: TrainCaseSpec) -> AgentCase:
         "protocol": PROTOCOL,
         "state_id": spec.state_id,
         "order_tag": spec.order_tag,
+        "source_kind": "curated_contract_seed",
+        "validation_type": "deterministic_contract_check",
+        "experience_case": False,
+        "contract_check_ok": True,
+        "contract_check_note": (
+            "legal ask_user action for progress signature; "
+            "not a trajectory paired-replay experience case"
+        ),
     }
     return AgentCase(
         case_id=spec.case_id,
@@ -221,12 +229,8 @@ def train_case_from_spec(spec: TrainCaseSpec) -> AgentCase:
         progress_signature=progress_signature_from_progress(progress),
         source=source,
         source_hash=provenance_hash(source, spec.case_id, 0),
-        paired_replay_result={
-            "ok": True,
-            "protocol": PROTOCOL,
-            "note": "curated_legal_ask_user_seed",
-            "constraint_remapped": False,
-        },
+        # Empty on purpose: curated contract seeds are not paired-replay evidence.
+        paired_replay_result={},
         created_at=datetime.now(timezone.utc).isoformat(),
     )
 
@@ -418,9 +422,23 @@ def resolve_probe_step(task: MemoryProbeTask, policy: Any) -> int:
     return len(scripted_prefix_for(task))
 
 
-def offline_preferred(progress: dict[str, Any], *, db_path: Path | str) -> list[str]:
+def offline_preferred(
+    progress: dict[str, Any],
+    *,
+    db_path: Path | str,
+    fallback_expected_action: str,
+) -> dict[str, Any]:
+    """Return retrieval truth separately from fallback expected action."""
     advice = build_memory_advice(progress, db_path=db_path)
-    return list(advice.preferred_actions)
+    retrieval_matched = bool(advice.matched and advice.retrieved_case_ids)
+    scoring = list(advice.preferred_actions) if retrieval_matched else []
+    return {
+        "retrieval_matched": retrieval_matched,
+        "scoring_preferred_actions": scoring,
+        "fallback_expected_action": fallback_expected_action,
+        "retrieved_case_ids": list(advice.retrieved_case_ids),
+        "advice_note": advice.note,
+    }
 
 
 def score_pair(
@@ -432,7 +450,7 @@ def score_pair(
     on_grade: GradeResult | dict[str, Any],
     probe_step_off: int,
     probe_step_on: int,
-    offline_preferred_actions: list[str],
+    offline_preferred_payload: dict[str, Any],
 ) -> dict[str, Any]:
     def _grade(g: GradeResult | dict[str, Any]) -> dict[str, Any]:
         return g.to_dict() if hasattr(g, "to_dict") else dict(g)
@@ -440,7 +458,13 @@ def score_pair(
     off_g, on_g = _grade(off_grade), _grade(on_grade)
     off_d = decision_at_step(off_trajectory, probe_step_off) or {}
     on_d = decision_at_step(on_trajectory, probe_step_on) or {}
-    preferred = list(offline_preferred_actions) or [task.preferred_action]
+    retrieval_matched = bool(offline_preferred_payload.get("retrieval_matched"))
+    scoring_preferred = list(
+        offline_preferred_payload.get("scoring_preferred_actions") or [])
+    fallback_expected = str(
+        offline_preferred_payload.get("fallback_expected_action")
+        or task.preferred_action
+    )
     off_raw = off_d.get("raw_policy_action") or {}
     on_raw = on_d.get("raw_policy_action") or {}
     off_key = _action_key(off_raw)
@@ -451,16 +475,42 @@ def score_pair(
     )
     if not allowed:
         allowed = [task.preferred_action]
+    off_matches_scoring = bool(
+        retrieval_matched and off_key and off_key in scoring_preferred)
+    on_matches_scoring = bool(
+        retrieval_matched and on_key and on_key in scoring_preferred)
+    on_followed = on_d.get("policy_followed_advice")
+    # Base-policy error vs task contract (independent of Memory hit).
+    off_matches_expected = bool(off_key and off_key == fallback_expected)
+    on_matches_expected = bool(on_key and on_key == fallback_expected)
+    repaired = bool(
+        retrieval_matched
+        and on_followed is True
+        and not off_matches_scoring
+        and on_matches_scoring
+    )
+    # Regression only when retrieval actually supplied preferred actions.
+    regressed = bool(
+        retrieval_matched
+        and scoring_preferred
+        and off_matches_scoring
+        and not on_matches_scoring
+    )
     return {
         "task_id": task.task_id,
         "state_id": task.state_id,
         "preferred_action": task.preferred_action,
-        "offline_preferred_actions": preferred,
-        "retrieval_coverage": bool(preferred),
+        "retrieval_matched": retrieval_matched,
+        "scoring_preferred_actions": scoring_preferred,
+        "fallback_expected_action": fallback_expected,
+        "retrieved_case_ids": list(
+            offline_preferred_payload.get("retrieved_case_ids") or []),
+        "retrieval_coverage": retrieval_matched,
         "off": {
             "raw_action_key": off_key,
             "raw_in_allowlist": bool(off_key and off_key in allowed),
-            "raw_matches_preferred": bool(off_key and off_key in preferred),
+            "raw_matches_preferred": off_matches_scoring,
+            "raw_matches_fallback_expected": off_matches_expected,
             "constraint_remapped": bool(off_d.get("constraint_remapped")),
             "terminal_success": bool(
                 off_g.get("success") or off_g.get("operational_success")),
@@ -470,32 +520,35 @@ def score_pair(
         "on": {
             "raw_action_key": on_key,
             "raw_in_allowlist": bool(on_key and on_key in allowed),
-            "raw_matches_preferred": bool(on_key and on_key in preferred),
+            "raw_matches_preferred": on_matches_scoring,
+            "raw_matches_fallback_expected": on_matches_expected,
             "constraint_remapped": bool(on_d.get("constraint_remapped")),
-            "policy_followed_advice": on_d.get("policy_followed_advice"),
+            "policy_followed_advice": on_followed,
             "terminal_success": bool(
                 on_g.get("success") or on_g.get("operational_success")),
             "illegal_state_change": bool(on_g.get("illegal_state_change")),
             "probe_step": probe_step_on,
         },
-        "repaired_by_memory": bool(
-            off_key and off_key not in preferred
-            and on_key and on_key in preferred
-        ),
-        "regressed_by_memory": bool(
-            off_key and off_key in preferred
-            and on_key and on_key not in preferred
-        ),
+        "repaired_by_memory": repaired,
+        "regressed_by_memory": regressed,
     }
 
 
 def aggregate_probe(pairs: list[dict[str, Any]]) -> dict[str, Any]:
-    off_errors = [row for row in pairs if not row["off"]["raw_matches_preferred"]]
+    # Off raw errors are vs task contract expected action (identifies underpowered).
+    off_errors = [
+        row for row in pairs
+        if not row["off"].get("raw_matches_fallback_expected",
+                              row["off"].get("raw_matches_preferred"))
+    ]
     repaired = [row for row in pairs if row["repaired_by_memory"]]
     regressed = [row for row in pairs if row["regressed_by_memory"]]
+    retrieval_hits = sum(1 for row in pairs if row.get("retrieval_matched"))
     return {
         "n_pairs": len(pairs),
-        "retrieval_coverage": sum(1 for row in pairs if row["retrieval_coverage"]),
+        "retrieval_coverage": retrieval_hits,
+        "retrieval_matched_count": retrieval_hits,
+        "preregistered_retrieval_coverage": len(pairs),
         "off_raw_errors": len(off_errors),
         "repaired_by_memory": len(repaired),
         "regressed_by_memory": len(regressed),
@@ -522,6 +575,11 @@ def conclude(summary: dict[str, Any]) -> dict[str, Any]:
     off_errors = int(summary["off_raw_errors"])
     repaired = int(summary["repaired_by_memory"])
     regressed = int(summary["regressed_by_memory"])
+    n_pairs = int(summary.get("n_pairs") or 0)
+    retrieval_hits = int(
+        summary.get("retrieval_matched_count", summary.get("retrieval_coverage", 0))
+    )
+    coverage_ok = n_pairs > 0 and retrieval_hits == n_pairs
     remap_down = (
         int(summary["on_constraint_remap_count"])
         < int(summary["off_constraint_remap_count"])
@@ -536,6 +594,15 @@ def conclude(summary: dict[str, Any]) -> dict[str, Any]:
             "policy_memory_gain": "not_identifiable",
             "reason": "fewer than 4 off-arm raw policy errors",
         }
+    if not coverage_ok:
+        return {
+            "verdict": "negative_or_inconclusive",
+            "policy_memory_gain": "negative_or_inconclusive",
+            "reason": (
+                f"retrieval coverage {retrieval_hits}/{n_pairs} "
+                f"< preregistered {n_pairs}/{n_pairs}"
+            ),
+        }
     if (
         repaired * 2 >= off_errors
         and regressed == 0
@@ -548,7 +615,7 @@ def conclude(summary: dict[str, Any]) -> dict[str, Any]:
             "policy_memory_gain": "positive",
             "reason": (
                 "raw policy repairs >= half of off errors; "
-                "no regress; remap down"
+                "no regress; remap down; retrieval 24/24"
             ),
         }
     return {

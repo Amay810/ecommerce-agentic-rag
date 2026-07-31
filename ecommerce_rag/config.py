@@ -17,6 +17,11 @@ POLICY_DATA_PATH = Path(os.environ.get("ERAG_POLICIES", DATA_DIR / "policies.jso
 SUPPORT_DB_PATH = Path(os.environ.get("ERAG_SUPPORT_DB", LOG_DIR / "support.db"))
 SUPPORT_STORE_ENABLED = os.environ.get("ERAG_SUPPORT_STORE", "1") == "1"
 
+# Task-closure AgentCase store / structured Case Memory (SQL only in MVP).
+AGENT_CASE_DB_PATH = Path(os.environ.get("ERAG_AGENT_CASE_DB", LOG_DIR / "agent_cases.db"))
+AGENT_CASE_MEMORY_ENABLED = os.environ.get("ERAG_AGENT_CASE_MEMORY", "0") == "1"
+AGENT_CASE_WRITEBACK_ENABLED = os.environ.get("ERAG_AGENT_CASE_WRITEBACK", "0") == "1"
+
 # Freshness guardrail: e-commerce point-in-time. When an answer asserts price/inventory/policy,
 # require the backing item's `updated_at` to be within MAX_AGE_DAYS, else hedge (downgrade to caution).
 FRESHNESS_GUARD_ENABLED = os.environ.get("ERAG_FRESHNESS_GUARD", "1") == "1"

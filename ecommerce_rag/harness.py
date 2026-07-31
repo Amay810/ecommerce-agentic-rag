@@ -20,9 +20,16 @@ from .orders import connect, seed_database, snapshot
 from .tool_schema import TOOL_SCHEMAS
 from .tools import RetailTools, WRITE_TOOLS
 from .action_constraint import apply_action_constraint
+from .agent_case_memory import (
+    advice_used,
+    build_memory_advice,
+    candidate_from_trajectory,
+    memory_enabled,
+    write_candidate,
+)
 from .legacy_closure import LegacyActionEvaluator, LegacyTaskProgressReducer, TaskProgress
 from .semantic_facts import SessionSemanticFactPipeline, UserTurnContext
-
+from . import config as erag_config
 
 class AgentPolicy(Protocol):
     def act(self, observation: AgentObservation) -> AgentAction: ...
@@ -439,6 +446,9 @@ class HarnessRunner:
                  expose_task_progress: bool = False,
                  action_evaluator: LegacyActionEvaluator | None = None,
                  enforce_action_constraint: bool = False,
+                 enable_case_memory: bool | None = None,
+                 case_memory_db: Path | str | None = None,
+                 enable_case_writeback: bool | None = None,
                  semantic_fact_pipeline_factory: Any | None = None,
                  user_simulator_factory: Any | None = None):
         self.db_path, self.retriever = Path(db_path), retriever
@@ -455,9 +465,14 @@ class HarnessRunner:
         self.expose_task_progress = expose_task_progress
         self.action_evaluator = action_evaluator
         self.enforce_action_constraint = enforce_action_constraint
+        self.enable_case_memory = (
+            memory_enabled() if enable_case_memory is None else enable_case_memory)
+        self.case_memory_db = Path(case_memory_db) if case_memory_db else erag_config.AGENT_CASE_DB_PATH
+        self.enable_case_writeback = (
+            erag_config.AGENT_CASE_WRITEBACK_ENABLED
+            if enable_case_writeback is None else enable_case_writeback)
         self.semantic_fact_pipeline_factory = semantic_fact_pipeline_factory
         self.user_simulator_factory = user_simulator_factory or UserSimulator
-
     def _reset(self, task: TaskSpec) -> None:
         if not task.initial_state: return
         conn = connect(self.db_path)
@@ -494,6 +509,7 @@ class HarnessRunner:
         progress_spans: list[dict[str, Any]] = []
         correction_spans: list[dict[str, Any]] = []
         constraint_spans: list[dict[str, Any]] = []
+        memory_spans: list[dict[str, Any]] = []
         semantic_fact_spans: list[dict[str, Any]] = []
         if semantic_pipeline_init_failed:
             semantic_fact_spans.append({
@@ -553,6 +569,37 @@ class HarnessRunner:
                 progress_spans.append({"step": step, **progress.to_dict()})
                 if self.expose_task_progress:
                     session["task_progress"] = progress.to_dict()
+                if self.enable_case_memory:
+                    try:
+                        advice = build_memory_advice(
+                            progress.to_dict(), db_path=self.case_memory_db)
+                        advice_payload = advice.to_dict()
+                        # Never expand the legal action set.
+                        allowed = set(progress.allowed_next_actions)
+                        advice_payload["preferred_actions"] = [
+                            item for item in advice_payload.get("preferred_actions", [])
+                            if item in allowed
+                        ]
+                        session["memory_advice"] = advice_payload
+                        memory_spans.append({
+                            "step": step,
+                            "memory_query": {
+                                "workflow": progress.workflow,
+                                "pending": list(progress.pending),
+                                "guard_state": progress.guard_state,
+                                "blocked_by": progress.blocked_by,
+                                "allowed_actions": list(progress.allowed_next_actions),
+                            },
+                            "memory_advice": advice_payload,
+                            "retrieved_case_ids": list(advice.retrieved_case_ids),
+                        })
+                    except Exception as exc:  # fail open
+                        memory_spans.append({
+                            "step": step,
+                            "memory_query": {"workflow": progress.workflow},
+                            "memory_advice": {},
+                            "error": f"{type(exc).__name__}: {exc}",
+                        })
             observation = AgentObservation(
                 history[-1].get("content", ""), session,
                 copy.deepcopy(history), copy.deepcopy(TOOL_SCHEMAS), step,
@@ -577,6 +624,16 @@ class HarnessRunner:
                 requested_input_type = _requested_input_type(action, progress)
                 if constrained.fail_closed:
                     failed_closed = True
+            if memory_spans and memory_spans[-1].get("step") == step:
+                memory_spans[-1]["chosen_action"] = asdict(action)
+                memory_spans[-1]["advice_used"] = advice_used(
+                    memory_spans[-1].get("memory_advice") or {}, asdict(action))
+                if constraint_spans and constraint_spans[-1].get("step") == step:
+                    memory_spans[-1]["constraint_result"] = {
+                        "remapped": constraint_spans[-1].get("remapped"),
+                        "fail_closed": constraint_spans[-1].get("fail_closed"),
+                        "reason": constraint_spans[-1].get("reason"),
+                    }
             if self.action_evaluator is not None and progress is not None and not parser_fallback:
                 evaluation = self.action_evaluator.evaluate(
                     action, progress, requested_input_type=requested_input_type)
@@ -690,11 +747,23 @@ class HarnessRunner:
             evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans,
             evidence_conversion_spans=evidence_conversion_spans, progress_spans=progress_spans,
             correction_spans=correction_spans, constraint_spans=constraint_spans,
-            failed_closed=failed_closed,
+            memory_spans=memory_spans, failed_closed=failed_closed,
             rejected_tool_dispatch_attempts=rejected_tool_dispatch_attempts,
             semantic_fact_spans=semantic_fact_spans)
-        return trajectory, grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
-
+        grade_result = grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
+        if self.enable_case_writeback:
+            try:
+                candidate = candidate_from_trajectory(
+                    task_id=task.task_id,
+                    split=task.split,
+                    user_goal=task.user_goal,
+                    trajectory=trajectory,
+                    grade=grade_result,
+                )
+                write_candidate(candidate, db_path=self.case_memory_db, approve=False)
+            except Exception:
+                pass
+        return trajectory, grade_result
 
 class TrajectoryStore:
     def __init__(self, path: Path | str):

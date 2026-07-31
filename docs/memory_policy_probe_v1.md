@@ -88,17 +88,18 @@ They are not flywheel experience cases and do not claim trajectory paired replay
 
 ## Run
 
-```powershell
-$probeCommit = git rev-parse HEAD
+Checkout the intended clean commit, then from the repo root:
 
-python -m scripts.run_memory_policy_probe_v1 `
-  --output-dir logs/memory_policy_probe_v1 `
-  --expected-code-commit $probeCommit `
-  --case-db logs/memory_policy_probe_v1/cases.db `
-  --seed-train
+```bash
+# remove a failed partial run if present
+# rm -rf logs/memory_policy_probe_v1
+
+qsub nscc/run_memory_policy_probe_v1.pbs
 ```
 
-Short SHAs are accepted (`git rev-parse` resolution).
+The PBS script passes `--expected-code-commit "$(git rev-parse HEAD)"`.
+No hardcoded SHA to edit on each run; freeze by checking out the right commit
+before `qsub`. Short SHAs are also accepted by the runner via `git rev-parse`.
 
 ## Next only if Positive
 

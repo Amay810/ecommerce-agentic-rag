@@ -117,6 +117,8 @@ def main() -> None:
             )
             base = LLMPolicy(template.generate, generator_meta=meta)
             policy = ScriptedThenLLMPolicy(prefix, base) if prefix else base
+            # Capture probe responses by default; harness passes TaskSpec positionally.
+            _responses = task.user_responses
             trajectory, grade = HarnessRunner(
                 database,
                 policy=policy,
@@ -127,7 +129,8 @@ def main() -> None:
                 enable_case_memory=memory_on,
                 case_memory_db=args.case_db,
                 enable_case_writeback=False,
-                user_simulator_factory=lambda _t=task: TypedScenarioUser(_t.user_responses),
+                user_simulator_factory=lambda _spec, responses=_responses: TypedScenarioUser(
+                    responses),
             ).run(spec)
             probe_step = resolve_probe_step(task, policy)
             arm_rows[arm] = {

@@ -115,4 +115,19 @@ python -m pytest -q
 - 确定性三次重复不解释为独立随机试验的 pass³；
 - RL gate 未通过，项目不宣称完成 DPO、PPO、GRPO 或 Agent RL。
 
+## Task Closure (legacy return-resolution)
+
+在 Agent v2 冻结之后，return-resolution 任务闭环按责任层推进，正式 dev 结果为：
+
+| Protocol | Result | Ownership of gain |
+|---|---|---|
+| `legacy_progress_fixed` archive | 34/40 | prior baseline |
+| `legacy_task_closure_protocol_fix_dev_v1` | 38/40 | protocol / tool contract |
+| `legacy_task_closure_action_constraint_dev_v1` | 40/40 | runtime action contract |
+
+Closeouts: `docs/legacy_task_closure_protocol_fix_dev_v1_closeout.md`,
+`docs/legacy_task_closure_action_constraint_dev_v1_closeout.md`.
+Gains through 40/40 are **not** claimed as base-model training. Locked and LoRA
+are not opened merely to chase this score.
+
 原始实验历史、SQLite、sidecar 和中间报告冻结在 [`agent-v2-raw`](https://github.com/Amay810/ecommerce-agentic-rag/tree/agent-v2-raw)。发布树移除资产及 SHA-256 记录在 [release manifest](docs/release_manifest_agent_v2.json)。

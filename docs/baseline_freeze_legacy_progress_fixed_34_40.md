@@ -73,6 +73,10 @@ Structured AgentCase rows: `ecommerce_rag/data/agent_cases_dev_failures_v1.jsonl
 - RulePolicy paired replay of the four protocol targets: **verified in unit/integration tests**.
 - Formal Qwen `legacy_task_closure_protocol_fix_dev_v1`: **passed** (`38/40`,
   `accept_protocol_fix`, commit `5fb8448…`, frozen local Qwen3-4B).
-- Remaining `m1_dev_07_01/03`: still `policy` / inappropriate handoff (observe only).
-- Next formal protocol: `legacy_task_closure_action_constraint_dev_v1`
-  (dynamic allowlist remap, no ActionEvaluator correction call).
+  Closeout: `docs/legacy_task_closure_protocol_fix_dev_v1_closeout.md`.
+- Formal Qwen `legacy_task_closure_action_constraint_dev_v1`: **passed** (`38→40`,
+  `accept_action_constraint`, two remaps, zero extra LLM).
+  Closeout: `docs/legacy_task_closure_action_constraint_dev_v1_closeout.md`.
+- Current safe **dev** operating point: `legacy_progress_constrained` at **40/40**.
+- Gains through this point are **protocol + runtime constraint**, not base-model training.
+- Do **not** open LoRA or run locked to chase the 40/40 score.

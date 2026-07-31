@@ -117,6 +117,7 @@ class Trajectory:
     correction_spans: list[dict[str, Any]] = field(default_factory=list)
     constraint_spans: list[dict[str, Any]] = field(default_factory=list)
     memory_spans: list[dict[str, Any]] = field(default_factory=list)
+    decision_spans: list[dict[str, Any]] = field(default_factory=list)
     failed_closed: bool = False
     rejected_tool_dispatch_attempts: int = 0
     semantic_fact_spans: list[dict[str, Any]] = field(default_factory=list)

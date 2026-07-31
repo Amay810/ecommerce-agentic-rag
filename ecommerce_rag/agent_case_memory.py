@@ -191,6 +191,39 @@ def _memory_span_for_step(trajectory: Trajectory, step: int) -> dict[str, Any]:
     return {}
 
 
+def _tool_result_type_for_step(
+    trajectory: Trajectory,
+    index: int,
+    executed: dict[str, Any],
+) -> str:
+    """Align tool_result_type to this decision step; leave empty if unreliable."""
+    action_type = (executed or {}).get("action_type")
+    if action_type not in {"tool_call", "handoff"}:
+        return ""
+    ordinal = -1
+    for i, action in enumerate(trajectory.actions or []):
+        if action.get("action_type") in {"tool_call", "handoff"}:
+            ordinal += 1
+            if i == index:
+                break
+    else:
+        return ""
+    calls = list(trajectory.tool_calls or [])
+    if ordinal < 0 or ordinal >= len(calls):
+        return ""
+    call = calls[ordinal]
+    name = getattr(call, "name", None) or (call.get("name") if isinstance(call, dict) else None)
+    if not name:
+        return ""
+    if action_type == "tool_call":
+        expected = (executed or {}).get("tool_name")
+        if expected and name != expected:
+            return ""
+    elif action_type == "handoff" and name != "escalate_to_human":
+        return ""
+    return str(name)
+
+
 def candidates_from_trajectory(
     *,
     task_id: str,
@@ -300,9 +333,7 @@ def candidates_from_trajectory(
             step_outcome=step_outcome,
             terminal_outcome=dict(terminal_outcome),
             causal_credit=credit,
-            tool_result_type=(
-                trajectory.tool_calls[0].name if trajectory.tool_calls else ""
-            ),
+            tool_result_type=_tool_result_type_for_step(trajectory, index, executed),
             terminal_state=dict(terminal_state),
             success=decision_success,
             first_causal_failure=first_causal_failure,

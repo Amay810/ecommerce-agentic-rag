@@ -510,6 +510,7 @@ class HarnessRunner:
         correction_spans: list[dict[str, Any]] = []
         constraint_spans: list[dict[str, Any]] = []
         memory_spans: list[dict[str, Any]] = []
+        decision_spans: list[dict[str, Any]] = []
         semantic_fact_spans: list[dict[str, Any]] = []
         if semantic_pipeline_init_failed:
             semantic_fact_spans.append({
@@ -718,6 +719,24 @@ class HarnessRunner:
             if memory_spans and memory_spans[-1].get("step") == step:
                 memory_spans[-1]["executed_action"] = executed_action
                 memory_spans[-1]["chosen_action"] = executed_action
+            decision_spans.append({
+                "step": step,
+                "raw_policy_action": raw_policy_action,
+                "memory_preferred_actions": list(
+                    ((memory_spans[-1].get("memory_advice") or {})
+                     if memory_spans and memory_spans[-1].get("step") == step
+                     else {}).get("preferred_actions") or []
+                ),
+                "policy_followed_advice": (
+                    memory_spans[-1].get("policy_followed_advice")
+                    if memory_spans and memory_spans[-1].get("step") == step
+                    else None
+                ),
+                "constrained_action": constrained_action,
+                "constraint_remapped": constraint_remapped,
+                "executed_action": executed_action,
+                "progress": progress.to_dict() if progress is not None else {},
+            })
             actions.append(asdict(action)); history.append({
                 "role": "assistant", "content": action.content, "action": action.action_type,
                 "requires_user_response": action.requires_user_response,
@@ -783,7 +802,8 @@ class HarnessRunner:
             evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans,
             evidence_conversion_spans=evidence_conversion_spans, progress_spans=progress_spans,
             correction_spans=correction_spans, constraint_spans=constraint_spans,
-            memory_spans=memory_spans, failed_closed=failed_closed,
+            memory_spans=memory_spans, decision_spans=decision_spans,
+            failed_closed=failed_closed,
             rejected_tool_dispatch_attempts=rejected_tool_dispatch_attempts,
             semantic_fact_spans=semantic_fact_spans)
         grade_result = grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))

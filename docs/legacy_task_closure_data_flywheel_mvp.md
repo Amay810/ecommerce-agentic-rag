@@ -1,7 +1,14 @@
 # Data Flywheel MVP (v1.1)
 
-Engineering loop is closed. **Policy capability improvement from Memory is not
-yet claimed** — attribution and off/on evidence come next.
+```text
+status: engineering_loop_complete
+policy_gain: unproven
+default: off
+```
+
+Frozen at commit lineage including `47459f9` + attribution hardening.
+**Policy capability gain from Memory is not claimed.** The sole next experiment
+is `docs/memory_policy_probe_v1.md`.
 
 ```text
 Agent run → Trajectory → decision-level AgentCase → admission → Case Memory

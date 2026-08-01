@@ -5,9 +5,12 @@ Frozen causal probe for Policy Memory. Formal `40/40` dev is untouched.
 ```text
 Data Flywheel MVP v1.1
 status: engineering_loop_complete
-policy_gain: unproven   ← this protocol is the sole test of that claim
+policy_gain: negative_or_inconclusive   # memory_policy_probe_v1 closeout
 default: off
 ```
+
+**Closeout:** `docs/memory_policy_probe_v1_closeout.md`. This protocol is
+**closed**. Do not patch coverage/seeds on this id to reverse the verdict.
 
 ## Question
 

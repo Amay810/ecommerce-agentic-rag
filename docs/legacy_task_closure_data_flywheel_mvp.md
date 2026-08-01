@@ -6,9 +6,12 @@ policy_gain: unproven
 default: off
 ```
 
-Frozen at commit lineage including `47459f9` + attribution hardening.
-**Policy capability gain from Memory is not claimed.** The sole next experiment
-is `docs/memory_policy_probe_v1.md`.
+Frozen at commit lineage including `47459f9` + attribution hardening + probe
+scoring freeze `0bd58c5`.
+
+**Policy capability gain from Memory:** tested by `memory_policy_probe_v1` →
+**negative_or_inconclusive** (`docs/memory_policy_probe_v1_closeout.md`).
+Runtime Memory remains default off.
 
 ```text
 Agent run → Trajectory → decision-level AgentCase → admission → Case Memory

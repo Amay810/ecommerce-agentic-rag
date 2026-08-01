@@ -131,10 +131,10 @@ Gains through 40/40 are **not** claimed as base-model training. Locked and LoRA
 are not opened merely to chase this score.
 
 **Data Flywheel MVP v1.1** — frozen as `engineering_loop_complete`,
-`policy_gain: unproven`, default off. Spec:
-`docs/legacy_task_closure_data_flywheel_mvp.md`.
-
-**Next sole hypothesis:** `memory_policy_probe_v1` Memory off/on causal probe
-(`docs/memory_policy_probe_v1.md`). Formal 40/40 remains untouched.
+`policy_gain` tested by `memory_policy_probe_v1` →
+**`negative_or_inconclusive`** (closeout:
+`docs/memory_policy_probe_v1_closeout.md`). Runtime Memory stays **default off**.
+Semantic retrieval and LoRA are **not** opened on this result. Formal 40/40
+remains untouched.
 
 原始实验历史、SQLite、sidecar 和中间报告冻结在 [`agent-v2-raw`](https://github.com/Amay810/ecommerce-agentic-rag/tree/agent-v2-raw)。发布树移除资产及 SHA-256 记录在 [release manifest](docs/release_manifest_agent_v2.json)。

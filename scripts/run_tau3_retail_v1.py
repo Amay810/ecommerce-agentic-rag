@@ -21,7 +21,10 @@ def _first_env(*names: str) -> str | None:
 
 
 def _configure_provider_environment(
-    environment: dict[str, str], agent_model: str, user_model: str
+    environment: dict[str, str],
+    agent_model: str,
+    user_model: str,
+    nl_assertions_model: str,
 ) -> None:
     """Map project endpoint variables to provider variables without persisting keys."""
     shared_key = _first_env("ERAG_LLM_API_KEY", "ARAG_LLM_API_KEY")
@@ -29,6 +32,7 @@ def _configure_provider_environment(
     agent_key = _first_env("TAU3_AGENT_API_KEY") or shared_key
     agent_base = _first_env("TAU3_AGENT_BASE_URL") or shared_base
     user_key = _first_env("TAU3_USER_API_KEY") or shared_key
+    judge_key = _first_env("TAU3_JUDGE_API_KEY")
 
     if agent_model.startswith("openai/"):
         if not agent_key or not agent_base:
@@ -38,6 +42,11 @@ def _configure_provider_environment(
             )
         environment["OPENAI_API_KEY"] = agent_key
         environment["OPENAI_API_BASE"] = agent_base
+    elif agent_model.startswith("hosted_vllm/"):
+        if not agent_base:
+            raise ValueError("hosted_vllm/ agent requires TAU3_AGENT_BASE_URL")
+        environment["HOSTED_VLLM_API_BASE"] = agent_base
+        environment["HOSTED_VLLM_API_KEY"] = agent_key or "local-vllm"
     if user_model.startswith("deepseek/"):
         if not user_key:
             raise ValueError(
@@ -49,6 +58,14 @@ def _configure_provider_environment(
         if not user_key:
             raise ValueError("openai/ user requires TAU3_USER_API_KEY")
         environment["OPENAI_API_KEY"] = user_key
+    if nl_assertions_model.startswith("deepseek/"):
+        if not user_key:
+            raise ValueError("deepseek/ judge requires TAU3_USER_API_KEY")
+        environment["DEEPSEEK_API_KEY"] = user_key
+    elif nl_assertions_model.startswith("openai/"):
+        if not judge_key:
+            raise ValueError("openai/ judge requires TAU3_JUDGE_API_KEY")
+        environment["OPENAI_API_KEY"] = judge_key
 
 
 def main() -> None:
@@ -69,9 +86,15 @@ def main() -> None:
     args = parser.parse_args()
 
     splits = validate_tau2_checkout(args.tau_root)
-    tau_python = args.tau_root / ".venv" / "Scripts" / "python.exe"
-    if not tau_python.exists():
-        raise FileNotFoundError(f"tau2 python not found: {tau_python}")
+    tau_python_candidates = (
+        args.tau_root / ".venv" / "Scripts" / "python.exe",
+        args.tau_root / ".venv" / "bin" / "python",
+    )
+    tau_python = next((path for path in tau_python_candidates if path.exists()), None)
+    if tau_python is None:
+        raise FileNotFoundError(
+            "tau2 python not found in .venv/Scripts/python.exe or .venv/bin/python"
+        )
     launcher_script = Path(__file__).with_name("_tau3_cli_with_frozen_judge.py")
     command = build_tau2_command(
         tau_python=tau_python,
@@ -102,7 +125,12 @@ def main() -> None:
     environment = os.environ.copy()
     environment["PYTHONUTF8"] = "1"
     environment["TAU3_NL_ASSERTIONS_MODEL"] = args.nl_assertions_model
-    _configure_provider_environment(environment, args.agent_model, args.user_model)
+    _configure_provider_environment(
+        environment,
+        args.agent_model,
+        args.user_model,
+        args.nl_assertions_model,
+    )
     started = time.perf_counter()
     subprocess.run(command, cwd=args.tau_root, env=environment, check=True)
     elapsed = time.perf_counter() - started

@@ -1,0 +1,88 @@
+#!/bin/bash
+#PBS -N tau3-retail-base-v1
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=1:mem=64gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o logs/tau3_retail_base_v1.pbs.log
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+
+module load miniforge3/25.3.1
+module load cuda/11.8.0
+module load git/2.39.2
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+
+TAU2_ROOT="${TAU2_ROOT:-/scratch/users/ntu/s250045/tau2-bench}"
+QWEN_MODEL="${QWEN_MODEL:-/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507}"
+VLLM_PORT="${TAU3_VLLM_PORT:-8123}"
+VLLM_MODEL_NAME="Qwen3-4B-Instruct-2507"
+TAU2_COMMIT="fc0055dc4e0a316c3f83133267fbd6faaa770992"
+SAVE_TO="tau3_retail_v1_base_qwen3_4b_k3"
+
+: "${TAU3_USER_MODEL:?Set the frozen user simulator model}"
+: "${TAU3_NL_ASSERTIONS_MODEL:?Set the frozen NL assertion judge model}"
+: "${TAU3_USER_API_KEY:?Set the user simulator provider key}"
+
+test -s "$QWEN_MODEL/config.json"
+test -x "$TAU2_ROOT/.venv/bin/python"
+test "$(git -c safe.directory="$TAU2_ROOT" -C "$TAU2_ROOT" rev-parse HEAD)" = "$TAU2_COMMIT"
+python -c "import vllm; print('vLLM', vllm.__version__)"
+"$TAU2_ROOT/.venv/bin/python" -c "import tau2; print('tau2 import OK')"
+
+mkdir -p logs
+VLLM_LOG="logs/tau3_retail_base_v1_vllm.log"
+python -m vllm.entrypoints.openai.api_server \
+  --model "$QWEN_MODEL" \
+  --served-model-name "$VLLM_MODEL_NAME" \
+  --host 127.0.0.1 \
+  --port "$VLLM_PORT" \
+  --dtype bfloat16 \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.90 \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes \
+  >"$VLLM_LOG" 2>&1 &
+VLLM_PID=$!
+
+cleanup() {
+  kill "$VLLM_PID" 2>/dev/null || true
+  wait "$VLLM_PID" 2>/dev/null || true
+}
+trap cleanup EXIT
+
+ready=0
+for _ in $(seq 1 180); do
+  if python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:${VLLM_PORT}/v1/models', timeout=2)" >/dev/null 2>&1; then
+    ready=1
+    break
+  fi
+  if ! kill -0 "$VLLM_PID" 2>/dev/null; then
+    tail -100 "$VLLM_LOG"
+    exit 1
+  fi
+  sleep 2
+done
+test "$ready" = 1
+
+export TAU3_AGENT_BASE_URL="http://127.0.0.1:${VLLM_PORT}/v1"
+export TAU3_AGENT_API_KEY="local-vllm"
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+
+"$TAU2_ROOT/.venv/bin/python" -m scripts.run_tau3_retail_v1 \
+  --tau-root "$TAU2_ROOT" \
+  --phase base \
+  --agent-model "hosted_vllm/${VLLM_MODEL_NAME}" \
+  --user-model "$TAU3_USER_MODEL" \
+  --nl-assertions-model "$TAU3_NL_ASSERTIONS_MODEL" \
+  --pass-k 3 \
+  --max-steps 200 \
+  --save-to "$SAVE_TO"
+
+RESULT="$TAU2_ROOT/data/simulations/$SAVE_TO/results.json"
+test -s "$RESULT"
+"$TAU2_ROOT/.venv/bin/python" -c "import json; p=json.load(open('$RESULT')); required=('tau2_commit','user_simulator_model','agent_model','pass_k'); assert all(p.get(k) is not None for k in required); assert p['pass_k']==3; assert p['experiment_summary']['valid'] is True"
+cp "$RESULT" "logs/tau3_retail_v1_base_results.json"
+

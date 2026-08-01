@@ -185,6 +185,10 @@ teacher rollout 只在 train 74 上生成
 
 验收：产出含 §3.1 四个必需字段的 Base 结果文件。
 
+实施参数（由任务包 A smoke 后补定）：`pass_k=3`，`max_steps=200`。对应 40×3=120 次会话；按 smoke 线性外推约为 997 万累计上下文 token，实际耗时以 Qwen/vLLM 预检为准。PBS 模板为 `nscc/run_tau3_retail_base_v1.pbs`；它要求在提交前显式设置并冻结 `TAU3_USER_MODEL` 与 `TAU3_NL_ASSERTIONS_MODEL`，不在作业文件中保存 API key。
+
+当前尚未提交作业。2026-08-01 集群只读预检未能执行：本地 SSH 2222 隧道拒绝连接，直连超时，因此集群 Python 版本、vLLM 与 τ³ wheel 状态仍属未知。恢复连接后必须先核对这三项，再决定 Linux wheel 的目标 Python/ABI；不得从 Windows 环境盲目打包上传。
+
 ### 任务包 C：teacher rollout → SFT → 复测
 
 1. 在 train 74 上采集 teacher rollout，环境回放过滤。

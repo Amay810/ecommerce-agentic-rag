@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from ecommerce_rag.tau3_retail_v1 import annotate_results, build_tau2_command
+from scripts.run_tau3_retail_v1 import _configure_provider_environment
 
 
 def test_smoke_is_train_only_and_five_tasks():
@@ -125,3 +126,19 @@ def test_incomplete_results_are_rejected(tmp_path):
             pass_k=1,
             wall_clock_seconds=4.0,
         )
+
+
+def test_hosted_vllm_and_deepseek_use_separate_provider_environment(monkeypatch):
+    monkeypatch.setenv("TAU3_AGENT_BASE_URL", "http://127.0.0.1:8123/v1")
+    monkeypatch.setenv("TAU3_USER_API_KEY", "test-only-key")
+    environment = {}
+    _configure_provider_environment(
+        environment,
+        "hosted_vllm/Qwen3-4B-Instruct-2507",
+        "deepseek/deepseek-chat",
+        "deepseek/deepseek-chat",
+    )
+    assert environment["HOSTED_VLLM_API_BASE"] == "http://127.0.0.1:8123/v1"
+    assert environment["HOSTED_VLLM_API_KEY"] == "local-vllm"
+    assert environment["DEEPSEEK_API_KEY"] == "test-only-key"
+    assert "OPENAI_API_KEY" not in environment

@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -N tau3-agent-v1
-#PBS -q normal
+#PBS -q g1
 #PBS -P personal
-#PBS -l select=1:ncpus=8:ngpus=1:mem=48gb
+#PBS -l select=1:ncpus=16:ngpus=4:mem=110gb
 #PBS -l walltime=08:00:00
 #PBS -j oe
 #PBS -o logs/tau3_agent_v1.pbs.log
@@ -28,29 +28,34 @@ export CUDA_HOME="$(dirname "$(dirname "$(readlink -f "$NVCC_PATH")")")"
 export CUDA_PATH="$CUDA_HOME"
 export CUDA_ROOT="$CUDA_HOME"
 
-# PBS exposes the allocated GPU as a UUID on NSCC, while vLLM 0.10.2 expects a
-# numeric CUDA_VISIBLE_DEVICES entry. Preserve the allocation and map it safely.
+# PBS exposes allocated GPUs as UUIDs on NSCC, while vLLM 0.10.2 expects
+# numeric CUDA_VISIBLE_DEVICES entries. Preserve all four allocations and map
+# each UUID in order.
 if [[ "${CUDA_VISIBLE_DEVICES:-}" == GPU-* ]]; then
-  ALLOCATED_GPU_UUID="$CUDA_VISIBLE_DEVICES"
-  ALLOCATED_GPU_INDEX="$(
-    nvidia-smi --query-gpu=index,uuid --format=csv,noheader |
-      awk -F',' -v target="$ALLOCATED_GPU_UUID" '
-        {
-          gsub(/[[:space:]]/, "", $1)
-          gsub(/[[:space:]]/, "", $2)
-          if ($2 == target) {
-            print $1
-            exit
-          }
-        }
-      '
-  )"
-  if [[ -z "$ALLOCATED_GPU_INDEX" ]]; then
-    echo "Unable to map PBS GPU UUID: $ALLOCATED_GPU_UUID" >&2
+  PBS_GPU_UUIDS="$CUDA_VISIBLE_DEVICES"
+  IFS=',' read -r -a GPU_UUID_ARRAY <<< "$PBS_GPU_UUIDS"
+  GPU_INDEX_ARRAY=()
+  while IFS=',' read -r gpu_index gpu_uuid; do
+    gpu_index="${gpu_index//[[:space:]]/}"
+    gpu_uuid="${gpu_uuid//[[:space:]]/}"
+    for allocated_uuid in "${GPU_UUID_ARRAY[@]}"; do
+      allocated_uuid="${allocated_uuid//[[:space:]]/}"
+      if [[ "$gpu_uuid" == "$allocated_uuid" ]]; then
+        GPU_INDEX_ARRAY+=("$gpu_index")
+      fi
+    done
+  done < <(nvidia-smi --query-gpu=index,uuid --format=csv,noheader)
+  if [[ "${#GPU_INDEX_ARRAY[@]}" -ne 4 ]]; then
+    echo "Expected four PBS GPU UUIDs, mapped ${#GPU_INDEX_ARRAY[@]}: $PBS_GPU_UUIDS" >&2
     exit 1
   fi
-  export CUDA_VISIBLE_DEVICES="$ALLOCATED_GPU_INDEX"
-  echo "PBS_GPU_UUID=$ALLOCATED_GPU_UUID"
+  export CUDA_VISIBLE_DEVICES="$(IFS=,; echo "${GPU_INDEX_ARRAY[*]}")"
+  echo "PBS_GPU_UUIDS=$PBS_GPU_UUIDS"
+fi
+
+if [[ "$(awk -F',' '{print NF}' <<< "${CUDA_VISIBLE_DEVICES:-}")" -ne 4 ]]; then
+  echo "Expected four visible GPUs, got CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-}" >&2
+  exit 1
 fi
 
 QWEN_MODEL="${QWEN_MODEL:-/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507}"
@@ -91,11 +96,13 @@ import vllm
 import vllm._C
 
 assert torch.cuda.is_available(), "PyTorch cannot see the allocated GPU"
+assert torch.cuda.device_count() == 4, torch.cuda.device_count()
 assert vllm.__version__ == "0.10.2", vllm.__version__
 assert transformers.__version__ == "4.57.6", transformers.__version__
 print(f"torch={torch.__version__}")
 print(f"torch_cuda={torch.version.cuda}")
 print(f"gpu={torch.cuda.get_device_name(0)}")
+print(f"gpu_count={torch.cuda.device_count()}")
 print(f"vllm={vllm.__version__}")
 print(f"transformers={transformers.__version__}")
 PY
@@ -117,6 +124,8 @@ exec vllm serve "$QWEN_MODEL" \
   --dtype bfloat16 \
   --max-model-len 32768 \
   --gpu-memory-utilization 0.90 \
+  --data-parallel-size 4 \
+  --tensor-parallel-size 1 \
   --enable-auto-tool-choice \
   --tool-call-parser hermes \
   "${EXTRA_ARGS[@]}"

@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -N tau3-s0-train-v1
-#PBS -q normal
+#PBS -q g1
 #PBS -P personal
-#PBS -l select=1:ncpus=16:ngpus=1:mem=64gb
+#PBS -l select=1:ncpus=16:ngpus=4:mem=110gb
 #PBS -l walltime=12:00:00
 #PBS -j oe
 #PBS -o logs/tau3_s0_train_v1.pbs.log
@@ -14,10 +14,11 @@
 set -euo pipefail
 cd "$PBS_O_WORKDIR"
 
+module purge
+module load cuda/12.8.1
 module load miniforge3/25.3.1
-module load cuda/11.8.0
 module load git/2.39.2
-source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-swift
 
 TAU2_ROOT="${TAU2_ROOT:-/scratch/users/ntu/s250045/tau2-bench}"
 TAU2_PYTHON="$TAU2_ROOT/.venv/bin/python"
@@ -35,6 +36,7 @@ python -c "import swift; print('ms-swift', swift.__version__)"
 "$TAU2_PYTHON" -c "import tau2; print('tau2 import OK')"
 
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+export NPROC_PER_NODE=4
 
 mkdir -p logs data output/tau3_s0_v1
 
@@ -74,7 +76,7 @@ swift sft \
   --lora_rank 8 \
   --lora_alpha 32 \
   --target_modules all-linear \
-  --gradient_accumulation_steps 8 \
+  --gradient_accumulation_steps 2 \
   --save_steps 1 \
   --save_total_limit 2 \
   --logging_steps 1 \

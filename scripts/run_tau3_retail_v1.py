@@ -47,6 +47,14 @@ def _configure_provider_environment(
             raise ValueError("hosted_vllm/ agent requires TAU3_AGENT_BASE_URL")
         environment["HOSTED_VLLM_API_BASE"] = agent_base
         environment["HOSTED_VLLM_API_KEY"] = agent_key or "local-vllm"
+        if agent_base.startswith(("http://127.0.0.1:", "http://localhost:")):
+            no_proxy = environment.get("NO_PROXY") or environment.get("no_proxy", "")
+            entries = [entry.strip() for entry in no_proxy.split(",") if entry.strip()]
+            for host in ("127.0.0.1", "localhost"):
+                if host not in entries:
+                    entries.append(host)
+            environment["NO_PROXY"] = ",".join(entries)
+            environment["no_proxy"] = environment["NO_PROXY"]
     if user_model.startswith("deepseek/"):
         if not user_key:
             raise ValueError(

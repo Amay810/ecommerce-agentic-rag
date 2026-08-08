@@ -141,4 +141,6 @@ def test_hosted_vllm_and_deepseek_use_separate_provider_environment(monkeypatch)
     assert environment["HOSTED_VLLM_API_BASE"] == "http://127.0.0.1:8123/v1"
     assert environment["HOSTED_VLLM_API_KEY"] == "local-vllm"
     assert environment["DEEPSEEK_API_KEY"] == "test-only-key"
+    assert environment["NO_PROXY"] == "127.0.0.1,localhost"
+    assert environment["no_proxy"] == "127.0.0.1,localhost"
     assert "OPENAI_API_KEY" not in environment

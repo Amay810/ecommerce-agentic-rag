@@ -1,0 +1,54 @@
+#!/bin/bash
+#PBS -N tau3-agent-v1
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=8:ngpus=1:mem=48gb
+#PBS -l walltime=08:00:00
+#PBS -j oe
+#PBS -o logs/tau3_agent_v1.pbs.log
+
+# Qwen inference only. Submit without TAU3_ADAPTER for Base, or set
+# TAU3_ADAPTER to the S0 checkpoint directory to serve the LoRA model.
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+
+module load miniforge3/25.3.1
+module load cuda/11.8.0
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+
+QWEN_MODEL="${QWEN_MODEL:-/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507}"
+VLLM_PORT="${TAU3_VLLM_PORT:-8123}"
+TAU3_ADAPTER="${TAU3_ADAPTER:-}"
+BASE_MODEL_NAME="Qwen3-4B-Instruct-2507"
+S0_MODEL_NAME="Qwen3-4B-S0"
+
+test -s "$QWEN_MODEL/config.json"
+mkdir -p logs
+
+HOSTNAME_FQDN="$(hostname -f 2>/dev/null || hostname)"
+echo "TAU3_VLLM_HOST=$HOSTNAME_FQDN"
+echo "TAU3_VLLM_PORT=$VLLM_PORT"
+
+EXTRA_ARGS=()
+if [ -n "$TAU3_ADAPTER" ]; then
+  test -s "$TAU3_ADAPTER/adapter_model.safetensors"
+  EXTRA_ARGS+=(--enable-lora --lora-modules "${S0_MODEL_NAME}=${TAU3_ADAPTER}")
+  echo "TAU3_AGENT_MODEL=hosted_vllm/${S0_MODEL_NAME}"
+else
+  echo "TAU3_AGENT_MODEL=hosted_vllm/${BASE_MODEL_NAME}"
+fi
+
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+
+python -m vllm.entrypoints.openai.api_server \
+  --model "$QWEN_MODEL" \
+  --served-model-name "$BASE_MODEL_NAME" \
+  --host 0.0.0.0 \
+  --port "$VLLM_PORT" \
+  --dtype bfloat16 \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.90 \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes \
+  "${EXTRA_ARGS[@]}"

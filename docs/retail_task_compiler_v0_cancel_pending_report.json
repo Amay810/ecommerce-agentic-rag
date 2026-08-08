@@ -1,0 +1,346 @@
+{
+  "generator_version": "retail_task_compiler.v0.cancel_pending",
+  "attempted": 2,
+  "accepted": 2,
+  "rejected": 0,
+  "contamination_count": 0,
+  "coverage": {
+    "totals": {
+      "blueprints": 2
+    },
+    "axes": {
+      "task_family": {
+        "cancel_pending": 2
+      },
+      "tool_path_length": {
+        "4": 2
+      },
+      "read_write_handoff": {
+        "write": 2
+      },
+      "initial_state_predicate": {
+        "order_status=pending": 2
+      },
+      "required_clarification": {
+        "yes": 2
+      },
+      "user_behavior": {
+        "cooperative": 2
+      },
+      "outcome_class": {
+        "success": 2
+      },
+      "composition_split": {
+        "seen": 2
+      }
+    }
+  },
+  "results": [
+    {
+      "accepted": true,
+      "blueprint": {
+        "task_id": "rtc_v0_cancel_000",
+        "environment": "tau3_retail",
+        "source_policy_version": "tau3_retail.v1.0.1.policy.md",
+        "tool_graph_hash": "40b7d874f56ab14b5c13d4a4d5af6034fa022b08449c155f50ef33ffb6b2bb6c",
+        "db_snapshot_hash": "58d8a3561ed5714d8de0d5ea717b8e1428d09ca41c69c009a8f6450e1978ad97",
+        "initial_state": {
+          "predicates": [
+            "order_status=pending"
+          ],
+          "db": {
+            "users": [
+              {
+                "user_id": "demo_user_001",
+                "email": "demo_user_001@example.com",
+                "first_name": "Demo",
+                "last_name": "User",
+                "zip": "10001"
+              }
+            ],
+            "orders": [
+              {
+                "order_id": "#W9000001",
+                "status": "pending"
+              }
+            ]
+          }
+        },
+        "user_goal": {
+          "op": "cancel_pending_order",
+          "order_id": "#W9000001",
+          "reason": "no longer needed"
+        },
+        "private_user_facts": {
+          "user_id": "demo_user_001",
+          "email": "demo_user_001@example.com",
+          "first_name": "Demo",
+          "last_name": "User",
+          "zip": "10001",
+          "order_id": "#W9000001"
+        },
+        "disclosure_schedule": [
+          {
+            "turn": 0,
+            "reveal": [
+              "identity"
+            ]
+          },
+          {
+            "turn": 1,
+            "reveal": [
+              "order_id",
+              "cancel_reason"
+            ]
+          }
+        ],
+        "required_effects": [
+          {
+            "kind": "order_status_change",
+            "entity": "#W9000001",
+            "field": "status",
+            "before": "pending",
+            "after": "cancelled"
+          }
+        ],
+        "forbidden_effects": [
+          {
+            "kind": "order_status_change",
+            "entity": "#W9000001",
+            "field": "status",
+            "after": "delivered"
+          }
+        ],
+        "acceptable_terminal_conditions": [
+          {
+            "order_id": "#W9000001",
+            "order_status": "cancelled"
+          }
+        ],
+        "reference_tool_paths": [
+          [
+            {
+              "name": "find_user_id_by_email",
+              "arguments": {
+                "email": "demo_user_001@example.com"
+              }
+            },
+            {
+              "name": "get_user_details",
+              "arguments": {
+                "user_id": "demo_user_001"
+              }
+            },
+            {
+              "name": "get_order_details",
+              "arguments": {
+                "order_id": "#W9000001"
+              }
+            },
+            {
+              "name": "cancel_pending_order",
+              "arguments": {
+                "order_id": "#W9000001",
+                "reason": "no longer needed"
+              }
+            }
+          ]
+        ],
+        "behavior_profile": "cooperative",
+        "generator_version": "retail_task_compiler.v0.cancel_pending",
+        "generator_prompt_hash": "ca45a3ca145aaf646cea3d835aebd72d924647b5cefb94b24f7b7ee0fb641198",
+        "task_family": "cancel_pending",
+        "outcome_class": "success",
+        "composition_split": "seen",
+        "provenance": {
+          "tau2_commit": "fc0055dc4e0a316c3f83133267fbd6faaa770992",
+          "compiler": "retail_task_compiler.v0.cancel_pending",
+          "note": "NL utterances are intentionally absent; LLM may only rewrite surface forms later."
+        }
+      },
+      "blueprint_hash": "4a1197c921563f0f7272d3278d108034e3d9c7cd44713b518c5247edc0a3a16f",
+      "contamination": {
+        "contaminated": false,
+        "matched_task_ids": [],
+        "blueprint_signature_hash": "d39cd52c314d2e3f29564414d92d045883fc5ea8ffa2fd16338c600b49a67526",
+        "reason": ""
+      },
+      "replay": {
+        "accepted": true,
+        "reasons": [],
+        "first_effects": [
+          {
+            "kind": "order_status_change",
+            "entity": "#W9000001",
+            "field": "status",
+            "before": "pending",
+            "after": "cancelled"
+          }
+        ],
+        "second_effects": [
+          {
+            "kind": "order_status_change",
+            "entity": "#W9000001",
+            "field": "status",
+            "before": "pending",
+            "after": "cancelled"
+          }
+        ]
+      }
+    },
+    {
+      "accepted": true,
+      "blueprint": {
+        "task_id": "rtc_v0_cancel_001",
+        "environment": "tau3_retail",
+        "source_policy_version": "tau3_retail.v1.0.1.policy.md",
+        "tool_graph_hash": "40b7d874f56ab14b5c13d4a4d5af6034fa022b08449c155f50ef33ffb6b2bb6c",
+        "db_snapshot_hash": "58d8a3561ed5714d8de0d5ea717b8e1428d09ca41c69c009a8f6450e1978ad97",
+        "initial_state": {
+          "predicates": [
+            "order_status=pending"
+          ],
+          "db": {
+            "users": [
+              {
+                "user_id": "demo_user_002",
+                "email": "demo_user_002@example.com",
+                "first_name": "Casey",
+                "last_name": "Lee",
+                "zip": "94107"
+              }
+            ],
+            "orders": [
+              {
+                "order_id": "#W9000002",
+                "status": "pending"
+              }
+            ]
+          }
+        },
+        "user_goal": {
+          "op": "cancel_pending_order",
+          "order_id": "#W9000002",
+          "reason": "ordered by mistake"
+        },
+        "private_user_facts": {
+          "user_id": "demo_user_002",
+          "email": "demo_user_002@example.com",
+          "first_name": "Casey",
+          "last_name": "Lee",
+          "zip": "94107",
+          "order_id": "#W9000002"
+        },
+        "disclosure_schedule": [
+          {
+            "turn": 0,
+            "reveal": [
+              "identity"
+            ]
+          },
+          {
+            "turn": 1,
+            "reveal": [
+              "order_id",
+              "cancel_reason"
+            ]
+          }
+        ],
+        "required_effects": [
+          {
+            "kind": "order_status_change",
+            "entity": "#W9000002",
+            "field": "status",
+            "before": "pending",
+            "after": "cancelled"
+          }
+        ],
+        "forbidden_effects": [
+          {
+            "kind": "order_status_change",
+            "entity": "#W9000002",
+            "field": "status",
+            "after": "delivered"
+          }
+        ],
+        "acceptable_terminal_conditions": [
+          {
+            "order_id": "#W9000002",
+            "order_status": "cancelled"
+          }
+        ],
+        "reference_tool_paths": [
+          [
+            {
+              "name": "find_user_id_by_name_zip",
+              "arguments": {
+                "first_name": "Casey",
+                "last_name": "Lee",
+                "zip": "94107"
+              }
+            },
+            {
+              "name": "get_user_details",
+              "arguments": {
+                "user_id": "demo_user_002"
+              }
+            },
+            {
+              "name": "get_order_details",
+              "arguments": {
+                "order_id": "#W9000002"
+              }
+            },
+            {
+              "name": "cancel_pending_order",
+              "arguments": {
+                "order_id": "#W9000002",
+                "reason": "ordered by mistake"
+              }
+            }
+          ]
+        ],
+        "behavior_profile": "cooperative",
+        "generator_version": "retail_task_compiler.v0.cancel_pending",
+        "generator_prompt_hash": "276e63424f93936468bbd4db6eec8111a293dd77d9b0ab13f052bad86e69a5d1",
+        "task_family": "cancel_pending",
+        "outcome_class": "success",
+        "composition_split": "seen",
+        "provenance": {
+          "tau2_commit": "fc0055dc4e0a316c3f83133267fbd6faaa770992",
+          "compiler": "retail_task_compiler.v0.cancel_pending",
+          "note": "NL utterances are intentionally absent; LLM may only rewrite surface forms later."
+        }
+      },
+      "blueprint_hash": "f905717f7de3779845139c88417fff6ca89ae3c18d0d8aa7278d37438427b5a3",
+      "contamination": {
+        "contaminated": false,
+        "matched_task_ids": [],
+        "blueprint_signature_hash": "95eab02e938cf0f47932217396311c11b83d149791a173af0dbb4efd44347f70",
+        "reason": ""
+      },
+      "replay": {
+        "accepted": true,
+        "reasons": [],
+        "first_effects": [
+          {
+            "kind": "order_status_change",
+            "entity": "#W9000002",
+            "field": "status",
+            "before": "pending",
+            "after": "cancelled"
+          }
+        ],
+        "second_effects": [
+          {
+            "kind": "order_status_change",
+            "entity": "#W9000002",
+            "field": "status",
+            "before": "pending",
+            "after": "cancelled"
+          }
+        ]
+      }
+    }
+  ]
+}

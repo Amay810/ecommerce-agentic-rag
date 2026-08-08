@@ -1,0 +1,209 @@
+{
+  "schema_version": "1.0",
+  "frozen_at": "2026-08-08",
+  "project_model": "Qwen/Qwen3-4B-Instruct-2507",
+  "sources": [
+    {
+      "id": "tau3_retail_v1_0_1",
+      "kind": "executable_environment_and_benchmark",
+      "url": "https://github.com/sierra-research/tau2-bench",
+      "paper": "https://arxiv.org/abs/2506.07982",
+      "license": "MIT",
+      "pin": {
+        "tag": "v1.0.1",
+        "commit": "fc0055dc4e0a316c3f83133267fbd6faaa770992",
+        "local_path": "E:/cv_codex/external/tau2-bench"
+      },
+      "verified_facts": {
+        "retail_train_tasks": 74,
+        "retail_test_tasks": 40,
+        "python": ">=3.12,<3.14",
+        "retail_generator_released_in_pinned_tree": false
+      },
+      "allowed_uses": [
+        "train split teacher and on-policy rollouts",
+        "MIT policy/tool/database as inputs to a separately versioned task compiler",
+        "test split frozen external evaluation"
+      ],
+      "forbidden_uses": [
+        "test task training",
+        "test-failure-driven data generation",
+        "changing simulator or judge between model arms"
+      ],
+      "evidence": [
+        "data/tau2/domains/retail/split_tasks.json",
+        "src/tau2/domains/retail/tools.py",
+        "LICENSE",
+        "pyproject.toml"
+      ]
+    },
+    {
+      "id": "apigen_mt_5k",
+      "kind": "optional_training_dataset",
+      "url": "https://huggingface.co/datasets/Salesforce/APIGen-MT-5k",
+      "paper": "https://arxiv.org/abs/2504.03601",
+      "license": "CC-BY-NC-4.0 plus dataset-card usage terms",
+      "pin": null,
+      "verified_facts": {
+        "rows": 5000,
+        "splits": [
+          "train"
+        ],
+        "domains": [
+          "retail",
+          "airline"
+        ],
+        "format": "ShareGPT-like conversations with tools"
+      },
+      "allowed_uses": [
+        "optional non-commercial research warm-up after terms acceptance",
+        "airline-only ablation after deduplication"
+      ],
+      "forbidden_uses": [
+        "commercial use",
+        "automatic inclusion without accepting terms",
+        "default use of retail subset while tau retail is the main external test"
+      ],
+      "gate": "Record accepted terms, immutable dataset revision, domain filter, and dedup report before use."
+    },
+    {
+      "id": "abcd_v1_1",
+      "kind": "human_customer_service_dialogue",
+      "url": "https://github.com/asappresearch/abcd",
+      "paper": "https://arxiv.org/abs/2104.00783",
+      "license": "MIT",
+      "pin": null,
+      "verified_facts": {
+        "dialogues": "over 10K",
+        "intents": 55,
+        "actions": 30,
+        "official_splits": [
+          "train",
+          "dev",
+          "test"
+        ]
+      },
+      "allowed_uses": [
+        "train-split customer utterance phenomena",
+        "information-disclosure and language-style analysis"
+      ],
+      "forbidden_uses": [
+        "mapping ABCD action labels directly to project tools",
+        "treating ABCD company guidelines as project policy",
+        "using ABCD test to tune user simulation"
+      ]
+    },
+    {
+      "id": "bfcl_multi_turn",
+      "kind": "external_evaluation",
+      "url": "https://github.com/ShishirPatil/gorilla/tree/main/berkeley-function-call-leaderboard",
+      "license": "Apache-2.0 repository license",
+      "pin": null,
+      "allowed_uses": [
+        "frozen cross-domain function-calling evaluation"
+      ],
+      "forbidden_uses": [
+        "training",
+        "checkpoint selection"
+      ],
+      "gate": "P0 must record the exact BFCL release/commit and selected multi-turn categories before the first run."
+    },
+    {
+      "id": "ecom_bench",
+      "kind": "external_ecommerce_evaluation",
+      "url": "https://github.com/XiaoduoAILab/ECom-Bench",
+      "paper": "https://arxiv.org/abs/2507.05639",
+      "license": "Apache-2.0",
+      "pin": null,
+      "verified_facts": {
+        "venue": "EMNLP 2025 main conference",
+        "modalities": "multimodal customer support",
+        "user_simulation": "persona-based dynamic simulation"
+      },
+      "allowed_uses": [
+        "one final transfer evaluation per frozen model arm"
+      ],
+      "forbidden_uses": [
+        "training",
+        "daily debugging",
+        "checkpoint selection"
+      ],
+      "gate": "P0 must pin a commit and verify that all required task assets are present."
+    },
+    {
+      "id": "amazon_reviews_2023_local_5k",
+      "kind": "research_only_environment_corpus",
+      "url": "https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023",
+      "paper": "https://arxiv.org/abs/2403.03952",
+      "license": "No redistributable license assigned by the dataset maintainer; research use only",
+      "pin": {
+        "revision": "2b6d039ed471f2ba5fd2acb718bf33b0a7e5598e",
+        "products": 5000
+      },
+      "allowed_uses": [
+        "local RAG environment facts for academic experiments"
+      ],
+      "forbidden_uses": [
+        "model-weight training target",
+        "redistribution as a newly licensed project dataset",
+        "claiming unrestricted commercial use"
+      ],
+      "evidence": [
+        "scripts/build_amazon_5k.py",
+        "ecommerce_rag/data/amazon_products_5k.stats.json",
+        "https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023/discussions/1"
+      ]
+    },
+    {
+      "id": "native_synthetic_retail_db",
+      "kind": "project_generated_environment",
+      "url": null,
+      "license": "project code license; contains no real customers",
+      "pin": {
+        "seed": 20260720,
+        "users": 1000,
+        "orders": 10000
+      },
+      "allowed_uses": [
+        "task blueprint generation",
+        "deterministic state verification",
+        "SFT and RL environment rollouts"
+      ],
+      "forbidden_uses": [
+        "describing synthetic policies or customers as production data"
+      ],
+      "evidence": [
+        "ecommerce_rag/orders.py",
+        "ecommerce_rag/data/agent_env_v2.db"
+      ]
+    },
+    {
+      "id": "realusersim",
+      "kind": "optional_user_simulation_research",
+      "url": "https://huggingface.co/datasets/Salesforce/RealUserSim",
+      "paper": "https://arxiv.org/abs/2605.20204",
+      "license": "ODC-BY plus dataset-card usage terms",
+      "pin": null,
+      "allowed_uses": [
+        "separate simulator-fidelity study after terms review"
+      ],
+      "forbidden_uses": [
+        "default policy training data",
+        "use without terms review"
+      ],
+      "gate": "Not part of the minimum project path."
+    }
+  ],
+  "frameworks": [
+    {
+      "id": "ms_swift",
+      "url": "https://github.com/modelscope/ms-swift",
+      "license": "Apache-2.0",
+      "requested_tag": "v4.2.2",
+      "release_short_sha": "f279713",
+      "full_commit": "f2797138dba0e224cfff735cd89a528a08d8732a",
+      "gate": "Resolve the tag to a full commit and freeze the CUDA/PyTorch/vLLM lock after NSCC inspection.",
+      "resolved_at": "2026-08-08"
+    }
+  ]
+}

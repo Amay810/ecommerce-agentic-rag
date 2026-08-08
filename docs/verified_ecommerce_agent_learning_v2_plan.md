@@ -1,7 +1,7 @@
 # 可验证电商客服 Agent 学习路线 v2
 
 状态：研究与实施方案；取代“仅以 τ³ 74 条 teacher rollout 做一次 SFT”的主线，但不覆盖旧实验的历史记录。  
-定版日期：2026-08-08。  
+定版日期：2026-08-08（同日修订一次，见 §12.1；修订项均标注日期，涉及 §2.2、§3.2、§4.1、§6.1.1、§6.2、§6.3、§8.2、§9.1、§11）。  
 目标模型：`Qwen/Qwen3-4B-Instruct-2507`。  
 
 ## 0. 证据纪律
@@ -65,6 +65,14 @@
 
 注意：τ² 论文描述了 compositional task generator，但本地 `v1.0.1` 只发现 Telecom 的 `create_tasks.py`，未发现可直接复用的 Retail generator。因此 Retail Task Compiler 是本项目需要实现的新组件，不能声称官方已有现成实现。
 
+补充核对（2026-08-08，见 `docs/retail_task_compiler_portability_assessment.md`）：新组件的规模比初稿设想小。三项仓库事实——
+
+1. `telecom/tasks/utils.py` 的 `compose_tasks` / `SelectionSet` / `BaseTask` / `ComposedTask` 不含任何 telecom 语义，可原样上移为共享组合引擎；
+2. retail `Environment` 不构造 `user_tools` 且拒绝 solo mode，telecom 的 surroundings 相关逻辑既不可移植也不需要；
+3. 114 条 retail 任务的 `reward_basis` 全部是 `[DB]` 或 `[DB, NL_ASSERTION]`，**无一使用 `ENV_ASSERTION` 或 `ACTION`**，而 telecom 的 `TaskManager` 硬编码 `ENV_ASSERTION`。
+
+因此 retail 编译器不需要实现 telecom 中最复杂的 `is_fixed` 谓词与 `env_assertions` 构造，只需产出 `initialization_actions` 加一条参考 `actions` 轨迹，目标终态由官方在干净环境上重放该轨迹并做整库哈希自动导出。骨架估计约 6.5 人日（不含各 task family 的 selection sets）。
+
 ## 3. 数据来源总账
 
 ### 3.1 允许进入训练的数据
@@ -83,6 +91,8 @@
 | 数据源 | 用途 | 不允许的用途 |
 |---|---|---|
 | τ³ Retail test 40 | 领域主评测 | prompt 调参、错误驱动生成、训练、Skill 构建 |
+| τ³ Airline test 20 | 跨域 policy-following 泛化 | 任何训练；不得使用 airline train |
+| τ³ Telecom test 40 | 跨域 policy-following 泛化 | 任何训练；不得使用 telecom train/full |
 | BFCL Multi-Turn | 通用 function-calling 泛化 | 训练或选择领域数据模板 |
 | ECom-Bench | 最终真实电商客服迁移评测；EMNLP 2025，Apache-2.0 | 日常调参或反复查看 test failure |
 | 原生 locked 60 / 退货 40 | 安全和历史回归 | 训练、生成模板、模型能力主张 |
@@ -126,6 +136,14 @@
 这里的 `reference_tool_paths` 是允许路径集合而非强制唯一答案。终态相同且未违反政策的替代路径可以通过。
 
 依据：APIGen-MT 将 blueprint 与完整 trajectory 分离；Magnet 从 function-signature path 构造多轮数据；τ² 使用原子组件生成可验证组合任务。
+
+**环境相关的字段降级（2026-08-08 修订）。** 在 `tau3_retail` 环境下，`required_effects` / `forbidden_effects` / `reference_tool_paths` 三个字段**不作为判分依据**，只作为诊断与覆盖率统计字段：
+
+- 官方 `RewardType.DB` 的语义是"在干净环境上重放参考 `actions` 得到目标库哈希，任何产生等价终态的路径都通过"。这已经提供了"允许路径集合"的语义，且比手工枚举更严格也更省事；
+- `Environment.set_state` 在重放时跳过非 mutating 工具，因此读路径差异天然不影响终态比对；
+- 手写 effects 列表与 DB 哈希不一致时，以 DB 哈希为准，并把该蓝图记为拒收（生成器 bug）。
+
+在 `native_retail` 环境下这三个字段仍然是判分依据，因为原生环境没有等价的整库哈希机制。两套环境分别记分的原则不变。
 
 ### 4.2 工具依赖图
 
@@ -275,10 +293,22 @@ LLM semantic reviewer 只能作为附加过滤器，不能覆盖确定性失败�
 
 | 待决项 | 为什么现在不能填写 | 决定方法 |
 |---|---|---|
-| teacher model/version | 当前没有已确认可用且版本不可变的强模型端点 | 仅在 τ³ train 和自建 dev 上比较候选 teacher 的环境成功率、违规率与成本，选择后记录精确 model ID/date/hash；不看 test 40 |
+| teacher model/version | 当前没有已确认可用且版本不可变的强模型端点 | 仅在 τ³ train 和自建 dev 上比较候选 teacher 的环境成功率、违规率与成本，选择后记录精确 model ID/date/hash；不看 test 40。**并须通过条款 gate，见下** |
 | user simulator model/version | τ³ 分数对 simulator 很敏感，当前环境变量未给出 | 沿用一次 P0 smoke 通过的固定模型，并写入所有结果；中途更换则整组结果无效 |
-| NL assertion judge | τ³ v1.0.1 单独调用 judge，不能从 agent 配置推断 | P0 明确设置并冻结模型 ID；Base/SFT/RL 完全一致 |
+| NL assertion judge | τ³ v1.0.1 单独调用 judge，不能从 agent 配置推断 | P0 明确设置并冻结模型 ID；Base/SFT/RL 完全一致。暴露面见下 |
 | NSCC GPU/CUDA/vLLM | 之前 SSH 预检未完成 | 恢复连接后只读查询硬件、driver、CUDA、Python；再选择 ms-swift 官方兼容组合并生成 lock |
+
+**teacher 条款 gate（新增）。** 本文对 APIGen 的 CC-BY-NC 和 Amazon 的无许可证都设了使用门槛，teacher 输出必须适用同一标准：多数闭源 API 供应商的服务条款限制将其输出用于训练模型。因此 teacher 候选必须先记录其服务条款对模型蒸馏的立场；条款不允许或不明确的候选一律排除。选择开放权重强模型可彻底绕开该问题，是默认倾向。
+
+**NL judge 暴露面已量化（`docs/tau3_split_audit.json`）。** `NLAssertionsEvaluator` 在 `nl_assertions` 为空时短路返回 reward 1.0 且不调用 LLM。实测非空 `nl_assertions` 的任务数：
+
+| 域 | test 任务数 | 实际触发 judge |
+|---|---:|---:|
+| Retail | 40 | 11 |
+| Airline | 20 | 0 |
+| Telecom | 40 | 0 |
+
+即整个外部测试套件中只有 11 个任务会调用 judge。judge 仍需冻结（reward 是各分量乘积，judge 只会拉低这 11 题），但它既不是主要成本项也不是主要方差来源。这一结论允许把 P0 的注意力从 judge 转移到 user simulator。
 
 teacher 选择不是“用最贵模型即可”。候选必须能输出标准 tool calls，并在 train-only calibration 上真实执行；没有一个候选明显强于学生时，暂停 teacher-distillation，改用环境成功的 on-policy rejection sampling。
 
@@ -288,12 +318,23 @@ teacher 选择不是“用最贵模型即可”。候选必须能输出标准 to
 
 ```text
 B0  Base Qwen3-4B
+S0  τ³ train on-policy rejection sampling（环境验证成功轨迹）
 S1  τ³ train teacher trajectories
-S2  τ³ train + verified self-built trajectories
+S2  S1 + verified self-built trajectories
 S3  S2 + optional APIGen Airline warm-up
 ```
 
 S3 只有在数据许可 gate 与 BFCL 去重通过后才运行。
+
+**S0 是新增的一等实验臂，且排在 P1 之前（2026-08-08 修订）。** 初稿只把 on-policy rejection sampling 写成"没有候选 teacher 明显强于学生"时的退路。改为一等公民的理由：
+
+- 它不需要任何新组件。74 条官方 train task 本身就是带可验证终态的蓝图，反复采样后用官方 grader 筛 `reward == 1.0` 即可，工程成本约为 P1 的百分之一；
+- 它先行回答那个决定后续全部投入的问题：**Qwen3-4B 在这个环境里能否被 SFT 推动。** S0 曲线持平意味着编译器建在沙上；
+- 它同时产出 P1 最需要的输入：train split 中基座策略从未成功过的任务集合，即覆盖盲区的直接证据。
+
+S0 的天花板是已知的——74 条任务多样性有限，且自采样成功轨迹对基座本就不会的任务零信号。该天花板正是 P1 的论证，不是跳过 S0 的理由。
+
+实现：`scripts/build_s0_rejection_sft.py`。该脚本刻意不自行 rollout，生成与判分全部交给官方 runner，以保证工具观察和 Reward 无歧义地来自环境。
 
 ms-swift 官方 Qwen3-4B 示例的 `LoRA rank=8, alpha=32, lr=1e-4`只作为 smoke 起点，不冒充本任务最优参数。正式超参数在自建 dev 上选择并冻结；τ³ test 不参与选择。`max_length`由训练轨迹 token 长度分布和显存预检确定，并报告删除/截断比例，不能静默截断工具链。
 
@@ -320,6 +361,15 @@ R =  0  其他合法但未完成的轨迹
 ```
 
 身份验证、显式确认、禁止写入等过程条件由 verifier 转成 hard validity gate。轮数、token 和 handoff 只作诊断指标，不在主 Reward 中人为调权。
+
+**方差塌缩的预注册对策（新增）。** 前置条件 4 只规定了检查，没有规定检查失败后怎么办。以 Qwen3-4B 的水平和 τ³ retail 的难度，多数 group 很可能全为 0（合法但未完成），group-relative advantage 归零，训练无梯度。这是多轮 agent RL 最常见的失败模式，必须提前定好对策，否则 P4 会在 P1 已经完工之后才卡死。
+
+需要澄清一个概念区分：本文禁止的是**任意加权**，不是**任何 shaping**。由环境确定性计算的子目标进度不属于任意加权，与 CM2 那类 LLM checklist judge 有本质区别。据此预注册两条对策，按顺序启用：
+
+1. **确定性子目标进度项。** 以蓝图 `required_effects` 中已满足的比例作为 `(0, 1)` 区间内的稠密项，仅在 group 内全部 rollout 的主 Reward 相同时生效。该值完全由环境状态计算，不涉及任何 judge。违规判定 `-1` 优先级不变，一旦触发即覆盖进度项。
+2. **难度课程。** 用编译器的 `tool-path length` 轴从短路径任务起步建立方差，再逐步引入长路径任务。
+
+两条都不改变主 Reward 的定义，只影响 advantage 的可计算性。若两条都无法产生方差，则如实关闭 GRPO 路线并只报告 SFT 结果。
 
 第二轮消融才引入 CM2 风格 checklist reward，逐条记录 checklist 来源和 judge；不能把它和主结果混写。训练算法先用标准 GRPO；只有发现长度偏置或 group normalization 问题，才预注册 Dr.GRPO/GSPO 等替代，不能看 test 分数后换算法。
 
@@ -381,8 +431,12 @@ Skill 只从 train 轨迹构建。流程：
 
 ### 8.2 外部泛化
 
-1. **BFCL Multi-Turn**：只测 Base、S2、R1，证明工具能力是否跨出电商环境；使用官方 executable/state-based evaluator。
-2. **ECom-Bench**：最终冻结 checkpoint 后各跑一次；报告官方 action/search/output/time 指标和 pass 指标；不用于选模型。
+1. **τ³ Airline test 20 + Telecom test 40**（新增，列为主要泛化证据）。同一个已 pin 的 MIT 仓库、同一套 runner 与判分实现、同一个 user simulator，零额外工程成本，零污染风险（训练只用 retail train）。回答的问题比 BFCL 更贴近本项目形态：在 retail 上做的可验证 SFT，是提升了跨域的 policy-following 与工具使用，还是只学会了 retail 的套路。
+
+   两域的 `nl_assertions` 全部为空，判分 100% 确定性，无 judge 方差。禁止使用其 train split。
+
+2. **BFCL Multi-Turn**：只测 Base、S2、R1，证明工具能力是否跨出客服环境；使用官方 executable/state-based evaluator。
+3. **ECom-Bench**：最终冻结 checkpoint 后各跑一次；报告官方 action/search/output/time 指标和 pass 指标；不用于选模型。
 
 ### 8.3 原生安全回归
 
@@ -420,6 +474,16 @@ Skill 只从 train 轨迹构建。流程：
 ### 9.1 为什么不再用固定“40 条证明能力”
 
 40 个外部 test task 仍可用于可比 benchmark，但估计精度有限。项目必须报告置信区间，不把两题变化的 `5pp` 自动解释成稳定提升。
+
+**外部样本量问题已基本解决（2026-08-08 修订）。** §9.2 的粗略计算给出"95% 置信、区间半宽 ±10% 约需 97 个独立任务"。实测三域 test split 合计：
+
+```text
+Retail 40 + Airline 20 + Telecom 40 = 100 个独立外部任务
+```
+
+恰好越过该门槛，且全部来自同一 pin 住的 MIT 仓库，无需任何额外构建。因此主要能力结论应基于这 100 题的合并配对分析，Retail 40 作为其中的领域主报告单独列出。这不改变"40 题单独不足以承担完整能力结论"的判断，而是提供了不必依赖自建数据补足的解法。
+
+跨域合并时须注意：三域难度与工具面不同，合并统计只用于配对差值（同任务同 seed 下 Base 与 SFT 的差异），不报告跨域绝对成功率的平均。
 
 ### 9.2 自建评测集如何确定规模
 
@@ -467,10 +531,43 @@ n ≈ 1.96² × p(1-p) / e²
 产物：`data_source_manifest.json`、依赖 lock、benchmark commits、许可证快照。  
 验收：每条数据能回答“来自哪里、允许做什么、是否接触 test”。
 
+P0 新增四项验收（2026-08-08）：
+
+**P0-a　chat template 一致性。** 训练侧渲染与服务侧渲染必须逐字节一致。τ³ 通过 litellm 的 `tools` 参数把工具 schema 交给 OpenAI 兼容端点，实际 prompt 字符串由 vLLM 套用模型自带 chat template 产生；ms-swift 训练时用自己的 template 实现渲染。两者不一致会得到"dev 涨、test 掉"，且极难事后定位。
+
+工具：`scripts/check_template_parity.py`。它渲染同一条多轮工具调用会话，逐字节 diff，并输出 ms-swift 的 label 掩码分段，把 §5 的掩码规则从假设变成可机器校验的事实。ms-swift 的 import 接口须先对 pin 住的 commit 核实。
+
+**P0-b　成本模型。** 产出 `docs/tau3_eval_cost_model.json`，覆盖全部实验臂 × 全部外部域 × pass^k。工具：`scripts/estimate_tau3_eval_cost.py`，任务数与 judge 暴露从 `docs/tau3_split_audit.json` 读取而非手抄。先验 token 参数须在 smoke 后用 `--from-smoke` 替换为实测值。
+
+当前先验下的量级：test split、k=4、4 个实验臂，外部套件合计约 `99M` prompt token、`2.9M` output token，其中 judge 仅占每臂 `0.39M`。agent 侧跑本地 vLLM，真正的付费项是 user simulator，成本控制应针对它。
+
+**P0-c　B0 外部基线提前到 P0。** 原 P3 验收写的是"自建 dev 提升后才允许第一次 τ³ test"，这条规则的本意（不让 test 参与迭代）正确，但把 Base 的 test 数字也一起推迟了。测一次 Base 不构成污染，且能提前验证整条评测链路、量出真实成本、确认任务是否在 4B 射程内。
+
+纪律由"什么时候可以测"改为"谁能看到什么"：P0 跑一次 B0，评测脚本只输出聚合指标与置信区间；逐题 trace 写入明确标记为 quarantine 的目录，除最终报告阶段外不打开。
+
+**P0-d　split 审计。** 产物 `docs/tau3_split_audit.json`，由 `scripts/audit_tau3_retail_split.py` 生成。已完成，结论已回写至 §2.2、§6.1.1、§8.2、§9.1。
+
+### P0.5：S0 rejection sampling
+
+产物：`data/s0_rejection_sft.jsonl` 及其 manifest、S0 checkpoint、S0 vs B0 的自建 dev 对比、train split 覆盖盲区清单。  
+验收：产出轨迹 100% 来自官方 runner 且 `reward == 1.0`；拒收原因可统计；**S0 相对 B0 在自建 dev 上的增益方向明确**（正、零或负都算通过，但必须有结论）。
+
+该阶段是 P1 的 go/no-go 依据：若 S0 完全无法推动模型，需先排查训练链路（优先怀疑 P0-a）而不是继续建编译器。
+
 ### P1：Retail Task Compiler v0
 
 产物：tool graph、blueprint schema、generator、deterministic replay verifier、coverage report。  
-验收：生成任务均可从干净 snapshot 重放两次；required/forbidden effects 与 DB diff 一致；test contamination 为 0。
+验收：生成任务均可从干净 snapshot 重放两次；required/forbidden effects 与 DB diff 一致；test contamination 为 0；**编译产出的任务能被官方 `EnvironmentEvaluator` 以 `reward_basis=[DB]` 打出满分**。
+
+**竖片交付（2026-08-08 修订）。** P1 不做横切。先选 2 个 task family 把 compiler → trajectory factory → SFT 整条链路端到端打通，产出约 20 条蓝图跑完 P2/P3 拿到第一个真实 dev 增益，再回头补覆盖率。原顺序要求在没有任何模型反馈的情况下先完成最大的一块工程，风险不在正确性而在吞吐。
+
+首个竖片选 pending-order 修改族（`modify_pending_order_items` + `modify_pending_order_payment`），依据 `docs/tau3_split_audit.json` 的参考动作直方图：
+
+- `modify_pending_order_payment` 在 train 74 中出现 **0** 次，在 test 40 中出现 1 次。官方 train split 对这个写工具零覆盖，这是编译器价值最直接的证据；
+- `modify_pending_order_items` 的 train:test 为 22:17，明显低于其余写工具的 2:1 以上，说明 test 相对偏重该 family；
+- 两者共享同一套前置条件（订单处于 pending、支付方式归属校验），selection set 可复用。
+
+移植细节见 `docs/retail_task_compiler_portability_assessment.md`。
 
 ### P2：Trajectory Factory
 
@@ -479,8 +576,8 @@ n ≈ 1.96² × p(1-p) / e²
 
 ### P3：SFT
 
-产物：B0/S1/S2（可选 S3）、训练配置、token/coverage learning curve。  
-验收：自建 dev 提升且安全不退化后，才允许第一次 τ³ test。
+产物：B0/S0/S1/S2（可选 S3）、训练配置、token/coverage learning curve。  
+验收：自建 dev 提升且安全不退化后，才允许对 **SFT 臂**做 τ³ test。B0 的 test 数字已在 P0-c 取得，本阶段不重跑 B0，直接复用其冻结结果做配对。
 
 ### P4：GRPO
 
@@ -503,6 +600,18 @@ n ≈ 1.96² × p(1-p) / e²
 - 不在没有 GPU/依赖预检时承诺训练时长和显存；
 - 不把模拟用户结果称为真实用户满意度；
 - 不把 Skill、Guardrail 或 Memory 的增益记到模型权重上。
+
+## 12.1 本方案的配套产物
+
+| 产物 | 路径 | 状态 |
+|---|---|---|
+| split 审计脚本 | `scripts/audit_tau3_retail_split.py` | 已跑通 |
+| split 审计结果 | `docs/tau3_split_audit.json` | 已生成 |
+| Retail Compiler 移植评估 | `docs/retail_task_compiler_portability_assessment.md` | 已完成 |
+| template 一致性 gate | `scripts/check_template_parity.py` | 已写，待装 ms-swift 后运行 |
+| 评测成本模型 | `scripts/estimate_tau3_eval_cost.py` | 已跑通（先验值） |
+| 成本模型结果 | `docs/tau3_eval_cost_model.json` | 已生成，待 smoke 实测替换 |
+| S0 导出器 | `scripts/build_s0_rejection_sft.py` | 已写，待 runner 产出结果后运行 |
 
 ## 13. 官方来源
 

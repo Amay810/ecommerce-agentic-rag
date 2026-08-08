@@ -1,0 +1,70 @@
+{
+  "assumptions": {
+    "system_prompt_tokens": 3500,
+    "tool_schema_tokens": 1800,
+    "tokens_per_turn_growth": 320,
+    "agent_output_tokens": 180,
+    "user_sim_prompt_tokens": 900,
+    "user_sim_output_tokens": 60,
+    "judge_output_tokens": 400,
+    "turn_multiplier": 2.2
+  },
+  "k": 4,
+  "arms": [
+    "B0",
+    "S1",
+    "S2",
+    "R1"
+  ],
+  "split": "test",
+  "per_domain_per_arm": [
+    {
+      "domain": "retail",
+      "split": "test",
+      "num_tasks": 40,
+      "judge_gated": 11,
+      "turns_per_task": 10.16,
+      "agent_prompt_tokens": 10784000,
+      "agent_output_tokens": 288000,
+      "user_prompt_tokens": 1232000,
+      "user_output_tokens": 48000,
+      "judge_prompt_tokens": 376288,
+      "judge_output_tokens": 17600
+    },
+    {
+      "domain": "airline",
+      "split": "test",
+      "num_tasks": 20,
+      "judge_gated": 0,
+      "turns_per_task": 6.38,
+      "agent_prompt_tokens": 2928000,
+      "agent_output_tokens": 86400,
+      "user_prompt_tokens": 292800,
+      "user_output_tokens": 14400,
+      "judge_prompt_tokens": 0,
+      "judge_output_tokens": 0
+    },
+    {
+      "domain": "telecom",
+      "split": "test",
+      "num_tasks": 40,
+      "judge_gated": 0,
+      "turns_per_task": 8.91,
+      "agent_prompt_tokens": 8217600,
+      "agent_output_tokens": 230400,
+      "user_prompt_tokens": 883200,
+      "user_output_tokens": 38400,
+      "judge_prompt_tokens": 0,
+      "judge_output_tokens": 0
+    }
+  ],
+  "totals": {
+    "external_tasks_per_arm": 100,
+    "rollouts_per_arm": 400,
+    "prompt_tokens_per_arm": 24713888,
+    "output_tokens_per_arm": 723200,
+    "judge_tokens_per_arm": 393888,
+    "prompt_tokens_all_arms": 98855552,
+    "output_tokens_all_arms": 2892800
+  }
+}

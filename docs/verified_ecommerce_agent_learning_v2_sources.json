@@ -17,25 +17,61 @@
       "verified_facts": {
         "retail_train_tasks": 74,
         "retail_test_tasks": 40,
+        "airline_train_tasks": 30,
+        "airline_test_tasks": 20,
+        "telecom_train_tasks": 74,
+        "telecom_test_tasks": 40,
+        "telecom_full_tasks": 2285,
         "python": ">=3.12,<3.14",
-        "retail_generator_released_in_pinned_tree": false
+        "retail_generator_released_in_pinned_tree": false,
+        "telecom_generator_released_in_pinned_tree": true,
+        "retail_reward_bases": {
+          "DB": 2,
+          "DB+NL_ASSERTION": 112
+        },
+        "judge_gated_test_tasks": {
+          "retail": 11,
+          "airline": 0,
+          "telecom": 0
+        },
+        "note_judge_gating": "NLAssertionsEvaluator short-circuits to reward 1.0 when nl_assertions is empty, so reward_basis containing NL_ASSERTION does not imply the judge runs.",
+        "note_retail_grading": "Retail tasks are graded by whole-DB hash against the state produced by replaying EvaluationCriteria.actions on a fresh env; no retail task uses ENV_ASSERTION or ACTION.",
+        "external_test_tasks_combined": 100,
+        "retail_environment_has_user_tools": false,
+        "note_retail_environment": "get_environment() constructs Environment without user_tools and raises on solo_mode, so telecom's user-env surroundings logic is neither portable nor needed.",
+        "audited_by": "scripts/audit_tau3_retail_split.py"
       },
       "allowed_uses": [
-        "train split teacher and on-policy rollouts",
+        "retail train split teacher and on-policy rollouts",
         "MIT policy/tool/database as inputs to a separately versioned task compiler",
-        "test split frozen external evaluation"
+        "retail test split frozen external evaluation",
+        "airline and telecom test splits as frozen cross-domain generalization evaluation",
+        "deriving the retail task compiler's combinatorial engine from the MIT-licensed telecom compose_tasks module, with attribution and the upstream commit recorded"
       ],
       "forbidden_uses": [
         "test task training",
         "test-failure-driven data generation",
-        "changing simulator or judge between model arms"
+        "changing simulator or judge between model arms",
+        "any use of the airline or telecom train/full splits while their test splits serve as external evaluation"
       ],
       "evidence": [
         "data/tau2/domains/retail/split_tasks.json",
+        "data/tau2/domains/airline/split_tasks.json",
+        "data/tau2/domains/telecom/split_tasks.json",
         "src/tau2/domains/retail/tools.py",
+        "src/tau2/domains/retail/environment.py",
+        "src/tau2/data_model/tasks.py",
+        "src/tau2/evaluator/evaluator_nl_assertions.py",
+        "src/tau2/domains/telecom/tasks/create_tasks.py",
+        "src/tau2/domains/telecom/tasks/utils.py",
+        "src/tau2/domains/telecom/tasks/manager.py",
+        "src/tau2/agent/llm_agent.py",
+        "src/tau2/utils/llm_utils.py",
         "LICENSE",
         "pyproject.toml"
-      ]
+      ],
+      "audit_artifact": "docs/tau3_split_audit.json",
+      "portability_assessment": "docs/retail_task_compiler_portability_assessment.md"
     },
     {
       "id": "apigen_mt_5k",

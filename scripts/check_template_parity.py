@@ -182,6 +182,12 @@ def render_serving(model: str, messages: list[dict], tools: list[dict]) -> tuple
         tokenize=True,
         add_generation_prompt=False,
     )
+    if isinstance(token_ids, dict):
+        token_ids = token_ids["input_ids"]
+    if hasattr(token_ids, "tolist"):
+        token_ids = token_ids.tolist()
+    if token_ids and isinstance(token_ids[0], list):
+        token_ids = token_ids[0]
     return text, list(token_ids)
 
 

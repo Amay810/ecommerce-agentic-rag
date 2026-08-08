@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N tau3-s0-train-v1
-#PBS -q g1
+#PBS -q normal
 #PBS -P personal
 #PBS -l select=1:ncpus=16:ngpus=4:mem=110gb
 #PBS -l walltime=12:00:00

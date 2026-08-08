@@ -1,4 +1,4 @@
-"""P0 gate: training-time and serving-time prompt rendering must be byte-identical.
+"""Check that training-time and serving-time prompts have identical token ids.
 
 Why this exists
 ---------------
@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import difflib
 import json
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -41,13 +42,36 @@ DEFAULT_TAU2_ROOT = Path("E:/cv_codex/external/tau2-bench")
 TAU2_SYSTEM_PROMPT = "<instructions>\n{agent_instruction}\n</instructions>\n<policy>\n{domain_policy}\n</policy>"
 
 
-def load_retail_tools(tau2_root: Path) -> list[dict[str, Any]]:
+def load_retail_tools(
+    tau2_root: Path, tau2_python: Path | None = None
+) -> list[dict[str, Any]]:
     """Return OpenAI-format tool schemas for the retail domain.
 
     Prefers live introspection of the pinned tau2 tree so the schemas match what
     litellm actually sends. Falls back to a two-tool stub when tau2 is not importable,
     which is enough to catch structural template drift but not schema-ordering drift.
     """
+    if tau2_python is not None:
+        code = (
+            "import json,sys; "
+            "sys.path.insert(0, sys.argv[1] + '/src'); "
+            "from tau2.environment.toolkit import get_tool_signatures; "
+            "from tau2.registry import registry; "
+            "env=registry.get_env_constructor('retail')(); "
+            "s=get_tool_signatures(env.tools); "
+            "print(json.dumps([{'type':'function','function':x.model_dump(exclude_none=True)} "
+            "for x in s.values()]))"
+        )
+        completed = subprocess.run(
+            [str(tau2_python), "-c", code, str(tau2_root)],
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        return json.loads(completed.stdout)
+
     try:
         sys.path.insert(0, str(tau2_root / "src"))
         from tau2.environment.toolkit import get_tool_signatures  # noqa: PLC0415
@@ -141,42 +165,85 @@ def build_fixture_messages() -> list[dict[str, Any]]:
     ]
 
 
-def render_serving(model: str, messages: list[dict], tools: list[dict]) -> str:
+def render_serving(model: str, messages: list[dict], tools: list[dict]) -> tuple[str, list[int]]:
     """Serving-side rendering: exactly what vLLM does with the OpenAI `tools` field."""
     from transformers import AutoTokenizer  # noqa: PLC0415
 
     tokenizer = AutoTokenizer.from_pretrained(model, trust_remote_code=True)
-    return tokenizer.apply_chat_template(
+    text = tokenizer.apply_chat_template(
         messages,
         tools=tools,
         tokenize=False,
         add_generation_prompt=False,
     )
+    token_ids = tokenizer.apply_chat_template(
+        messages,
+        tools=tools,
+        tokenize=True,
+        add_generation_prompt=False,
+    )
+    return text, list(token_ids)
 
 
-def render_training(model: str, messages: list[dict], tools: list[dict]) -> tuple[str, list[tuple[str, bool]]]:
+def to_swift_agent_messages(messages: list[dict]) -> list[dict]:
+    """Convert OpenAI serving messages to ms-swift v4 agent dataset roles."""
+    converted: list[dict] = []
+    for message in messages:
+        role = message["role"]
+        content = message.get("content") or ""
+        if role == "assistant" and message.get("tool_calls"):
+            if content:
+                converted.append({"role": "assistant", "content": content})
+            for call in message["tool_calls"]:
+                function = call["function"]
+                arguments = function.get("arguments") or {}
+                if isinstance(arguments, str):
+                    arguments = json.loads(arguments)
+                converted.append(
+                    {
+                        "role": "tool_call",
+                        "content": json.dumps(
+                            {"name": function["name"], "arguments": arguments},
+                            ensure_ascii=False,
+                        ),
+                    }
+                )
+        elif role == "tool":
+            converted.append({"role": "tool_response", "content": content})
+        else:
+            converted.append({"role": role, "content": content})
+    return converted
+
+
+def render_training(
+    model: str, messages: list[dict], tools: list[dict]
+) -> tuple[str, list[int], list[tuple[str, bool]]]:
     """Training-side rendering via ms-swift, plus per-span loss coverage.
 
     Returns the decoded prompt and a list of (text, is_trained) spans derived from
     the label mask, so the §5 masking rule can be checked rather than assumed.
 
-    NOTE: the ms-swift import surface must be re-verified against the pinned commit
-    recorded in verified_ecommerce_agent_learning_v2_sources.json before this gate is
-    treated as authoritative.
+    The imports and call shape below follow ms-swift v4.2.2 at the commit pinned in
+    verified_ecommerce_agent_learning_v2_sources.json.
     """
-    from swift.llm import InferRequest, get_model_tokenizer, get_template  # noqa: PLC0415
+    from swift import get_processor, get_template  # noqa: PLC0415
 
-    _, tokenizer = get_model_tokenizer(model, load_model=False)
-    template = get_template(tokenizer.model_meta.template, tokenizer)
+    processor = get_processor(model)
+    template = get_template(processor, agent_template="hermes")
     template.set_mode("train")
 
-    encoded = template.encode(InferRequest(messages=messages, tools=tools))
-    input_ids = encoded["input_ids"]
+    encoded = template.encode(
+        {
+            "messages": to_swift_agent_messages(messages),
+            "tools": json.dumps(tools, ensure_ascii=False),
+        }
+    )
+    input_ids = list(encoded["input_ids"])
     labels = encoded.get("labels")
 
-    text = tokenizer.decode(input_ids)
+    text = processor.decode(input_ids)
     if labels is None:
-        return text, []
+        return text, input_ids, []
 
     spans: list[tuple[str, bool]] = []
     current: list[int] = []
@@ -184,18 +251,23 @@ def render_training(model: str, messages: list[dict], tools: list[dict]) -> tupl
     for token_id, label in zip(input_ids, labels):
         trained = label != -100
         if trained != current_trained:
-            spans.append((tokenizer.decode(current), current_trained))
+            spans.append((processor.decode(current), current_trained))
             current, current_trained = [], trained
         current.append(token_id)
     if current:
-        spans.append((tokenizer.decode(current), current_trained))
-    return text, spans
+        spans.append((processor.decode(current), current_trained))
+    return text, input_ids, spans
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--tau2-root", type=Path, default=DEFAULT_TAU2_ROOT)
+    parser.add_argument(
+        "--tau2-python",
+        type=Path,
+        help="Use the pinned tau2 environment to read the real Retail tool schemas.",
+    )
     parser.add_argument("--out-dir", type=Path, default=Path("docs/template_parity"))
     parser.add_argument(
         "--dump-only",
@@ -204,11 +276,11 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    tools = load_retail_tools(args.tau2_root)
+    tools = load_retail_tools(args.tau2_root, args.tau2_python)
     messages = build_fixture_messages()
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    serving = render_serving(args.model, messages, tools)
+    serving, serving_ids = render_serving(args.model, messages, tools)
     (args.out_dir / "serving.txt").write_text(serving, encoding="utf-8")
     print(f"serving render: {len(serving)} chars -> {args.out_dir / 'serving.txt'}")
 
@@ -216,7 +288,7 @@ def main() -> int:
         print("dump-only: skipping ms-swift comparison")
         return 0
 
-    training, spans = render_training(args.model, messages, tools)
+    training, training_ids, spans = render_training(args.model, messages, tools)
     (args.out_dir / "training.txt").write_text(training, encoding="utf-8")
     print(f"training render: {len(training)} chars -> {args.out_dir / 'training.txt'}")
 
@@ -231,8 +303,8 @@ def main() -> int:
             encoding="utf-8",
         )
 
-    if serving == training:
-        print("\nPARITY OK: training and serving renderings are byte-identical")
+    if serving_ids == training_ids:
+        print("\nPARITY OK: training and serving token ids are identical")
         return 0
 
     diff = difflib.unified_diff(

@@ -7,11 +7,10 @@ official train tasks are already blueprints with verifiable terminal states, so
 sampling the base policy repeatedly and keeping only the rollouts the official
 grader scores 1.0 yields policy-compliant SFT data at roughly zero engineering cost.
 
-Its job is to answer the question that gates every later investment: can Qwen3-4B be
-moved at all in this environment? A flat S0 curve means the compiler would have been
-built on sand. The known ceiling -- 74 tasks is thin, and self-generated successes
-carry no signal on tasks the base model never solves -- is exactly the argument for
-P1, not a reason to skip S0.
+Its job is to check the training path: can verified trajectories be exported and
+learned without breaking tool use? A flat S0 curve does not veto the compiler.
+The known ceiling -- 74 tasks is thin, and self-generated successes carry no signal
+on tasks the base model never solves -- is exactly the argument for P1.
 
 This script deliberately does not run rollouts. Generation and grading stay with the
 official runner so that tool observations and rewards are unambiguously the
@@ -81,13 +80,32 @@ def tool_signature(messages: Iterable[dict]) -> str:
     Used for dedup. Two rollouts of the same task that take the same tool path teach
     the same lesson; keeping both just reweights the task.
     """
-    names = [
-        call["function"]["name"]
-        for msg in messages
-        if msg.get("role") == "assistant"
-        for call in (msg.get("tool_calls") or [])
-    ]
+    names: list[str] = []
+    for msg in messages:
+        if msg.get("role") == "tool_call":
+            payload = json.loads(msg.get("content") or "{}")
+            if payload.get("name"):
+                names.append(str(payload["name"]))
+            continue
+        if msg.get("role") != "assistant":
+            continue
+        for call in msg.get("tool_calls") or []:
+            function = call.get("function") or call
+            if function.get("name"):
+                names.append(str(function["name"]))
     return "|".join(names)
+
+
+def normalize_json_content(value: Any) -> str:
+    """Return a JSON string as required for ms-swift tool_response content."""
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            parsed = value
+    else:
+        parsed = value
+    return json.dumps(parsed, ensure_ascii=False)
 
 
 def convert_messages(
@@ -109,30 +127,38 @@ def convert_messages(
             out.append({"role": "user", "content": msg.get("content") or ""})
 
         elif role == "assistant":
-            entry: dict[str, Any] = {"role": "assistant", "content": msg.get("content") or ""}
+            content = msg.get("content") or ""
             tool_calls = msg.get("tool_calls") or []
+            if content:
+                out.append({"role": "assistant", "content": content})
             if tool_calls:
-                entry["tool_calls"] = [
-                    {
-                        "id": tc.get("id") or f"call_{i}",
-                        "type": "function",
-                        "function": {
-                            "name": tc["name"],
-                            "arguments": json.dumps(tc["arguments"], ensure_ascii=False),
-                        },
-                    }
-                    for i, tc in enumerate(tool_calls)
-                ]
-            out.append(entry)
+                for tc in tool_calls:
+                    function = tc.get("function") or tc
+                    arguments = function.get("arguments") or {}
+                    if isinstance(arguments, str):
+                        arguments = json.loads(arguments)
+                    out.append(
+                        {
+                            "role": "tool_call",
+                            "content": json.dumps(
+                                {
+                                    "name": function["name"],
+                                    "arguments": arguments,
+                                },
+                                ensure_ascii=False,
+                            ),
+                        }
+                    )
+            if not content and not tool_calls:
+                out.append({"role": "assistant", "content": ""})
 
         elif role == "tool":
             if msg.get("error") and not allow_tool_errors:
                 return [], "tool_error_in_trajectory"
             out.append(
                 {
-                    "role": "tool",
-                    "tool_call_id": msg.get("id") or "",
-                    "content": msg.get("content") or "",
+                    "role": "tool_response",
+                    "content": normalize_json_content(msg.get("content")),
                 }
             )
 
@@ -162,6 +188,12 @@ def main() -> None:
         action="store_true",
         help="Keep trajectories containing failed tool calls (teaches recovery, adds noise).",
     )
+    parser.add_argument(
+        "--exclude-task-ids",
+        nargs="*",
+        default=(),
+        help="Task ids reserved for S0 dev; their rollouts never enter training data.",
+    )
     args = parser.parse_args()
 
     payload = json.loads(args.results.read_text(encoding="utf-8"))
@@ -175,9 +207,13 @@ def main() -> None:
     rejections = Counter()
     kept_by_task: dict[str, list[dict]] = defaultdict(list)
     seen_signatures: set[str] = set()
+    excluded_task_ids = set(args.exclude_task_ids)
 
     for sim in simulations:
         task_id = sim.get("task_id")
+        if task_id in excluded_task_ids:
+            rejections["reserved_for_dev"] += 1
+            continue
         reward_info = sim.get("reward_info") or {}
         reward = reward_info.get("reward")
 
@@ -204,7 +240,7 @@ def main() -> None:
             rejections[reason] += 1
             continue
 
-        if not any(m.get("tool_calls") for m in messages):
+        if not any(m.get("role") == "tool_call" for m in messages):
             rejections["no_tool_calls"] += 1
             continue
 
@@ -220,7 +256,10 @@ def main() -> None:
 
         record = {
             "messages": [{"role": "system", "content": system_prompt}] + messages,
-            "tools": tools,
+            # ms-swift v4 agent format requires a JSON string here. tool_call and
+            # tool_response roles above are converted by --agent_template hermes;
+            # user/tool responses remain masked from loss by the template.
+            "tools": json.dumps(tools, ensure_ascii=False),
             "provenance": {
                 "stage": "S0_rejection_sampling",
                 "domain": args.domain,
@@ -253,6 +292,7 @@ def main() -> None:
         "kept": len(records),
         "tasks_covered": len(kept_by_task),
         "max_per_task": args.max_per_task,
+        "excluded_task_ids": sorted(excluded_task_ids),
         "rejections": dict(rejections.most_common()),
         "unique_tool_paths": len(seen_signatures),
     }

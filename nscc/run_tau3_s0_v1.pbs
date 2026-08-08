@@ -1,0 +1,210 @@
+#!/bin/bash
+#PBS -N tau3-s0-v1
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=1:mem=64gb
+#PBS -l walltime=24:00:00
+#PBS -j oe
+#PBS -o logs/tau3_s0_v1.pbs.log
+
+# Actual M0/M1 run: template parity -> Base smoke -> verified S0 rollouts
+# -> S0 LoRA -> paired replay on ten train-held-out tasks.
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+
+module load miniforge3/25.3.1
+module load cuda/11.8.0
+module load git/2.39.2
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-rag
+
+TAU2_ROOT="${TAU2_ROOT:-/scratch/users/ntu/s250045/tau2-bench}"
+TAU2_PYTHON="$TAU2_ROOT/.venv/bin/python"
+QWEN_MODEL="${QWEN_MODEL:-/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507}"
+VLLM_PORT="${TAU3_VLLM_PORT:-8123}"
+BASE_MODEL_NAME="Qwen3-4B-Instruct-2507"
+S0_MODEL_NAME="Qwen3-4B-S0"
+S0_TRIALS="${S0_TRIALS:-4}"
+S0_DEV_TASKS="${S0_DEV_TASKS:-10}"
+S0_MAX_LENGTH="${S0_MAX_LENGTH:-16384}"
+TAU2_COMMIT="fc0055dc4e0a316c3f83133267fbd6faaa770992"
+
+: "${TAU3_USER_MODEL:?Set the frozen user simulator model}"
+: "${TAU3_NL_ASSERTIONS_MODEL:?Set the frozen NL assertion judge model}"
+: "${TAU3_USER_API_KEY:?Set the user simulator provider key}"
+
+test -s "$QWEN_MODEL/config.json"
+test -x "$TAU2_PYTHON"
+test "$(git -c safe.directory="$TAU2_ROOT" -C "$TAU2_ROOT" rev-parse HEAD)" = "$TAU2_COMMIT"
+python -c "import swift, vllm; print('ms-swift', swift.__version__, 'vLLM', vllm.__version__)"
+"$TAU2_PYTHON" -c "import tau2; print('tau2 import OK')"
+
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+export TAU3_NL_ASSERTIONS_MODEL
+export HOSTED_VLLM_API_BASE="http://127.0.0.1:${VLLM_PORT}/v1"
+export HOSTED_VLLM_API_KEY="local-vllm"
+export DEEPSEEK_API_KEY="${DEEPSEEK_API_KEY:-$TAU3_USER_API_KEY}"
+export OPENAI_API_KEY="${OPENAI_API_KEY:-$TAU3_USER_API_KEY}"
+
+mkdir -p logs data output/tau3_s0_v1
+
+python scripts/check_template_parity.py \
+  --model "$QWEN_MODEL" \
+  --tau2-root "$TAU2_ROOT" \
+  --tau2-python "$TAU2_PYTHON" \
+  --out-dir logs/template_parity_s0_v1
+
+VLLM_PID=""
+stop_vllm() {
+  if [ -n "$VLLM_PID" ]; then
+    kill "$VLLM_PID" 2>/dev/null || true
+    wait "$VLLM_PID" 2>/dev/null || true
+    VLLM_PID=""
+  fi
+}
+trap stop_vllm EXIT
+
+start_vllm() {
+  local served_name="$1"
+  local adapter_path="${2:-}"
+  local log_path="$3"
+  local extra_args=()
+  if [ -n "$adapter_path" ]; then
+    extra_args+=(--enable-lora --lora-modules "${served_name}=${adapter_path}")
+  fi
+  python -m vllm.entrypoints.openai.api_server \
+    --model "$QWEN_MODEL" \
+    --served-model-name "$BASE_MODEL_NAME" \
+    --host 127.0.0.1 \
+    --port "$VLLM_PORT" \
+    --dtype bfloat16 \
+    --max-model-len 32768 \
+    --gpu-memory-utilization 0.90 \
+    --enable-auto-tool-choice \
+    --tool-call-parser hermes \
+    "${extra_args[@]}" \
+    >"$log_path" 2>&1 &
+  VLLM_PID=$!
+
+  local ready=0
+  for _ in $(seq 1 180); do
+    if python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:${VLLM_PORT}/v1/models', timeout=2)" >/dev/null 2>&1; then
+      ready=1
+      break
+    fi
+    if ! kill -0 "$VLLM_PID" 2>/dev/null; then
+      tail -100 "$log_path"
+      exit 1
+    fi
+    sleep 2
+  done
+  test "$ready" = 1
+}
+
+# Ten deterministic train tasks are reserved before looking at rollout rewards.
+mapfile -t DEV_TASK_IDS < <(
+  "$TAU2_PYTHON" -c 'import hashlib,json,sys; p=json.load(open(sys.argv[1])); ids=p["train"]; ids=sorted(ids,key=lambda x:hashlib.sha256(x.encode()).hexdigest()); print("\n".join(ids[:int(sys.argv[2])]))' \
+    "$TAU2_ROOT/data/tau2/domains/retail/split_tasks.json" "$S0_DEV_TASKS"
+)
+test "${#DEV_TASK_IDS[@]}" -eq "$S0_DEV_TASKS"
+printf '%s\n' "${DEV_TASK_IDS[@]}" > logs/s0_dev_task_ids.txt
+
+start_vllm "$BASE_MODEL_NAME" "" logs/tau3_s0_v1_base_vllm.log
+
+# Five-task cost/format smoke. This is not a capability result.
+python -m scripts.run_tau3_retail_v1 \
+  --tau-root "$TAU2_ROOT" \
+  --phase smoke \
+  --agent-model "hosted_vllm/${BASE_MODEL_NAME}" \
+  --user-model "$TAU3_USER_MODEL" \
+  --nl-assertions-model "$TAU3_NL_ASSERTIONS_MODEL" \
+  --pass-k 1 \
+  --max-steps 200 \
+  --save-to tau3_s0_v1_base_smoke
+
+# Sample every official train task. The ten reserved ids are filtered from SFT
+# export below but remain available as a paired Base reference.
+"$TAU2_PYTHON" "$PBS_O_WORKDIR/scripts/_tau3_cli_with_frozen_judge.py" run \
+  --domain retail \
+  --task-set-name retail \
+  --task-split-name train \
+  --num-trials "$S0_TRIALS" \
+  --agent llm_agent \
+  --agent-llm "hosted_vllm/${BASE_MODEL_NAME}" \
+  --user user_simulator \
+  --user-llm "$TAU3_USER_MODEL" \
+  --max-steps 200 \
+  --save-to tau3_s0_v1_train_rollouts \
+  --auto-resume \
+  --verbose-logs \
+  --max-concurrency 3
+
+S0_RESULTS="$TAU2_ROOT/data/simulations/tau3_s0_v1_train_rollouts/results.json"
+test -s "$S0_RESULTS"
+cp "$S0_RESULTS" logs/tau3_s0_v1_train_rollouts.json
+stop_vllm
+
+"$TAU2_PYTHON" "$PBS_O_WORKDIR/scripts/build_s0_rejection_sft.py" \
+  --results "$S0_RESULTS" \
+  --out data/s0_rejection_sft.jsonl \
+  --tau2-root "$TAU2_ROOT" \
+  --max-per-task 1 \
+  --exclude-task-ids "${DEV_TASK_IDS[@]}"
+test -s data/s0_rejection_sft.jsonl
+
+swift sft \
+  --model "$QWEN_MODEL" \
+  --check_model false \
+  --tuner_type lora \
+  --dataset data/s0_rejection_sft.jsonl \
+  --agent_template hermes \
+  --torch_dtype bfloat16 \
+  --num_train_epochs 3 \
+  --per_device_train_batch_size 1 \
+  --learning_rate 1e-4 \
+  --lora_rank 8 \
+  --lora_alpha 32 \
+  --target_modules all-linear \
+  --gradient_accumulation_steps 8 \
+  --save_steps 1 \
+  --save_total_limit 2 \
+  --logging_steps 1 \
+  --max_length "$S0_MAX_LENGTH" \
+  --split_dataset_ratio 0 \
+  --warmup_ratio 0.05 \
+  --dataset_num_proc 4 \
+  --dataloader_num_workers 4 \
+  --output_dir output/tau3_s0_v1 \
+  --report_to none
+
+S0_CHECKPOINT="$(find output/tau3_s0_v1 -maxdepth 2 -type f -name adapter_model.safetensors -printf '%h\n' | sort -V | tail -1)"
+test -n "$S0_CHECKPOINT"
+test -s "$S0_CHECKPOINT/adapter_model.safetensors"
+printf '%s\n' "$S0_CHECKPOINT" > logs/tau3_s0_v1_checkpoint.txt
+
+start_vllm "$S0_MODEL_NAME" "$S0_CHECKPOINT" logs/tau3_s0_v1_sft_vllm.log
+
+"$TAU2_PYTHON" "$PBS_O_WORKDIR/scripts/_tau3_cli_with_frozen_judge.py" run \
+  --domain retail \
+  --task-set-name retail \
+  --task-ids "${DEV_TASK_IDS[@]}" \
+  --num-trials "$S0_TRIALS" \
+  --agent llm_agent \
+  --agent-llm "hosted_vllm/${S0_MODEL_NAME}" \
+  --user user_simulator \
+  --user-llm "$TAU3_USER_MODEL" \
+  --max-steps 200 \
+  --save-to tau3_s0_v1_dev_sft \
+  --auto-resume \
+  --verbose-logs \
+  --max-concurrency 3
+
+S0_DEV_RESULTS="$TAU2_ROOT/data/simulations/tau3_s0_v1_dev_sft/results.json"
+test -s "$S0_DEV_RESULTS"
+cp "$S0_DEV_RESULTS" logs/tau3_s0_v1_dev_sft.json
+stop_vllm
+
+python -c 'import json,sys; dev=set(open(sys.argv[3]).read().split()); b=json.load(open(sys.argv[1]))["simulations"]; s=json.load(open(sys.argv[2]))["simulations"]; score=lambda xs: (sum((x.get("reward_info") or {}).get("reward")==1.0 for x in xs),len(xs)); print({"base_dev":score([x for x in b if x.get("task_id") in dev]),"s0_dev":score(s)})' \
+  "$S0_RESULTS" "$S0_DEV_RESULTS" logs/s0_dev_task_ids.txt
+
+echo "S0 pipeline complete. Review the paired dev rewards before deciding on P1."

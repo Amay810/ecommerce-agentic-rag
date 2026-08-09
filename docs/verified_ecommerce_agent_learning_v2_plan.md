@@ -1017,6 +1017,7 @@ template parity
 → S0 归档为 negative control，能力主线与评测矩阵已删减
 → Retail train 296 故障审计完成，选出 8 个 hint-conditioned pilot 任务
 → 复用 τ² `LLMGTAgent` 的 action-name-only 模式，16 次 pilot launcher 已准备并完成语法/CLI 注册检查
+→ 离线渲染确认 8 个提示无实体参数泄漏；识别出 task 85/109 的 gold actions 不含认证/读取，严格过滤不得把 gold list 当完整策略
 ```
 
 当前尚未完成、不得提前写成完成态：

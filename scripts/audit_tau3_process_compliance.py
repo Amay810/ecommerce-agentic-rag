@@ -23,7 +23,7 @@ WRITE_TOOLS = frozenset(
 )
 MONEY = re.compile(r"(?:\$|USD\s*)([0-9][0-9,]*(?:\.[0-9]+)?)", re.I)
 AFFIRMATIVE = re.compile(
-    r"\b(?:yes|confirm(?:ed)?|go ahead|proceed|please do|do it|that's right|that is right|correct)\b",
+    r"\b(?:yes|confirm(?:ed)?|go ahead|proceed|please do|do it|let(?:'s| us) go with|that's right|that is right|correct)\b",
     re.I,
 )
 EXPLICIT_REASON = {
@@ -53,6 +53,21 @@ def _numbers(text: str) -> set[str]:
     return values
 
 
+def _json_numbers(value: Any) -> set[str]:
+    values: set[str] = set()
+    if isinstance(value, bool):
+        return values
+    if isinstance(value, (int, float)):
+        values.add(f"{float(value):.2f}")
+    elif isinstance(value, dict):
+        for child in value.values():
+            values.update(_json_numbers(child))
+    elif isinstance(value, list):
+        for child in value:
+            values.update(_json_numbers(child))
+    return values
+
+
 def _tool_calls(message: dict[str, Any]) -> list[dict[str, Any]]:
     return list(message.get("tool_calls") or [])
 
@@ -70,6 +85,7 @@ def audit_simulation(simulation: dict[str, Any], task: dict[str, Any]) -> dict[s
     expected_writes = _expected_writes(task)
     actual_writes: collections.Counter[str] = collections.Counter()
     prior_tool_text = ""
+    prior_tool_numbers: set[str] = set()
     last_user = ""
     prior_assistant = ""
 
@@ -78,6 +94,10 @@ def audit_simulation(simulation: dict[str, Any], task: dict[str, Any]) -> dict[s
         content = str(message.get("content") or "")
         if role == "tool":
             prior_tool_text += "\n" + content
+            try:
+                prior_tool_numbers.update(_json_numbers(json.loads(content)))
+            except (json.JSONDecodeError, TypeError):
+                pass
             if content.startswith("Error:"):
                 issues.append(
                     {"type": "tool_error", "message_index": index, "detail": content}
@@ -89,7 +109,7 @@ def audit_simulation(simulation: dict[str, Any], task: dict[str, Any]) -> dict[s
         if role != "assistant":
             continue
 
-        for amount in sorted(_numbers(content) - _numbers(prior_tool_text)):
+        for amount in sorted(_numbers(content) - prior_tool_numbers):
             issues.append(
                 {
                     "type": "ungrounded_money",

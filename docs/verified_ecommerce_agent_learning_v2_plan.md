@@ -7,6 +7,7 @@
 2026-08-09 S0 服务更新：filtered47 四卡 LoRA 训练已完成并产出 `checkpoint-18`；冻结 vLLM 0.10.2 不支持 LoRA+DP，故 Base 服务保留四卡 DP=4，S0 LoRA 服务改为单卡 DP=1。该差异只改变吞吐，不改变能力评测条件，延迟不得跨臂比较。
 2026-08-09 S0 诊断更新：Base 与 S0 Retail test 40×4 均已跑满且基础设施错误为 0；S0 为 86/160，Base 为 85/160，任务聚类 95% 区间跨 0，不能主张 S0 带来能力提升。完整审核见 §13.14。
 2026-08-09 能力主线删减：S0 归档为过度规模化的 negative control；GRPO、Skill、Telecom/BFCL、完整回归矩阵和多臂消融退出当前主线。新增 train 296 故障审计与 8-task action-name-only hint pilot，先验证新行为数据获取，再决定是否实现 pending-order compiler。
+2026-08-10 hint v2 closeout：相同 8 个 train task×2 的 semantic-plan pilot 完成，官方终态成功由 v1 的 4/16 增至 8/16，但预注册的过程违规仍出现，且参数选择错误未解决。privileged-plan-conditioned self-distillation 不进入 Task Compiler 扩量；后续数据获取改用独立 teacher，并沿用官方环境回放与最小过程过滤。
 目标模型：`Qwen/Qwen3-4B-Instruct-2507`。  
 
 ## 0. 证据纪律
@@ -492,14 +493,14 @@ S0 已完成并证明训练、adapter 加载和工具格式链路可运行，但
 1. 只分析已落盘的 Retail train 74×4，不使用 test trace 驱动数据生成；按任务统计成功稳定性，并对失败轨迹记录首个 actionable fault、缺失显式确认候选、越权/多余写入候选。
 2. 21 个零成功 train task 的独立任务容量上限就是 21，无法承担能力阶段的 train/dev/held-out，因此 hint 路线只验证可复用于 Task Compiler 的生成规程，不作为主要训练数据源。
 3. v1 在其中 8 个任务上使用 action-name-only 私有提示：历史 Base 为 0/32，v1 得到 4/16 官方成功，证明动作路径提示在目标层面有效；但官方成功中的 3/4 存在过程违规，只有 1 条可作为严格训练候选。
-4. v2 仍用相同 8 个 train task、每题 2 次，但改用不含实体 ID 的 semantic plan。它补足认证/读取、目标约束、写前确认、枚举理由确认和 evidence grounding；提示只在生成时可见，训练记录中必须剥离。
+4. v2 已用相同 8 个 train task、每题 2 次完成运行；semantic plan 不含实体 ID，并补足认证/读取、目标约束、写前确认、枚举理由确认和 evidence grounding。结果为 16/16 正常终止、0 infrastructure error、8/16 官方 reward=1，提示标记未进入轨迹。
 5. 严格保留条件：官方 reward=1、正常终止、无工具错误、身份/授权合法、写前有显式确认、无额外或越权写入、导出内容不含私有提示。
 6. v2 的主判据不是保留率显著性，而是 task 30 的无依据退款/余额陈述、task 59 的未确认枚举映射、task 85 的试错式错误写调用是否消失。task 14/20/109 的目标与参数选择错误单独记账。
-7. 该方法称为 **privileged-plan-conditioned self-distillation**，不是纯 on-policy Base 数据，也不是独立 teacher 实验臂。v2 仍不训练模型。
+7. 预注册过程判据未通过：task 30 两次仍陈述工具未支持的退款后礼品卡余额；task 85 两次仍先对错误订单执行写调用；task 59 的枚举映射改善，但其中一次仍写错订单并造成不可逆取消。参数选择也未解决：task 14 一次多退两件，task 20 两次选错替换变体，task 109 两次未选中官方要求的最低价 tablet。因此关闭 **privileged-plan-conditioned self-distillation**，不再调 hint，也不将 v2 轨迹用于训练。
 
 ### P2：pending-order 最小 Task Compiler
 
-只有 P1 v2 能消除上述三类过程违规后才进入；终态 reward 或小样本保留率本身不是 go 条件。首个竖片为 `modify_pending_order_items` 与 `modify_pending_order_payment`：官方 train 对后者零覆盖，因此不能靠增加现有 train 的 pass_k 产生该工具的训练样本；这不等于提前断言 Base 在未来新任务上的成功率为零。
+P1 v2 未满足进入条件，因此不以自蒸馏方式直接扩量。P2 的下一步先完成独立 teacher 的合规与可用性核对，再用 5–10 个编译任务验证“teacher 完整轨迹 → 官方回放 reward=1 → 最小过程过滤 → 去除私有规划”的数据获取配方。配方通过后，首个竖片仍为 `modify_pending_order_items` 与 `modify_pending_order_payment`；官方 train 对后者零覆盖，不能靠增加现有 train 的 pass_k 产生该工具训练样本。
 
 v0 只保留：pending-order 前置条件表、最小 blueprint、官方双次回放、结构签名去重、与 test 隔离。行为类型只做四类：正常修改、必要澄清、显式确认、非法状态拒绝。先生成 5–10 个任务验证生成与官方回放，不拿它们训练；再用 P1 实测漏斗一次性决定 formal train/dev/held-out 的独立任务规模。
 
@@ -1022,25 +1023,29 @@ template parity
 → 离线渲染确认 8 个提示无实体参数泄漏；识别出 task 85/109 的 gold actions 不含认证/读取，严格过滤不得把 gold list 当完整策略
 → hint v1 运行完成：16/16、0 infrastructure error、4/16 官方成功、1/16 严格候选
 → v1 相对历史 Base 0/32 证明 action-name hint 能改善动作路径；但 21-task 容量上限决定该池不能成为能力阶段训练源
-→ 最小过程过滤已用 v1 校准：自动接受/拒绝与四条人工审核完全一致
+→ 最小过程过滤已用 v1 四条官方成功轨迹初步校准；v2 显示金额来源规则需要区分工具 JSON 数值与模型自行计算，最终判决仍以原始轨迹人工核对为准
+→ hint v2 完成：16/16 正常终止、0 infrastructure error、8/16 官方成功、0 私有提示泄漏
+→ 预注册过程判据失败：30 的无依据余额陈述和 85 的试错式错误写调用仍出现；59 的枚举映射改善但仍出现错误订单写入
+→ 参数选择错误仍出现：14 多退商品，20/109 选择错误变体
+→ self-distillation 已关闭，不再调 hint；下一数据获取路线转独立 teacher
 ```
 
 当前尚未完成、不得提前写成完成态：
 
 ```text
-8 个相同 train task 的 semantic-plan hint v2
-检查 30/59/85 三类过程违规是否消失
-将 14/20/109 的参数选择错误单独记账
+独立 teacher 的服务条款/许可证与可调用环境核对
+5–10 个编译任务的 teacher 生成配方 pilot
+teacher 轨迹的官方回放、过程过滤和私有规划剥离
 ```
 
 下一执行顺序：
 
 ```text
-只用官方 Retail train 的相同 8 个零成功任务
-→ 不含实体 ID 的 private semantic plan 辅助完整环境 rollout
-→ 最小自动过程过滤 + 人工复核自动通过项
-→ 过程违规消失：生成规程可进入最小 pending-order Task Compiler
-→ 过程违规仍出现：关闭 self-distillation，转独立 teacher（仍使用同一过程过滤）
+核对一个独立 teacher 的合法可用来源与固定模型
+→ 先编译 5–10 个 pending-order 独立任务，不训练
+→ teacher 生成完整轨迹，官方环境回放判终态，最小过程过滤判写操作合规
+→ 实测生成成功率、过程保留率与去重率，再计算正式 train/dev/held-out 数量漏斗
+→ 配方通过后一次性生成正式数据；不再增加 self-distillation hint 版本
 ```
 
 故障证据和 pilot 选择见 `docs/tau3_train_fault_audit_20260809.md`。S0 provenance 的说明性顶层字段可在归档时补齐，但不得因此阻塞能力主线，也不得重跑 S0。

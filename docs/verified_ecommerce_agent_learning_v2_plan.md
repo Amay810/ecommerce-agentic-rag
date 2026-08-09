@@ -4,6 +4,7 @@
 定版日期：2026-08-08（同日修订一次，见 §12.1；修订项均标注日期，涉及 §2.2、§3.2、§4.1、§6.1.1、§6.2、§6.3、§8.2、§9.1、§11）。  
 2026-08-08 收紧一次（标注“收紧/新增”）：新增 §1.1 能力阶梯；收紧三处结论——不把三域 100 题合并成单一电商功效成功率并区分单比例 CI 与 McNemar 配对功效（§9.1、§9.2）；Retail test 40 声明为 test-aware informed 并要求独立 held-out 承担确认性（§3.2、§8.1、§11 P1）；S0 定位为训练链路检查而非新能力证明，P0.5 改为四分支决策（§6.2、§11 P0.5）。  
 2026-08-09 执行交接更新：新增 §13，冻结 Windows/NSCC 分工、虚拟环境、路径、隧道、同步、Git 分支、S0 数据漏斗与当前完成状态；这些内容是后续 Agent 的执行事实，不得用旧对话中的临时 job、节点或建议覆盖。
+2026-08-09 S0 服务更新：filtered47 四卡 LoRA 训练已完成并产出 `checkpoint-18`；冻结 vLLM 0.10.2 不支持 LoRA+DP，故 Base 服务保留四卡 DP=4，S0 LoRA 服务改为单卡 DP=1。该差异只改变吞吐，不改变能力评测条件，延迟不得跨臂比较。
 目标模型：`Qwen/Qwen3-4B-Instruct-2507`。  
 
 ## 0. 证据纪律
@@ -758,6 +759,7 @@ S0 有稳定正增益（配对区间不跨 0）
 | `4c37164` | 本地回环 vLLM 地址加入 `NO_PROXY`，修复 DeepSeek 调用后访问隧道端点的 502/连接问题 |
 | `920588b` | PBS 提交队列改为 `normal`；同步 template parity 的 BatchEncoding 修复 |
 | `ca1c0ce` | 提交已审核的 filtered47 数据、训练 PBS 和数据规模漏斗硬规则 |
+| `2ad37cd` | 冻结 Windows/NSCC 环境、路径、隧道、同步与跨 Agent 交接事实 |
 
 ### 13.2 固定目录结构
 
@@ -874,8 +876,9 @@ NSCC 可能把 `CUDA_VISIBLE_DEVICES` 暴露为四个 GPU UUID。`nscc/serve_tau
 
 | 文件 | 用途 | 状态 |
 |---|---|---|
-| `nscc/serve_tau3_agent_v1.pbs` | 四卡 DP Base/LoRA vLLM | 已实现、验证过同类服务链路、已推送 |
-| `nscc/run_tau3_s0_filtered47.pbs` | 只训练已审核的 47 条 S0 数据 | 已实现、Bash 语法验证、已推送并同步 NSCC；训练尚未声明完成 |
+| `nscc/serve_tau3_agent_v1.pbs` | 四卡 DP Base vLLM | 保持原样；Base 批量推理权威脚本 |
+| `nscc/serve_tau3_s0_v1.pbs` | 单卡 S0 LoRA vLLM | 从 Base 脚本派生；适配冻结 vLLM 0.10.2 的 LoRA+DP 限制 |
+| `nscc/run_tau3_s0_filtered47.pbs` | 只训练已审核的 47 条 S0 数据 | 四卡训练已成功完成，checkpoint 为 `output/tau3_s0_filtered47/checkpoint-18` |
 | `nscc/run_tau3_s0_v1.pbs` | 旧 S0 作业 | 不得用于 filtered47；会重新过滤、改为 `max-per-task=1` 并另切 10 个 dev task |
 
 filtered47 作业固定：
@@ -889,6 +892,33 @@ output: output/tau3_s0_filtered47
 ```
 
 代表性 parity 轨迹约 18,661 tokens，旧 `max_length=16384` 会确定性截断，因此 filtered47 使用与服务侧一致的 32,768 上限。
+
+冻结资源矩阵：
+
+| 阶段 | 节点/GPU | 并行方式 | 说明 |
+|---|---|---|---|
+| S0 LoRA 训练 | 单节点四卡 | `NPROC_PER_NODE=4` | 已成功完成 |
+| Base 批量推理 | 单节点四卡 | DP=4、TP=1 | 四个独立 Base 模型副本，提高 rollout 吞吐 |
+| vLLM 0.10.2 S0 LoRA 服务 | 单节点单卡 | DP=1、TP=1 | 当前冻结版本限制；不是 LoRA 的一般性结论 |
+
+四卡 S0 LoRA 服务的实际失败已定位为：
+
+```text
+vLLM 0.10.2
++ --enable-lora
++ --data-parallel-size 4
+→ NotImplementedError: LoRA in DP mode is not supported yet
+```
+
+这不是 adapter、checkpoint、GPU UUID 映射或训练产物错误。不得通过改 adapter 或重训来“修复”该服务限制，也不得把“LoRA 必须单卡”外推到其他 vLLM 版本或其他服务框架。
+
+提交 S0 单卡服务：
+
+```bash
+cd /scratch/users/ntu/s250045/ecommerce-agentic-rag-legacy-task-closure
+qsub -v TAU3_ADAPTER=/scratch/users/ntu/s250045/ecommerce-agentic-rag-legacy-task-closure/output/tau3_s0_filtered47/checkpoint-18 \
+  nscc/serve_tau3_s0_v1.pbs
+```
 
 ### 13.6 Template parity 最终事实
 
@@ -996,7 +1026,7 @@ DeepSeek 生成 user turn
 → 直到终止并判分
 ```
 
-四卡只增加同时进行的独立对话数；单条对话仍按轮次串行。
+Base 四卡 DP 只增加同时进行的独立对话数；单条对话仍按轮次串行。S0 LoRA 单卡服务时，Windows τ³ 的 `--max-concurrency 4` 保持不变，四个并发请求会在单卡 vLLM 服务处排队；客户端并发数不要求等于 GPU 数。
 
 当前 `scripts.run_tau3_retail_v1 --phase base` 对应官方 **test 40**，不是 train rollout。S0 训练数据必须直接使用 τ² CLI 的：
 
@@ -1011,6 +1041,8 @@ DeepSeek 生成 user turn
 不得误用 `--phase base` 生成训练数据。`--auto-resume` 已从 τ² 源码确认：保留非基础设施错误轨迹，删除 `infrastructure_error` 记录，只重跑失败的 task/trial。
 
 第一次 S0 rollout 曾因隧道中断产生 130 条 `WinError 10061`；恢复隧道后同名 auto-resume 最终补齐。此过程只作为执行事实，不包装成工程贡献。
+
+S0 诊断继续使用 Retail test 40×4、DeepSeek simulator/judge、冻结 temperature、`max_steps=200`、相同 task split、pass_k、reward 和 judge。Base 使用四卡 DP 服务，S0 使用单卡 LoRA 服务；两者的单条请求都在一张 A100 上完成，因此能力成功率可以配对比较，但服务吞吐和延迟不可作为模型能力差异。
 
 ### 13.10 S0 rollout、数据漏斗与主张边界
 
@@ -1137,6 +1169,7 @@ manifest 只作本地/GitHub 数据记录，不参与训练，也未要求单独
 10. S0 rollout 经 auto-resume 最终得到 296 条有效结果，严格过滤后只有 47 条/40 任务；
 11. 任何训练前必须先估算数据漏斗，不再用 rollout 次数冒充任务多样性；
 12. filtered47 必须使用新 PBS，不能使用会重新过滤/重切 dev 的旧 PBS。
+13. 冻结 vLLM 0.10.2 的内置 LoRA 服务不支持 DP=4；Base 保持四卡 DP，S0 LoRA 服务使用单卡，但 Windows 评测并发仍可为 4。
 
 后续其他 Agent 不需要重新争论上述事实；如果真实仓库、环境或实验协议发生变化，必须给出新证据、明确修改本节并产生新 commit。
 
@@ -1150,13 +1183,13 @@ template parity
 → Retail train 74×4 Base rollout（129/296）
 → 严格过滤得到 47 条、覆盖 40 任务
 → filtered47 四卡训练 PBS 创建、验证、commit/push、同步 NSCC
+→ S0 LoRA 四卡训练成功，产出 output/tau3_s0_filtered47/checkpoint-18
+→ 四卡 LoRA 服务失败根因定位为 vLLM 0.10.2 不支持 LoRA+DP
 ```
 
 当前尚未完成、不得提前写成完成态：
 
 ```text
-S0 LoRA 实际训练
-adapter checkpoint 产出
 Qwen + S0 adapter 的 vLLM 服务
 Base/S0 同口径配对评测
 S0 是否产生局部增益或退化的结论
@@ -1166,14 +1199,14 @@ pending-order Task Compiler
 下一执行顺序：
 
 ```bash
-# 若 Base vLLM 作业仍在占用四卡，先释放真实 job id
-qdel <current-base-service-job-id>
-
 cd /scratch/users/ntu/s250045/ecommerce-agentic-rag-legacy-task-closure
-qsub nscc/run_tau3_s0_filtered47.pbs
+qsub -v TAU3_ADAPTER=/scratch/users/ntu/s250045/ecommerce-agentic-rag-legacy-task-closure/output/tau3_s0_filtered47/checkpoint-18 \
+  nscc/serve_tau3_s0_v1.pbs
 ```
 
-LoRA 训练期间不需要 Windows 开机、不需要 8123 隧道、不需要 DeepSeek。训练完成后才重新启动 `serve_tau3_agent_v1.pbs` 并通过 `TAU3_ADAPTER` 加载 checkpoint，再建立 Windows 隧道执行 Base/S0 配对评测。
+S0 服务就绪后，读取当前计算节点、重建 Windows 8123 隧道，并以 `hosted_vllm/Qwen3-4B-S0` 运行 Retail test 40×4。除服务吞吐配置外，Base/S0 的 simulator、judge、temperature、任务、max_steps、pass_k 和 reward 必须一致。
+
+本次需要永久记录但不包装成工程贡献的执行失误：提交四卡 LoRA 服务前，没有先核对冻结 vLLM 0.10.2 是否支持 `--enable-lora` 与 DP=4 的组合。以后涉及特定版本的并行组合时，应先查已安装版本的支持范围或用最小实际启动确认；这只是一项执行核对纪律，不扩展为新的 readiness gate、预检框架或项目交付物。
 
 ## 14. 官方来源
 

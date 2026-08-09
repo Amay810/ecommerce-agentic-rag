@@ -5,6 +5,7 @@
 2026-08-08 收紧一次（标注“收紧/新增”）：新增 §1.1 能力阶梯；收紧三处结论——不把三域 100 题合并成单一电商功效成功率并区分单比例 CI 与 McNemar 配对功效（§9.1、§9.2）；Retail test 40 声明为 test-aware informed 并要求独立 held-out 承担确认性（§3.2、§8.1、§11 P1）；S0 定位为训练链路检查而非新能力证明，P0.5 改为四分支决策（§6.2、§11 P0.5）。  
 2026-08-09 执行交接更新：新增 §13，冻结 Windows/NSCC 分工、虚拟环境、路径、隧道、同步、Git 分支、S0 数据漏斗与当前完成状态；这些内容是后续 Agent 的执行事实，不得用旧对话中的临时 job、节点或建议覆盖。
 2026-08-09 S0 服务更新：filtered47 四卡 LoRA 训练已完成并产出 `checkpoint-18`；冻结 vLLM 0.10.2 不支持 LoRA+DP，故 Base 服务保留四卡 DP=4，S0 LoRA 服务改为单卡 DP=1。该差异只改变吞吐，不改变能力评测条件，延迟不得跨臂比较。
+2026-08-09 S0 诊断更新：Base 与 S0 Retail test 40×4 均已跑满且基础设施错误为 0；S0 为 86/160，Base 为 85/160，任务聚类 95% 区间跨 0，不能主张 S0 带来能力提升。完整审核见 §13.14。
 目标模型：`Qwen/Qwen3-4B-Instruct-2507`。  
 
 ## 0. 证据纪律
@@ -1185,14 +1186,15 @@ template parity
 → filtered47 四卡训练 PBS 创建、验证、commit/push、同步 NSCC
 → S0 LoRA 四卡训练成功，产出 output/tau3_s0_filtered47/checkpoint-18
 → 四卡 LoRA 服务失败根因定位为 vLLM 0.10.2 不支持 LoRA+DP
+→ 单卡 S0 LoRA 服务成功，Windows 并发 4 正常运行
+→ Base/S0 Retail test 40×4 均完成，0 infrastructure errors
 ```
 
 当前尚未完成、不得提前写成完成态：
 
 ```text
-Qwen + S0 adapter 的 vLLM 服务
-Base/S0 同口径配对评测
-S0 是否产生局部增益或退化的结论
+S0 结果文件的冻结 provenance 顶层字段补齐
+S0 正式 closeout
 pending-order Task Compiler
 ```
 
@@ -1204,9 +1206,84 @@ qsub -v TAU3_ADAPTER=/scratch/users/ntu/s250045/ecommerce-agentic-rag-legacy-tas
   nscc/serve_tau3_s0_v1.pbs
 ```
 
-S0 服务就绪后，读取当前计算节点、重建 Windows 8123 隧道，并以 `hosted_vllm/Qwen3-4B-S0` 运行 Retail test 40×4。除服务吞吐配置外，Base/S0 的 simulator、judge、temperature、任务、max_steps、pass_k 和 reward 必须一致。
+S0 服务和 Retail test 40×4 已运行完成。除服务吞吐配置外，Base/S0 的 simulator、judge、temperature、任务、max_steps、pass_k 和 reward 保持一致。
 
 本次需要永久记录但不包装成工程贡献的执行失误：提交四卡 LoRA 服务前，没有先核对冻结 vLLM 0.10.2 是否支持 `--enable-lora` 与 DP=4 的组合。以后涉及特定版本的并行组合时，应先查已安装版本的支持范围或用最小实际启动确认；这只是一项执行核对纪律，不扩展为新的 readiness gate、预检框架或项目交付物。
+
+### 13.14 S0 Base/SFT 正式诊断结果（2026-08-09）
+
+两臂运行完整性：
+
+| 项目 | Base | S0 |
+|---|---:|---:|
+| Retail test 独立任务 | 40 | 40 |
+| 每任务 trials | 4 | 4 |
+| simulations | 160 | 160 |
+| reward 完整 | 160/160 | 160/160 |
+| infrastructure errors | 0 | 0 |
+| 正常 `user_stop` | 160 | 160 |
+| 成功 | 85 | 86 |
+| 成功率 | 53.125% | 53.750% |
+
+任务、task/trial 配对键、任务 payload、Retail policy、seed=300、agent/user temperature=0、DeepSeek user simulator、`max_steps=200` 均一致；两臂任务集合与官方 test 40 完全一致。服务资源差异仅为 Base 四卡 DP 与 S0 单卡 LoRA，单条请求都由一张 A100 完成，因此成功率可比较，延迟和吞吐不可比较。
+
+配对结果：
+
+```text
+两臂都失败: 53
+S0 修复:     22
+S0 退化:     21
+两臂都成功: 64
+净差值:     +1/160 = +0.625pp
+```
+
+40 个独立任务聚合后：
+
+```text
+S0 改善任务: 11
+S0 退化任务: 11
+不变任务:    18
+任务聚类 bootstrap 95% CI: [-8.75pp, +10.625pp]
+```
+
+辅助分量也没有形成正向证据：
+
+| 分量 | Base | S0 | 配对变化 |
+|---|---:|---:|---|
+| DB match | 86/160 | 86/160 | 21 修复 / 21 退化 |
+| NL assertion pass | 153/160 | 153/160 | 6 修复 / 6 退化 |
+| failed write action checks | 86 | 90 | S0 多 4 个；只作诊断，不等同非法状态变更 |
+| 至少成功一次的任务 | 31/40 | 30/40 | S0 少 1 个 |
+| 四次全成功的任务 | 14/40 | 14/40 | 持平 |
+
+正式能力判断：
+
+> S0 adapter 已证明“47 条 verified rejection data → 四卡 LoRA 训练 → adapter 加载 → τ³ 多轮工具评测”的训练与部署链路可运行；但在本次 Retail test 40×4 上，没有证据表明 S0 提高了电商客服 Agent 能力。结果应记为 `negative_or_inconclusive`，不得把 +1/160 写成提升。
+
+该结果符合 S0 的预注册边界：S0 只从 Base 已经成功的轨迹学习，严格过滤后仅 47 条、覆盖 40 个 train task，本来不能补充 Base 从未成功过的行为。S0 无增益不否决 Task Compiler，反而确认下一步应补独立任务和能力盲区，而不是继续增加同任务 pass_k 或围绕 47 条调参。
+
+产物：
+
+```text
+Base:
+E:\cv_codex\external\tau2-bench\data\simulations\
+tau3_s0_v1_base_test_qwen3_4b_k4\results.json
+
+S0:
+E:\cv_codex\external\tau2-bench\data\simulations\
+tau3_s0_v1_sft_test_qwen3_4b_k4\results.json
+```
+
+provenance 审核：Base 已包含顶层 `tau2_commit/user_simulator_model/nl_assertions_model/agent_model/pass_k/protocol`。S0 运行文件尚未写入这些顶层注释字段，且 `info.git_commit` 记录的是启动 CLI 时的当前工作目录 commit；τ² 源码的 `get_commit_hash()` 本来就是对当前目录执行 `git rev-parse HEAD`，因此该值不是 τ² checkout 漂移证据。本地外部 checkout 已只读核实为 `v1.0.1/fc0055dc...`，两臂任务和冻结配置完全对齐。无需重跑，但正式 closeout 前必须把同一组冻结顶层字段补入 S0 产物。
+
+本次稳定运行事实只记录以下四项：
+
+1. vLLM 0.10.2 不支持内置 LoRA+DP；Base=四卡 DP、训练=四卡 DDP、S0 服务=单卡；
+2. 绕过项目 wrapper 直接调用底层 CLI 时必须保留 `NO_PROXY/no_proxy=127.0.0.1,localhost`；此前 `BadGateway` 期间服务端没有收到正式 POST，因此不是并发或模型故障；
+3. PBS 重启后必须按新 `exec_host` 重建 8123 隧道，旧隧道指向旧节点会产生 `WinError 10054`；
+4. LiteLLM 的 `This model isn't mapped yet: Qwen3-4B-S0` 只表示无法计算自定义本地模型 API 成本，不影响推理、轨迹或 reward。
+
+临时终端窗口、盘符可见性和某一次连接状态不作为项目/环境缺陷写入主叙事。排查 `BadGateway` 时先检查请求是否真正到达 vLLM，再判断模型、并发或服务故障。
 
 ## 14. 官方来源
 

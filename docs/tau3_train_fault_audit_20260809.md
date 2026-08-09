@@ -86,3 +86,20 @@ pilot 完成后必须先报告：8 个独立任务、每任务采样上限、生
 执行使用 τ² 已有 `LLMGTAgent`，但关闭 `provide_function_args`，只提供 action 名序列，避免把订单号、item id、payment id 等未披露参数直接喂给模型。入口为 `scripts/run_tau3_hint_pilot_v1.ps1`；它只发起上述 16 次 rollout，不执行过滤、训练或评测扩量。
 
 离线渲染已核对 8 个任务的提示：action 数分别为 6、10、6、13、7、5、1、3，未出现订单号、7–10 位实体 ID 或 payment method ID。需要注意，官方 `evaluation_criteria.actions` 是评分所需动作，不保证是完整策略：task 85 和 109 的 gold actions 只有目标写操作，没有身份验证或读取动作；其余 6 个任务同时包含认证与读取。因此这两题专门检验模型能否依据 Retail policy 自行补齐前置步骤，不能把 gold action list 当成完整 teacher trajectory。即使官方 reward=1，只要轨迹跳过认证、必要读取或显式确认，仍按严格质量规则拒收。
+
+## Hint pilot v1 正式结果（2026-08-10）
+
+产物：`tau3_hint_pilot_v1_qwen3_4b_k2/results.json`。16 条 simulation 完整，15 条 `user_stop`、1 条 `max_steps`、0 infrastructure error。官方 reward=1 为 4/16，分别是 `14/1`、`30/1`、`59/1`、`85/1`。这 8 个任务在历史 Base rollout 中合计 0/32，因此 action-name-only hint 把同一零成功任务池的官方终态成功从 0 提到 25%，证明动作路径提示在其设计层面有效；两次实验的 trial 数不同，不把它写成正式配对效应量。
+
+严格过程审核：
+
+| 轨迹 | 官方 reward | 严格结果 | 原因 |
+|---|---:|---|---|
+| 14/1 | 1 | 接受 | 认证、读取、确认和两次退货均合规 |
+| 30/1 | 1 | 拒收 | 声称工具未返回的即时退款和礼品卡余额，后续余额直接反证 |
+| 59/1 | 1 | 拒收 | 用户给出“等待不合理”，模型未经确认写成 `no longer needed` |
+| 85/1 | 1 | 拒收 | 正确 modify 前发生两次错误 exchange 写调用 |
+
+漏斗为 `8 独立任务 → 16 rollout → 4 官方成功 → 1 严格候选 → 1 独立任务`。小样本不能证明真实保留率低于先验区间；停止扩量的决定来自容量上限：整个零成功池最多只有 21 个独立任务，即使 100% 保留也无法切出能力阶段所需的 train/dev/held-out。故 hint 的角色改为验证生成规程，而不是提供主要训练数据。
+
+v1 的失败分两层：过程合规（30/59/85）与目标/参数选择（14/20/109 的多退商品、最贵/最便宜变体选择）。v2 仍用相同 8 task×2，只提供无实体 ID 的 semantic plan，并补足 task 85/109 缺失的认证/读取前置。主判据是 30/59/85 的三类过程违规是否消失；参数选择单独报告。若过程违规仍出现，关闭 self-distillation 并转独立 teacher；teacher 仍须通过同一过程过滤。

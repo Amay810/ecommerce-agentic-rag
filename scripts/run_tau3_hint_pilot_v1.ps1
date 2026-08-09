@@ -29,10 +29,10 @@ $launcher = Join-Path $PSScriptRoot "_tau3_hint_cli.py"
     --num-trials 2 `
     --agent llm_agent_gt_no_args `
     --agent-llm hosted_vllm/Qwen3-4B-Instruct-2507 `
-    --agent-llm-args '{"temperature":0.0}' `
+    --agent-llm-args '{\"temperature\":0.0}' `
     --user user_simulator `
     --user-llm deepseek/deepseek-chat `
-    --user-llm-args '{"temperature":0.0}' `
+    --user-llm-args '{\"temperature\":0.0}' `
     --max-steps 200 `
     --max-errors 10 `
     --seed 300 `

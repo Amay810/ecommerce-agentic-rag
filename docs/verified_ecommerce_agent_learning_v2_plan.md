@@ -6,6 +6,7 @@
 2026-08-09 执行交接更新：新增 §13，冻结 Windows/NSCC 分工、虚拟环境、路径、隧道、同步、Git 分支、S0 数据漏斗与当前完成状态；这些内容是后续 Agent 的执行事实，不得用旧对话中的临时 job、节点或建议覆盖。
 2026-08-09 S0 服务更新：filtered47 四卡 LoRA 训练已完成并产出 `checkpoint-18`；冻结 vLLM 0.10.2 不支持 LoRA+DP，故 Base 服务保留四卡 DP=4，S0 LoRA 服务改为单卡 DP=1。该差异只改变吞吐，不改变能力评测条件，延迟不得跨臂比较。
 2026-08-09 S0 诊断更新：Base 与 S0 Retail test 40×4 均已跑满且基础设施错误为 0；S0 为 86/160，Base 为 85/160，任务聚类 95% 区间跨 0，不能主张 S0 带来能力提升。完整审核见 §13.14。
+2026-08-09 能力主线删减：S0 归档为过度规模化的 negative control；GRPO、Skill、Telecom/BFCL、完整回归矩阵和多臂消融退出当前主线。新增 train 296 故障审计与 8-task action-name-only hint pilot，先验证新行为数据获取，再决定是否实现 pending-order compiler。
 目标模型：`Qwen/Qwen3-4B-Instruct-2507`。  
 
 ## 0. 证据纪律
@@ -22,20 +23,18 @@
 
 唯一主问题：
 
-> 在相同 Qwen3-4B、相同外部测试集和相同推理配置下，使用“可执行环境验证的数据”进行 Agent-turn SFT，并进一步进行多轮 GRPO，能否提高未受本项目 Action Constraint 保护的电商客服 Agent 能力？
+> 在相同 Qwen3-4B 和相同推理配置下，使用“覆盖 Base 未掌握行为、且经可执行环境验证的数据”进行 Agent-turn SFT，能否提高训练不可见 Retail held-out 上的电商客服能力，同时不增加错误写入？
 
 次问题：
 
-1. 失败定向的数据生成是否比只重复官方 train task 更有效？
-2. 非合作用户是否揭示 cooperative simulator 隐藏的失败？
-3. 经配对回放验证的 Skill 是否能在冻结模型上提供独立增益？
+1. privileged-plan-conditioned self-distillation 能否在 Base 零成功任务上产生可严格保留的新行为轨迹？
+2. pending-order 新任务能否补足官方 train 的工具与行为覆盖缺口？
 
 允许的三类贡献：
 
 | 结果 | 允许的表述 |
 |---|---|
-| 外部测试上 Base → SFT 或 SFT → RL 配对提升 | 模型策略能力提升 |
-| 只有 Skill on 提升，模型权重未变 | 推理时程序性知识改善 |
+| 训练不可见 Retail held-out 上 Base → SFT 配对提升 | 模型策略能力提升 |
 | 只有 Guardrail/Constraint on 提升 | 系统安全或可靠性改善 |
 
 禁止把内部 40/120 回归修复、grader 调试、协议修补写成模型学习贡献。
@@ -46,17 +45,15 @@
 
 > 让模型从只能回答商品问题和有限执行退货，逐步成长为能够理解用户目标、查询交易状态、遵守政策、完成多轮交易操作，并在异常与非合作对话中安全收尾的电商客服 Agent。
 
-对应的能力阶梯（评测是每阶段的验收门，不是阶段交付本身）：
+NSCC、template parity、LoRA 训练和 adapter 部署已经跑通，统一记为**已完成基础设施**，不再作为 M0/M1 能力阶段，也不再重复做完整规模链路实验。对应的能力阶梯从用户可感知的新行为开始（评测是验收门，不是阶段交付本身）：
 
 | 阶段 | Agent 新增能力 | 可见交付 | 大致对应实施阶段 |
 |---|---|---|---|
-| M0 | 可稳定运行与训练 | Base 在 NSCC 跑通；template parity 通过 | P0 / P0-a |
-| M1 | 学会已有正确轨迹 | S0 checkpoint；证明训练链路有效 | P0.5（S0） |
-| M2 | 修改待处理订单 | 修改商品、支付方式；完整对话演示与 held-out 增益 | P1 首个竖片 → P2/P3 |
-| M3 | 扩展交易业务 | 取消、退货、换货、地址修改，逐族增加 | P1 扩量 → P3 |
-| M4 | 处理真实对话困难 | 信息不全、拒绝、跑题、改变需求、工具故障 | P5 非合作用户 |
-| M5 | 从失败中持续改善 | bad case 聚类 → 新任务/Skill/训练数据 → 独立回放验证 | P5 Skill 与失败飞轮 |
-| M6 | 后训练优化 | SFT 有效后再验证 GRPO 是否提供额外收益 | P4（GRPO） |
+| M2 | 修改待处理订单 | 修改商品、支付方式；完整对话演示与 held-out 增益 | P1–P4 |
+| M3 | 扩展交易业务 | 取消、退货、换货、地址修改，逐族增加 | P5 逐族扩展 |
+| M4 | 处理真实对话困难 | 信息不全、拒绝、跑题、改变需求、工具故障 | cooperative 能力成立后再做 |
+| M5 | 从失败中持续改善 | train bad case → 新任务/训练数据 → 独立回放验证 | 沿用 P1–P4 闭环 |
+| M6 | 后训练优化 | SFT 仍有稳定盲区时再判断 Skill/RL | 当前冻结 |
 
 **每个阶段必须同时交付以下六项，缺一不算阶段完成：**
 
@@ -162,44 +159,40 @@
 
 ### 4.1 Task Blueprint：先生成可执行规格，不先写对话
 
-每个任务蓝图必须是机器可读对象，最少包含：
+首个 pending-order 竖片直接使用 τ³ 官方任务对象和 `EnvironmentEvaluator`，不先建设通用 blueprint 框架。v0 最少字段为：
 
 ```json
 {
   "task_id": "...",
-  "environment": "tau3_retail|native_retail",
   "source_policy_version": "...",
-  "tool_graph_hash": "...",
-  "db_snapshot_hash": "...",
-  "initial_state": {},
+  "initialization_actions": [],
   "user_goal": {},
   "private_user_facts": {},
   "disclosure_schedule": [],
-  "required_effects": [],
-  "forbidden_effects": [],
-  "acceptable_terminal_conditions": [],
-  "reference_tool_paths": [],
-  "behavior_profile": "cooperative|incomplete|impatient|digressive|unsupported_request|goal_shift",
+  "reference_actions": [],
+  "behavior_profile": "normal|clarification|confirmation|illegal_state_refusal",
+  "structure_signature": "...",
+  "split": "train|dev|heldout",
   "generator_version": "...",
-  "generator_prompt_hash": "..."
+  "source": "tau3_retail_v1.0.1"
 }
 ```
 
-这里的 `reference_tool_paths` 是允许路径集合而非强制唯一答案。终态相同且未违反政策的替代路径可以通过。
+官方在干净环境重放 `reference_actions` 后生成目标 DB hash；终态相同且未违反政策的替代路径可以通过。v0 不维护第二套手写 `required_effects/forbidden_effects/reference_tool_paths` 真值。
 
 依据：APIGen-MT 将 blueprint 与完整 trajectory 分离；Magnet 从 function-signature path 构造多轮数据；τ² 使用原子组件生成可验证组合任务。
 
-**环境相关的字段降级（2026-08-08 修订）。** 在 `tau3_retail` 环境下，`required_effects` / `forbidden_effects` / `reference_tool_paths` 三个字段**不作为判分依据**，只作为诊断与覆盖率统计字段：
+历史方案中的 `required_effects` / `forbidden_effects` / `reference_tool_paths` 已从 v0 删除，而不是继续作为诊断必填字段：
 
 - 官方 `RewardType.DB` 的语义是"在干净环境上重放参考 `actions` 得到目标库哈希，任何产生等价终态的路径都通过"。这已经提供了"允许路径集合"的语义，且比手工枚举更严格也更省事；
 - `Environment.set_state` 在重放时跳过非 mutating 工具，因此读路径差异天然不影响终态比对；
-- 手写 effects 列表与 DB 哈希不一致时，以 DB 哈希为准，并把该蓝图记为拒收（生成器 bug）。
+- 避免维护第二套交易真值；
+- 避免为首个竖片建设通用 effect/verifier 框架；
+- 若未来回到 `native_retail`，再针对其缺少 DB hash 的实际问题设计最小判分字段，不提前实现。
 
-在 `native_retail` 环境下这三个字段仍然是判分依据，因为原生环境没有等价的整库哈希机制。两套环境分别记分的原则不变。
+### 4.2 Pending-order 硬编码前置条件表
 
-### 4.2 工具依赖图
-
-图节点不是自然语言意图，而是可执行动作及状态谓词，例如：
+v0 不实现通用 tool graph。只为 `modify_pending_order_items` 和 `modify_pending_order_payment` 写一张可读的前置条件表，例如：
 
 ```text
 get_user_details
@@ -213,14 +206,14 @@ get_order_details
   → return_delivered_order_items
 ```
 
-每条边必须来自以下之一：
+每条规则必须来自以下之一：
 
 1. 工具 schema 的输入/输出字段；
 2. 官方 policy 的明确前置条件；
 3. 工具实现中的状态检查；
 4. 人工审阅并写入版本化规则。
 
-不得让 LLM 自行发明边。LLM 只可提出候选边，程序执行失败或无法在源码/policy 中定位依据即拒绝。
+不得让 LLM 自行发明规则。等扩展到多个业务族、确实出现重复维护问题后，再决定是否抽象为通用图。
 
 ### 4.3 蓝图生成
 
@@ -243,7 +236,7 @@ get_order_details
 - success / impossible / unsafe；
 - seen composition / held-out composition。
 
-训练规模由 learning curve 决定：先生成能覆盖全部适用原子条件和二元组合的最小集合，此后按累计 verified token 数几何扩展；每次扩展只使用自建 dev 选择，连续扩展不再改善时停止。本文不预先编造“必须 600 或 1,000 条”。
+正式生成前必须先完成 §1.2 数据漏斗。`5–10` 个任务只用于检查任务生成、官方双次回放和 hint 不泄漏，**不训练模型**。随后根据实测生成成功率、过程合规保留率和结构去重率，一次性确定 train/dev/held-out 规模；首个能力阶段不做几何扩量 learning curve。
 
 ### 4.4 自然语言与用户模拟
 
@@ -258,15 +251,11 @@ LLM 接收 blueprint，只生成：
 
 ABCD 只用于抽取诸如短句、反问、分段披露、修正前述信息等语言现象；不能复制其具体客户实体、公司规则或 action sequence。
 
-模拟器不得看到 `required_effects`、`reference_tool_paths` 或 grader 结果，只能看到用户私有事实和 disclosure schedule。
+模拟器不得看到参考 actions 或 grader 结果，只能看到用户私有事实和 disclosure schedule。
 
 ### 4.5 轨迹采集
 
-每个 blueprint 至少经过以下角色之一：
-
-- teacher agent：生成高质量候选轨迹；
-- current policy：生成 on-policy 成功与失败轨迹；
-- scripted executor：仅用于验证 reference path，不进入语言训练。
+当前只保留两种生成方式：current policy 的普通 rollout，以及向同一 policy 私下提供参考 action plan 的 privileged-plan-conditioned rollout。后者不是独立 teacher 实验臂，导出前必须剥离提示。scripted executor 只验证 reference path，不进入语言训练。
 
 训练轨迹保留 assistant 自己生成的 clarification、普通回复和 tool call；工具观察必须来自真实环境。禁止把 teacher 编造的 tool response 写入训练数据。
 
@@ -276,7 +265,7 @@ ABCD 只用于抽取诸如短句、反问、分段披露、修正前述信息等
 
 - blueprint 引用不存在的实体或工具；
 - reference path 无法执行或重复执行终态不一致；
-- required/forbidden effects 与真实 DB diff 不一致；
+- 官方参考 actions 无法在干净环境得到目标 DB 终态；
 - assistant 调用了 schema 外工具或参数无法解析；
 - 工具观察不是环境真实返回；
 - 轨迹发生未授权写入、错用户/错订单操作；
@@ -289,11 +278,12 @@ LLM semantic reviewer 只能作为附加过滤器，不能覆盖确定性失败�
 
 ### 4.7 去重与 split
 
-去重分三层：
+v0 去重只保留两层：
 
-1. 文本近重复：规范化文本 hash + embedding 相似度候选；
-2. 结构近重复：`task_family + tool_path + state_predicates + required_effects`；
-3. 外部污染：与 τ³ test 40 的结构签名比较。
+1. 结构近重复：`task_family + reference_actions + initial_state_predicates + behavior_profile`；
+2. 外部污染：与 τ³ test 40 的结构签名比较。
+
+首个竖片不实现 embedding 去重。只有数据规模扩大后出现真实文本近重复问题，才增加文本候选过滤。
 
 自建数据先按结构签名分组，再分 train/dev/diagnostic-test；同一结构组不能跨 split。实体 ID、LLM paraphrase seed 和 user profile 也不能跨 split。自建 diagnostic-test 只证明生成器内泛化，不能替代外部 benchmark。
 
@@ -323,7 +313,7 @@ LLM semantic reviewer 只能作为附加过滤器，不能覆盖确定性失败�
 - assistant clarification/final、tool_call：计算 loss；
 - 不训练隐藏 blueprint、reference path、grader reasoning。
 
-这不是纯“action-only”，因为客服能力也包含澄清与解释。另做 action-only ablation，回答自然语言监督是否必要。
+这不是纯“action-only”，因为客服能力也包含澄清与解释。当前不安排 action-only ablation；只有实际出现语言能力或工具格式退化时，才把 loss mask 作为诊断变量。
 
 ## 6. 训练框架
 
@@ -366,89 +356,28 @@ teacher 选择不是“用最贵模型即可”。候选必须能输出标准 to
 
 ### 6.2 Stage A：Agent-turn LoRA SFT
 
-训练臂：
+当前主动训练对比只保留两个模型：
 
 ```text
-B0  Base Qwen3-4B
-S0  τ³ train on-policy rejection sampling（环境验证成功轨迹）
-S1  τ³ train teacher trajectories
-S2  S1 + verified self-built trajectories
-S3  S2 + optional APIGen Airline warm-up
+B0  Base Qwen3-4B（冻结、复用已有结果）
+C1  含新行为监督的 verified SFT（每个能力阶段只训练一个主模型）
 ```
 
-S3 只有在数据许可 gate 与 BFCL 去重通过后才运行。
+Teacher/hint-conditioned generation 只作为**数据获取方式**，不再单列 S1 实验臂；APIGen Airline warm-up、S3 和 action-only ablation 均移出主线。是否使用 teacher 由新行为数据的实际保留率决定，不能为了凑实验臂单独训练模型。
 
-**S0 是新增的一等实验臂，且排在 P1 之前（2026-08-08 修订）。** 初稿只把 on-policy rejection sampling 写成"没有候选 teacher 明显强于学生"时的退路。改为一等公民的理由：
+**S0 已降级为附录 negative control（2026-08-09）。** 它只训练 Base 自身成功轨迹，缺少零成功行为监督。合理规模本应是 `5–10 条数据 → LoRA 可训练 → adapter 可加载 → 5–10 题工具格式 smoke`，不需要完整 `74×4` 训练采样和 `40×4` 外测。实际执行得到 47 条高度同质记录，Base/S0 为 85/160 与 86/160，未证明能力提升。完整运行只保留为训练部署链路证据和规划失误记录，不再调参、补跑或作为后续能力阶段。
 
-- 它不需要任何新组件。74 条官方 train task 本身就是带可验证终态的蓝图，反复采样后用官方 grader 筛 `reward == 1.0` 即可，工程成本约为 P1 的百分之一；
-- 它同时产出 P1 最需要的输入：train split 中基座策略从未成功过的任务集合，即覆盖盲区的直接证据。
+固定沿用已经跑通的 LoRA 配置作为首个能力模型起点，不做超参数 sweep 或多 checkpoint learning curve。只有含新行为数据的 C1 在 held-out 上明显退化，且已排除数据错误时，才允许一次有明确假设的训练参数调整。τ³ test 不参与选择。
 
-**S0 是训练链路检查，不是新能力证明（2026-08-08 收紧）。** S0 从基座**已经成功**的轨迹中筛 `reward==1.0` 再训练，它能验证的是：数据格式是否正确、chat template 是否一致（P0-a）、LoRA 是否真正学到工具调用格式、环境验证轨迹能否进入训练、是否产生明显灾难性退化。但它**缺少基座从未成功过的行为**，因此**不能回答“能否获得新能力”**。
+### 6.3 Stage B：多轮 GRPO（冻结，非当前主线）
 
-由此得到一个必须写死的判据：**S0 增益为 0 不能否决 Task Compiler。** 当成功轨迹只是重复了模型本来就会的东西时，零增益是预期结果，而不是编译器“建在沙上”的证据。S0 的天花板（74 条任务多样性有限、自采样对基座不会的任务零信号）本身就是 P1 的论证。S0 的 go/no-go 语义因此只针对训练链路，能力问题留给 P1，判据细则见 §11 P0.5。
+当前不实施 GRPO、Base→GRPO、CM2、Dr.GRPO 或 GSPO。Retail test 的 k=4 结果中确有 17/40 个任务同时出现成功和失败，说明“所有 group 必然全零”这一悲观判断没有数据支持；但这只证明可能存在组内方差，不构成启动 RL 的理由。
 
-实现：`scripts/build_s0_rejection_sft.py`。该脚本刻意不自行 rollout，生成与判分全部交给官方 runner，以保证工具观察和 Reward 无歧义地来自环境。
+只有在 verified SFT 已在训练不可见 Retail held-out 上形成稳定、明确的 raw-policy 增益，并且新增任务数据仍不能解决的策略错误跨结构重复出现时，才另立新协议讨论 RL。届时重新核对环境重置、Reward、组内方差与训练预算；本方案不提前实现 scheduler、reward shaping、checklist、课程或算法消融。
 
-ms-swift 官方 Qwen3-4B 示例的 `LoRA rank=8, alpha=32, lr=1e-4`只作为 smoke 起点，不冒充本任务最优参数。正式超参数在自建 dev 上选择并冻结；τ³ test 不参与选择。`max_length`由训练轨迹 token 长度分布和显存预检确定，并报告删除/截断比例，不能静默截断工具链。
+## 7. Skill 路线（后置）
 
-模型选择指标：自建 dev 的环境成功率优先；若相同，依次比较非法写入、schema error、平均轮数。不能用训练 loss 单独选 checkpoint。
-
-### 6.3 Stage B：多轮 GRPO
-
-前置条件：
-
-1. S2 相对 B0 在自建 dev 有非零提升；
-2. 环境可并发重置，每个 rollout 使用独立 DB copy；
-3. Reward 全部由环境和规则计算；
-4. 同 prompt 的多次 rollout 中存在不同 reward，否则 group-relative advantage 为零；
-5. 先完成小规模 stability run，确认无 tool-call 格式崩溃和梯度异常。
-
-使用 ms-swift `MultiTurnScheduler`：模型输出 tool call → scheduler 调用 τ³/native adapter → 返回真实 observation → 继续 rollout，直至终态或 max turns。
-
-v2 主 Reward 不使用任意加权和：
-
-```text
-R = -1  若出现 schema 外动作、越权/非法状态变化或不可恢复的协议破坏
-R =  1  若环境 goal/终态全部通过且无上述违规
-R =  0  其他合法但未完成的轨迹
-```
-
-身份验证、显式确认、禁止写入等过程条件由 verifier 转成 hard validity gate。轮数、token 和 handoff 只作诊断指标，不在主 Reward 中人为调权。
-
-**方差塌缩的预注册对策（新增）。** 前置条件 4 只规定了检查，没有规定检查失败后怎么办。以 Qwen3-4B 的水平和 τ³ retail 的难度，多数 group 很可能全为 0（合法但未完成），group-relative advantage 归零，训练无梯度。这是多轮 agent RL 最常见的失败模式，必须提前定好对策，否则 P4 会在 P1 已经完工之后才卡死。
-
-需要澄清一个概念区分：本文禁止的是**任意加权**，不是**任何 shaping**。由环境确定性计算的子目标进度不属于任意加权，与 CM2 那类 LLM checklist judge 有本质区别。据此预注册两条对策，按顺序启用：
-
-1. **确定性子目标进度项。** 以蓝图 `required_effects` 中已满足的比例作为 `(0, 1)` 区间内的稠密项，仅在 group 内全部 rollout 的主 Reward 相同时生效。该值完全由环境状态计算，不涉及任何 judge。违规判定 `-1` 优先级不变，一旦触发即覆盖进度项。
-2. **难度课程。** 用编译器的 `tool-path length` 轴从短路径任务起步建立方差，再逐步引入长路径任务。
-
-两条都不改变主 Reward 的定义，只影响 advantage 的可计算性。若两条都无法产生方差，则如实关闭 GRPO 路线并只报告 SFT 结果。
-
-第二轮消融才引入 CM2 风格 checklist reward，逐条记录 checklist 来源和 judge；不能把它和主结果混写。训练算法先用标准 GRPO；只有发现长度偏置或 group normalization 问题，才预注册 Dr.GRPO/GSPO 等替代，不能看 test 分数后换算法。
-
-正式对比：
-
-```text
-B0: Base
-S2: verified SFT
-R1: S2 → GRPO
-```
-
-若算力允许，再加入相同 rollout 预算的 Base → GRPO，检验 SFT cold start 是否必要；它不是最低交付要求。
-
-## 7. Skill 路线：独立实验，不与模型训练混归因
-
-Skill 只从 train 轨迹构建。流程：
-
-1. 按 first actionable fault、状态谓词、工具路径聚类成功/失败轨迹；
-2. 只有跨实体重复的故障才提出 Skill；
-3. 多条轨迹并行提取局部 lesson，再合并冲突，依据 Trace2Skill；
-4. Skill 必须声明 applicability、preconditions、procedure、forbidden actions、recovery、evidence 和 verifier；
-5. 在同一组 dev blueprint 上做 skill-off/on 配对 rollout；
-6. 出现任何新增非法状态变化即拒绝；净修复为零或负数即拒绝；
-7. 通过的 Skill 再在未参与构建的 diagnostic-test 上运行一次。
-
-主指标是 paired repairs、regressions 和 net effect，不使用“Skill 被检索/被引用次数”代替效果。论文依据是 Trace2Skill 的跨轨迹汇总，以及 SkillGen/SkillOpt 类工作的 paired/held-out validation；材料同时显示未经验证的 Skill 可能负优化，因此不设置自动上线。
+当前不构建 Skill 系统。先用可验证新行为数据证明模型权重能够获得客服能力；只有后续出现跨实体、跨任务重复且 SFT 难以吸收的程序性故障，才把 train 轨迹用于 Skill 候选，并以 off/on held-out 配对验证。Skill 检索或引用次数不作为效果证据。
 
 ## 8. 评测协议
 
@@ -491,43 +420,21 @@ Skill 只从 train 轨迹构建。流程：
 
 ### 8.2 外部泛化
 
-1. **τ³ Airline test 20 + Telecom test 40**（新增，列为主要泛化证据）。同一个已 pin 的 MIT 仓库、同一套 runner 与判分实现、同一个 user simulator，零额外工程成本，零污染风险（训练只用 retail train）。回答的问题比 BFCL 更贴近本项目形态：在 retail 上做的可验证 SFT，是提升了跨域的 policy-following 与工具使用，还是只学会了 retail 的套路。
+1. **τ³ Airline test 20，k=1**：只在每个能力阶段的最终 checkpoint 跑一次，作为 retail LoRA 是否破坏通用 policy-following 的灾难性遗忘跳闸线；禁止使用其 train split，也不把它解释为电商能力提升。
+2. **ECom-Bench**：仅在项目最终冻结 checkpoint 后跑一次，不用于选模型或迭代。
+3. **Telecom 40 与 BFCL**：移出当前主线。只有最终论文问题确实需要更广泛跨域工具泛化时再恢复。
 
-   两域的 `nl_assertions` 全部为空，判分 100% 确定性，无 judge 方差。禁止使用其 train split。
+### 8.3 写操作安全验收
 
-2. **BFCL Multi-Turn**：只测 Base、S2、R1，证明工具能力是否跨出客服环境；使用官方 executable/state-based evaluator。
-3. **ECom-Bench**：最终冻结 checkpoint 后各跑一次；报告官方 action/search/output/time 指标和 pass 指标；不用于选模型。
+每个能力阶段只跑与新增写操作直接相关的 held-out 安全子集，报告终态、错误写入、越权写入和显式确认。旧内部 120 与退货 40 不再每轮全跑；只有修改共享运行时契约或最终收尾时才做回归。Constraint off 才进入模型能力结论，on 只表示部署保护。
 
-### 8.3 原生安全回归
+### 8.4 非合作用户压力测试（后置）
 
-冻结内部 120 和退货 40，分别报告：
+不在首个能力竖片中构建六类压力测试。待 cooperative held-out 已证明能力提升后，再按明确的产品故障选择最少必要变体；模拟结果只称 simulated-user robustness。
 
-- raw policy operational success；
-- policy compliance；
-- forbidden-tool attempts；
-- terminal-state accuracy；
-- illegal state changes。
+### 8.5 人工审核（最终展示阶段）
 
-同时报告 Constraint off/on，但只有 off 进入模型能力结论；on 展示部署安全性。
-
-### 8.4 非合作用户压力测试
-
-从未见 blueprint 构建以下 paired variants：
-
-- cooperative；
-- incomplete disclosure；
-- impatience；
-- digression；
-- unsupported request；
-- goal shift。
-
-同一 latent goal、初态和模型保持不变，只改变 user policy。报告相对 cooperative 的成功率下降、幻觉工具率、错误写入、恢复成功、handoff precision 和额外轮数。
-
-该集合是本项目 stress test，不冒充真人效果。依据 `Mind the Sim2Real Gap` 的 451 人研究，LLM simulator 普遍过度合作且风格单一；因此最终报告必须明确“simulated-user robustness”，不能写“真实用户满意度”。
-
-### 8.5 人工审核
-
-人工只审核机器指标覆盖不到的内容：事实一致性、解释完整性、语气、是否误导用户、handoff 理由。样本在看模型标签前按 task family 和成功/失败分层抽取；审核员看不到模型身份；报告一致率和原始计数。人工审核不覆盖环境已能确定的 DB 终态。
+只在最终候选 checkpoint 上抽样审核机器指标覆盖不到的表达质量，不作为每轮训练 gate，也不重复审核环境已确定的 DB 终态。
 
 ## 9. 数据量与统计问题
 
@@ -535,21 +442,7 @@ Skill 只从 train 轨迹构建。流程：
 
 40 个外部 test task 仍可用于可比 benchmark，但估计精度有限。项目必须报告置信区间，不把两题变化的 `5pp` 自动解释成稳定提升。
 
-**三域 100 题解决的是跨域泛化证据，不是 Retail 电商功效样本不足（2026-08-08 收紧）。** 实测三域 test split 合计：
-
-```text
-Retail 40 + Airline 20 + Telecom 40 = 100 个独立外部任务
-```
-
-100 在数量上越过 §9.2 的 97，且全部来自同一 pin 住的 MIT 仓库，无需任何额外构建。但这一百题混合了三个不同领域、不同工具面、不同难度的任务，不能合并成单一的“电商客服成功率”。正确的分层口径是：
-
-- **Retail 40**：电商客服领域能力的主报告。样本仍然有限，结论必须带配对置信区间，且 Retail 40 已是 test-aware informed（见 §8.1），确认性由 §8.1 的独立 held-out 与 ECom-Bench 承担；
-- **Airline 20 + Telecom 40**：跨域 policy-following 与工具使用的泛化证据。回答“在 retail 上做的可验证 SFT 是否迁移到未训练领域”，而不是补足 Retail 的电商样本量；
-- **三域联合 100**：只在分层之后作为“通用多轮工具 Agent”的合并配对结果给出，且仅用于配对差值（同任务同 seed 下 Base 与 SFT 的差异），不报告跨域绝对成功率的平均，也不改名为电商客服成功率。
-
-因此这 60 条跨域任务非常有价值，但它们解决的是跨域泛化，不是“Retail 样本不足”本身；后者仍需要 Retail 领域内的更多独立结构（自建 held-out）来收窄区间。
-
-**样本量门槛与功效不是同一个问题（2026-08-08 收紧）。** §9.2 的 97 来自“估计单个成功率的 95% 置信区间半宽 ±10%”这一**单比例**公式；而本实验实际比较的是 **Base/SFT（及 SFT/RL）在同任务同 seed 下的配对差异**。配对实验的功效应依据 exact McNemar 的 **discordant pairs 数量**与**预期效应量**计算，而不是单比例 CI 的 n。100 越过 97 只说明“若要估计某一个绝对成功率，样本量勉强够”，**不等于**“已有足够功效检出 Base→SFT 的配对提升”。因此每次报告前仍须按 §9.2 末段做 paired power analysis 并写入 manifest。
+不再把 Retail、Airline、Telecom 拼成“100 题”来制造样本充足的印象。跨域任务不能补足 Retail 独立结构；当前能力确认依赖训练不可见的 Retail held-out，Retail 40 只在能力阶段收尾跑一次，Airline 20 只作遗忘跳闸线。
 
 ### 9.2 自建评测集如何确定规模
 
@@ -561,19 +454,11 @@ n ≈ 1.96² × p(1-p) / e²
 
 例如 `e=0.10` 时约需 97 个独立任务。这里的独立单位是 blueprint 结构组，不是同一任务的重复 rollout。
 
-必须强调该公式回答的问题：它估计的是**单个成功率的置信区间宽度**，而不是**配对比较的功效**。本项目的正式结论来自 Base/SFT/RL 的同任务同 seed 配对（§8.1 用 exact McNemar），其功效由 discordant pairs 的期望数量和预期效应量决定，可能显著大于或小于 97。因此 97 只是“估计单点成功率”的下限参考，不能当作“检出配对提升”的样本量结论。最终 n 须根据 paired discordance 与预算做 power analysis，并在生成前写入 manifest。
+该公式只估计单个成功率的区间宽度，不是配对比较的功效。最终任务量结合结构覆盖、数据漏斗、预算和预期效应确定；不把 97 当作能力门槛，也不为此新增 manifest 或独立 gate。
 
 ### 9.3 训练集如何确定规模
 
-不承诺固定条数。采用 verified-token learning curve：
-
-1. 先达到结构覆盖 gate；
-2. 以几何增长的累计 token 预算训练 checkpoint；
-3. 只在自建 dev 测增益；
-4. 记录数据量—性能曲线；
-5. 边际收益停止后不再机械扩写。
-
-这样能区分“样本更多”和“覆盖更有效”，也避免把同模板换实体伪装成大数据。
+每次正式 rollout 前执行 §1.2 的数量漏斗，先区分独立任务与重复采样。当前阶段不做 token learning curve 或多档训练；用 hint pilot 实测保留率后一次性确定首个竖片规模，并固定一套 LoRA 配置。
 
 ## 10. 理论与论文映射
 
@@ -596,98 +481,37 @@ n ≈ 1.96² × p(1-p) / e²
 
 ### P0：来源与环境冻结
 
-产物：`data_source_manifest.json`、依赖 lock、benchmark commits、许可证快照。  
-验收：每条数据能回答“来自哪里、允许做什么、是否接触 test”。
+已完成：τ³ 与 ms-swift/vLLM 版本、数据许可与 split、template parity、Base 服务和 LoRA 链路均已核实。P0 不再是活动任务；不新增 readiness gate、成本框架、manifest 或重复 parity。只有实际环境或模板版本发生变化时，才针对变化点做最小核对。
 
-P0 新增四项验收（2026-08-08）：
+### P0.5：S0 negative control（已归档）
 
-**P0-a　chat template 一致性。** 训练侧渲染与服务侧渲染必须逐字节一致。τ³ 通过 litellm 的 `tools` 参数把工具 schema 交给 OpenAI 兼容端点，实际 prompt 字符串由 vLLM 套用模型自带 chat template 产生；ms-swift 训练时用自己的 template 实现渲染。两者不一致会得到"dev 涨、test 掉"，且极难事后定位。
+S0 已完成并证明训练、adapter 加载和工具格式链路可运行，但没有能力增益。完整规模原本没有必要：合理链路检查只需 5–10 条数据和 5–10 题 smoke。本阶段不再补跑、调参或派生实验，详见 §13.14。
 
-工具：`scripts/check_template_parity.py`。它渲染同一条多轮工具调用会话，逐字节 diff，并输出 ms-swift 的 label 掩码分段，把 §5 的掩码规则从假设变成可机器校验的事实。ms-swift 的 import 接口须先对 pin 住的 commit 核实。
+### P1：train 故障证据与 hint-conditioned pilot
 
-**P0-b　成本模型。** 产出 `docs/tau3_eval_cost_model.json`，覆盖全部实验臂 × 全部外部域 × pass^k。工具：`scripts/estimate_tau3_eval_cost.py`，任务数与 judge 暴露从 `docs/tau3_split_audit.json` 读取而非手抄。先验 token 参数须在 smoke 后用 `--from-smoke` 替换为实测值。
+1. 只分析已落盘的 Retail train 74×4，不使用 test trace 驱动数据生成；按任务统计成功稳定性，并对失败轨迹记录首个 actionable fault、缺失显式确认候选、越权/多余写入候选。
+2. 从 21 个 train 零成功任务中选 5–10 个结构不同的任务，使用官方 `evaluation_criteria.actions` 作为私有计划提示运行 agent；提示只在生成时可见，训练记录中必须剥离。
+3. 严格保留条件：官方 reward=1、正常终止、无工具错误、身份/授权合法、写前有显式确认、无额外或越权写入、导出内容不含私有提示。
+4. 该方法称为 **privileged-plan-conditioned self-distillation**，不是纯 on-policy Base 数据，也不是独立 teacher 实验臂。
+5. pilot 只回答数据获取是否可行，实测 `生成成功率 × 严格过滤率 × 去重率`；不训练模型。
 
-当前先验下的量级：test split、k=4、4 个实验臂，外部套件合计约 `99M` prompt token、`2.9M` output token，其中 judge 仅占每臂 `0.39M`。agent 侧跑本地 vLLM，真正的付费项是 user simulator，成本控制应针对它。
+### P2：pending-order 最小 Task Compiler
 
-**P0-c　B0 外部基线提前到 P0。** 原 P3 验收写的是"自建 dev 提升后才允许第一次 τ³ test"，这条规则的本意（不让 test 参与迭代）正确，但把 Base 的 test 数字也一起推迟了。测一次 Base 不构成污染，且能提前验证整条评测链路、量出真实成本、确认任务是否在 4B 射程内。
+只有 P1 pilot 能稳定产出新行为轨迹后才进入。首个竖片为 `modify_pending_order_items` 与 `modify_pending_order_payment`：官方 train 对后者零覆盖，因此不能靠增加现有 train 的 pass_k 产生该工具的训练样本；这不等于提前断言 Base 在未来新任务上的成功率为零。
 
-纪律由"什么时候可以测"改为"谁能看到什么"：P0 跑一次 B0，评测脚本只输出聚合指标与置信区间；逐题 trace 写入明确标记为 quarantine 的目录，除最终报告阶段外不打开。
+v0 只保留：pending-order 前置条件表、最小 blueprint、官方双次回放、结构签名去重、与 test 隔离。行为类型只做四类：正常修改、必要澄清、显式确认、非法状态拒绝。先生成 5–10 个任务验证生成与官方回放，不拿它们训练；再用 P1 实测漏斗一次性决定 formal train/dev/held-out 的独立任务规模。
 
-**P0-d　split 审计。** 产物 `docs/tau3_split_audit.json`，由 `scripts/audit_tau3_retail_split.py` 生成。已完成，结论已回写至 §2.2、§6.1.1、§8.2、§9.1。
+### P3：一次正式数据生成与一次 LoRA
 
-### P0.5：S0 rejection sampling
+formal 数据生成后冻结 split。只训练一个 verified SFT 模型，沿用已跑通的 LoRA 配置；不做 teacher 臂、S0 臂、S3、action-only ablation、配置 sweep 或 token learning curve。
 
-产物：`data/s0_rejection_sft.jsonl` 及其 manifest、S0 checkpoint、S0 vs B0 的自建 dev 对比、train split 覆盖盲区清单。  
-验收：产出轨迹 100% 来自官方 runner 且 `reward == 1.0`；拒收原因可统计；S0 相对 B0 在自建 dev 上的增益方向有明确结论（含配对置信区间）与安全回归结果。
+### P4：能力验收
 
-**S0 只对训练链路做 go/no-go，不是 P1 的单一 go/no-go（2026-08-08 收紧）。** 按下表决策，不再用“正、零、负都算通过”“完全推不动便怀疑训练链路”这类过宽表述：
+先做 pending-order held-out 配对与对应写操作安全子集；明确提升且安全不退化后，跑 Airline 20 k=1 遗忘跳闸线，再在阶段收尾跑一次 Retail 40。ECom-Bench 只留到项目最终 checkpoint。
 
-```text
-S0 数据无效 / template 不一致（P0-a 未过）
-→ 阻塞，先修训练链路，暂不进入 P1
+### P5：后续能力扩展
 
-S0 有效但增益为 0
-→ 训练链路可能正常，说明现有成功轨迹缺少新信号
-→ 不否决编译器，继续做 P1 的盲区数据
-
-S0 明显退化或安全性下降
-→ 暂停扩量，检查 masking、样本分布和训练参数
-
-S0 有稳定正增益（配对区间不跨 0）
-→ 证明 rejection SFT 有效，继续 P1 扩能力
-```
-
-即：只有“数据无效 / template 不一致”才阻塞并回修训练链路；“有效但零增益”是继续 P1 的信号而非否决理由；“退化或掉安全”触发扩量暂停与链路排查；“稳定正增益”确认 rejection SFT 有效。
-
-### P1：Retail Task Compiler v0
-
-产物：tool graph、blueprint schema、generator、deterministic replay verifier、coverage report。  
-验收：生成任务均可从干净 snapshot 重放两次；required/forbidden effects 与 DB diff 一致；test contamination 为 0；**编译产出的任务能被官方 `EnvironmentEvaluator` 以 `reward_basis=[DB]` 打出满分**。
-
-**竖片交付（2026-08-08 修订）。** P1 不做横切。先选 2 个 task family 把 compiler → trajectory factory → SFT 整条链路端到端打通，先产出约 20 条蓝图验证端到端链路，跑完 P2/P3 拿到第一个真实 dev 增益，再按结构覆盖回头补量。原顺序要求在没有任何模型反馈的情况下先完成最大的一块工程，风险不在正确性而在吞吐。**约 20 条只验证链路，不构成“该业务能力完成”的主张。**
-
-首个竖片选 pending-order 修改族（`modify_pending_order_items` + `modify_pending_order_payment`）。选择理由（2026-08-08 收紧，按重要性排序）：
-
-1. **官方 train 的工具覆盖缺口**：`docs/tau3_split_audit.json` 显示 `modify_pending_order_payment` 在 train 74 中出现 **0** 次——官方 train split 对这个写工具零覆盖，编译器在此处能提供 train 本身没有的信号；
-2. **真实客服业务价值**：修改待处理订单的商品与支付方式是电商客服的高频真实写操作，属于能力阶梯 M2（见 §1.1）要交付的用户可感知能力；
-3. **两个工具共享前置条件**：订单处于 pending、支付方式/商品归属校验相同，selection set 可复用，一次竖片覆盖两个写工具。
-
-纪律说明：本竖片的选择参考了 test split 的动作直方图（`modify_pending_order_payment` 在 test 40 出现 1 次；`modify_pending_order_items` 的 train:test 为 22:17），这是 test-aware informed 的合理工程，但**不把“补 test 那一题”写成动机**；确认性由 §8.1 的独立 held-out 与 ECom-Bench 承担。
-
-**竖片必须按行为结构覆盖，而不是只生成“正确调用某个工具”的样本。** 至少覆盖以下十类，每类都要有环境可验证的终态或拒绝判定：
-
-- 正常修改商品；
-- 正常更换支付方式；
-- 订单不是 pending（不可修改）；
-- 商品或支付方式不属于该用户；
-- 用户信息不完整（需澄清）；
-- 用户中途改变需求（goal shift）；
-- 修改前需要显式确认；
-- 无需修改的幂等情况；
-- 工具故障与恢复；
-- 应当拒绝或转人工。
-
-移植细节见 `docs/retail_task_compiler_portability_assessment.md`。
-
-### P2：Trajectory Factory
-
-产物：用户模拟 adapter、teacher/current-policy rollout、turn-level validator、ms-swift exporter。  
-验收：工具 observation 100% 来自环境；provenance 完整；拒收原因可统计。
-
-### P3：SFT
-
-产物：B0/S0/S1/S2（可选 S3）、训练配置、token/coverage learning curve。  
-验收：自建 dev 提升且安全不退化后，才允许对 **SFT 臂**做 τ³ test。B0 的 test 数字已在 P0-c 取得，本阶段不重跑 B0，直接复用其冻结结果做配对。
-
-### P4：GRPO
-
-产物：MultiTurnScheduler、hard Reward、group reward variance 报告、R1。  
-验收：训练稳定；没有格式崩溃；完成 B0/S2/R1 配对外测。
-
-### P5：Skill 与非合作用户
-
-产物：版本化 Skill、off/on 配对结果、stress-test report。  
-验收：Skill 无安全回归且 held-out 净效果为正；否则如实关闭。
+首个竖片成功后，按 train 故障证据选择下一个真实客服业务族。GRPO、Skill、非合作用户压力测试与广泛跨域矩阵继续冻结，直到出现它们各自能解决且当前 SFT 主线不能解决的明确问题。
 
 ## 12. 明确不做
 
@@ -1160,7 +984,7 @@ manifest 只作本地/GitHub 数据记录，不参与训练，也未要求单独
 
 1. 项目目标是提升可执行电商客服能力，退货 40 条只作旧回归，不承担总体能力主张；
 2. 外部 τ³ Retail 提供可重置环境、工具、DB 和确定性终态，S0 是训练链路检查，Task Compiler 才负责补新能力数据；
-3. Airline 20、Telecom 40 是跨域 policy-following 证据，不能与 Retail 40 合并成单一电商成功率；
+3. Airline 20 k=1 只作阶段末灾难性遗忘跳闸线；Telecom 40 与 BFCL 已退出当前能力主线；
 4. Retail test 40 已被分析过，是 test-aware informed；确认性结论还需训练不可见 held-out；
 5. Windows 承担 DeepSeek 与多轮编排，NSCC 只承担 Qwen 推理和 LoRA 训练；
 6. PBS 入口队列是 `normal`，`g1` 只是可能显示的内部执行队列；
@@ -1171,6 +995,8 @@ manifest 只作本地/GitHub 数据记录，不参与训练，也未要求单独
 11. 任何训练前必须先估算数据漏斗，不再用 rollout 次数冒充任务多样性；
 12. filtered47 必须使用新 PBS，不能使用会重新过滤/重切 dev 的旧 PBS。
 13. 冻结 vLLM 0.10.2 的内置 LoRA 服务不支持 DP=4；Base 保持四卡 DP，S0 LoRA 服务使用单卡，但 Windows 评测并发仍可为 4。
+14. S0 是一次过度规模化的链路检查，正式归档为 negative control；后续不再用完整训练采样和外测验证已跑通链路。
+15. train 74×4 的任务级分布是 16 个稳定、37 个不稳定、21 个零成功；filtered47 缺失的 34 个任务不是 34 个零成功盲区，而是 21 个零成功加 13 个过滤/去重损耗。
 
 后续其他 Agent 不需要重新争论上述事实；如果真实仓库、环境或实验协议发生变化，必须给出新证据、明确修改本节并产生新 commit。
 
@@ -1188,25 +1014,30 @@ template parity
 → 四卡 LoRA 服务失败根因定位为 vLLM 0.10.2 不支持 LoRA+DP
 → 单卡 S0 LoRA 服务成功，Windows 并发 4 正常运行
 → Base/S0 Retail test 40×4 均完成，0 infrastructure errors
+→ S0 归档为 negative control，能力主线与评测矩阵已删减
+→ Retail train 296 故障审计完成，选出 8 个 hint-conditioned pilot 任务
+→ 复用 τ² `LLMGTAgent` 的 action-name-only 模式，16 次 pilot launcher 已准备并完成语法/CLI 注册检查
 ```
 
 当前尚未完成、不得提前写成完成态：
 
 ```text
-S0 结果文件的冻结 provenance 顶层字段补齐
-S0 正式 closeout
-pending-order Task Compiler
+8 个 train 盲区任务的 hint-conditioned 生成
+严格过滤并测量真实数据漏斗
+根据实测保留率决定是否进入 pending-order Task Compiler
 ```
 
 下一执行顺序：
 
-```bash
-cd /scratch/users/ntu/s250045/ecommerce-agentic-rag-legacy-task-closure
-qsub -v TAU3_ADAPTER=/scratch/users/ntu/s250045/ecommerce-agentic-rag-legacy-task-closure/output/tau3_s0_filtered47/checkpoint-18 \
-  nscc/serve_tau3_s0_v1.pbs
+```text
+只用官方 Retail train 的 8 个零成功任务
+→ 私有 gold-action plan 辅助完整环境 rollout
+→ 剥离私有提示并严格过滤
+→ 报告独立任务数、生成成功率、质量保留率、去重损耗
+→ 数据获取可行后才实现最小 pending-order Task Compiler
 ```
 
-S0 服务和 Retail test 40×4 已运行完成。除服务吞吐配置外，Base/S0 的 simulator、judge、temperature、任务、max_steps、pass_k 和 reward 保持一致。
+故障证据和 pilot 选择见 `docs/tau3_train_fault_audit_20260809.md`。S0 provenance 的说明性顶层字段可在归档时补齐，但不得因此阻塞能力主线，也不得重跑 S0。
 
 本次需要永久记录但不包装成工程贡献的执行失误：提交四卡 LoRA 服务前，没有先核对冻结 vLLM 0.10.2 是否支持 `--enable-lora` 与 DP=4 的组合。以后涉及特定版本的并行组合时，应先查已安装版本的支持范围或用最小实际启动确认；这只是一项执行核对纪律，不扩展为新的 readiness gate、预检框架或项目交付物。
 
@@ -1260,7 +1091,7 @@ S0 退化任务: 11
 
 > S0 adapter 已证明“47 条 verified rejection data → 四卡 LoRA 训练 → adapter 加载 → τ³ 多轮工具评测”的训练与部署链路可运行；但在本次 Retail test 40×4 上，没有证据表明 S0 提高了电商客服 Agent 能力。结果应记为 `negative_or_inconclusive`，不得把 +1/160 写成提升。
 
-该结果符合 S0 的预注册边界：S0 只从 Base 已经成功的轨迹学习，严格过滤后仅 47 条、覆盖 40 个 train task，本来不能补充 Base 从未成功过的行为。S0 无增益不否决 Task Compiler，反而确认下一步应补独立任务和能力盲区，而不是继续增加同任务 pass_k 或围绕 47 条调参。
+该结果符合 S0 的数据支持域：S0 只从 Base 已经成功的轨迹学习，严格过滤后仅 47 条、覆盖 40 个 train task，本来不能直接监督 21 个四次零成功任务。S0 无增益不否决 Task Compiler，反而确认下一步应补独立任务和能力盲区，而不是继续增加同任务 pass_k 或围绕 47 条调参。
 
 产物：
 

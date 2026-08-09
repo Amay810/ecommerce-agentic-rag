@@ -3,6 +3,7 @@
 状态：研究与实施方案；取代“仅以 τ³ 74 条 teacher rollout 做一次 SFT”的主线，但不覆盖旧实验的历史记录。  
 定版日期：2026-08-08（同日修订一次，见 §12.1；修订项均标注日期，涉及 §2.2、§3.2、§4.1、§6.1.1、§6.2、§6.3、§8.2、§9.1、§11）。  
 2026-08-08 收紧一次（标注“收紧/新增”）：新增 §1.1 能力阶梯；收紧三处结论——不把三域 100 题合并成单一电商功效成功率并区分单比例 CI 与 McNemar 配对功效（§9.1、§9.2）；Retail test 40 声明为 test-aware informed 并要求独立 held-out 承担确认性（§3.2、§8.1、§11 P1）；S0 定位为训练链路检查而非新能力证明，P0.5 改为四分支决策（§6.2、§11 P0.5）。  
+2026-08-09 执行交接更新：新增 §13，冻结 Windows/NSCC 分工、虚拟环境、路径、隧道、同步、Git 分支、S0 数据漏斗与当前完成状态；这些内容是后续 Agent 的执行事实，不得用旧对话中的临时 job、节点或建议覆盖。
 目标模型：`Qwen/Qwen3-4B-Instruct-2507`。  
 
 ## 0. 证据纪律
@@ -705,12 +706,476 @@ S0 有稳定正增益（配对区间不跨 0）
 | split 审计脚本 | `scripts/audit_tau3_retail_split.py` | 已跑通 |
 | split 审计结果 | `docs/tau3_split_audit.json` | 已生成 |
 | Retail Compiler 移植评估 | `docs/retail_task_compiler_portability_assessment.md` | 已完成 |
-| template 一致性 gate | `scripts/check_template_parity.py` | 已写，待装 ms-swift 后运行 |
+| template 一致性脚本 | `scripts/check_template_parity.py` | 已在统一 Transformers 4.57.6 栈运行，`PARITY OK` |
 | 评测成本模型 | `scripts/estimate_tau3_eval_cost.py` | 已跑通（先验值） |
 | 成本模型结果 | `docs/tau3_eval_cost_model.json` | 已生成，待 smoke 实测替换 |
-| S0 导出器 | `scripts/build_s0_rejection_sft.py` | 已写，待 runner 产出结果后运行 |
+| S0 导出器 | `scripts/build_s0_rejection_sft.py` | 已运行：296 条 rollout 严格过滤为 47 条，覆盖 40 个任务 |
 
-## 13. 官方来源
+## 13. 执行环境、路径与跨 Agent 交接（2026-08-09）
+
+本节是当前实施主线的执行事实。后续 Agent 接手时先核对本节和真实文件，再执行训练或评测；旧对话中的 job ID、计算节点、临时分支和建议均不得直接当成当前状态。
+
+### 13.1 当前权威仓库、分支与状态语义
+
+| 项目 | 当前权威值 |
+|---|---|
+| Windows 仓库 | `E:\cv_codex\ecommerce-agentic-rag-legacy-task-closure` |
+| GitHub | `https://github.com/Amay810/ecommerce-agentic-rag.git` |
+| 当前主线分支 | `feat/legacy-task-closure` |
+| 本节写入前最新已推送提交 | `ca1c0ce`（`feat(s0): train audited filtered47 dataset`） |
+| 主方案 | `docs/verified_ecommerce_agent_learning_v2_plan.md` |
+| 旧 v1 方案 | `docs/tau3_retail_posttraining_v1_plan.md`，只保留历史协议语境，不覆盖本节现状 |
+
+`cursor/tighten-tau3-plan-conclusions-5686` 等辅助工作树/分支不是 NSCC 执行源。分支对话给出的结论只有在以下链路走完后，才算进入主线：
+
+```text
+分支对话提出或发现
+→ 主对话核对真实仓库/环境
+→ 在 feat/legacy-task-closure 实现
+→ 本地验证
+→ commit
+→ push
+→ GitHub pull 或 N: 映射同步 NSCC
+```
+
+交接时必须使用以下五种状态词，不得混写：
+
+```text
+已建议：只有方案，文件可能不存在
+已实现：本地文件已经修改
+已验证：相应命令或产物已实际检查
+已提交/已推送：Git 和 GitHub 已包含
+已同步 NSCC：NSCC 路径已实际出现对应版本
+```
+
+截至 `ca1c0ce`，关键提交为：
+
+| commit | 已进入主线的事实 |
+|---|---|
+| `9526386` | 将本地联网 rollout 与 NSCC 离线训练拆开 |
+| `4cf93bb` | vLLM 服务加载 CUDA 12.8 toolkit |
+| `2699bf6` | 单节点四卡；推理 DP=4/TP=1；训练 `NPROC_PER_NODE=4` |
+| `4c37164` | 本地回环 vLLM 地址加入 `NO_PROXY`，修复 DeepSeek 调用后访问隧道端点的 502/连接问题 |
+| `920588b` | PBS 提交队列改为 `normal`；同步 template parity 的 BatchEncoding 修复 |
+| `ca1c0ce` | 提交已审核的 filtered47 数据、训练 PBS 和数据规模漏斗硬规则 |
+
+### 13.2 固定目录结构
+
+Windows：
+
+```text
+E:\cv_codex\
+├── ecommerce-agentic-rag-legacy-task-closure\   # 项目仓库
+├── external\tau2-bench\                         # 外部 pinned τ²/τ³
+│   └── .venv\Scripts\python.exe
+└── .venv-agent-v2-release\Scripts\python.exe   # 本地主项目编排/检查环境
+```
+
+NSCC：
+
+```text
+/scratch/users/ntu/s250045/
+├── ecommerce-agentic-rag-legacy-task-closure/   # 项目仓库
+├── tau2-bench/                                   # 与项目仓库同级，不在仓库内部
+│   └── .venv/bin/python
+├── models/Qwen3-4B-Instruct-2507/
+└── conda-envs/
+    ├── ecommerce-vllm/
+    └── ecommerce-swift/
+```
+
+固定外部版本：
+
+```text
+tau2-bench tag: v1.0.1
+tau2-bench commit: fc0055dc4e0a316c3f83133267fbd6faaa770992
+NSCC TAU2_ROOT: /scratch/users/ntu/s250045/tau2-bench
+```
+
+不得把 `tau2-bench/` 提交进项目仓库，也不得把 `TAU2_ROOT` 改成项目仓库内部路径。
+
+### 13.3 虚拟环境及唯一职责
+
+| 环境 | 已核实版本 | 唯一职责 |
+|---|---|---|
+| Windows `E:\cv_codex\.venv-agent-v2-release` | 当前本地主项目可用环境 | 调用项目 runner、检查/导出结果；不取代 τ² 自己的 `.venv` |
+| Windows `E:\cv_codex\external\tau2-bench\.venv` | 来自 pinned `uv.lock` | 正式本地 τ²/τ³ Retail 编排、环境、grader |
+| NSCC `ecommerce-vllm` | Python 3.12.13；torch 2.8.0+cu128；vLLM 0.10.2；Transformers 4.57.6 | Qwen Base 或 Qwen+LoRA 的 OpenAI-compatible vLLM 服务；提供 `uv` |
+| NSCC `ecommerce-swift` | ms-swift 4.2.2；Transformers 4.57.6 | chat template、label mask、四卡 LoRA SFT |
+| NSCC `tau2-bench/.venv` | τ² commit `fc0055dc...` | τ² Retail schema/环境；不向 `ecommerce-swift` 混装依赖 |
+| NSCC `ecommerce-rag` | 旧环境 | 不再用于 vLLM、ms-swift 或 τ² |
+
+`ecommerce-swift` 的 Transformers 曾为 5.8.1，已固定回 4.57.6，以匹配实际 vLLM tokenizer 栈。不得无实验协议变更再次升级到 Transformers 5。
+
+### 13.4 Windows、登录节点与 GPU 计算节点分工
+
+Windows 本地负责：
+
+```text
+τ²/τ³ 正式多轮编排
+DeepSeek user simulator
+DeepSeek NL assertion judge
+通过隧道逐轮调用 Qwen
+rollout 保存、auto-resume、reward 过滤和 SFT JSONL 导出
+代码 commit/push
+```
+
+NSCC 登录节点负责：
+
+```text
+qsub / qstat / qdel
+代码和数据接收
+轻量文件检查与 template parity
+查看服务输出中的 TAU3_VLLM_HOST
+```
+
+登录节点不负责 vLLM、LoRA 训练、大规模 rollout 或 CUDA JIT。
+
+NSCC GPU 计算节点负责：
+
+```text
+Qwen Base vLLM
+Qwen + LoRA vLLM
+FlashInfer/CUDA JIT
+单节点四卡 LoRA 训练
+```
+
+DeepSeek simulator 是冻结实验对象，不能为了在 NSCC 内部闭环而替换成本地 Qwen simulator。DeepSeek 必须留在联网的 Windows 环境；NSCC 不保存其 API key。
+
+### 13.5 PBS 与四卡资源口径
+
+用户入口队列只能写：
+
+```bash
+#PBS -q normal
+```
+
+`qstat` 运行时显示 `g1` 等名称是内部执行队列，不表示 PBS 可以写 `#PBS -q g1`。当前固定资源形式为：
+
+```bash
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=4:mem=110gb
+```
+
+不得写 `select=4:ngpus=1`，因为这可能跨四个节点。推理使用：
+
+```text
+vLLM data_parallel_size = 4
+vLLM tensor_parallel_size = 1
+一个服务端口 = 8123
+```
+
+Qwen3-4B 单卡可以容纳；四卡的目的在于同时服务多个独立 rollout，而不是把 4B 模型切成 TP=4。训练使用 `NPROC_PER_NODE=4`，不能把 vLLM 的 DP 参数用于 ms-swift。
+
+NSCC 可能把 `CUDA_VISIBLE_DEVICES` 暴露为四个 GPU UUID。`nscc/serve_tau3_agent_v1.pbs` 已逐个映射为数字 index 并保留全部四张卡，后续不得退回只支持单 UUID 的旧逻辑。
+
+当前权威 PBS：
+
+| 文件 | 用途 | 状态 |
+|---|---|---|
+| `nscc/serve_tau3_agent_v1.pbs` | 四卡 DP Base/LoRA vLLM | 已实现、验证过同类服务链路、已推送 |
+| `nscc/run_tau3_s0_filtered47.pbs` | 只训练已审核的 47 条 S0 数据 | 已实现、Bash 语法验证、已推送并同步 NSCC；训练尚未声明完成 |
+| `nscc/run_tau3_s0_v1.pbs` | 旧 S0 作业 | 不得用于 filtered47；会重新过滤、改为 `max-per-task=1` 并另切 10 个 dev task |
+
+filtered47 作业固定：
+
+```text
+input: data/s0_rejection_sft.jsonl
+records: 47
+NPROC_PER_NODE: 4
+max_length: 32768
+output: output/tau3_s0_filtered47
+```
+
+代表性 parity 轨迹约 18,661 tokens，旧 `max_length=16384` 会确定性截断，因此 filtered47 使用与服务侧一致的 32,768 上限。
+
+### 13.6 Template parity 最终事实
+
+唯一有效结论：
+
+```text
+Retail tools: 16
+serving render: 70,179 chars
+training render: 70,179 chars
+training/serving token IDs: 完全一致
+代表性 token IDs: 约 18,661
+parity_exit: 0
+结论: PARITY OK
+```
+
+label mask：
+
+```text
+system            不训练
+user              不训练
+assistant text    训练
+tool_call         训练
+tool_response     不训练
+```
+
+前两次运行无效：第一次把 `BatchEncoding` 直接 `list(...)`，只得到键名；第二次训练侧 Transformers 5.8.1 与服务侧 4.57.6 不一致。它们是脚本/环境失误，不是模板实验失败，更不是项目贡献。`scripts/check_template_parity.py` 已兼容 dict、tensor 和 batch 嵌套结构。
+
+### 13.7 DeepSeek key 与本地 provider 配置
+
+新 DeepSeek key 只以 Windows DPAPI 加密文本保存在：
+
+```text
+%LOCALAPPDATA%\ecommerce-agentic-rag\tau3_deepseek.key
+```
+
+一次性安全保存方式：
+
+```powershell
+$dir = "$env:LOCALAPPDATA\ecommerce-agentic-rag"
+New-Item -ItemType Directory -Path $dir -Force | Out-Null
+$secure = Read-Host "DeepSeek API key" -AsSecureString
+$secure | ConvertFrom-SecureString | Set-Content "$dir\tau3_deepseek.key"
+```
+
+运行时读取后只注入当前进程，必须对文件内容 `.Trim()`，并在 finally 中清理 BSTR 和环境变量。不得在命令行、仓库、NSCC 或截图中出现明文 key。旧 key 若仍有效必须撤销。
+
+本地 Qwen 端点配置：
+
+```text
+TAU3_AGENT_BASE_URL=http://127.0.0.1:8123/v1
+TAU3_AGENT_API_KEY=local-vllm
+agent model=hosted_vllm/Qwen3-4B-Instruct-2507
+user model=deepseek/deepseek-chat
+judge model=deepseek/deepseek-chat
+NO_PROXY/no_proxy=127.0.0.1,localhost
+```
+
+`scripts/run_tau3_retail_v1.py` 已在 hosted-vLLM 地址为 localhost 时自动补 `NO_PROXY`。若直接调用 τ² CLI，也必须显式设置这两个变量，否则 DeepSeek 调用后的 HTTP 客户端可能把回环请求错误处理为 502。
+
+### 13.8 两层隧道与服务检查
+
+正式 rollout 链路：
+
+```text
+Windows τ² + DeepSeek
+→ NSCC 工作流把登录节点暴露为 127.0.0.1:2222
+→ Windows SSH 二次转发
+→ 当前 GPU 计算节点:8123
+→ 四卡 vLLM 单端点
+```
+
+第二层隧道示例：
+
+```powershell
+$node = "<从当前 qstat -f 或 TAU3_VLLM_HOST 读取的计算节点>"
+ssh -p 2222 -N `
+  -o ExitOnForwardFailure=yes `
+  -o ServerAliveInterval=30 `
+  -o ServerAliveCountMax=6 `
+  -L 127.0.0.1:8123:${node}:8123 `
+  s250045@127.0.0.1
+```
+
+PowerShell 变量值必须加引号。每个 PBS 作业的计算节点都会变化，历史节点如 `x1000c2s3b0n1`、`x1000c3s7b0n0` 只属于当时作业，不能写死。
+
+可靠在线检查：
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8123/v1/models
+```
+
+若 `127.0.0.1:2222 connection refused`，是第一层 NSCC 工作流未启动，与 vLLM 无关。若 2222 正常但 8123 拒绝，检查第二层隧道、当前计算节点和 vLLM 服务。
+
+PBS 输出可能暂存在 spool，旧 `logs/tau3_agent_v1.pbs.log` 不更新不等于当前作业失败；`qstat=R` 也不等于服务已就绪。必须以计算节点 `/v1/models` 或 Windows 隧道 `/v1/models` 返回为准。
+
+### 13.9 正式 rollout 的本地执行纪律
+
+多轮 rollout 期间隧道必须持续在线，因为每轮执行顺序是：
+
+```text
+DeepSeek 生成 user turn
+→ NSCC Qwen 生成 agent text/tool call
+→ Windows τ² 执行工具并更新环境
+→ DeepSeek 根据新状态生成下一轮
+→ 直到终止并判分
+```
+
+四卡只增加同时进行的独立对话数；单条对话仍按轮次串行。
+
+当前 `scripts.run_tau3_retail_v1 --phase base` 对应官方 **test 40**，不是 train rollout。S0 训练数据必须直接使用 τ² CLI 的：
+
+```text
+--task-split-name train
+--num-trials 4
+--max-concurrency 4
+--save-to tau3_s0_v1_train_rollout_qwen3_4b_k4
+--auto-resume
+```
+
+不得误用 `--phase base` 生成训练数据。`--auto-resume` 已从 τ² 源码确认：保留非基础设施错误轨迹，删除 `infrastructure_error` 记录，只重跑失败的 task/trial。
+
+第一次 S0 rollout 曾因隧道中断产生 130 条 `WinError 10061`；恢复隧道后同名 auto-resume 最终补齐。此过程只作为执行事实，不包装成工程贡献。
+
+### 13.10 S0 rollout、数据漏斗与主张边界
+
+正式 Base rollout：
+
+| 指标 | 最终值 |
+|---|---:|
+| 独立 Retail train tasks | 74 |
+| 与 test 重叠 | 0 |
+| pass_k | 4 |
+| rollout 总次数 | 296 |
+| reward 完整 | 296/296 |
+| infrastructure error | 0 |
+| 正常终止 | 296/296 |
+| reward=1 成功轨迹 | 129 |
+| Base train rollout 成功率 | 43.58% |
+| 至少成功一次的任务 | 53/74 |
+| 四次均未成功的任务 | 21/74 |
+
+21 个零成功 task ID：
+
+```text
+14, 19, 20, 21, 28, 29, 30, 37, 41, 46, 54,
+57, 59, 76, 85, 92, 98, 103, 104, 105, 109
+```
+
+严格过滤漏斗：
+
+```text
+296 rollouts（仅 74 个独立任务）
+→ 129 条 reward=1
+→ 排除 42 条含 tool error 的成功轨迹
+→ 按 task + tool path 去重，排除 38 条重复路径
+→ 每任务最多 2 条，再排除 2 条
+→ 47 条训练记录
+→ 覆盖 40 个独立任务
+```
+
+权威产物：
+
+```text
+原始 rollout:
+E:\cv_codex\external\tau2-bench\data\simulations\
+tau3_s0_v1_train_rollout_qwen3_4b_k4\results.json
+
+训练 JSONL:
+E:\cv_codex\ecommerce-agentic-rag-legacy-task-closure\data\s0_rejection_sft.jsonl
+
+本地记录:
+data/s0_rejection_sft.manifest.json
+```
+
+47 条只允许主张训练链路和局部信号检查；不能主张充分电商客服数据、广泛能力提升、解决 21 个零成功任务或稳定泛化。严格过滤后只覆盖 40/74 个任务，未覆盖部分是 Teacher/Task Compiler 的数据目标。
+
+所有后续训练数据 rollout 必须执行 §1.2 的事前漏斗：
+
+```text
+独立任务数
+× 预期成功率
+× 质量过滤保留率
+× 去重保留率
+× 每任务上限
+= 最终有效数据区间
+```
+
+`296` 是采样次数，不是 296 个独立训练任务。
+
+### 13.11 Windows、GitHub 与 NSCC 同步方法
+
+代码以 GitHub commit/pull 为主；当前权威分支是 `feat/legacy-task-closure`。NSCC 若切换到该分支，先核对工作树，再执行：
+
+```bash
+git status
+git fetch origin
+git switch feat/legacy-task-closure
+git pull --ff-only origin feat/legacy-task-closure
+```
+
+若 Windows 仓库再次出现 dubious ownership，针对明确仓库设置：
+
+```powershell
+git config --global --add safe.directory E:/cv_codex/ecommerce-agentic-rag-legacy-task-closure
+```
+
+Windows `N:` 映射只指向 NSCC 项目仓库：
+
+```text
+N:\
+= /scratch/users/ntu/s250045/ecommerce-agentic-rag-legacy-task-closure/
+```
+
+它不会显示同级 `/scratch/users/ntu/s250045/tau2-bench`，这是正常结构。若 `N:\data` 不存在，可直接创建并复制：
+
+```powershell
+New-Item -ItemType Directory -Path "N:\data" -Force
+Copy-Item "$repo\data\s0_rejection_sft.jsonl" "N:\data\s0_rejection_sft.jsonl" -Force
+Copy-Item "$repo\nscc\run_tau3_s0_filtered47.pbs" "N:\nscc\run_tau3_s0_filtered47.pbs" -Force
+```
+
+`net use N:` 返回系统错误 85 只表示盘符已经映射，不要重复映射。优先直接复制；只有实际发生大文件传输停滞时，才改用 GitHub 或 SCP，不预先增加 `.part`、SHA、转正流程等防御步骤。
+
+截至 2026-08-09，以下两项已经在 NSCC 映射路径实际出现：
+
+```text
+data/s0_rejection_sft.jsonl                 4,601,362 bytes
+nscc/run_tau3_s0_filtered47.pbs             2,105 bytes，Unix LF
+```
+
+manifest 只作本地/GitHub 数据记录，不参与训练，也未要求单独同步 NSCC。
+
+### 13.12 分支对话已回写主线的内容
+
+以下内容最初来自辅助/分支对话或 NSCC 手工执行交接，现已由主对话核对并写回本方案：
+
+1. 项目目标是提升可执行电商客服能力，退货 40 条只作旧回归，不承担总体能力主张；
+2. 外部 τ³ Retail 提供可重置环境、工具、DB 和确定性终态，S0 是训练链路检查，Task Compiler 才负责补新能力数据；
+3. Airline 20、Telecom 40 是跨域 policy-following 证据，不能与 Retail 40 合并成单一电商成功率；
+4. Retail test 40 已被分析过，是 test-aware informed；确认性结论还需训练不可见 held-out；
+5. Windows 承担 DeepSeek 与多轮编排，NSCC 只承担 Qwen 推理和 LoRA 训练；
+6. PBS 入口队列是 `normal`，`g1` 只是可能显示的内部执行队列；
+7. 四卡 Qwen3-4B 应使用 DP=4/TP=1，而非 TP=4；
+8. template parity 在统一 Transformers 4.57.6 后正式通过，前两次失误不进入项目叙事；
+9. 项目仓库与 `tau2-bench` 在 NSCC 上是同级目录；
+10. S0 rollout 经 auto-resume 最终得到 296 条有效结果，严格过滤后只有 47 条/40 任务；
+11. 任何训练前必须先估算数据漏斗，不再用 rollout 次数冒充任务多样性；
+12. filtered47 必须使用新 PBS，不能使用会重新过滤/重切 dev 的旧 PBS。
+
+后续其他 Agent 不需要重新争论上述事实；如果真实仓库、环境或实验协议发生变化，必须给出新证据、明确修改本节并产生新 commit。
+
+### 13.13 当前下一步与完成边界
+
+当前已经完成：
+
+```text
+template parity
+→ 5 题 Base smoke（3/5，基础设施错误 0）
+→ Retail train 74×4 Base rollout（129/296）
+→ 严格过滤得到 47 条、覆盖 40 任务
+→ filtered47 四卡训练 PBS 创建、验证、commit/push、同步 NSCC
+```
+
+当前尚未完成、不得提前写成完成态：
+
+```text
+S0 LoRA 实际训练
+adapter checkpoint 产出
+Qwen + S0 adapter 的 vLLM 服务
+Base/S0 同口径配对评测
+S0 是否产生局部增益或退化的结论
+pending-order Task Compiler
+```
+
+下一执行顺序：
+
+```bash
+# 若 Base vLLM 作业仍在占用四卡，先释放真实 job id
+qdel <current-base-service-job-id>
+
+cd /scratch/users/ntu/s250045/ecommerce-agentic-rag-legacy-task-closure
+qsub nscc/run_tau3_s0_filtered47.pbs
+```
+
+LoRA 训练期间不需要 Windows 开机、不需要 8123 隧道、不需要 DeepSeek。训练完成后才重新启动 `serve_tau3_agent_v1.pbs` 并通过 `TAU3_ADAPTER` 加载 checkpoint，再建立 Windows 隧道执行 Base/S0 配对评测。
+
+## 14. 官方来源
 
 - τ²/τ³ benchmark and code: <https://github.com/sierra-research/tau2-bench>, <https://arxiv.org/abs/2506.07982>
 - APIGen-MT paper/data: <https://arxiv.org/abs/2504.03601>, <https://huggingface.co/datasets/Salesforce/APIGen-MT-5k>

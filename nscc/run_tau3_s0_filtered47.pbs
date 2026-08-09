@@ -1,0 +1,69 @@
+#!/bin/bash
+#PBS -N tau3-s0-filtered47
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=4:mem=110gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o logs/tau3_s0_filtered47.pbs.log
+
+# Train only the already-reviewed 47-record S0 dataset. This job does not run
+# tau2, DeepSeek, rollout generation, filtering, or a new train/dev split.
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+
+module purge
+module load cuda/12.8.1
+module load miniforge3/25.3.1
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-swift
+
+QWEN_MODEL="${QWEN_MODEL:-/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507}"
+S0_DATA="${S0_DATA:-$PBS_O_WORKDIR/data/s0_rejection_sft.jsonl}"
+# The verified parity fixture is about 18,661 tokens, so the old 16,384 limit
+# would deterministically truncate it. Use the same context ceiling as serving.
+S0_MAX_LENGTH="${S0_MAX_LENGTH:-32768}"
+S0_OUTPUT="${S0_OUTPUT:-$PBS_O_WORKDIR/output/tau3_s0_filtered47}"
+
+test -s "$QWEN_MODEL/config.json"
+test -s "$S0_DATA"
+
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export TOKENIZERS_PARALLELISM=false
+export PYTHONNOUSERSITE=1
+export NPROC_PER_NODE=4
+
+mkdir -p logs "$S0_OUTPUT"
+
+swift sft \
+  --model "$QWEN_MODEL" \
+  --check_model false \
+  --tuner_type lora \
+  --dataset "$S0_DATA" \
+  --agent_template hermes \
+  --torch_dtype bfloat16 \
+  --num_train_epochs 3 \
+  --per_device_train_batch_size 1 \
+  --learning_rate 1e-4 \
+  --lora_rank 8 \
+  --lora_alpha 32 \
+  --target_modules all-linear \
+  --gradient_accumulation_steps 2 \
+  --save_steps 1 \
+  --save_total_limit 2 \
+  --logging_steps 1 \
+  --max_length "$S0_MAX_LENGTH" \
+  --split_dataset_ratio 0 \
+  --warmup_ratio 0.05 \
+  --dataset_num_proc 4 \
+  --dataloader_num_workers 4 \
+  --output_dir "$S0_OUTPUT" \
+  --report_to none
+
+S0_CHECKPOINT="$(find "$S0_OUTPUT" -maxdepth 2 -type f -name adapter_model.safetensors -printf '%h\n' | sort -V | tail -1)"
+test -n "$S0_CHECKPOINT"
+test -s "$S0_CHECKPOINT/adapter_model.safetensors"
+printf '%s\n' "$S0_CHECKPOINT" > logs/tau3_s0_filtered47_checkpoint.txt
+
+echo "S0 filtered47 training complete: $S0_CHECKPOINT"

@@ -23,4 +23,4 @@ Agent 的知识行动覆盖 5,000 个 Amazon 商品、5 份政策文档和 43,95
 
 自动指标不覆盖最终回答的全部自然语言质量。40 条系统抽样中的 v2 success agreement 为 80.0%，policy agreement 为 77.5%，不能外推为 360 条的人类成功率。RL gate 为 `eligible=false`，项目不宣称 SFT、DPO、PPO 或 GRPO。
 
-terminal-grounding v2 的 40 对盲审 fact pass 差值为 0，正式状态为 `negative_or_inconclusive`。完整证据分别见 `docs/evaluation_closeout_v2.md` 和 `docs/answer_postprocess_blind_audit_v1_closeout.md`。
+terminal-grounding v2 的 40 对盲审 fact pass 差值为 0，正式状态为 `negative_or_inconclusive`。评分审计保留在 `docs/evaluation_closeout_v2.md`；已关闭实验的公开摘要见 `docs/history.md`，原始实现和产物迁至私有归档仓库。

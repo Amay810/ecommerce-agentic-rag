@@ -1,14 +1,8 @@
 import unittest
-import tempfile
-from pathlib import Path
-
-from ecommerce_rag.domain import AgentObservation, Trajectory
+from ecommerce_rag.domain import Trajectory
 from ecommerce_rag.evidence import convert_tool_call_to_evidence, evidence_from_tool_call, extract_user_context, verify_answer
-from ecommerce_rag.evidence_policy import EvidenceGroundedPolicy
 from ecommerce_rag.harness import HarnessRunner, grade
 from ecommerce_rag.domain import TaskSpec
-from ecommerce_rag.orders import seed_database
-from ecommerce_rag.tool_schema import TOOL_SCHEMAS
 
 
 def _ledger(*rows):
@@ -190,124 +184,6 @@ class DeterministicVerifierTests(unittest.TestCase):
         self.assertTrue(result.answer_fact_pass)
         self.assertFalse(result.citation_binding_pass)
         self.assertTrue(result.joint_success)
-
-
-class EvidencePolicyTests(unittest.TestCase):
-    @staticmethod
-    def observation(ledger, *, step=1):
-        return AgentObservation(
-            current_message="tool result", session={"user_id": "U0001"},
-            history=[{"role": "user", "content": "退货期限多久？"}],
-            tool_schemas=TOOL_SCHEMAS, step=step, evidence_ledger=ledger,
-        )
-
-    def test_verify_variant_fails_closed_without_repair(self):
-        raw = ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
-               '"content":"退货期限是30天。[E1]","requires_user_response":false}')
-        policy = EvidenceGroundedPolicy(lambda _s, _u: raw, repair=False)
-        ledger = _ledger(("policy:POL001", "policy.text", "7天", "退货期限是7天"))
-        action = policy.act(self.observation(ledger))
-        self.assertEqual(action.action_type, "handoff")
-        self.assertEqual(len(policy.last_verification_spans), 1)
-        self.assertEqual(policy.last_repair_spans, [])
-
-    def test_harness_records_ledger_verification_and_successful_repair(self):
-        class Retriever:
-            chunks = [{
-                "doc_id": "product:P00001", "product_id": "P00001", "title": "Example",
-                "category": "test", "price": 10, "inventory": "available",
-                "updated_at": "2026-07-20", "text": "Example costs 10元",
-            }]
-
-            def search(self, *_args, **_kwargs):
-                return list(self.chunks)
-
-        outputs = iter([
-            ('{"action_type":"tool_call","tool_name":"search_catalog",'
-             '"arguments":{"query":"Example","top_k":5},"content":"",'
-             '"requires_user_response":false}'),
-            ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
-             '"content":"价格是30元。[E4]","requires_user_response":false}'),
-            ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
-             '"content":"价格是10元。[E4]","requires_user_response":false}'),
-        ])
-        policy = EvidenceGroundedPolicy(lambda _s, _u: next(outputs), repair=True)
-        task = TaskSpec(
-            "evidence_e2e", "product_qa", "U0001", "Example 多少钱？", 1,
-            gold_doc_ids=["product:P00001"], allowed_tools=["search_catalog"],
-            answer_expectations={"required_fact_keys": ["product.price"]},
-        )
-        with tempfile.TemporaryDirectory() as directory:
-            db = Path(directory) / "env.db"
-            seed_database(db, users=5, orders=20)
-            trajectory, result = HarnessRunner(db, retriever=Retriever(), policy=policy).run(task)
-        self.assertGreaterEqual(len(trajectory.evidence_ledger), 4)
-        self.assertEqual(len(trajectory.verification_spans), 2)
-        self.assertEqual(len(trajectory.repair_spans), 1)
-        self.assertTrue(result.repair_attempted)
-        self.assertTrue(result.repair_succeeded, trajectory.repair_spans)
-        self.assertTrue(result.answer_fact_pass)
-        self.assertTrue(result.citation_binding_pass)
-        self.assertTrue(result.joint_success)
-
-    def test_repair_runs_exactly_once_and_can_recover(self):
-        outputs = iter([
-            ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
-             '"content":"退货期限是30天。[E1]","requires_user_response":false}'),
-            ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
-             '"content":"退货期限是7天。[E1]","requires_user_response":false}'),
-        ])
-        policy = EvidenceGroundedPolicy(lambda _s, _u: next(outputs), repair=True)
-        ledger = _ledger(("policy:POL001", "policy.text", "7天", "退货期限是7天"))
-        action = policy.act(self.observation(ledger))
-        self.assertEqual(action.action_type, "final_answer", (policy.last_verification_spans, policy.last_repair_spans))
-        self.assertEqual(len(policy.last_verification_spans), 2)
-        self.assertEqual(len(policy.last_repair_spans), 1)
-        self.assertTrue(policy.last_repair_spans[0]["passed"])
-
-    def test_intermediate_user_question_is_not_verified(self):
-        raw = ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
-               '"content":"请提供验证码。","requires_user_response":true}')
-        policy = EvidenceGroundedPolicy(lambda _s, _u: raw, repair=True)
-        action = policy.act(self.observation([]))
-        self.assertTrue(action.requires_user_response)
-        self.assertEqual(policy.last_verification_spans, [])
-        self.assertEqual(policy.last_repair_spans, [])
-
-    def test_diagnostic_repair_failure_keeps_original_answer(self):
-        outputs = iter([
-            ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
-             '"content":"退货期限是7天。","requires_user_response":false}'),
-            ('{"action_type":"handoff","tool_name":null,"arguments":{"reason":"no"},'
-             '"content":"","requires_user_response":false}'),
-        ])
-        policy = EvidenceGroundedPolicy(lambda _s, _u: next(outputs), repair=True)
-        ledger = _ledger(("policy:POL001", "policy.text", "7天", "退货期限是7天"))
-        action = policy.act(self.observation(ledger))
-        self.assertEqual(action.action_type, "final_answer")
-        self.assertEqual(action.content, "退货期限是7天。")
-        self.assertFalse(policy.last_repair_spans[0]["adopted"])
-
-    def test_repair_prompt_is_compact_and_excludes_freshness_and_full_history(self):
-        seen = []
-        outputs = iter([
-            ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
-             '"content":"退货期限是7天。","requires_user_response":false}'),
-            ('{"action_type":"final_answer","tool_name":null,"arguments":{},'
-             '"content":"退货期限是7天。[E1]","requires_user_response":false}'),
-        ])
-        def generate(_system, user):
-            seen.append(user)
-            return next(outputs)
-        policy = EvidenceGroundedPolicy(generate, repair=True)
-        observation = self.observation(_ledger(("policy:POL001", "policy.text", "7天", "退货期限是7天")))
-        observation = AgentObservation(observation.current_message, observation.session,
-            [{"role": "user", "content": "SECRET_FULL_HISTORY"}], observation.tool_schemas,
-            observation.step, observation.evidence_ledger)
-        action = policy.act(observation)
-        self.assertEqual(action.action_type, "final_answer")
-        self.assertNotIn("freshness", seen[1].lower())
-        self.assertNotIn("SECRET_FULL_HISTORY", seen[1])
 
 
 if __name__ == "__main__":

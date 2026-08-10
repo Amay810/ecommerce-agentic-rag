@@ -20,16 +20,7 @@ from .orders import connect, seed_database, snapshot
 from .tool_schema import TOOL_SCHEMAS
 from .tools import RetailTools, WRITE_TOOLS
 from .action_constraint import apply_action_constraint
-from .agent_case_memory import (
-    advice_used,
-    build_memory_advice,
-    candidates_from_trajectory,
-    memory_enabled,
-    write_candidates,
-)
-from .legacy_closure import LegacyActionEvaluator, LegacyTaskProgressReducer, TaskProgress
-from .semantic_facts import SessionSemanticFactPipeline, UserTurnContext
-from . import config as erag_config
+from .legacy_closure import LegacyTaskProgressReducer, TaskProgress
 
 class AgentPolicy(Protocol):
     def act(self, observation: AgentObservation) -> AgentAction: ...
@@ -444,34 +435,17 @@ class HarnessRunner:
                  policy: AgentPolicy | None = None, max_steps: int = 8, *,
                  progress_reducer: LegacyTaskProgressReducer | None = None,
                  expose_task_progress: bool = False,
-                 action_evaluator: LegacyActionEvaluator | None = None,
                  enforce_action_constraint: bool = False,
-                 enable_case_memory: bool | None = None,
-                 case_memory_db: Path | str | None = None,
-                 enable_case_writeback: bool | None = None,
-                 semantic_fact_pipeline_factory: Any | None = None,
                  user_simulator_factory: Any | None = None):
         self.db_path, self.retriever = Path(db_path), retriever
         self.policy, self.max_steps = policy or OraclePolicy(), max_steps
         if expose_task_progress and progress_reducer is None:
             raise ValueError("expose_task_progress requires a progress_reducer")
-        if action_evaluator is not None and progress_reducer is None:
-            raise ValueError("action_evaluator requires a progress_reducer")
         if enforce_action_constraint and progress_reducer is None:
             raise ValueError("enforce_action_constraint requires a progress_reducer")
-        if action_evaluator is not None and enforce_action_constraint:
-            raise ValueError("action_evaluator and enforce_action_constraint are mutually exclusive")
         self.progress_reducer = progress_reducer
         self.expose_task_progress = expose_task_progress
-        self.action_evaluator = action_evaluator
         self.enforce_action_constraint = enforce_action_constraint
-        self.enable_case_memory = (
-            memory_enabled() if enable_case_memory is None else enable_case_memory)
-        self.case_memory_db = Path(case_memory_db) if case_memory_db else erag_config.AGENT_CASE_DB_PATH
-        self.enable_case_writeback = (
-            erag_config.AGENT_CASE_WRITEBACK_ENABLED
-            if enable_case_writeback is None else enable_case_writeback)
-        self.semantic_fact_pipeline_factory = semantic_fact_pipeline_factory
         self.user_simulator_factory = user_simulator_factory or UserSimulator
     def _reset(self, task: TaskSpec) -> None:
         if not task.initial_state: return
@@ -491,13 +465,6 @@ class HarnessRunner:
         order_id = task.metadata.get("order_id")
         tools = RetailTools(self.db_path, self.retriever)
         simulator = self.user_simulator_factory(task)
-        semantic_pipeline: SessionSemanticFactPipeline | None = None
-        semantic_pipeline_init_failed = False
-        if self.semantic_fact_pipeline_factory is not None:
-            try:
-                semantic_pipeline = self.semantic_fact_pipeline_factory()
-            except Exception:  # shadow diagnostics must not change agent behavior
-                semantic_pipeline_init_failed = True
         if isinstance(self.policy, OraclePolicy): self.policy.bind(task)
         history: list[dict[str, Any]] = [{"role": "user", "content": task.user_goal}]
         messages: list[dict[str, str]] = [{"role": "user", "content": task.user_goal}]
@@ -507,44 +474,15 @@ class HarnessRunner:
         repair_spans: list[dict[str, Any]] = []
         evidence_conversion_spans: list[dict[str, Any]] = []
         progress_spans: list[dict[str, Any]] = []
-        correction_spans: list[dict[str, Any]] = []
         constraint_spans: list[dict[str, Any]] = []
-        memory_spans: list[dict[str, Any]] = []
         decision_spans: list[dict[str, Any]] = []
-        semantic_fact_spans: list[dict[str, Any]] = []
-        if semantic_pipeline_init_failed:
-            semantic_fact_spans.append({
-                "source_user_turn_id": None,
-                "events": [],
-                "validation_codes": ["pipeline_init_failed"],
-                "cache_hit": False,
-                "extractor_called": False,
-            })
-        user_turn_id = 0
 
-        def extract_semantic_facts(content: str, requested_input_type: str | None) -> None:
-            nonlocal user_turn_id
-            if semantic_pipeline is not None:
-                result = semantic_pipeline.process(UserTurnContext(
-                    user_turn_id, content, requested_input_type))
-                semantic_fact_spans.append(result.to_dict())
-            user_turn_id += 1
-
-        answer = ""; failed_closed = False; rejected_tool_dispatch_attempts = 0
+        answer = ""; failed_closed = False
         started = time.perf_counter()
-        extract_semantic_facts(task.user_goal, None)
-        def decide(observation: AgentObservation, *, phase: str,
-                   parse_retry_budget: int | None = None) -> tuple[AgentAction, int, dict[str, Any] | None]:
+        def decide(observation: AgentObservation, *, phase: str) -> tuple[AgentAction, int, dict[str, Any] | None]:
             retries_before = int(getattr(self.policy, "retry_count", 0))
-            original_budget = getattr(self.policy, "max_parse_retries", None)
-            if parse_retry_budget is not None and original_budget is not None:
-                self.policy.max_parse_retries = min(original_budget, parse_retry_budget)
             action_started = time.perf_counter()
-            try:
-                decided = self.policy.act(observation)
-            finally:
-                if parse_retry_budget is not None and original_budget is not None:
-                    self.policy.max_parse_retries = original_budget
+            decided = self.policy.act(observation)
             retries_after = int(getattr(self.policy, "retry_count", 0))
             retries_used = retries_after - retries_before
             if retries_used:
@@ -570,44 +508,13 @@ class HarnessRunner:
                 progress_spans.append({"step": step, **progress.to_dict()})
                 if self.expose_task_progress:
                     session["task_progress"] = progress.to_dict()
-                if self.enable_case_memory:
-                    try:
-                        advice = build_memory_advice(
-                            progress.to_dict(), db_path=self.case_memory_db)
-                        advice_payload = advice.to_dict()
-                        # Never expand the legal action set.
-                        allowed = set(progress.allowed_next_actions)
-                        advice_payload["preferred_actions"] = [
-                            item for item in advice_payload.get("preferred_actions", [])
-                            if item in allowed
-                        ]
-                        session["memory_advice"] = advice_payload
-                        memory_spans.append({
-                            "step": step,
-                            "memory_query": {
-                                "workflow": progress.workflow,
-                                "pending": list(progress.pending),
-                                "guard_state": progress.guard_state,
-                                "blocked_by": progress.blocked_by,
-                                "allowed_actions": list(progress.allowed_next_actions),
-                            },
-                            "memory_advice": advice_payload,
-                            "retrieved_case_ids": list(advice.retrieved_case_ids),
-                        })
-                    except Exception as exc:  # fail open
-                        memory_spans.append({
-                            "step": step,
-                            "memory_query": {"workflow": progress.workflow},
-                            "memory_advice": {},
-                            "error": f"{type(exc).__name__}: {exc}",
-                        })
             observation = AgentObservation(
                 history[-1].get("content", ""), session,
                 copy.deepcopy(history), copy.deepcopy(TOOL_SCHEMAS), step,
                 evidence_ledger=policy_evidence,
             )
             observations.append(asdict(observation))
-            action, initial_format_retries, policy_trace = decide(
+            action, _initial_format_retries, policy_trace = decide(
                 observation, phase="initial_action")
             requested_input_type = _requested_input_type(action, progress)
             raw_policy_action = {
@@ -620,17 +527,6 @@ class HarnessRunner:
                 repair_spans.append({"step": step, **copy.deepcopy(span)})
             parser_fallback = bool(
                 policy_trace and policy_trace.get("resolution") == "fallback_handoff")
-            # Attribute Memory adoption on the *raw* policy action, before constraint.
-            if memory_spans and memory_spans[-1].get("step") == step:
-                advice_payload = memory_spans[-1].get("memory_advice") or {}
-                followed = advice_used(advice_payload, raw_policy_action)
-                memory_spans[-1].update({
-                    "raw_policy_action": raw_policy_action,
-                    "memory_preferred_actions": list(
-                        advice_payload.get("preferred_actions") or []),
-                    "policy_followed_advice": followed,
-                    "advice_used": followed,
-                })
             constraint_remapped = False
             if (self.enforce_action_constraint and progress is not None
                     and not parser_fallback):
@@ -646,92 +542,13 @@ class HarnessRunner:
                 **asdict(action),
                 "requested_input_type": requested_input_type,
             }
-            if memory_spans and memory_spans[-1].get("step") == step:
-                memory_spans[-1].update({
-                    "constrained_action": constrained_action,
-                    "constraint_remapped": constraint_remapped,
-                    "constraint_result": {
-                        "remapped": constraint_remapped,
-                        "fail_closed": bool(
-                            constraint_spans
-                            and constraint_spans[-1].get("step") == step
-                            and constraint_spans[-1].get("fail_closed")
-                        ),
-                        "reason": (
-                            constraint_spans[-1].get("reason")
-                            if constraint_spans and constraint_spans[-1].get("step") == step
-                            else None
-                        ),
-                    },
-                })
-            if self.action_evaluator is not None and progress is not None and not parser_fallback:
-                evaluation = self.action_evaluator.evaluate(
-                    action, progress, requested_input_type=requested_input_type)
-                if not evaluation.accepted:
-                    rejected_action = asdict(action)
-                    correction_observation = AgentObservation(
-                        observation.current_message,
-                        {**observation.session,
-                         "action_evaluator_feedback": copy.deepcopy(evaluation.feedback)},
-                        copy.deepcopy(observation.history),
-                        copy.deepcopy(observation.tool_schemas),
-                        observation.step,
-                        evidence_ledger=copy.deepcopy(observation.evidence_ledger),
-                    )
-                    original_budget = int(getattr(self.policy, "max_parse_retries", 0))
-                    corrected, _correction_format_retries, corrected_trace = decide(
-                        correction_observation,
-                        phase="semantic_correction",
-                        parse_retry_budget=max(0, original_budget - initial_format_retries),
-                    )
-                    corrected_requested_input = _requested_input_type(corrected, progress)
-                    corrected_parser_fallback = bool(
-                        corrected_trace and corrected_trace.get("resolution") == "fallback_handoff")
-                    second = (self.action_evaluator.evaluate(
-                        corrected, progress,
-                        requested_input_type=corrected_requested_input)
-                        if not corrected_parser_fallback else None)
-                    accepted = bool(second and second.accepted)
-                    correction_spans.append({
-                        "step": step,
-                        "rejected_action": rejected_action,
-                        "reason": evaluation.reason,
-                        "violations": list(evaluation.violations),
-                        "feedback": copy.deepcopy(evaluation.feedback),
-                        "corrected_action": asdict(corrected),
-                        "accepted": accepted,
-                        "theoretically_recoverable": evaluation.theoretically_recoverable,
-                        "second_rejection_reason": None if accepted else (
-                            "model_action_parse_failure" if corrected_parser_fallback
-                            else second.reason if second else "semantic_correction_failed"),
-                    })
-                    if accepted:
-                        action = corrected
-                        requested_input_type = corrected_requested_input
-                    else:
-                        action = AgentAction.answer("无法在安全约束内继续处理，已停止。")
-                        requested_input_type = None
-                        failed_closed = True
             executed_action = {
                 **asdict(action),
                 "requested_input_type": requested_input_type,
             }
-            if memory_spans and memory_spans[-1].get("step") == step:
-                memory_spans[-1]["executed_action"] = executed_action
-                memory_spans[-1]["chosen_action"] = executed_action
             decision_spans.append({
                 "step": step,
                 "raw_policy_action": raw_policy_action,
-                "memory_preferred_actions": list(
-                    ((memory_spans[-1].get("memory_advice") or {})
-                     if memory_spans and memory_spans[-1].get("step") == step
-                     else {}).get("preferred_actions") or []
-                ),
-                "policy_followed_advice": (
-                    memory_spans[-1].get("policy_followed_advice")
-                    if memory_spans and memory_spans[-1].get("step") == step
-                    else None
-                ),
                 "constrained_action": constrained_action,
                 "constraint_remapped": constraint_remapped,
                 "executed_action": executed_action,
@@ -744,15 +561,6 @@ class HarnessRunner:
                 "requested_input_type": requested_input_type,
             })
             if action.action_type == "tool_call":
-                rejected_here = any(
-                    span["step"] == step and span["rejected_action"] == asdict(action)
-                    for span in correction_spans
-                )
-                if rejected_here:
-                    rejected_tool_dispatch_attempts += 1
-                    failed_closed = True
-                    answer = "拒绝的工具动作未执行，流程已安全停止。"
-                    break
                 result = tools.call(action.tool_name or "", **action.arguments)
                 history.append({"role": "tool", "name": action.tool_name, "content": json.dumps(result, ensure_ascii=False), "result": result})
                 call = tools.calls[-1]
@@ -788,7 +596,6 @@ class HarnessRunner:
                                   "response": response})
                 if response is None:
                     answer = action.content; break
-                extract_semantic_facts(response, requested_input_type)
                 history.append({"role": "user", "content": response}); messages.append({"role": "user", "content": response}); continue
             answer = action.content; messages.append({"role": "assistant", "content": answer}); break
         else: answer = "达到最大交互步数，已停止。"
@@ -802,24 +609,10 @@ class HarnessRunner:
             user_simulator_spans=sim_spans, retry_spans=retry_spans, policy_name=type(self.policy).__name__,
             evidence_ledger=evidence_ledger, verification_spans=verification_spans, repair_spans=repair_spans,
             evidence_conversion_spans=evidence_conversion_spans, progress_spans=progress_spans,
-            correction_spans=correction_spans, constraint_spans=constraint_spans,
-            memory_spans=memory_spans, decision_spans=decision_spans,
-            failed_closed=failed_closed,
-            rejected_tool_dispatch_attempts=rejected_tool_dispatch_attempts,
-            semantic_fact_spans=semantic_fact_spans)
+            constraint_spans=constraint_spans,
+            decision_spans=decision_spans,
+            failed_closed=failed_closed)
         grade_result = grade(task, trajectory, leakage_checked=not isinstance(self.policy, OraclePolicy))
-        if self.enable_case_writeback:
-            try:
-                cases = candidates_from_trajectory(
-                    task_id=task.task_id,
-                    split=task.split,
-                    user_goal=task.user_goal,
-                    trajectory=trajectory,
-                    grade=grade_result,
-                )
-                write_candidates(cases, db_path=self.case_memory_db)
-            except Exception:
-                pass
         return trajectory, grade_result
 
 class TrajectoryStore:
@@ -882,7 +675,7 @@ def load_tasks(path: Path | str) -> list[TaskSpec]:
 
 def main() -> None:
     parser=argparse.ArgumentParser(description="Leakage-resistant retail agent harness"); sub=parser.add_subparsers(dest="command",required=True)
-    run=sub.add_parser("run"); run.add_argument("--tasks",required=True); run.add_argument("--db",required=True); run.add_argument("--store",required=True); run.add_argument("--repeats",type=int,default=3); run.add_argument("--output",required=True); run.add_argument("--seed-db",action="store_true"); run.add_argument("--index"); run.add_argument("--policy",choices=("oracle","rule","llm","native","evidence_verify","evidence_verify_repair"),default="oracle"); run.add_argument("--split",choices=("calibration","dev","locked","smoke"))
+    run=sub.add_parser("run"); run.add_argument("--tasks",required=True); run.add_argument("--db",required=True); run.add_argument("--store",required=True); run.add_argument("--repeats",type=int,default=3); run.add_argument("--output",required=True); run.add_argument("--seed-db",action="store_true"); run.add_argument("--index"); run.add_argument("--policy",choices=("oracle","rule","llm","native"),default="oracle"); run.add_argument("--split",choices=("calibration","dev","locked","smoke"))
     replay=sub.add_parser("replay"); replay.add_argument("--store",required=True); replay.add_argument("--trajectory-id",required=True); replay.add_argument("--tasks"); replay.add_argument("--db"); replay.add_argument("--output"); replay.add_argument("--index"); replay.add_argument("--policy",choices=("oracle","rule"),default="oracle")
     compare=sub.add_parser("compare"); compare.add_argument("reports",nargs="+"); args=parser.parse_args()
     if args.command=="compare":
@@ -905,17 +698,13 @@ def main() -> None:
     if args.index:
         from .hybrid_retriever import HybridRetriever
         retriever=HybridRetriever(Path(args.index))
-    if args.policy in {"llm", "native", "evidence_verify", "evidence_verify_repair"}:
+    if args.policy in {"llm", "native"}:
         if args.policy == "llm":
             from .llm_policy import LLMPolicy
             policy: AgentPolicy=LLMPolicy.from_env()
         elif args.policy == "native":
             from .native_tool_policy import NativeToolPolicy
             policy = NativeToolPolicy.from_env()
-        else:
-            from .evidence_policy import EvidenceGroundedPolicy
-            policy = EvidenceGroundedPolicy.from_env()
-            policy.repair = args.policy == "evidence_verify_repair"
     else: policy=OraclePolicy() if args.policy=="oracle" else RulePolicy()
     runner,store=HarnessRunner(args.db,retriever,policy),TrajectoryStore(args.store); results=[]; details=[]
     tasks=load_tasks(args.tasks)

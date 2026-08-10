@@ -1,5 +1,9 @@
 # NSCC reproduction jobs
 
-These PBS files preserve the commands and frozen configuration used for the recorded retrieval and Agent experiments. They are not the default local entry point and are intentionally kept at their existing paths so historical manifests remain interpretable.
+The active NSCC surface contains only model download, the current τ³ Base
+service/evaluation job, and the return-workflow safety regression job. It is not
+the default local Agent entry point.
 
-The terminal-grounding v2 jobs are closed experimental assets. Do not rerun or retune them as a continuation of the published result.
+S0 LoRA, terminal-grounding, Memory, verifier, reranker, and older harness jobs
+were moved to the private research archive and must not be revived as current
+capability work.

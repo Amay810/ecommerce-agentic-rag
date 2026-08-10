@@ -2,4 +2,14 @@
 
 The supported Agent entry point is `python -m ecommerce_rag.harness` for run, replay and compare.
 
-Scripts in this directory are retained at their historical paths for reproducibility. They cover task generation, retrieval dataset preparation, trajectory regrading, smoke gates and frozen extension experiments. New runtime features should be added to the Agent contracts rather than to one-off post-processing scripts.
+The active scripts are limited to:
+
+- τ³ Retail execution and frozen-judge launch;
+- template parity and context-compaction measurement;
+- current source/split audits and blueprint compilation;
+- reproducible catalogue and harness fixture generation;
+- trajectory diagnostics.
+
+Retired S0/hint, Memory, verifier, evidence-ablation, legacy correction, and
+one-off smoke scripts are stored in the private research archive. New runtime
+features belong in the Agent contracts rather than in post-processing scripts.

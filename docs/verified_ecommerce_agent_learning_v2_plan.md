@@ -9,6 +9,7 @@
 2026-08-09 能力主线删减：S0 归档为过度规模化的 negative control；GRPO、Skill、Telecom/BFCL、完整回归矩阵和多臂消融退出当前主线。新增 train 296 故障审计与 8-task action-name-only hint pilot，先验证新行为数据获取，再决定是否实现 pending-order compiler。
 2026-08-10 hint v2 closeout：相同 8 个 train task×2 的 semantic-plan pilot 完成，官方终态成功由 v1 的 4/16 增至 8/16，但预注册的过程违规仍出现，且参数选择错误未解决。privileged-plan-conditioned self-distillation 不进入 Task Compiler 扩量；后续数据获取改用独立 teacher，并沿用官方环境回放与最小过程过滤。
 2026-08-10 产品能力扩展：P1 原生 function calling、P2 上下文压缩、P6 受保护 MCP 服务已实现；当前验证范围和不可扩大的主张见 §13.15。MCP 记为能力边界扩展，不降格为单纯包装；历史代码迁移采用独立归档仓库，不在当前仓库内堆放 `archive/`。
+2026-08-10 仓库收敛：早期 RAG/Streamlit、terminal-grounding/verifier、SQL Memory、S0/hint、旧评测/NSCC 作业及原始报告迁入私有 `Amay810/ecommerce-agentic-rag-archive`；主仓库删除 177 个已归档文件并移除对应 runtime/CLI 分支。公开摘要统一为 `docs/history.md`。
 目标模型：`Qwen/Qwen3-4B-Instruct-2507`。  
 
 ## 0. 证据纪律
@@ -539,7 +540,7 @@ formal 数据生成后冻结 split。只训练一个 verified SFT 模型，沿�
 | template 一致性脚本 | `scripts/check_template_parity.py` | 已在统一 Transformers 4.57.6 栈运行，`PARITY OK` |
 | 评测成本模型 | `scripts/estimate_tau3_eval_cost.py` | 已跑通（先验值） |
 | 成本模型结果 | `docs/tau3_eval_cost_model.json` | 已生成，待 smoke 实测替换 |
-| S0 导出器 | `scripts/build_s0_rejection_sft.py` | 已运行：296 条 rollout 严格过滤为 47 条，覆盖 40 个任务 |
+| S0 导出器 | 已迁至私有归档仓库 | 已运行：296 条 rollout 严格过滤为 47 条，覆盖 40 个任务 |
 
 ## 13. 执行环境、路径与跨 Agent 交接（2026-08-09）
 
@@ -554,7 +555,7 @@ formal 数据生成后冻结 split。只训练一个 verified SFT 模型，沿�
 | 当前主线分支 | `feat/legacy-task-closure` |
 | 本节写入前最新已推送提交 | `ca1c0ce`（`feat(s0): train audited filtered47 dataset`） |
 | 主方案 | `docs/verified_ecommerce_agent_learning_v2_plan.md` |
-| 旧 v1 方案 | `docs/tau3_retail_posttraining_v1_plan.md`，只保留历史协议语境，不覆盖本节现状 |
+| 旧 v1 方案 | 已迁至独立 `ecommerce-agentic-rag-archive`，只保留历史协议语境 |
 
 `cursor/tighten-tau3-plan-conclusions-5686` 等辅助工作树/分支不是 NSCC 执行源。分支对话给出的结论只有在以下链路走完后，才算进入主线：
 
@@ -1159,7 +1160,7 @@ python -m ecommerce_rag.harness run <existing-run-arguments> --policy native
 mcp>=1.27,<2
 ```
 
-当前仓库只保留能力主线。legacy UI、历史评测脚本和已 closeout 实验未来迁到一个独立只读归档仓库，并在当前 README 留 commit/仓库链接；不把它们移动到本仓库内的 `archive/`，也不在完成迁移清单前直接删除。
+当前仓库只保留能力主线。legacy UI、历史评测脚本和已 closeout 实验已迁到独立只读归档仓库 `Amay810/ecommerce-agentic-rag-archive`；归档远端确认后从当前 import path 删除，不在本仓库内建立 `archive/`。
 
 ## 14. 官方来源
 

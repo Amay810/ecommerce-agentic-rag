@@ -83,7 +83,7 @@ pilot 完成后必须先报告：8 个独立任务、每任务采样上限、生
 
 启动前数量漏斗：8 个独立任务 × 每任务 2 次 = 16 次 rollout。由于现有 Base 在完整 train 上的轨迹成功率为 43.58%，而 action-name plan 的实际增益未知，pilot 暂以生成成功率 40%–80%、严格质量保留率 50%–80%规划；每任务最多保留 1 条，预计最终约 2–6 条、覆盖 2–6 个独立任务，硬上限 8 条/8 任务。该区间只用于决定 pilot 成本，不冒充已有证据；实际结果将替换先验并用于后续 Task Compiler 漏斗。
 
-执行使用 τ² 已有 `LLMGTAgent`，但关闭 `provide_function_args`，只提供 action 名序列，避免把订单号、item id、payment id 等未披露参数直接喂给模型。入口为 `scripts/run_tau3_hint_pilot_v1.ps1`；它只发起上述 16 次 rollout，不执行过滤、训练或评测扩量。
+执行使用 τ² 已有 `LLMGTAgent`，但关闭 `provide_function_args`，只提供 action 名序列，避免把订单号、item id、payment id 等未披露参数直接喂给模型。历史执行入口已迁至私有归档仓库；它只发起上述 16 次 rollout，不执行过滤、训练或评测扩量。
 
 离线渲染已核对 8 个任务的提示：action 数分别为 6、10、6、13、7、5、1、3，未出现订单号、7–10 位实体 ID 或 payment method ID。需要注意，官方 `evaluation_criteria.actions` 是评分所需动作，不保证是完整策略：task 85 和 109 的 gold actions 只有目标写操作，没有身份验证或读取动作；其余 6 个任务同时包含认证与读取。因此这两题专门检验模型能否依据 Retail policy 自行补齐前置步骤，不能把 gold action list 当成完整 teacher trajectory。即使官方 reward=1，只要轨迹跳过认证、必要读取或显式确认，仍按严格质量规则拒收。
 

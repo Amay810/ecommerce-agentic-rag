@@ -1,6 +1,6 @@
 """Dynamic action contracts derived from TaskProgress.
 
-Unlike LegacyActionEvaluator, this layer does **not** ask the model to retry.
+This execution layer does **not** ask the model to retry.
 Illegal actions are remapped once to the preferred legal action (when materializable)
 or fail closed.  That keeps LLM call counts unchanged aside from normal format retries.
 """

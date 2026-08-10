@@ -76,12 +76,6 @@ Qwen3-4B 在固定的 120 个任务上确定性运行 3 次，共形成 360 条�
 
 Reranker 改善首位排序但延迟约翻倍，因此不默认启用。独立困难集 Recall@5 为 0.6889，typo/alias 和 no-answer 仍是明确边界。详见 [retrieval](docs/retrieval.md)。
 
-## Terminal-grounding extension
-
-terminal-grounding v2 在保持 action、tool calls、evidence ledger 和数据库终态不变的前提下重写最终答案。冻结 40-task Codex 盲审中，base 与 grounded 的 fact pass 均为 34/40，配对差值为 0，95% bootstrap CI 为 `[-7.5pp, +7.5pp]`。
-
-该实验正式关闭为 `negative_or_inconclusive`，不解释为质量提升，也没有继续 v3、verifier、SFT 或 DPO。详见 [closeout](docs/answer_postprocess_blind_audit_v1_closeout.md)。
-
 ## Quick start
 
 ```powershell
@@ -170,15 +164,13 @@ python -m scripts.measure_context_compaction <results.json>
 - `scripts/`、`nscc/`：数据、评测与集群复现入口；
 - `docs/`：架构、安全、评测、检索和发布证据。
 
-`ecommerce_rag.app` 与 `CustomerSupportAgent` 是早期 retrieval-oriented demo，保留用于旧回归链路，不再作为正式 Agent v2 入口。
-
 ## Boundaries
 
 - 本项目是可复现实验环境，不是生产部署；
 - 自动操作评分不覆盖最终回答的全部事实、完整性和推荐质量；
 - 40 条审核样本不是随机总体样本，不外推为 360 条的人类成功率；
 - 确定性三次重复不解释为独立随机试验的 pass³；
-- RL gate 未通过，项目不宣称完成 DPO、PPO、GRPO 或 Agent RL。
+- 当前主线不宣称已完成 DPO、PPO、GRPO 或 Agent RL。
 
 ## Task Closure (legacy return-resolution)
 
@@ -190,16 +182,7 @@ python -m scripts.measure_context_compaction <results.json>
 | `legacy_task_closure_protocol_fix_dev_v1` | 38/40 | protocol / tool contract |
 | `legacy_task_closure_action_constraint_dev_v1` | 40/40 | runtime action contract |
 
-Closeouts: `docs/legacy_task_closure_protocol_fix_dev_v1_closeout.md`,
-`docs/legacy_task_closure_action_constraint_dev_v1_closeout.md`.
-Gains through 40/40 are **not** claimed as base-model training. Locked and LoRA
-are not opened merely to chase this score.
+Gains through 40/40 are **not** claimed as base-model training. The concise
+evolution record and all closed outcomes are listed in [project history](docs/history.md).
 
-**Data Flywheel MVP v1.1** — frozen as `engineering_loop_complete`,
-`policy_gain` tested by `memory_policy_probe_v1` →
-**`negative_or_inconclusive`** (closeout:
-`docs/memory_policy_probe_v1_closeout.md`). Runtime Memory stays **default off**.
-Semantic retrieval and LoRA are **not** opened on this result. Formal 40/40
-remains untouched.
-
-原始实验历史、SQLite、sidecar 和中间报告冻结在 [`agent-v2-raw`](https://github.com/Amay810/ecommerce-agentic-rag/tree/agent-v2-raw)。发布树移除资产及 SHA-256 记录在 [release manifest](docs/release_manifest_agent_v2.json)。
+早期 RAG/Streamlit demo、terminal-grounding、verifier、SQL Memory probe、相关脚本和 closeout 已迁至独立私有归档仓库。它们不再占据当前 import path，也不作为当前能力列表；公开结论保留在 [project history](docs/history.md)。原始 Agent v2 实验树仍可由 [`agent-v2-raw`](https://github.com/Amay810/ecommerce-agentic-rag/tree/agent-v2-raw) 恢复；发布树资产 SHA-256 见 [release manifest](docs/release_manifest_agent_v2.json)。

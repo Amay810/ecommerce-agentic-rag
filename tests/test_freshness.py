@@ -5,15 +5,16 @@ import unittest
 from datetime import datetime, timezone
 
 from ecommerce_rag import freshness
-from ecommerce_rag.support_case import build_snapshot
 
 NOW = datetime(2026, 6, 12, tzinfo=timezone.utc)
 
 
 def _snap(updated_at):
-    chunks = [{"doc_id": "product:P1", "source_type": "product", "title": "x",
-               "price": 99, "inventory": "现货", "updated_at": updated_at}]
-    return build_snapshot(chunks)
+    return {"products": [{
+        "doc_id": "product:P1", "title": "x", "price": 99,
+        "inventory": "现货", "version": None,
+        "default_updated_at": updated_at,
+    }], "policies": []}
 
 
 class FreshnessTests(unittest.TestCase):
@@ -38,13 +39,6 @@ class FreshnessTests(unittest.TestCase):
     def test_unverified_path(self):
         v = freshness.assess(_snap(None), "recommend", "价格 99 元", now=NOW)
         assert v["status"] == "unverified" and freshness.should_downgrade(v["status"]) is True
-
-    def test_snapshot_carries_updated_at(self):
-        snap = build_snapshot([{"doc_id": "product:P6", "source_type": "product", "title": "杯",
-                                "price": 79, "inventory": "现货", "updated_at": "2026-06-10"}])
-        assert snap["products"][0]["default_updated_at"] == "2026-06-10"
-        assert snap["products"][0]["version"] is None
-
 
 if __name__ == "__main__":
     unittest.main()

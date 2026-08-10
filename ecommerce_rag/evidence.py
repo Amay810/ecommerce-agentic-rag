@@ -9,11 +9,12 @@ from typing import Any, Iterable
 
 from . import freshness
 from .tool_schema import TOOL_SCHEMAS
-from .verifier import split_sentences
 
 
 EVIDENCE_CITATION = re.compile(r"\[E([1-9][0-9]*)\]")
 EVIDENCE_RANGE = re.compile(r"\[E[1-9][0-9]*\s*[-–—]\s*E?[1-9][0-9]*\]")
+_SENTENCE_SPLIT = re.compile(r"(?<=[。！？?\n])")
+_LEGACY_SOURCE_TAG = re.compile(r"\[资料\d+\]")
 _ID_FACT = re.compile(r"\b(?:P[0-9]{5}|O[0-9]{6}|POL[0-9]{3})\b", re.I)
 _ISO_DATE = re.compile(r"\b[0-9]{4}-[0-9]{2}-[0-9]{2}\b")
 _ZH_DATE = re.compile(r"(?<![0-9])[0-9]{4}年[0-9]{1,2}月[0-9]{1,2}日")
@@ -32,6 +33,16 @@ CONVERTER_TOOLS = frozenset({
 })
 EVIDENCE_BEARING_TOOLS = frozenset(schema["name"] for schema in TOOL_SCHEMAS
                                    if schema.get("evidence_bearing"))
+
+
+def split_sentences(text: str) -> list[str]:
+    """Split customer-facing text without depending on the archived verifier."""
+    sentences: list[str] = []
+    for raw in _SENTENCE_SPLIT.split(text):
+        sentence = _LEGACY_SOURCE_TAG.sub("", raw).strip(" \n\t-•")
+        if len(sentence) >= 6:
+            sentences.append(sentence)
+    return sentences
 
 
 def _text(value: Any) -> str:

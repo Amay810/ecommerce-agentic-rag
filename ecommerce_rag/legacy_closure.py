@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import re
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from typing import Any
-
-from .domain import AgentAction
 
 
 _ORDER_ID = re.compile(r"O[0-9]{6}", re.I)
@@ -60,63 +58,6 @@ class TaskProgress:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
-
-
-@dataclass(frozen=True)
-class ActionEvaluation:
-    accepted: bool
-    reason: str | None = None
-    violations: tuple[str, ...] = ()
-    feedback: dict[str, Any] = field(default_factory=dict)
-    theoretically_recoverable: bool = False
-
-
-class LegacyActionEvaluator:
-    """Deterministic pre-execution checks for the legacy action contract."""
-
-    @staticmethod
-    def _reject(progress: TaskProgress, violations: list[str]) -> ActionEvaluation:
-        return ActionEvaluation(
-            False,
-            violations[0],
-            tuple(violations),
-            {
-                "reason": violations[0],
-                "violations": violations,
-                "completed": list(progress.completed),
-                "pending": list(progress.pending),
-                "blocked_by": progress.blocked_by,
-                "allowed_next_actions": list(progress.allowed_next_actions),
-            },
-            True,
-        )
-
-    def evaluate(self, action: AgentAction, progress: TaskProgress, *,
-                 requested_input_type: str | None = None) -> ActionEvaluation:
-        if progress.workflow != "return_resolution":
-            return ActionEvaluation(True)
-        if action.action_type == "tool_call" and action.tool_name == "create_return_request":
-            violations: list[str] = []
-            if "return_reason_collected" not in progress.completed:
-                violations.append("return_reason_missing")
-            if "explicit_confirmation" not in progress.completed:
-                violations.append("explicit_confirmation_missing")
-            if "create_return_request" not in progress.allowed_next_actions:
-                violations.append("action_not_allowed_for_progress")
-            if violations:
-                return self._reject(progress, violations)
-        if (action.action_type == "handoff"
-                and "handoff" not in progress.allowed_next_actions):
-            return self._reject(progress, ["inappropriate_handoff"])
-        if action.action_type == "tool_call":
-            key = action.tool_name or ""
-            if key not in progress.allowed_next_actions:
-                return self._reject(progress, ["action_not_allowed_for_progress"])
-        if action.action_type == "final_answer" and action.requires_user_response:
-            key = f"ask_user:{requested_input_type}" if requested_input_type else "ask_user:unknown"
-            if key not in progress.allowed_next_actions:
-                return self._reject(progress, ["action_not_allowed_for_progress"])
-        return ActionEvaluation(True)
 
 
 class LegacyTaskProgressReducer:

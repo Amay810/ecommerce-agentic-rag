@@ -8,6 +8,7 @@
 2026-08-09 S0 诊断更新：Base 与 S0 Retail test 40×4 均已跑满且基础设施错误为 0；S0 为 86/160，Base 为 85/160，任务聚类 95% 区间跨 0，不能主张 S0 带来能力提升。完整审核见 §13.14。
 2026-08-09 能力主线删减：S0 归档为过度规模化的 negative control；GRPO、Skill、Telecom/BFCL、完整回归矩阵和多臂消融退出当前主线。新增 train 296 故障审计与 8-task action-name-only hint pilot，先验证新行为数据获取，再决定是否实现 pending-order compiler。
 2026-08-10 hint v2 closeout：相同 8 个 train task×2 的 semantic-plan pilot 完成，官方终态成功由 v1 的 4/16 增至 8/16，但预注册的过程违规仍出现，且参数选择错误未解决。privileged-plan-conditioned self-distillation 不进入 Task Compiler 扩量；后续数据获取改用独立 teacher，并沿用官方环境回放与最小过程过滤。
+2026-08-10 产品能力扩展：P1 原生 function calling、P2 上下文压缩、P6 受保护 MCP 服务已实现；当前验证范围和不可扩大的主张见 §13.15。MCP 记为能力边界扩展，不降格为单纯包装；历史代码迁移采用独立归档仓库，不在当前仓库内堆放 `archive/`。
 目标模型：`Qwen/Qwen3-4B-Instruct-2507`。  
 
 ## 0. 证据纪律
@@ -1126,6 +1127,39 @@ provenance 审核：Base 已包含顶层 `tau2_commit/user_simulator_model/nl_as
 4. LiteLLM 的 `This model isn't mapped yet: Qwen3-4B-S0` 只表示无法计算自定义本地模型 API 成本，不影响推理、轨迹或 reward。
 
 临时终端窗口、盘符可见性和某一次连接状态不作为项目/环境缺陷写入主叙事。排查 `BadGateway` 时先检查请求是否真正到达 vLLM，再判断模型、并发或服务故障。
+
+### 13.15 P1/P2/P6 产品能力扩展（2026-08-10）
+
+本轮只实现直接改变 Agent 接口、上下文或可调用边界的三项，不新增 gate、evaluator、verifier 或通用实验框架。
+
+**P1：原生 function calling。** `ecommerce_rag/native_tool_policy.py` 通过 OpenAI-compatible `tools`、`tool_choice=auto` 和返回的 `message.tool_calls` 传输动作，不再要求模型把五字段 envelope 写进 `message.content`。provider 结果仍转换为现有 `AgentAction`，因此 Action Constraint、事务 guardrail 和轨迹归因继续是执行权威。`user_id` 不暴露给模型，由会话注入；缺值询问和人工转接分别通过两个控制 tool 表达。入口为：
+
+```powershell
+python -m ecommerce_rag.harness run <existing-run-arguments> --policy native
+```
+
+当前已用协议级测试确认请求体确实携带标准 `tools`，并确认原生 tool call 能通过现有 schema 与身份注入。该结果证明接口迁移已实现，不等同于 Qwen 在 Retail 上成功率提高；后续能力实验才使用此入口做配对验证。
+
+**P2：决策上下文压缩。** `ecommerce_rag/context_compaction.py` 只压缩发送给 provider 的 history 副本，完整轨迹和原始 tool result 仍保留用于回放与审计。压缩保留订单/用户/商品标识、状态、价格、资格、错误和写入结果，并将重复读取的旧结果缩成 superseded receipt。对已完成 Base Retail test 160 条轨迹的离线精确重放统计为：
+
+```text
+累计 provider history 字符：9,596,165 → 8,024,598
+字符减少：16.38%
+历史未压缩 prompt tokens 均值：85,485.41 / task
+历史 agent generation time 均值：28.66 s / task
+```
+
+16.38% 是对落盘历史的精确字符变化，不是 token、延迟或能力提升。真实 token/任务、端到端延迟和成功率必须在同模型、同任务、同服务配置下做压缩 off/on 配对后再报告；不得预写“降低 40%”。
+
+**P6：受保护 MCP 能力接口。** `ecommerce_rag/mcp_server.py` 使用稳定版 MCP Python SDK 的 FastMCP 暴露现有 8 个 typed retail tools，支持 `stdio`、`streamable-http` 和 `sse`。MCP client 永远不接收 `user_id` 参数，由服务端身份上下文注入；写工具继续经过同一 `RetailTools` 确认与事务保护。已用官方 MCP client 完成真实 stdio initialize、`tools/list` 和工具调用握手，并验证未确认写入被拒绝。MCP 因而属于“让外部 Agent/客户端安全调用电商能力”的能力边界扩展，而不是模型策略提升；两类主张分别记录。
+
+依赖冻结为：
+
+```text
+mcp>=1.27,<2
+```
+
+当前仓库只保留能力主线。legacy UI、历史评测脚本和已 closeout 实验未来迁到一个独立只读归档仓库，并在当前 README 留 commit/仓库链接；不把它们移动到本仓库内的 `archive/`，也不在完成迁移清单前直接删除。
 
 ## 14. 官方来源
 

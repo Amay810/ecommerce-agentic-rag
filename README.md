@@ -2,6 +2,12 @@
 
 > A multi-turn LLM agent with hybrid retrieval, typed tools, transactional guardrails, and state-based evaluation.
 
+The recommended Agent v2 path now uses OpenAI-compatible native function calling
+(`tools` / `message.tool_calls`) and converts provider actions into the existing
+`AgentAction` contract. System-owned identity is injected after generation, so
+native tools cannot bypass action constraints or transactional guardrails. The
+same eight guarded retail tools are also available through MCP.
+
 本项目构建了一个面向动态电商业务的可信工具型 Agent。Qwen3-4B 根据当前 observation 自主选择检索、工具调用、追问、回答或转人工；RAG 负责提供商品与政策事实，typed tools 负责查询和修改订单状态，guardrails 在执行层保护高风险写操作。
 
 ## Agent loop
@@ -94,12 +100,71 @@ python -m ecommerce_rag.harness run `
 python -m pytest -q
 ```
 
+### Native function-calling Agent
+
+Serve Qwen3 with vLLM using the model's Hermes tool protocol:
+
+```text
+--enable-auto-tool-choice --tool-call-parser hermes
+```
+
+Then configure `ARAG_LLM_BASE_URL`, `ARAG_LLM_MODEL`, and
+`ARAG_LLM_API_KEY`, and run the existing harness with the native provider
+adapter:
+
+```powershell
+python -m ecommerce_rag.harness run `
+  --tasks ecommerce_rag/data/harness_smoke.jsonl `
+  --db logs/native_agent.db `
+  --store logs/native_trajectories.sqlite `
+  --output logs/native_report.json `
+  --policy native `
+  --repeats 1 `
+  --seed-db
+```
+
+`request_user_input` and `handoff_to_human` are provider-facing control tools.
+They map back to internal ask/handoff actions; business tool execution remains
+inside the harness.
+
+### Guarded MCP server
+
+The MCP server injects `ERAG_MCP_USER_ID` on the server side and delegates every
+call to `RetailTools.call()`. Identity, eligibility, explicit confirmation, and
+idempotency therefore remain enforced for MCP clients.
+
+```powershell
+$env:ERAG_MCP_DB = "logs/demo_agent.db"
+$env:ERAG_MCP_USER_ID = "U0001"
+$env:ERAG_MCP_TRANSPORT = "stdio"
+python -m ecommerce_rag.mcp_server
+```
+
+Use `streamable-http` instead of `stdio` for an HTTP MCP endpoint.
+
+### Context compaction baseline
+
+Native Agent requests compact repeated tool payloads without changing the stored
+trajectory. On the completed Retail Base 160 trajectories, offline replay of
+stored message content reduced cumulative history characters by **16.38%**.
+The historical uncompressed baseline was 85,485 prompt tokens and 28.66 seconds
+of agent generation per task on average. The character reduction is exact; new
+prompt-token, latency, and task-success results require a paired live native run
+and are not claimed by the offline measurement.
+
+```powershell
+python -m scripts.measure_context_compaction <results.json>
+```
+
 运行真实 LLM policy 前复制 `.env.example` 并配置本地模型或 OpenAI-compatible endpoint。完整命令见 [reproduction](docs/reproduction.md)。
 
 ## Repository map
 
 - `ecommerce_rag/harness.py`：正式 Agent run/replay/compare 入口；
 - `ecommerce_rag/llm_policy.py`：结构化 next-action policy；
+- `ecommerce_rag/native_tool_policy.py`：OpenAI/vLLM native function-calling adapter；
+- `ecommerce_rag/context_compaction.py`：loss-aware tool-history compaction；
+- `ecommerce_rag/mcp_server.py`：guarded MCP tool server；
 - `ecommerce_rag/tools.py`：业务工具与 guardrails；
 - `ecommerce_rag/tool_schema.py`：typed tool contracts；
 - `scripts/`、`nscc/`：数据、评测与集群复现入口；

@@ -7,3 +7,4 @@ datasets>=4.0.0
 faiss-cpu>=1.8.0; python_version < "3.13"
 transformers>=4.45.0
 accelerate>=0.34.0
+mcp>=1.27,<2

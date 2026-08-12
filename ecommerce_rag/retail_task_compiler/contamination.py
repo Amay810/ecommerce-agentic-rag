@@ -33,6 +33,12 @@ def structure_signature(
     tool_path: Sequence[str],
     state_predicates: Sequence[str],
     required_effect_kinds: Sequence[str],
+    initial_order_state: str | None = None,
+    user_order_relationship: str | None = None,
+    clarification_or_confirmation: str | None = None,
+    allowed_state_change: str | None = None,
+    forbidden_state_change: str | None = None,
+    expected_termination: str | None = None,
 ) -> dict[str, Any]:
     payload = {
         "task_family": task_family,
@@ -40,7 +46,20 @@ def structure_signature(
         "state_predicates": sorted(set(state_predicates)),
         "required_effect_kinds": sorted(set(required_effect_kinds)),
     }
-    payload["signature_hash"] = canonical_hash(payload)
+    optional = {
+        "initial_order_state": initial_order_state,
+        "user_order_relationship": user_order_relationship,
+        "clarification_or_confirmation": clarification_or_confirmation,
+        "allowed_state_change": allowed_state_change,
+        "forbidden_state_change": forbidden_state_change,
+        "expected_termination": expected_termination,
+    }
+    for key, value in optional.items():
+        if value is not None:
+            payload[key] = value
+    payload["signature_hash"] = canonical_hash(
+        {key: value for key, value in payload.items() if key != "signature_hash"}
+    )
     return payload
 
 
@@ -82,11 +101,22 @@ def signature_from_blueprint(blueprint: TaskBlueprint | Mapping[str, Any]) -> di
         for pred in (bp.initial_state.get("predicates") or [])
     ]
     family = bp.task_family or infer_task_family(tool_path)
+    structure_meta = bp.initial_state.get("structure") or {}
     return structure_signature(
         task_family=family,
         tool_path=tool_path,
         state_predicates=predicates,
         required_effect_kinds=effect_kinds,
+        initial_order_state=structure_meta.get("initial_order_state"),
+        user_order_relationship=structure_meta.get("user_order_relationship"),
+        clarification_or_confirmation=(
+            f"{structure_meta.get('ambiguity_type')}|{structure_meta.get('confirmation_requirement')}"
+            if structure_meta
+            else None
+        ),
+        allowed_state_change=structure_meta.get("allowed_state_change"),
+        forbidden_state_change=structure_meta.get("forbidden_state_change"),
+        expected_termination=structure_meta.get("expected_termination"),
     )
 
 
@@ -106,6 +136,29 @@ class ContaminationReport:
         }
 
 
+def _gray_zone_similar(entry: Mapping[str, Any], bp_sig: Mapping[str, Any]) -> bool:
+    """Fail closed on ambiguous near-collisions with frozen test signatures."""
+    same_family = entry.get("task_family") == bp_sig.get("task_family")
+    same_state = sorted(entry.get("state_predicates") or []) == sorted(
+        bp_sig.get("state_predicates") or []
+    )
+    same_effects = sorted(entry.get("required_effect_kinds") or []) == sorted(
+        bp_sig.get("required_effect_kinds") or []
+    )
+    entry_path = list(entry.get("tool_path") or [])
+    bp_path = list(bp_sig.get("tool_path") or [])
+    # Same write tool sequence ignoring duplicated reads is a gray zone.
+    def writes(path: Sequence[str]) -> list[str]:
+        return [
+            name
+            for name in path
+            if name in RETAIL_WRITE_TOOLS or name == "transfer_to_human_agents"
+        ]
+
+    same_writes = writes(entry_path) == writes(bp_path) and bool(writes(bp_path))
+    return bool(same_family and same_state and same_effects and same_writes)
+
+
 def check_contamination(
     blueprint: TaskBlueprint | Mapping[str, Any],
     test_signatures: Mapping[str, Any] | Sequence[Mapping[str, Any]],
@@ -120,20 +173,36 @@ def check_contamination(
         entries = list(test_signatures)  # type: ignore[arg-type]
 
     matched: list[str] = []
+    reasons: list[str] = []
     for entry in entries:
         if entry.get("signature_hash") == bp_hash:
             matched.append(str(entry.get("task_id")))
+            reasons.append("signature_hash")
             continue
-        # Exact entity-agnostic tool-path collision is also rejected.
-        if list(entry.get("tool_path") or []) == list(bp_sig["tool_path"]):
+        same_path = list(entry.get("tool_path") or []) == list(bp_sig["tool_path"])
+        same_family = entry.get("task_family") == bp_sig.get("task_family")
+        same_state = sorted(entry.get("state_predicates") or []) == sorted(
+            bp_sig.get("state_predicates") or []
+        )
+        # Tool-path identity alone is insufficient: refusal/read structures may
+        # share auth/read prefixes with unrelated test families.
+        if same_path and same_family and same_state:
             matched.append(str(entry.get("task_id")))
+            reasons.append("tool_path_family_state")
+            continue
+        if _gray_zone_similar(entry, bp_sig):
+            matched.append(str(entry.get("task_id")))
+            reasons.append("gray_zone_similar_write_structure")
 
     if matched:
         return ContaminationReport(
             contaminated=True,
             matched_task_ids=tuple(dict.fromkeys(matched)),
             blueprint_signature_hash=bp_hash,
-            reason="structure or tool_path collision with τ³ retail test",
+            reason=(
+                "structure collision with tau3 retail test: "
+                + ",".join(dict.fromkeys(reasons))
+            ),
         )
     return ContaminationReport(
         contaminated=False,

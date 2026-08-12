@@ -33,14 +33,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from ecommerce_rag.agent_runtime import RuntimeConfig, build_system_prompt
+
 DEFAULT_MODEL = "Qwen/Qwen3-4B-Instruct-2507"
 DEFAULT_TAU2_ROOT = Path("E:/cv_codex/external/tau2-bench")
-
-# Mirrors tau2-bench src/tau2/agent/llm_agent.py SYSTEM_PROMPT. Kept as a literal so
-# a drift in the upstream template shows up as a parity failure rather than silently
-# tracking whatever the installed tau2 happens to render.
-TAU2_SYSTEM_PROMPT = "<instructions>\n{agent_instruction}\n</instructions>\n<policy>\n{domain_policy}\n</policy>"
-
 
 def load_retail_tools(
     tau2_root: Path, tau2_python: Path | None = None
@@ -127,9 +123,13 @@ def load_retail_tools(
 
 def build_fixture_messages() -> list[dict[str, Any]]:
     """One conversation exercising every role the training format must cover."""
-    system = TAU2_SYSTEM_PROMPT.format(
-        agent_instruction="You are a customer service agent.",
-        domain_policy="# Retail agent policy\n\nYou must authenticate the user first.",
+    system = build_system_prompt(
+        "# Retail agent policy\n\nYou must authenticate the user first.",
+        RuntimeConfig(
+            runtime_version="system-v1",
+            prompt_version="ecommerce-native-v1",
+            compact_context=False,
+        ),
     )
     return [
         {"role": "system", "content": system},

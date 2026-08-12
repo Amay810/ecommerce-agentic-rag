@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from mcp.server.fastmcp import FastMCP
+if TYPE_CHECKING:
+    from mcp.server.fastmcp import FastMCP
 
 from .tools import RetailTools
 
@@ -65,7 +66,9 @@ class MCPRetailFacade:
         return self._user_call("escalate_to_human", reason=reason, order_id=order_id)
 
 
-def build_server(tools: RetailTools, user_id: str) -> FastMCP:
+def build_server(tools: RetailTools, user_id: str) -> "FastMCP":
+    from mcp.server.fastmcp import FastMCP
+
     facade = MCPRetailFacade(tools, user_id)
     server = FastMCP(
         "Trusted E-commerce Tools",

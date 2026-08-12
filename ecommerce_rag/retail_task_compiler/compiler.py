@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
 from .blueprint import TaskBlueprint, canonical_hash, validate_blueprint
-from .constants import GENERATOR_VERSION, SOURCE_POLICY_VERSION, TAU2_COMMIT
+from .constants import GENERATOR_VERSION_V0 as GENERATOR_VERSION, SOURCE_POLICY_VERSION, TAU2_COMMIT
 from .contamination import ContaminationReport, check_contamination
 from .replay import (
     CancelPendingMockExecutor,

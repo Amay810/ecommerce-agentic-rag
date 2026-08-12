@@ -83,13 +83,22 @@ def main() -> None:
         type=Path,
         default=Path(r"E:\cv_codex\external\tau2-bench"),
     )
-    parser.add_argument("--phase", choices=("smoke", "base", "sft"), required=True)
+    parser.add_argument(
+        "--phase", choices=("smoke", "teacher", "base", "sft"), required=True
+    )
     parser.add_argument("--agent-model", required=True)
     parser.add_argument("--user-model", required=True)
     parser.add_argument("--nl-assertions-model", required=True)
     parser.add_argument("--pass-k", type=int, default=1)
     parser.add_argument("--max-steps", type=int, default=200)
+    parser.add_argument(
+        "--agent-name",
+        choices=("llm_agent", "ecommerce_native"),
+        default="ecommerce_native",
+    )
+    parser.add_argument("--compaction", choices=("off", "on"), default="off")
     parser.add_argument("--save-to", required=True)
+    parser.add_argument("--task-ids", nargs="+")
     parser.add_argument("--check-only", action="store_true")
     args = parser.parse_args()
 
@@ -113,6 +122,8 @@ def main() -> None:
         pass_k=args.pass_k,
         save_to=args.save_to,
         max_steps=args.max_steps,
+        agent_name=args.agent_name,
+        task_ids=args.task_ids,
     )
     public_config = {
         "protocol": "tau3_retail_posttraining_v1",
@@ -122,9 +133,12 @@ def main() -> None:
         "nl_assertions_model": args.nl_assertions_model,
         "pass_k": args.pass_k,
         "max_steps": args.max_steps,
+        "agent_name": args.agent_name,
+        "compaction": args.compaction,
         "save_to": args.save_to,
         "splits": splits,
         "command": command,
+        "task_ids": args.task_ids,
     }
     if args.check_only:
         print(json.dumps(public_config, ensure_ascii=False, indent=2))
@@ -133,6 +147,13 @@ def main() -> None:
     environment = os.environ.copy()
     environment["PYTHONUTF8"] = "1"
     environment["TAU3_NL_ASSERTIONS_MODEL"] = args.nl_assertions_model
+    environment["ERAG_CONTEXT_COMPACTION"] = "1" if args.compaction == "on" else "0"
+    project_root = str(Path(__file__).resolve().parents[1])
+    environment["ERAG_PROJECT_ROOT"] = project_root
+    python_path = environment.get("PYTHONPATH", "")
+    environment["PYTHONPATH"] = os.pathsep.join(
+        entry for entry in (project_root, python_path) if entry
+    )
     _configure_provider_environment(
         environment,
         args.agent_model,
@@ -151,6 +172,7 @@ def main() -> None:
         nl_assertions_model=args.nl_assertions_model,
         pass_k=args.pass_k,
         wall_clock_seconds=elapsed,
+        expected_task_count=len(args.task_ids) if args.task_ids else None,
     )
     if not summary["valid"]:
         raise RuntimeError(

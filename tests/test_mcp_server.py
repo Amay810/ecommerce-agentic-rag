@@ -4,6 +4,8 @@ import asyncio
 import tempfile
 from pathlib import Path
 
+import pytest
+
 from ecommerce_rag.mcp_server import MCPRetailFacade, build_server
 from ecommerce_rag.orders import connect, seed_database
 from ecommerce_rag.tools import RetailTools
@@ -35,6 +37,8 @@ def test_mcp_facade_injects_server_user_and_preserves_identity_guard():
 
 
 def test_mcp_server_discovers_exact_guarded_tool_surface():
+    pytest.importorskip("mcp")
+
     async def exercise():
         with tempfile.TemporaryDirectory() as directory:
             db = Path(directory) / "retail.db"

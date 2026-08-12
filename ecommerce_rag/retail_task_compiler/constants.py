@@ -3,7 +3,8 @@
 
 from __future__ import annotations
 
-GENERATOR_VERSION = "retail_task_compiler.v0.cancel_pending"
+GENERATOR_VERSION = "retail_task_compiler.v1.m1_structures"
+GENERATOR_VERSION_V0 = "retail_task_compiler.v0.cancel_pending"
 SOURCE_POLICY_VERSION = "tau3_retail.v1.0.1.policy.md"
 TAU2_COMMIT = "fc0055dc4e0a316c3f83133267fbd6faaa770992"
 TOOL_GRAPH_VERSION = "retail_tool_graph.v0"

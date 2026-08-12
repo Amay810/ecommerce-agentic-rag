@@ -1,0 +1,59 @@
+{
+  "totals": {
+    "blueprints": 376
+  },
+  "axes": {
+    "task_family": {
+      "authenticated_order_read": 32,
+      "necessary_clarification": 32,
+      "multi_candidate_selection": 32,
+      "cancel_pending": 32,
+      "modify_pending_address": 32,
+      "modify_pending_payment": 32,
+      "modify_pending_items": 32,
+      "return_delivered_items": 32,
+      "exchange_delivered_items": 32,
+      "invalid_state_refusal": 32,
+      "identity_mismatch_refusal": 32,
+      "tool_error_recovery_or_handoff": 24
+    },
+    "tool_path_length": {
+      "3": 120,
+      "4": 136,
+      "5": 80,
+      "6": 24,
+      "7": 8,
+      "2": 8
+    },
+    "read_write_handoff": {
+      "read": 160,
+      "write": 192,
+      "handoff": 24
+    },
+    "initial_state_predicate": {
+      "order_status=pending": 224,
+      "order_status=mixed": 8,
+      "order_status=delivered": 120,
+      "order_status=cancelled": 16,
+      "order_status=processed": 8
+    },
+    "required_clarification": {
+      "yes": 376
+    },
+    "user_behavior": {
+      "cooperative": 136,
+      "incomplete": 112,
+      "unsupported_request": 128
+    },
+    "outcome_class": {
+      "success": 224,
+      "unsafe": 88,
+      "impossible": 40,
+      "handoff": 24
+    },
+    "composition_split": {
+      "seen": 336,
+      "held_out": 40
+    }
+  }
+}

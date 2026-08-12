@@ -106,7 +106,7 @@ def test_cancel_pending_compiles_and_replays_twice():
     assert result.blueprint.environment == "tau3_retail"
 
 
-def test_contamination_detects_exact_tool_path_collision():
+def test_contamination_detects_same_family_state_tool_path_collision():
     compiler = RetailTaskCompiler(test_signatures={"signatures": []})
     result = compiler.compile_cancel_pending(
         task_id="rtc_test_cancel_002",
@@ -120,6 +120,8 @@ def test_contamination_detects_exact_tool_path_collision():
         "signatures": [
             {
                 "task_id": "5",
+                "task_family": sig["task_family"],
+                "state_predicates": sig["state_predicates"],
                 "tool_path": sig["tool_path"],
                 "signature_hash": "not-the-same",
             }
@@ -128,6 +130,41 @@ def test_contamination_detects_exact_tool_path_collision():
     report = check_contamination(result.blueprint, fake_test)
     assert report.contaminated
     assert "5" in report.matched_task_ids
+
+
+def test_contamination_ignores_shared_read_prefix_across_families():
+    compiler = RetailTaskCompiler(test_signatures={"signatures": []})
+    result = compiler.compile_cancel_pending(
+        task_id="rtc_test_cancel_002b",
+        user=_user(),
+        order=_order(),
+        db_snapshot_hash="demo_db",
+        run_replay=False,
+    )
+    # Strip to auth/read-only path for refusal-like blueprints.
+    payload = result.blueprint.to_dict()
+    payload["task_family"] = "invalid_state_refusal"
+    payload["reference_tool_paths"] = [
+        [
+            step
+            for step in payload["reference_tool_paths"][0]
+            if step["name"] != "cancel_pending_order"
+        ]
+    ]
+    payload["required_effects"] = []
+    fake_test = {
+        "signatures": [
+            {
+                "task_id": "65",
+                "task_family": "read_only",
+                "state_predicates": [],
+                "tool_path": [step["name"] for step in payload["reference_tool_paths"][0]],
+                "signature_hash": "other",
+            }
+        ]
+    }
+    report = check_contamination(payload, fake_test)
+    assert not report.contaminated
 
 
 def test_structure_signature_is_entity_agnostic():

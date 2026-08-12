@@ -1,0 +1,64 @@
+#!/bin/bash
+#PBS -N ecommerce-m1-lora-v1
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=4:mem=110gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o logs/ecommerce_m1_lora_v1.pbs.log
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+
+module purge
+module load cuda/12.8.1
+module load miniforge3/25.3.1
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-swift
+
+QWEN_MODEL="${QWEN_MODEL:-/scratch/users/ntu/s250045/models/Qwen3-4B-Instruct-2507}"
+DATASET_DIR="${M1_DATASET_DIR:-$PBS_O_WORKDIR/data/verified_ecommerce_sft_v1}"
+TRAIN_DATA="$DATASET_DIR/train.jsonl"
+M1_OUTPUT="${M1_OUTPUT:-$PBS_O_WORKDIR/output/ecommerce_m1_lora_v1}"
+MAX_LENGTH="${M1_MAX_LENGTH:-32768}"
+
+test -s "$QWEN_MODEL/config.json"
+test -s "$TRAIN_DATA"
+python -m scripts.validate_verified_sft \
+  --dataset-dir "$DATASET_DIR" \
+  --min-train-records 400 \
+  --max-train-records 1200
+
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+export PYTHONNOUSERSITE=1 NPROC_PER_NODE=4
+mkdir -p logs "$M1_OUTPUT"
+
+swift sft \
+  --model "$QWEN_MODEL" \
+  --check_model false \
+  --tuner_type lora \
+  --dataset "$TRAIN_DATA" \
+  --agent_template hermes \
+  --torch_dtype bfloat16 \
+  --num_train_epochs 2 \
+  --per_device_train_batch_size 1 \
+  --learning_rate 1e-4 \
+  --lora_rank 16 \
+  --lora_alpha 32 \
+  --target_modules all-linear \
+  --gradient_accumulation_steps 2 \
+  --save_steps 25 \
+  --save_total_limit 2 \
+  --logging_steps 5 \
+  --max_length "$MAX_LENGTH" \
+  --split_dataset_ratio 0 \
+  --warmup_ratio 0.05 \
+  --dataset_num_proc 4 \
+  --dataloader_num_workers 4 \
+  --output_dir "$M1_OUTPUT" \
+  --report_to none
+
+CHECKPOINT="$(find "$M1_OUTPUT" -maxdepth 2 -type f -name adapter_model.safetensors -printf '%h\n' | sort -V | tail -1)"
+test -n "$CHECKPOINT"
+test -s "$CHECKPOINT/adapter_model.safetensors"
+printf '%s\n' "$CHECKPOINT" > logs/ecommerce_m1_lora_v1_checkpoint.txt
+echo "M1 training complete: $CHECKPOINT"

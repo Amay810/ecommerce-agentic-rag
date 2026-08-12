@@ -27,6 +27,22 @@ def test_smoke_is_train_only_and_five_tasks():
     assert "--auto-resume" in command
 
 
+def test_product_runtime_agent_can_be_selected_without_changing_tau_backend():
+    command = build_tau2_command(
+        tau_python=Path("python"),
+        launcher_script=Path("launcher.py"),
+        phase="base",
+        agent_model="hosted_vllm/Qwen3-4B-Instruct-2507",
+        user_model="deepseek/deepseek-chat",
+        pass_k=1,
+        save_to="system_v1",
+        agent_name="ecommerce_native",
+    )
+    assert command[command.index("--agent") + 1] == "ecommerce_native"
+    assert command[command.index("--domain") + 1] == "retail"
+    assert command[command.index("--task-split-name") + 1] == "test"
+
+
 @pytest.mark.parametrize("phase", ["base", "sft"])
 def test_formal_arms_are_full_test_split_without_constraint(phase):
     command = build_tau2_command(
@@ -55,6 +71,22 @@ def test_unsafe_short_episode_is_rejected():
             save_to="out",
             max_steps=8,
         )
+
+
+def test_teacher_arm_uses_all_frozen_train_tasks():
+    command = build_tau2_command(
+        tau_python=Path("python"),
+        launcher_script=Path("launcher.py"),
+        phase="teacher",
+        agent_model="hosted_vllm/Qwen3-Teacher",
+        user_model="deepseek/deepseek-chat",
+        pass_k=3,
+        save_to="teacher_rollout",
+        agent_name="ecommerce_native",
+    )
+    assert command[command.index("--task-split-name") + 1] == "train"
+    assert "--num-tasks" not in command
+    assert command[command.index("--num-trials") + 1] == "3"
 
 
 def test_results_embed_required_provenance_and_cost(tmp_path):

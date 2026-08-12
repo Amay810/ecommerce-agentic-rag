@@ -61,9 +61,11 @@ def build_tau2_command(
     pass_k: int,
     save_to: str,
     max_steps: int = 200,
+    agent_name: str = "llm_agent",
+    task_ids: Iterable[str] | None = None,
 ) -> list[str]:
     """Build the only command shapes allowed by the frozen v1 protocol."""
-    if phase not in {"smoke", "base", "sft"}:
+    if phase not in {"smoke", "teacher", "base", "sft"}:
         raise ValueError(f"unsupported phase: {phase}")
     if pass_k < 1:
         raise ValueError("pass_k must be positive")
@@ -71,6 +73,8 @@ def build_tau2_command(
         raise ValueError("max_steps below 20 can truncate Retail conversations")
     if phase == "smoke" and pass_k != 1:
         raise ValueError("smoke is cost calibration only and must use pass_k=1")
+    if agent_name not in {"llm_agent", "ecommerce_native"}:
+        raise ValueError(f"unsupported agent: {agent_name}")
 
     command = [
         str(tau_python),
@@ -81,11 +85,11 @@ def build_tau2_command(
         "--task-set-name",
         "retail",
         "--task-split-name",
-        "train" if phase == "smoke" else "test",
+        "train" if phase in {"smoke", "teacher"} else "test",
         "--num-trials",
         str(pass_k),
         "--agent",
-        "llm_agent",
+        agent_name,
         "--agent-llm",
         agent_model,
         "--user",
@@ -101,7 +105,10 @@ def build_tau2_command(
         "--max-concurrency",
         "1" if phase == "smoke" else "3",
     ]
-    if phase == "smoke":
+    selected_task_ids = [str(value) for value in (task_ids or [])]
+    if selected_task_ids:
+        command.extend(["--task-ids", *selected_task_ids])
+    elif phase == "smoke":
         command.extend(["--num-tasks", "5"])
     return command
 
@@ -126,11 +133,19 @@ def annotate_results(
     nl_assertions_model: str,
     pass_k: int,
     wall_clock_seconds: float,
+    expected_task_count: int | None = None,
 ) -> dict[str, Any]:
     """Embed required provenance and smoke cost statistics in a tau2 result."""
     payload = json.loads(result_path.read_text(encoding="utf-8"))
     simulations = payload.get("simulations") or []
-    expected_count = (5 if phase == "smoke" else EXPECTED_SPLITS["test"]) * pass_k
+    expected_tasks = expected_task_count or (
+        5
+        if phase == "smoke"
+        else EXPECTED_SPLITS["train"]
+        if phase == "teacher"
+        else EXPECTED_SPLITS["test"]
+    )
+    expected_count = expected_tasks * pass_k
     if len(simulations) != expected_count:
         raise ValueError(
             f"incomplete {phase} result: {len(simulations)} != {expected_count}"

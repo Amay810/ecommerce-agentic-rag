@@ -15,7 +15,7 @@ import urllib.request
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from .context_compaction import compact_history
+from .agent_runtime import AgentRuntime, RuntimeConfig
 from .domain import AgentAction, AgentObservation
 from .tool_schema import IDENTITY_TOOLS, ToolArgumentError, has_valid_verification_code, validate_arguments
 
@@ -164,6 +164,15 @@ class NativeToolPolicy:
         self.compact_context = compact_context
         self.retry_count = 0
         self.last_trace: dict[str, Any] = {}
+        self.runtime = AgentRuntime(
+            RuntimeConfig(
+                runtime_version="system-v1",
+                prompt_version="ecommerce-native-v1",
+                compact_context=compact_context,
+                max_generation_retries=max_parse_retries,
+                instruction=NATIVE_SYSTEM_PROMPT,
+            )
+        )
 
     @classmethod
     def from_env(cls) -> "NativeToolPolicy":
@@ -269,9 +278,8 @@ class NativeToolPolicy:
         return AgentAction.answer(generation.content.strip())
 
     def act(self, observation: AgentObservation) -> AgentAction:
-        history, stats = compact_history(observation.history) if self.compact_context else (
-            copy.deepcopy(observation.history), None)
-        messages = [{"role": "system", "content": NATIVE_SYSTEM_PROMPT}, *_history_messages(history)]
+        history_messages = _history_messages(observation.history)
+        messages, stats = self.runtime.prepare_messages(history_messages, "")
         # After a tool result, the valid OpenAI sequence ends with role=tool and
         # the model must continue from that result. Do not duplicate the current
         # user turn merely because the final history entry is not a user message.

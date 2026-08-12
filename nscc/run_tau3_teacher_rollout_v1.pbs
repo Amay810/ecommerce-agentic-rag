@@ -1,0 +1,99 @@
+#!/bin/bash
+#PBS -N tau3-teacher-rollout-v1
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=32:ngpus=4:mem=220gb
+#PBS -l walltime=24:00:00
+#PBS -j oe
+#PBS -o logs/tau3_teacher_rollout_v1.pbs.log
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+
+module purge
+module load cuda/12.8.1
+module load miniforge3/25.3.1
+module load git/2.39.2
+source activate /scratch/users/ntu/s250045/conda-envs/ecommerce-vllm
+
+TAU2_ROOT="${TAU2_ROOT:-/scratch/users/ntu/s250045/tau2-bench}"
+TEACHER_MODEL="${TEACHER_MODEL:?Set TEACHER_MODEL to an approved open-weight checkpoint}"
+TEACHER_MODEL_ID="${TEACHER_MODEL_ID:?Set the exact immutable teacher model id}"
+TEACHER_TP="${TEACHER_TP:-4}"
+VLLM_PORT="${TAU3_VLLM_PORT:-8124}"
+PASS_K="${TEACHER_PASS_K:-3}"
+SAVE_TO="${TEACHER_SAVE_TO:-tau3_retail_teacher_v1_k${PASS_K}}"
+TAU2_COMMIT="fc0055dc4e0a316c3f83133267fbd6faaa770992"
+
+: "${TAU3_USER_MODEL:?Set the frozen user simulator model}"
+: "${TAU3_NL_ASSERTIONS_MODEL:?Set the frozen NL assertion judge model}"
+: "${TAU3_USER_API_KEY:?Set the user simulator provider key}"
+test -s "$TEACHER_MODEL/config.json"
+test -x "$TAU2_ROOT/.venv/bin/python"
+test "$(git -c safe.directory="$TAU2_ROOT" -C "$TAU2_ROOT" rev-parse HEAD)" = "$TAU2_COMMIT"
+
+mkdir -p logs data/verified_ecommerce_sft_v1
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+export PYTHONPATH="$PBS_O_WORKDIR${PYTHONPATH:+:$PYTHONPATH}"
+
+VLLM_LOG="logs/tau3_teacher_v1_vllm.log"
+python -m vllm.entrypoints.openai.api_server \
+  --model "$TEACHER_MODEL" \
+  --served-model-name "$TEACHER_MODEL_ID" \
+  --host 127.0.0.1 \
+  --port "$VLLM_PORT" \
+  --dtype bfloat16 \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.90 \
+  --tensor-parallel-size "$TEACHER_TP" \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes \
+  >"$VLLM_LOG" 2>&1 &
+VLLM_PID=$!
+trap 'kill "$VLLM_PID" 2>/dev/null || true; wait "$VLLM_PID" 2>/dev/null || true' EXIT
+
+ready=0
+for _ in $(seq 1 300); do
+  if python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:${VLLM_PORT}/v1/models', timeout=2)" >/dev/null 2>&1; then
+    ready=1
+    break
+  fi
+  if ! kill -0 "$VLLM_PID" 2>/dev/null; then
+    tail -100 "$VLLM_LOG"
+    exit 1
+  fi
+  sleep 2
+done
+test "$ready" = 1
+
+export TAU3_AGENT_BASE_URL="http://127.0.0.1:${VLLM_PORT}/v1"
+export TAU3_AGENT_API_KEY="local-vllm"
+
+"$TAU2_ROOT/.venv/bin/python" -m scripts.run_tau3_retail_v1 \
+  --tau-root "$TAU2_ROOT" \
+  --phase teacher \
+  --agent-name ecommerce_native \
+  --compaction off \
+  --agent-model "hosted_vllm/${TEACHER_MODEL_ID}" \
+  --user-model "$TAU3_USER_MODEL" \
+  --nl-assertions-model "$TAU3_NL_ASSERTIONS_MODEL" \
+  --pass-k "$PASS_K" \
+  --max-steps 200 \
+  --save-to "$SAVE_TO"
+
+RESULT="$TAU2_ROOT/data/simulations/$SAVE_TO/results.json"
+AUDIT="logs/tau3_teacher_v1_process_audit.jsonl"
+test -s "$RESULT"
+python -m scripts.audit_tau3_process --results "$RESULT" --output "$AUDIT"
+"$TAU2_ROOT/.venv/bin/python" -m scripts.build_verified_ecommerce_sft \
+  --results "$RESULT" \
+  --process-audit "$AUDIT" \
+  --output-dir data/verified_ecommerce_sft_v1 \
+  --tau-root "$TAU2_ROOT" \
+  --teacher-model "$TEACHER_MODEL_ID" \
+  --teacher-usage-rights approved_open_weights \
+  --max-per-task 3 \
+  --max-per-structure 8
+
+cp "$RESULT" logs/tau3_teacher_v1_results.json
+echo "teacher rollout and strict dataset build complete"

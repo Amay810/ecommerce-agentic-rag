@@ -61,6 +61,141 @@ class MCPRetailFacade:
         return self._user_call("create_return_request", order_id=order_id,
                                verification_code=verification_code, confirmed=confirmed)
 
+    def cancel_pending_order(self, order_id: str, verification_code: str,
+                             reason: str, confirmed: bool) -> dict[str, Any]:
+        """Cancel a pending order after explicit confirmation."""
+        return self._user_call(
+            "cancel_pending_order",
+            order_id=order_id,
+            verification_code=verification_code,
+            reason=reason,
+            confirmed=confirmed,
+        )
+
+    def modify_pending_order_address(
+        self,
+        order_id: str,
+        verification_code: str,
+        address1: str,
+        address2: str,
+        city: str,
+        state: str,
+        country: str,
+        zip: str,
+        confirmed: bool,
+    ) -> dict[str, Any]:
+        """Update shipping address on a pending order after confirmation."""
+        return self._user_call(
+            "modify_pending_order_address",
+            order_id=order_id,
+            verification_code=verification_code,
+            address1=address1,
+            address2=address2,
+            city=city,
+            state=state,
+            country=country,
+            zip=zip,
+            confirmed=confirmed,
+        )
+
+    def modify_pending_order_items(
+        self,
+        order_id: str,
+        verification_code: str,
+        item_ids: list[str],
+        new_item_ids: list[str],
+        payment_method_id: str,
+        confirmed: bool,
+    ) -> dict[str, Any]:
+        """Replace items on a pending order after confirmation."""
+        return self._user_call(
+            "modify_pending_order_items",
+            order_id=order_id,
+            verification_code=verification_code,
+            item_ids=item_ids,
+            new_item_ids=new_item_ids,
+            payment_method_id=payment_method_id,
+            confirmed=confirmed,
+        )
+
+    def modify_pending_order_payment(
+        self,
+        order_id: str,
+        verification_code: str,
+        payment_method_id: str,
+        confirmed: bool,
+    ) -> dict[str, Any]:
+        """Change payment method on a pending order after confirmation."""
+        return self._user_call(
+            "modify_pending_order_payment",
+            order_id=order_id,
+            verification_code=verification_code,
+            payment_method_id=payment_method_id,
+            confirmed=confirmed,
+        )
+
+    def modify_user_address(
+        self,
+        verification_code: str,
+        address1: str,
+        address2: str,
+        city: str,
+        state: str,
+        country: str,
+        zip: str,
+        confirmed: bool,
+    ) -> dict[str, Any]:
+        """Update the authenticated user's default address after confirmation."""
+        return self._user_call(
+            "modify_user_address",
+            verification_code=verification_code,
+            address1=address1,
+            address2=address2,
+            city=city,
+            state=state,
+            country=country,
+            zip=zip,
+            confirmed=confirmed,
+        )
+
+    def return_delivered_order_items(
+        self,
+        order_id: str,
+        verification_code: str,
+        item_ids: list[str],
+        payment_method_id: str,
+        confirmed: bool,
+    ) -> dict[str, Any]:
+        """Return delivered order items after eligibility and confirmation."""
+        return self._user_call(
+            "return_delivered_order_items",
+            order_id=order_id,
+            verification_code=verification_code,
+            item_ids=item_ids,
+            payment_method_id=payment_method_id,
+            confirmed=confirmed,
+        )
+
+    def exchange_delivered_order_items(
+        self,
+        order_id: str,
+        verification_code: str,
+        item_ids: list[str],
+        new_item_ids: list[str],
+        payment_method_id: str,
+        confirmed: bool,
+    ) -> dict[str, Any]:
+        """Exchange delivered order items after confirmation."""
+        return self._user_call(
+            "exchange_delivered_order_items",
+            order_id=order_id,
+            verification_code=verification_code,
+            item_ids=item_ids,
+            new_item_ids=new_item_ids,
+            payment_method_id=payment_method_id,
+            confirmed=confirmed,
+        )
+
     def escalate_to_human(self, reason: str, order_id: str | None = None) -> dict[str, Any]:
         """Hand the authenticated user's conversation to a human agent."""
         return self._user_call("escalate_to_human", reason=reason, order_id=order_id)
@@ -87,6 +222,13 @@ def build_server(tools: RetailTools, user_id: str) -> "FastMCP":
         facade.get_order,
         facade.check_return_eligibility,
         facade.create_return_request,
+        facade.cancel_pending_order,
+        facade.modify_pending_order_address,
+        facade.modify_pending_order_items,
+        facade.modify_pending_order_payment,
+        facade.modify_user_address,
+        facade.return_delivered_order_items,
+        facade.exchange_delivered_order_items,
         facade.escalate_to_human,
     ):
         server.tool()(function)

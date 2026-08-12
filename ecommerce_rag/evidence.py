@@ -30,9 +30,24 @@ _NUMERIC_FACT = re.compile(
 CONVERTER_TOOLS = frozenset({
     "search_catalog", "get_product", "compare_products", "get_policy",
     "get_order", "check_return_eligibility", "create_return_request",
+    "cancel_pending_order", "modify_pending_order_address",
+    "modify_pending_order_items", "modify_pending_order_payment",
+    "modify_user_address", "return_delivered_order_items",
+    "exchange_delivered_order_items",
 })
 EVIDENCE_BEARING_TOOLS = frozenset(schema["name"] for schema in TOOL_SCHEMAS
                                    if schema.get("evidence_bearing"))
+
+_WRITE_TRANSITION_TOOLS = frozenset({
+    "create_return_request",
+    "cancel_pending_order",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items",
+    "exchange_delivered_order_items",
+})
 
 
 def split_sentences(text: str) -> list[str]:
@@ -79,7 +94,7 @@ def _source_item_count(tool_name: str, result: dict[str, Any]) -> int:
     if tool_name in {"get_product", "get_order"}:
         key = "product" if tool_name == "get_product" else "order"
         return int(bool(result.get(key)))
-    if tool_name in {"check_return_eligibility", "create_return_request"}:
+    if tool_name in {"check_return_eligibility", "create_return_request"} | _WRITE_TRANSITION_TOOLS:
         return int(any(key not in {"ok"} for key in result))
     return 0
 
@@ -174,6 +189,20 @@ def evidence_from_tool_call(
                       "idempotent_replay", "status"):
             if field in result:
                 add(source_id, "return_transition", f"return.{field}", result.get(field))
+    elif tool_name in _WRITE_TRANSITION_TOOLS:
+        source_id = (
+            f"order:{result.get('order_id') or arguments.get('order_id') or call_id}"
+            if tool_name != "modify_user_address"
+            else f"user:{result.get('user_id') or arguments.get('user_id') or call_id}"
+        )
+        kind = "user_transition" if tool_name == "modify_user_address" else "order_transition"
+        for field in (
+            "changed", "order_id", "user_id", "status", "return_status", "request_id",
+            "idempotent_replay", "cancel_reason", "shipping_address", "item_ids",
+            "product_id", "payment_method_id", "exchange_status", "address",
+        ):
+            if field in result:
+                add(source_id, kind, f"{kind.split('_')[0]}.{field}", result.get(field))
     return rows
 
 

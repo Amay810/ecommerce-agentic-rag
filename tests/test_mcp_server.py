@@ -49,7 +49,10 @@ def test_mcp_server_discovers_exact_guarded_tool_surface():
             assert names == {
                 "search_catalog", "get_product", "compare_products", "get_policy",
                 "get_order", "check_return_eligibility", "create_return_request",
-                "escalate_to_human",
+                "cancel_pending_order", "modify_pending_order_address",
+                "modify_pending_order_items", "modify_pending_order_payment",
+                "modify_user_address", "return_delivered_order_items",
+                "exchange_delivered_order_items", "escalate_to_human",
             }
             _content, result = await server.call_tool("get_order", {
                 "order_id": account["order_id"],

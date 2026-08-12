@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import time
 from datetime import date, datetime, timezone
@@ -10,17 +11,37 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .domain import ToolCall
+from .retail_task_compiler.constants import RETAIL_WRITE_TOOLS
 from . import orders
 
 
-READ_TOOLS = {"search_catalog", "get_product", "compare_products", "get_policy", "get_order", "check_return_eligibility"}
-WRITE_TOOLS = {"create_return_request", "escalate_to_human"}
+READ_TOOLS = {
+    "search_catalog",
+    "get_product",
+    "compare_products",
+    "get_policy",
+    "get_order",
+    "check_return_eligibility",
+}
+#: Local legacy write + compiler/τ³ write surface + handoff.
+WRITE_TOOLS = {"create_return_request", "escalate_to_human"} | set(RETAIL_WRITE_TOOLS)
 
-#: Tools that touch one customer's order and therefore must never run without a
-#: verification code the user actually supplied. A policy that asks for the code
-#: and calls the tool in the same turn would otherwise reach the identity check
-#: with an empty string and burn the attempt.
-IDENTITY_GUARDED_TOOLS = {"get_order", "check_return_eligibility", "create_return_request"}
+#: Tools that touch one customer's order/profile and therefore must never run
+#: without a verification code the user actually supplied.
+IDENTITY_GUARDED_TOOLS = {
+    "get_order",
+    "check_return_eligibility",
+    "create_return_request",
+    "cancel_pending_order",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items",
+    "exchange_delivered_order_items",
+}
+
+CANCEL_REASONS = frozenset({"no longer needed", "ordered by mistake"})
 
 #: ``\d`` matches Unicode decimal digits, so it accepts full-width "１２３４５６"
 #: and Arabic-Indic forms. An identity guard must be literal ASCII.
@@ -44,6 +65,38 @@ POLICY_ALIASES = {
 }
 
 
+def _parse_json_list(raw: Any) -> list[str]:
+    if isinstance(raw, list):
+        return [str(item) for item in raw]
+    if not raw:
+        return []
+    try:
+        value = json.loads(raw)
+    except (TypeError, json.JSONDecodeError):
+        return []
+    if isinstance(value, list):
+        return [str(item) for item in value]
+    return []
+
+
+def _address_payload(
+    address1: str,
+    address2: str,
+    city: str,
+    state: str,
+    country: str,
+    zip: str,
+) -> dict[str, str]:
+    return {
+        "address1": address1,
+        "address2": address2,
+        "city": city,
+        "state": state,
+        "country": country,
+        "zip": zip,
+    }
+
+
 class RetailTools:
     def __init__(self, db_path: Path | str, retriever: Any | None = None, today: date = date(2026, 7, 20)):
         self.db_path = Path(db_path)
@@ -59,8 +112,23 @@ class RetailTools:
             "get_order": self.get_order,
             "check_return_eligibility": self.check_return_eligibility,
             "create_return_request": self.create_return_request,
+            "cancel_pending_order": self.cancel_pending_order,
+            "modify_pending_order_address": self.modify_pending_order_address,
+            "modify_pending_order_items": self.modify_pending_order_items,
+            "modify_pending_order_payment": self.modify_pending_order_payment,
+            "modify_user_address": self.modify_user_address,
+            "return_delivered_order_items": self.return_delivered_order_items,
+            "exchange_delivered_order_items": self.exchange_delivered_order_items,
             "escalate_to_human": self.escalate_to_human,
         }
+
+    def executable_tool_names(self) -> frozenset[str]:
+        return frozenset(self._registry)
+
+    def _block(self, tool: str, reason: str, **extra: Any) -> dict[str, Any]:
+        payload = {"tool": tool, "blocked": True, "reason": reason, **extra}
+        self.guardrails.append(payload)
+        return {"ok": False, "changed": False, "error": reason, **extra}
 
     def _identity_guard(self, name: str, arguments: dict[str, Any]) -> dict | None:
         """Refuse an order-scoped tool that arrives without a usable code.
@@ -152,6 +220,24 @@ class RetailTools:
         finally:
             conn.close()
 
+    def _verified_user(self, user_id: str, verification_code: str) -> tuple[dict | None, str | None]:
+        conn = orders.connect(self.db_path)
+        try:
+            user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            if not user or user["verification_code"] != verification_code:
+                return None, "identity_verification_failed"
+            return dict(user), None
+        finally:
+            conn.close()
+
+    def _user_payment_methods(self, user_id: str) -> list[str]:
+        conn = orders.connect(self.db_path)
+        try:
+            row = conn.execute("SELECT payment_methods FROM users WHERE user_id=?", (user_id,)).fetchone()
+            return _parse_json_list(row["payment_methods"] if row else None)
+        finally:
+            conn.close()
+
     def get_order(self, order_id: str, user_id: str, verification_code: str) -> dict:
         order, error = self._verified_order(order_id, user_id, verification_code)
         return {"ok": error is None, "order": order, "error": error}
@@ -178,8 +264,7 @@ class RetailTools:
             reason = eligibility.get("error") or eligibility.get("reason") or "confirmation_required"
             if eligibility.get("eligible") and not confirmed:
                 reason = "confirmation_required"
-            self.guardrails.append({"tool": "create_return_request", "blocked": True, "reason": reason, "order_id": order_id})
-            return {"ok": False, "changed": False, "error": reason}
+            return self._block("create_return_request", reason, order_id=order_id)
         request_id = self._return_request_id(order_id)
         conn = orders.connect(self.db_path)
         try:
@@ -202,7 +287,6 @@ class RetailTools:
                 "SELECT return_status FROM orders WHERE order_id=?", (order_id,)
             ).fetchone()
             if row and row["return_status"] == "requested":
-                # Goal already satisfied: an active return request exists.
                 return {
                     "ok": True,
                     "changed": False,
@@ -212,9 +296,394 @@ class RetailTools:
                     "order_id": order_id,
                     "return_status": "requested",
                 }
-            self.guardrails.append({"tool": "create_return_request", "blocked": True,
-                                    "reason": "return_status_conflict", "order_id": order_id})
-            return {"ok": False, "changed": False, "error": "return_status_conflict", "order_id": order_id}
+            return self._block("create_return_request", "return_status_conflict", order_id=order_id)
+        finally:
+            conn.close()
+
+    def cancel_pending_order(
+        self,
+        order_id: str,
+        user_id: str,
+        verification_code: str,
+        reason: str,
+        confirmed: bool,
+    ) -> dict:
+        order, error = self._verified_order(order_id, user_id, verification_code)
+        if error:
+            return self._block("cancel_pending_order", error, order_id=order_id)
+        if reason not in CANCEL_REASONS:
+            return self._block("cancel_pending_order", "invalid_cancel_reason", order_id=order_id)
+        if not confirmed:
+            return self._block("cancel_pending_order", "confirmation_required", order_id=order_id)
+        if order["status"] == "cancelled":
+            return {
+                "ok": True,
+                "changed": False,
+                "idempotent_replay": True,
+                "order_id": order_id,
+                "status": "cancelled",
+                "cancel_reason": order.get("cancel_reason") or reason,
+            }
+        if order["status"] != "pending":
+            return self._block("cancel_pending_order", "order_not_pending", order_id=order_id, status=order["status"])
+        conn = orders.connect(self.db_path)
+        try:
+            cur = conn.execute(
+                "UPDATE orders SET status='cancelled', cancel_reason=?, version=version+1 "
+                "WHERE order_id=? AND status='pending'",
+                (reason, order_id),
+            )
+            conn.commit()
+            if cur.rowcount != 1:
+                return self._block("cancel_pending_order", "order_not_pending", order_id=order_id)
+            return {
+                "ok": True,
+                "changed": True,
+                "idempotent_replay": False,
+                "order_id": order_id,
+                "status": "cancelled",
+                "cancel_reason": reason,
+            }
+        finally:
+            conn.close()
+
+    def modify_pending_order_address(
+        self,
+        order_id: str,
+        user_id: str,
+        verification_code: str,
+        address1: str,
+        address2: str,
+        city: str,
+        state: str,
+        country: str,
+        zip: str,
+        confirmed: bool,
+    ) -> dict:
+        order, error = self._verified_order(order_id, user_id, verification_code)
+        if error:
+            return self._block("modify_pending_order_address", error, order_id=order_id)
+        if not confirmed:
+            return self._block("modify_pending_order_address", "confirmation_required", order_id=order_id)
+        if order["status"] != "pending":
+            return self._block(
+                "modify_pending_order_address", "order_not_pending", order_id=order_id, status=order["status"]
+            )
+        address = _address_payload(address1, address2, city, state, country, zip)
+        encoded = json.dumps(address, ensure_ascii=False, sort_keys=True)
+        if order.get("shipping_address") == encoded:
+            return {
+                "ok": True,
+                "changed": False,
+                "idempotent_replay": True,
+                "order_id": order_id,
+                "status": order["status"],
+                "shipping_address": address,
+            }
+        conn = orders.connect(self.db_path)
+        try:
+            cur = conn.execute(
+                "UPDATE orders SET shipping_address=?, version=version+1 WHERE order_id=? AND status='pending'",
+                (encoded, order_id),
+            )
+            conn.commit()
+            if cur.rowcount != 1:
+                return self._block("modify_pending_order_address", "order_not_pending", order_id=order_id)
+            return {
+                "ok": True,
+                "changed": True,
+                "idempotent_replay": False,
+                "order_id": order_id,
+                "status": "pending",
+                "shipping_address": address,
+            }
+        finally:
+            conn.close()
+
+    def modify_pending_order_items(
+        self,
+        order_id: str,
+        user_id: str,
+        verification_code: str,
+        item_ids: list[str],
+        new_item_ids: list[str],
+        payment_method_id: str,
+        confirmed: bool,
+    ) -> dict:
+        order, error = self._verified_order(order_id, user_id, verification_code)
+        if error:
+            return self._block("modify_pending_order_items", error, order_id=order_id)
+        if not confirmed:
+            return self._block("modify_pending_order_items", "confirmation_required", order_id=order_id)
+        if order["status"] != "pending":
+            return self._block(
+                "modify_pending_order_items", "order_not_pending", order_id=order_id, status=order["status"]
+            )
+        if not item_ids or len(item_ids) != len(new_item_ids):
+            return self._block("modify_pending_order_items", "item_length_mismatch", order_id=order_id)
+        current_items = _parse_json_list(order.get("item_ids")) or [order["product_id"]]
+        for item_id in item_ids:
+            if item_ids.count(item_id) > current_items.count(item_id):
+                return self._block("modify_pending_order_items", "item_not_found", order_id=order_id, item_id=item_id)
+        if payment_method_id not in self._user_payment_methods(user_id):
+            return self._block("modify_pending_order_items", "payment_method_not_found", order_id=order_id)
+        encoded_items = json.dumps(list(new_item_ids), ensure_ascii=False)
+        if current_items == list(new_item_ids) and order.get("payment_method_id") == payment_method_id:
+            return {
+                "ok": True,
+                "changed": False,
+                "idempotent_replay": True,
+                "order_id": order_id,
+                "status": "pending",
+                "item_ids": list(new_item_ids),
+                "product_id": new_item_ids[0],
+                "payment_method_id": payment_method_id,
+            }
+        conn = orders.connect(self.db_path)
+        try:
+            cur = conn.execute(
+                "UPDATE orders SET product_id=?, item_ids=?, payment_method_id=?, version=version+1 "
+                "WHERE order_id=? AND status='pending'",
+                (new_item_ids[0], encoded_items, payment_method_id, order_id),
+            )
+            conn.commit()
+            if cur.rowcount != 1:
+                return self._block("modify_pending_order_items", "order_not_pending", order_id=order_id)
+            return {
+                "ok": True,
+                "changed": True,
+                "idempotent_replay": False,
+                "order_id": order_id,
+                "status": "pending",
+                "item_ids": list(new_item_ids),
+                "product_id": new_item_ids[0],
+                "payment_method_id": payment_method_id,
+            }
+        finally:
+            conn.close()
+
+    def modify_pending_order_payment(
+        self,
+        order_id: str,
+        user_id: str,
+        verification_code: str,
+        payment_method_id: str,
+        confirmed: bool,
+    ) -> dict:
+        order, error = self._verified_order(order_id, user_id, verification_code)
+        if error:
+            return self._block("modify_pending_order_payment", error, order_id=order_id)
+        if not confirmed:
+            return self._block("modify_pending_order_payment", "confirmation_required", order_id=order_id)
+        if order["status"] != "pending":
+            return self._block(
+                "modify_pending_order_payment", "order_not_pending", order_id=order_id, status=order["status"]
+            )
+        if payment_method_id not in self._user_payment_methods(user_id):
+            return self._block("modify_pending_order_payment", "payment_method_not_found", order_id=order_id)
+        if order.get("payment_method_id") == payment_method_id:
+            return {
+                "ok": True,
+                "changed": False,
+                "idempotent_replay": True,
+                "order_id": order_id,
+                "status": "pending",
+                "payment_method_id": payment_method_id,
+            }
+        conn = orders.connect(self.db_path)
+        try:
+            cur = conn.execute(
+                "UPDATE orders SET payment_method_id=?, version=version+1 WHERE order_id=? AND status='pending'",
+                (payment_method_id, order_id),
+            )
+            conn.commit()
+            if cur.rowcount != 1:
+                return self._block("modify_pending_order_payment", "order_not_pending", order_id=order_id)
+            return {
+                "ok": True,
+                "changed": True,
+                "idempotent_replay": False,
+                "order_id": order_id,
+                "status": "pending",
+                "payment_method_id": payment_method_id,
+            }
+        finally:
+            conn.close()
+
+    def modify_user_address(
+        self,
+        user_id: str,
+        verification_code: str,
+        address1: str,
+        address2: str,
+        city: str,
+        state: str,
+        country: str,
+        zip: str,
+        confirmed: bool,
+    ) -> dict:
+        user, error = self._verified_user(user_id, verification_code)
+        if error:
+            return self._block("modify_user_address", error, user_id=user_id)
+        if not confirmed:
+            return self._block("modify_user_address", "confirmation_required", user_id=user_id)
+        address = _address_payload(address1, address2, city, state, country, zip)
+        encoded = json.dumps(address, ensure_ascii=False, sort_keys=True)
+        if user.get("address") == encoded:
+            return {
+                "ok": True,
+                "changed": False,
+                "idempotent_replay": True,
+                "user_id": user_id,
+                "address": address,
+            }
+        conn = orders.connect(self.db_path)
+        try:
+            conn.execute("UPDATE users SET address=? WHERE user_id=?", (encoded, user_id))
+            conn.commit()
+            return {
+                "ok": True,
+                "changed": True,
+                "idempotent_replay": False,
+                "user_id": user_id,
+                "address": address,
+            }
+        finally:
+            conn.close()
+
+    def return_delivered_order_items(
+        self,
+        order_id: str,
+        user_id: str,
+        verification_code: str,
+        item_ids: list[str],
+        payment_method_id: str,
+        confirmed: bool,
+    ) -> dict:
+        eligibility = self.check_return_eligibility(order_id, user_id, verification_code)
+        if not eligibility.get("ok") or not eligibility.get("eligible") or not confirmed:
+            reason = eligibility.get("error") or eligibility.get("reason") or "confirmation_required"
+            if eligibility.get("eligible") and not confirmed:
+                reason = "confirmation_required"
+            return self._block("return_delivered_order_items", reason, order_id=order_id)
+        order = eligibility["order"]
+        current_items = _parse_json_list(order.get("item_ids")) or [order["product_id"]]
+        if not item_ids:
+            return self._block("return_delivered_order_items", "item_not_found", order_id=order_id)
+        for item_id in item_ids:
+            if item_ids.count(item_id) > current_items.count(item_id):
+                return self._block("return_delivered_order_items", "item_not_found", order_id=order_id, item_id=item_id)
+        methods = self._user_payment_methods(user_id)
+        if payment_method_id not in methods and payment_method_id != order.get("payment_method_id"):
+            return self._block("return_delivered_order_items", "payment_method_not_found", order_id=order_id)
+        request_id = self._return_request_id(order_id)
+        conn = orders.connect(self.db_path)
+        try:
+            cur = conn.execute(
+                "UPDATE orders SET return_status='requested', version=version+1 "
+                "WHERE order_id=? AND status='delivered' AND return_status IS NULL",
+                (order_id,),
+            )
+            conn.commit()
+            if cur.rowcount == 1:
+                return {
+                    "ok": True,
+                    "changed": True,
+                    "idempotent_replay": False,
+                    "request_id": request_id,
+                    "order_id": order_id,
+                    "status": "delivered",
+                    "return_status": "requested",
+                    "item_ids": list(item_ids),
+                    "payment_method_id": payment_method_id,
+                }
+            row = conn.execute(
+                "SELECT return_status FROM orders WHERE order_id=?", (order_id,)
+            ).fetchone()
+            if row and row["return_status"] == "requested":
+                return {
+                    "ok": True,
+                    "changed": False,
+                    "idempotent_replay": True,
+                    "request_id": request_id,
+                    "order_id": order_id,
+                    "status": "delivered",
+                    "return_status": "requested",
+                    "item_ids": list(item_ids),
+                    "payment_method_id": payment_method_id,
+                }
+            return self._block("return_delivered_order_items", "return_status_conflict", order_id=order_id)
+        finally:
+            conn.close()
+
+    def exchange_delivered_order_items(
+        self,
+        order_id: str,
+        user_id: str,
+        verification_code: str,
+        item_ids: list[str],
+        new_item_ids: list[str],
+        payment_method_id: str,
+        confirmed: bool,
+    ) -> dict:
+        order, error = self._verified_order(order_id, user_id, verification_code)
+        if error:
+            return self._block("exchange_delivered_order_items", error, order_id=order_id)
+        if not confirmed:
+            return self._block("exchange_delivered_order_items", "confirmation_required", order_id=order_id)
+        if order["status"] != "delivered":
+            return self._block(
+                "exchange_delivered_order_items",
+                "order_not_delivered",
+                order_id=order_id,
+                status=order["status"],
+            )
+        if order.get("exchange_status"):
+            current_items = _parse_json_list(order.get("item_ids"))
+            if current_items == list(new_item_ids):
+                return {
+                    "ok": True,
+                    "changed": False,
+                    "idempotent_replay": True,
+                    "order_id": order_id,
+                    "status": "delivered",
+                    "exchange_status": order["exchange_status"],
+                    "item_ids": current_items,
+                    "product_id": order["product_id"],
+                    "payment_method_id": order.get("payment_method_id"),
+                }
+            return self._block("exchange_delivered_order_items", "exchange_already_completed", order_id=order_id)
+        if not item_ids or len(item_ids) != len(new_item_ids):
+            return self._block("exchange_delivered_order_items", "item_length_mismatch", order_id=order_id)
+        current_items = _parse_json_list(order.get("item_ids")) or [order["product_id"]]
+        for item_id in item_ids:
+            if item_ids.count(item_id) > current_items.count(item_id):
+                return self._block("exchange_delivered_order_items", "item_not_found", order_id=order_id, item_id=item_id)
+        if payment_method_id not in self._user_payment_methods(user_id):
+            return self._block("exchange_delivered_order_items", "payment_method_not_found", order_id=order_id)
+        encoded_items = json.dumps(list(new_item_ids), ensure_ascii=False)
+        conn = orders.connect(self.db_path)
+        try:
+            cur = conn.execute(
+                "UPDATE orders SET product_id=?, item_ids=?, payment_method_id=?, "
+                "exchange_status='exchanged', version=version+1 "
+                "WHERE order_id=? AND status='delivered' AND exchange_status IS NULL",
+                (new_item_ids[0], encoded_items, payment_method_id, order_id),
+            )
+            conn.commit()
+            if cur.rowcount != 1:
+                return self._block("exchange_delivered_order_items", "exchange_already_completed", order_id=order_id)
+            return {
+                "ok": True,
+                "changed": True,
+                "idempotent_replay": False,
+                "order_id": order_id,
+                "status": "delivered",
+                "exchange_status": "exchanged",
+                "item_ids": list(new_item_ids),
+                "product_id": new_item_ids[0],
+                "payment_method_id": payment_method_id,
+            }
         finally:
             conn.close()
 

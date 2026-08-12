@@ -24,6 +24,10 @@ ASK_USER_TEMPLATES: dict[str, str] = {
 KNOWN_ACTION_KEYS = frozenset({
     "handoff", "final_answer",
     "get_order", "check_return_eligibility", "create_return_request",
+    "cancel_pending_order", "modify_pending_order_address",
+    "modify_pending_order_items", "modify_pending_order_payment",
+    "modify_user_address", "return_delivered_order_items",
+    "exchange_delivered_order_items",
     "ask_user:verification_code", "ask_user:order_id",
     "ask_user:return_reason", "ask_user:confirmation",
 })

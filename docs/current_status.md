@@ -21,7 +21,7 @@ The 400-train gate is not met.
 
 | Version | Where | Structures | Tasks | S47 |
 |---|---|---:|---:|---|
-| Historical 4B rollout | archive `data/compiled_retail_m1_v0_48_structures/` | 48 | 384 | yes |
+| Historical 4B rollout | archive compiler-report snapshot (no `tasks.json`) | 48 | 384 IDs | yes |
 | Current source + committed artifact | `ecommerce_rag/retail_task_compiler/` and `data/compiled_retail_m1/` | 47 | 376 | no |
 
 Future compiled experiments must regenerate under a new version name.
@@ -30,4 +30,5 @@ Future compiled experiments must regenerate under a new version name.
 
 Phase 1 is a **measurement**, not training: count `ask_user` vs premature write on a frozen probe set (`ecommerce_rag/phase1_write_gate.py`). Train only if that error is common and the label is stable.
 
-Closed planning text and the 48-structure snapshot live in `Amay810/ecommerce-agentic-rag-archive`.
+Closed planning text lives in [`Amay810/ecommerce-agentic-rag-archive`](https://github.com/Amay810/ecommerce-agentic-rag-archive).
+The 48-structure artifact there is a **compiler-report snapshot**; `tasks.json` was never committed.

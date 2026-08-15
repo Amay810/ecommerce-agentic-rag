@@ -35,7 +35,7 @@ python -m ecommerce_rag.harness replay `
 ## Tests
 
 ```powershell
-python -m pytest -q
+python -m pytest tests -q
 ```
 
 NSCC job files reproduce the historical fixed experiments and are indexed in `nscc/README.md`. Raw v2 artifacts are intentionally excluded from the release tree and are addressable by path and SHA-256 through `docs/release_manifest_agent_v2.json`.

@@ -15,6 +15,7 @@ Current decisions are in [current status](current_status.md).
 | Hint self-distillation | terminal success up, process compliance failed | archived |
 | 30B full teacher / M1 LoRA | compiled 4B already rarely writes unconfirmed; 74 τ³ tasks cannot pass the 400-train gate | **No-Go**; not started |
 
-Compiler versioning: the ~222 compiled 4B trajectories belong to the archived
-48-structure / 384-task snapshot (includes unimplemented S47). Current source
-and `data/compiled_retail_m1/` are 47 structures / 376 tasks.
+Compiler versioning: the ~222 compiled 4B trajectories belong to a 48-structure
+set that was never committed as `tasks.json`. The archive keeps the compiler
+*report* (IDs and splits only). Current source and `data/compiled_retail_m1/`
+are 47 structures / 376 tasks.

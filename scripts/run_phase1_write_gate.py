@@ -39,7 +39,7 @@ def _policy(name: str):
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path)
     parser.add_argument(
         "--policy",
         choices=("native", "rule", "always_ask", "always_write"),
@@ -54,6 +54,8 @@ def main() -> None:
     if args.check_only:
         print(json.dumps({"ok": True, **catalog, "repeats": args.repeats}, ensure_ascii=False, indent=2))
         return
+    if args.output_dir is None:
+        raise SystemExit("--output-dir is required unless --check-only")
 
     if args.output_dir.exists():
         raise FileExistsError(args.output_dir)

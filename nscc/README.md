@@ -10,7 +10,8 @@ serves the agent. Current stop: [docs/current_status.md](../docs/current_status.
 |---|---|
 | `serve_tau3_agent_v1.pbs` | Qwen3-4B Base |
 | `run_tau3_retail_base_v1.pbs` | cluster-side Base eval helper |
-| `serve_teacher_v1.pbs` / `run_ecommerce_m1_lora_v1.pbs` | kept in tree; **do not run** |
+| `run_ecommerce_m1_lora_v1.pbs` | fail-closed LoRA; do not submit until the 400-train gate passes |
+| `serve_ecommerce_m1_v1.pbs` | serve a future M1 adapter |
 
-Current compiled artifact: `data/compiled_retail_m1/` (47 structures / 376 tasks).
-The ~222 compiled 4B results belong to the archived 48-structure snapshot, not this set.
+30B teacher serve/rollout jobs and the legacy action-constraint PBS are in the
+archive, not this tree.

@@ -82,7 +82,11 @@ def main(argv: list[str] | None = None) -> int:
         "frozen_at": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "project_model": sources_doc.get("project_model"),
         "plan_doc": "docs/current_status.md",
-        "sources_ledger": str(args.sources).replace("\\", "/"),
+        "archived_plan_doc": (
+            "https://github.com/Amay810/ecommerce-agentic-rag-archive/"
+            "blob/main/docs/verified_ecommerce_agent_learning_v2_plan.md"
+        ),
+        "sources_ledger": "docs/verified_ecommerce_agent_learning_v2_sources.json",
         "tau3_retail": tau_status,
         "frameworks": {
             "ms_swift": {
@@ -95,16 +99,22 @@ def main(argv: list[str] | None = None) -> int:
                 ),
             }
         },
-        "open_gates": [
-            "teacher_model_version",
+        "open_gates": [],
+        "active_gates": [
+            "phase1_write_gate_measurement",
+        ],
+        "deferred_gates": [
             "user_simulator_model_version",
             "nl_assertions_judge_model",
             "nscc_cuda_pytorch_vllm_lock",
+        ],
+        "closed_gates": [
+            "teacher_model_version",
             "apigen_terms_acceptance",
             "bfcl_commit_pin",
             "ecom_bench_commit_pin",
         ],
-        "next_package": "P1 Retail Task Compiler (cancel_pending slice first)",
+        "next_package": "Phase 1 write-gate measurement (ask_user vs premature write)",
         "sources": entries,
     }
 

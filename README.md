@@ -91,7 +91,7 @@ python -m ecommerce_rag.harness run `
   --repeats 1 `
   --seed-db
 
-python -m pytest -q
+python -m pytest tests -q
 ```
 
 ### Native function-calling Agent

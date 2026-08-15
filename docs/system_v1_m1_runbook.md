@@ -46,6 +46,7 @@ python -m scripts.run_phase1_write_gate --check-only
 ## NSCC
 
 Submit from `ecommerce-agentic-rag-main`. Put `/opt/pbs/bin` on `PATH`.
-`serve_tau3_agent_v1.pbs` serves Qwen3-4B. Teacher and LoRA jobs remain in the tree but are not the next action.
+`serve_tau3_agent_v1.pbs` serves Qwen3-4B. M1 LoRA/serve jobs stay fail-closed
+until the 400-train gate passes. 30B teacher jobs are in the archive.
 
 Do not `qsub` from `ecommerce-agentic-rag-m1` or sibling scratch copies.

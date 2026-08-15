@@ -5,6 +5,8 @@ The supported Agent entry point is `python -m ecommerce_rag.harness` for run, re
 The active scripts are limited to:
 
 - τ³ Retail execution and frozen-judge launch;
+- compiled Retail teacher/base runners;
+- Phase 1 write-gate measurement (`scripts/run_phase1_write_gate.py`);
 - template parity and context-compaction measurement;
 - current source/split audits and blueprint compilation;
 - reproducible catalogue and harness fixture generation;

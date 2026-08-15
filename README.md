@@ -6,7 +6,7 @@ The recommended Agent v2 path now uses OpenAI-compatible native function calling
 (`tools` / `message.tool_calls`) and converts provider actions into the existing
 `AgentAction` contract. System-owned identity is injected after generation, so
 native tools cannot bypass action constraints or transactional guardrails. The
-same eight guarded retail tools are also available through MCP.
+same guarded retail tools are also available through MCP.
 
 本项目构建了一个面向动态电商业务的可信工具型 Agent。Qwen3-4B 根据当前 observation 自主选择检索、工具调用、追问、回答或转人工；RAG 负责提供商品与政策事实，typed tools 负责查询和修改订单状态，guardrails 在执行层保护高风险写操作。
 
@@ -35,7 +35,7 @@ flowchart LR
 ### Agent decisions and multi-turn execution
 
 - `LLMPolicy` 基于对话、工具结果和业务状态生成结构化 next action；
-- 支持检索、8 类 typed tools、用户追问、最终回答和转人工；
+- 支持检索、typed tools（含 τ³ 对齐的写工具面）、用户追问、最终回答和转人工；
 - 保存完整 `Trajectory`，支持 run、replay、compare 和离线重评分。
 
 ### Dynamic facts and business tools
@@ -162,7 +162,7 @@ python -m scripts.measure_context_compaction <results.json>
 - `ecommerce_rag/tools.py`：业务工具与 guardrails；
 - `ecommerce_rag/tool_schema.py`：typed tool contracts；
 - `scripts/`、`nscc/`：数据、评测与集群复现入口；
-- `docs/`：架构、安全、评测、检索和发布证据。
+- `docs/`：当前状态、runbook、架构、安全、评测和检索。详见 [current status](docs/current_status.md)。
 
 ## Boundaries
 

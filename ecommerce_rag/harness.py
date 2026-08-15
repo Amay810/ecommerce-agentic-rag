@@ -465,7 +465,9 @@ class HarnessRunner:
         order_id = task.metadata.get("order_id")
         tools = RetailTools(self.db_path, self.retriever)
         simulator = self.user_simulator_factory(task)
-        if isinstance(self.policy, OraclePolicy): self.policy.bind(task)
+        bind = getattr(self.policy, "bind", None)
+        if callable(bind):
+            bind(task)
         history: list[dict[str, Any]] = [{"role": "user", "content": task.user_goal}]
         messages: list[dict[str, str]] = [{"role": "user", "content": task.user_goal}]
         observations, actions, sim_spans, model_calls, retry_spans = [], [], [], [], []

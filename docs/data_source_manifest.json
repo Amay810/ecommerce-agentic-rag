@@ -2,7 +2,8 @@
   "schema_version": "1.0",
   "frozen_at": "2026-08-08",
   "project_model": "Qwen/Qwen3-4B-Instruct-2507",
-  "plan_doc": "docs/verified_ecommerce_agent_learning_v2_plan.md",
+  "plan_doc": "docs/current_status.md",
+  "archived_plan_doc": "ecommerce-agentic-rag-archive:docs/verified_ecommerce_agent_learning_v2_plan.md",
   "sources_ledger": "docs/verified_ecommerce_agent_learning_v2_sources.json",
   "tau3_retail": {
     "validated": true,

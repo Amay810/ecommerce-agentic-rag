@@ -10,8 +10,8 @@ import sys
 import time
 from pathlib import Path
 
-from ecommerce_rag.compiled_retail_registry import register_compiled_retail
 from ecommerce_rag.tau3_retail_v1 import TAU2_COMMIT, git_head
+from scripts.run_tau3_retail_v1 import _configure_provider_environment
 
 
 def main() -> None:
@@ -35,6 +35,12 @@ def main() -> None:
     parser.add_argument("--save-to", required=True)
     parser.add_argument("--task-split-name", default="train")
     parser.add_argument("--num-tasks", type=int)
+    parser.add_argument(
+        "--max-concurrency",
+        type=int,
+        default=1,
+        help="tau2 worker count. Keep 1 unless short tasks and 4B DP replicas are both available.",
+    )
     parser.add_argument("--check-only", action="store_true")
     args = parser.parse_args()
 
@@ -56,7 +62,6 @@ def main() -> None:
     if tau_python is None:
         raise SystemExit("tau2 python not found")
 
-    register_compiled_retail(tasks_path=args.tasks, split_path=args.splits)
     launcher = Path(__file__).with_name("_tau3_cli_with_frozen_judge.py")
     command = [
         str(tau_python),
@@ -85,7 +90,7 @@ def main() -> None:
         "--auto-resume",
         "--verbose-logs",
         "--max-concurrency",
-        "3",
+        str(args.max_concurrency),
     ]
     if args.num_tasks is not None:
         command.extend(["--num-tasks", str(args.num_tasks)])
@@ -114,6 +119,12 @@ def main() -> None:
     python_path = environment.get("PYTHONPATH", "")
     environment["PYTHONPATH"] = (
         project_root if not python_path else project_root + os.pathsep + python_path
+    )
+    _configure_provider_environment(
+        environment,
+        args.agent_model,
+        args.user_model,
+        args.nl_assertions_model,
     )
 
     # Ensure registration import runs inside the launcher process too.

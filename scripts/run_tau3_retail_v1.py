@@ -99,6 +99,11 @@ def main() -> None:
     parser.add_argument("--compaction", choices=("off", "on"), default="off")
     parser.add_argument("--save-to", required=True)
     parser.add_argument("--task-ids", nargs="+")
+    parser.add_argument(
+        "--max-concurrency",
+        type=int,
+        help="Override tau2 worker count. Use 1 when remaining long-horizon tasks stall under 3-way contention.",
+    )
     parser.add_argument("--check-only", action="store_true")
     args = parser.parse_args()
 
@@ -124,6 +129,7 @@ def main() -> None:
         max_steps=args.max_steps,
         agent_name=args.agent_name,
         task_ids=args.task_ids,
+        max_concurrency=args.max_concurrency,
     )
     public_config = {
         "protocol": "tau3_retail_posttraining_v1",

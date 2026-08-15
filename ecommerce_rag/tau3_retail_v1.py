@@ -63,6 +63,7 @@ def build_tau2_command(
     max_steps: int = 200,
     agent_name: str = "llm_agent",
     task_ids: Iterable[str] | None = None,
+    max_concurrency: int | None = None,
 ) -> list[str]:
     """Build the only command shapes allowed by the frozen v1 protocol."""
     if phase not in {"smoke", "teacher", "base", "sft"}:
@@ -75,6 +76,11 @@ def build_tau2_command(
         raise ValueError("smoke is cost calibration only and must use pass_k=1")
     if agent_name not in {"llm_agent", "ecommerce_native"}:
         raise ValueError(f"unsupported agent: {agent_name}")
+    concurrency = 1 if phase == "smoke" else 3
+    if max_concurrency is not None:
+        if max_concurrency < 1:
+            raise ValueError("max_concurrency must be positive")
+        concurrency = max_concurrency
 
     command = [
         str(tau_python),
@@ -103,7 +109,7 @@ def build_tau2_command(
         "--auto-resume",
         "--verbose-logs",
         "--max-concurrency",
-        "1" if phase == "smoke" else "3",
+        str(concurrency),
     ]
     selected_task_ids = [str(value) for value in (task_ids or [])]
     if selected_task_ids:

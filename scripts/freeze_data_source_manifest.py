@@ -81,7 +81,7 @@ def main(argv: list[str] | None = None) -> int:
         "schema_version": "1.0",
         "frozen_at": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "project_model": sources_doc.get("project_model"),
-        "plan_doc": "docs/verified_ecommerce_agent_learning_v2_plan.md",
+        "plan_doc": "docs/current_status.md",
         "sources_ledger": str(args.sources).replace("\\", "/"),
         "tau3_retail": tau_status,
         "frameworks": {

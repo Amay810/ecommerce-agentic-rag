@@ -20,4 +20,4 @@
 
 The 40-row audit is systematic rather than random. It produced 80.0% success agreement and 77.5% policy agreement with the v2 operational grader, so those proportions are not extrapolated to all trajectories. The fail-closed RL gate remained ineligible and no training claim is made.
 
-Detailed methodology and limitations are in [the v2 closeout](evaluation_closeout_v2.md). The compact machine-readable report is [here](harness_v2_llm_360_regraded_v2.json); raw trajectories remain under the [`agent-v2-raw`](https://github.com/Amay810/ecommerce-agentic-rag/tree/agent-v2-raw) tag.
+Closed methodology notes are in the private archive (`evaluation_closeout_v2.md`). The compact machine-readable report is [here](harness_v2_llm_360_regraded_v2.json); raw trajectories remain under the [`agent-v2-raw`](https://github.com/Amay810/ecommerce-agentic-rag/tree/agent-v2-raw) tag.

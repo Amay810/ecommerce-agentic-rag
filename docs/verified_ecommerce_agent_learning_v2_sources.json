@@ -71,7 +71,7 @@
         "pyproject.toml"
       ],
       "audit_artifact": "docs/tau3_split_audit.json",
-      "portability_assessment": "docs/retail_task_compiler_portability_assessment.md"
+      "portability_assessment": "archived:docs/retail_task_compiler_portability_assessment.md"
     },
     {
       "id": "apigen_mt_5k",

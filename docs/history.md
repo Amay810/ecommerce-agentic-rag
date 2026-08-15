@@ -1,20 +1,20 @@
 # Project history and closed experiments
 
-The active repository contains the current tool Agent, retrieval, safety,
-native function calling, MCP, and verified-learning path. Retired code and raw
-artifacts are kept in the owner's private repository
-`Amay810/ecommerce-agentic-rag-archive` rather than in the active import path.
+Retired code and raw artifacts live in the private
+[`Amay810/ecommerce-agentic-rag-archive`](https://github.com/Amay810/ecommerce-agentic-rag-archive).
+Current decisions are in [current status](current_status.md).
 
-| Stage | Frozen result | Current status |
+| Stage | Frozen result | Status |
 |---|---|---|
-| RAG/Streamlit MVP | established hybrid retrieval baseline | orchestration archived; retrieval retained |
-| Agent v2 | 84.17% operational success on 120 fixed internal tasks; 0 illegal state changes | core harness/tools retained |
-| Terminal grounding | 34/40 → 34/40 fact pass | negative/inconclusive; archived |
-| Return workflow fixes | 34/40 → 38/40 from protocol fixes; 40/40 with runtime constraint | constraint retained; not model gain |
-| SQL Memory probe | 0 repaired actions; retrieval 12/24 | negative/inconclusive; runtime path removed |
-| S0 LoRA | Base 85/160, S0 86/160 on τ³ Retail test | negative control; training/deployment chain proven, artifacts archived |
-| Hint self-distillation | improved terminal success but failed process-compliance requirement | stopped; archived |
+| RAG/Streamlit MVP | hybrid retrieval baseline | orchestration archived; retrieval retained |
+| Agent v2 | 84.17% operational success on 120×3; 0 illegal state changes | harness/tools retained |
+| Terminal grounding | 34/40 → 34/40 fact pass | archived |
+| Return workflow fixes | 34/40 → 40/40 from protocol then runtime constraint | constraint retained; not model gain |
+| SQL Memory probe | 0 repaired actions | archived |
+| S0 LoRA | Base 85/160, S0 86/160 on τ³ Retail test | negative control; archived |
+| Hint self-distillation | terminal success up, process compliance failed | archived |
+| 30B full teacher / M1 LoRA | compiled 4B already rarely writes unconfirmed; 74 τ³ tasks cannot pass the 400-train gate | **No-Go**; not started |
 
-These outcomes explain design decisions; they are not presented as current
-features or as model-capability improvements. Exact code and artifacts remain
-recoverable from the private archive and the original repository's Git history.
+Compiler versioning: the ~222 compiled 4B trajectories belong to the archived
+48-structure / 384-task snapshot (includes unimplemented S47). Current source
+and `data/compiled_retail_m1/` are 47 structures / 376 tasks.

@@ -11,7 +11,7 @@
 # and τ³ Retail evaluation through an SSH tunnel to this vLLM endpoint.
 
 set -euo pipefail
-cd "${PBS_O_WORKDIR:-/scratch/users/ntu/s250045/ecommerce-agentic-rag-m1}"
+cd "${PBS_O_WORKDIR:-/scratch/users/ntu/s250045/ecommerce-agentic-rag-main}"
 
 module purge
 module load cuda/12.8.1

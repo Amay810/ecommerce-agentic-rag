@@ -11,18 +11,11 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from .agent_runtime import RuntimeConfig, build_system_prompt
+from .retail_protocol import RETAIL_WRITE_TOOLS
 
 
 ACCEPTED_TERMINATIONS = {"user_stop", "agent_stop"}
-WRITE_TOOLS = {
-    "cancel_pending_order",
-    "modify_pending_order_address",
-    "modify_pending_order_items",
-    "modify_pending_order_payment",
-    "modify_user_address",
-    "return_delivered_order_items",
-    "exchange_delivered_order_items",
-}
+WRITE_TOOLS = set(RETAIL_WRITE_TOOLS)
 
 
 def canonical_hash(value: Any) -> str:

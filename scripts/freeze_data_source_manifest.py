@@ -9,8 +9,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ecommerce_rag.retail_task_compiler.constants import TAU2_COMMIT
-from ecommerce_rag.tau3_retail_v1 import EXPECTED_SPLITS, validate_tau2_checkout
+from ecommerce_rag.tau3_retail_v1 import EXPECTED_SPLITS, TAU2_COMMIT, validate_tau2_checkout
 
 MS_SWIFT_FULL_COMMIT = "f2797138dba0e224cfff735cd89a528a08d8732a"
 MS_SWIFT_TAG = "v4.2.2"

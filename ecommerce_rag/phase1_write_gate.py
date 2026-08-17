@@ -24,7 +24,7 @@ from typing import Any, Iterable, Literal
 from .domain import AgentAction, TaskSpec, Trajectory
 from .harness import _asks_for_verification_code
 from .orders import connect, init_db
-from .retail_task_compiler.constants import RETAIL_WRITE_TOOLS
+from .retail_protocol import RETAIL_WRITE_TOOLS
 
 
 MissingClass = Literal["verification_code", "confirmation"]

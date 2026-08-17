@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 
 from ecommerce_rag.orders import connect, seed_database
-from ecommerce_rag.retail_task_compiler.constants import RETAIL_WRITE_TOOLS
+from ecommerce_rag.retail_protocol import RETAIL_WRITE_TOOLS
 from ecommerce_rag.tool_schema import IDENTITY_TOOLS, SCHEMA_BY_NAME, TOOL_SCHEMAS
 from ecommerce_rag.tools import IDENTITY_GUARDED_TOOLS, WRITE_TOOLS, RetailTools
 

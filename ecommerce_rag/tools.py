@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .domain import ToolCall
-from .retail_task_compiler.constants import RETAIL_WRITE_TOOLS
+from .retail_protocol import RETAIL_WRITE_TOOLS
 from . import orders
 
 

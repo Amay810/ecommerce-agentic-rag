@@ -10,8 +10,6 @@ serves the agent. Current stop: [docs/current_status.md](../docs/current_status.
 |---|---|
 | `serve_tau3_agent_v1.pbs` | Qwen3-4B Base |
 | `run_tau3_retail_base_v1.pbs` | cluster-side Base eval helper |
-| `run_ecommerce_m1_lora_v1.pbs` | fail-closed LoRA; do not submit until the 400-train gate passes |
-| `serve_ecommerce_m1_v1.pbs` | serve a future M1 adapter |
 
-30B teacher serve/rollout jobs and the legacy action-constraint PBS are in the
-archive, not this tree.
+30B teacher serve/rollout jobs, M1 LoRA/serve jobs, and the legacy
+action-constraint PBS are in the archive, not this tree.

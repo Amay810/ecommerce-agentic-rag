@@ -16,6 +16,7 @@ Current decisions are in [current status](current_status.md).
 | 30B full teacher / M1 LoRA | compiled 4B already rarely writes unconfirmed; 74 τ³ tasks cannot pass the 400-train gate | **No-Go**; not started |
 
 Compiler versioning: the ~222 compiled 4B trajectories belong to a 48-structure
-set that was never committed as `tasks.json`. The archive keeps the compiler
-*report* (IDs and splits only). Current source and `data/compiled_retail_m1/`
-are 47 structures / 376 tasks.
+set that was never committed as `tasks.json`. The archive keeps that compiler
+*report* (IDs and splits only) plus the later 47-structure/376-task compiler
+snapshot. This repository no longer ships `retail_task_compiler` or
+`data/compiled_retail_m1/`.

@@ -1,11 +1,16 @@
 # Current status
 
-Last updated: 2026-08-15
+Last updated: 2026-08-17
 
 ## Decision
 
-Do not run a 30B full teacher rollout. Do not start M1 LoRA.
-The 400-train gate is not met.
+`retail_task_compiler` / `compiled_retail_m1` is **No-Go** and has been removed from
+this repository. Do not regenerate compiled tasks, rerun the 30B teacher, or start
+M1 LoRA.
+
+The learning path is official τ²/τ³ tasks → on-policy rollout → environment
+reward / verifier → rejection sampling → RFT → GRPO. RFT/GRPO training code is
+not implemented here yet.
 
 ## Frozen evidence
 
@@ -13,22 +18,17 @@ The 400-train gate is not met.
 |---|---|---|
 | τ³ train job 89 | 73/74 valid | rerun |
 | Remaining miss | `ecommerce_native` mixed content+tool_call after infra was fixed | treat as DNS/proxy |
-| Compiled 4B (~222 usable) | unconfirmed-write 1.4%; reward ~18% from incomplete gold paths | treat as the current 47-structure set |
+| Compiled 4B (~222 usable) | unconfirmed-write 1.4%; reward ~18% from incomplete gold paths | treat as a live compiler |
 
-τ³ unconfirmed-write is 23.3% and still teacher-shaped, but 74 tasks cannot pass the 400-train gate.
-
-## Compiler versions
-
-| Version | Where | Structures | Tasks | S47 |
-|---|---|---:|---:|---|
-| Historical 4B rollout | archive compiler-report snapshot (no `tasks.json`) | 48 | 384 IDs | yes |
-| Current source + committed artifact | `ecommerce_rag/retail_task_compiler/` and `data/compiled_retail_m1/` | 47 | 376 | no |
-
-Future compiled experiments must regenerate under a new version name.
+Closed compiler source, the 47-structure/376-task artifact, and the 48-structure
+compiler-report snapshot live in
+[`Amay810/ecommerce-agentic-rag-archive`](https://github.com/Amay810/ecommerce-agentic-rag-archive).
 
 ## Next
 
-Phase 1 is a **measurement**, not training: count `ask_user` vs premature write on a frozen probe set (`ecommerce_rag/phase1_write_gate.py`). Train only if that error is common and the label is stable.
+Phase 1 write-gate (`ecommerce_rag/phase1_write_gate.py`) remains a **measurement**
+on the local harness: count `ask_user` vs premature write. It is not compiled-task
+training.
 
-Closed planning text lives in [`Amay810/ecommerce-agentic-rag-archive`](https://github.com/Amay810/ecommerce-agentic-rag-archive).
-The 48-structure artifact there is a **compiler-report snapshot**; `tasks.json` was never committed.
+Official τ³ Retail evaluation (`scripts/run_tau3_retail_v1.py`) is the external
+eval path.

@@ -155,14 +155,17 @@ python -m scripts.measure_context_compaction <results.json>
 ## Repository map
 
 - `ecommerce_rag/harness.py`：正式 Agent run/replay/compare 入口；
-- `ecommerce_rag/llm_policy.py`：结构化 next-action policy；
-- `ecommerce_rag/native_tool_policy.py`：OpenAI/vLLM native function-calling adapter；
+- `ecommerce_rag/agent_runtime.py`：native function-calling runtime；
+- `ecommerce_rag/process_audit.py`：通用 trajectory/process auditor；
+- `ecommerce_rag/tau3_retail_v1.py`：官方 τ²/τ³ Retail evaluation wrapper；
 - `ecommerce_rag/context_compaction.py`：loss-aware tool-history compaction；
 - `ecommerce_rag/mcp_server.py`：guarded MCP tool server；
 - `ecommerce_rag/tools.py`：业务工具与 guardrails；
 - `ecommerce_rag/tool_schema.py`：typed tool contracts；
 - `scripts/`、`nscc/`：数据、评测与集群复现入口；
-- `docs/`：当前状态、runbook、架构、安全、评测和检索。详见 [current status](docs/current_status.md)。
+- `docs/`：当前状态、架构、安全、评测和检索。详见 [current status](docs/current_status.md)。
+
+当前主线是 Reliable Ecommerce Agent：runtime / tool use、RAG、Harness 与 failure attribution、官方 τ²/τ³ evaluation、context/memory、transactional guardrails、MCP。Post-training 方向是 on-policy rollout、rejection sampling / RFT 与 GRPO；这些训练循环尚未作为本仓库已完成能力宣称。
 
 ## Boundaries
 

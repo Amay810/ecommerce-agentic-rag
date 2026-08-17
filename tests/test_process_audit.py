@@ -73,6 +73,23 @@ def test_failed_auth_does_not_authorize_private_read():
     assert "private_read_before_successful_authentication" in result.violations
 
 
+def test_contract_is_recovered_from_task_json_without_compiler_catalog():
+    task = {
+        "id": "T-json",
+        "evaluation_criteria": {
+            "expected_termination": "refuse_no_write",
+            "confirmation_requirement": "refused_or_absent",
+            "actions": [{"name": "get_order_details", "arguments": {"order_id": "O1"}}],
+        },
+    }
+    from ecommerce_rag.process_audit import audit_contract_from_task
+
+    contract = audit_contract_from_task(task)
+    assert contract is not None
+    assert contract.expected_termination == "refuse_no_write"
+    assert contract.expected_actions == (("get_order_details", {"order_id": "O1"}),)
+
+
 def test_noop_cannot_pass_a_no_write_task_contract():
     contract = TaskAuditContract(
         task_id="T1",

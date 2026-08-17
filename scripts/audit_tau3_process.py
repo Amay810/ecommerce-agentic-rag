@@ -17,7 +17,7 @@ def main() -> None:
     parser.add_argument(
         "--tasks",
         type=Path,
-        help="Optional compiled task file; enables structure- and target-aware auditing.",
+        help="Optional task JSON; enables action-aware auditing when evaluation_criteria are present.",
     )
     args = parser.parse_args()
 

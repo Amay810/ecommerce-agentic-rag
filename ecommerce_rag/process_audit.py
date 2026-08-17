@@ -1,4 +1,4 @@
-"""Deterministic, task-aware process audit for tau3 Retail trajectories."""
+"""Deterministic process audit for retail tool trajectories."""
 
 from __future__ import annotations
 
@@ -8,8 +8,9 @@ from collections import Counter, deque
 from dataclasses import dataclass
 from typing import Any
 
-from .retail_task_compiler.structures import m1_structure_catalog
-from .verified_sft import WRITE_TOOLS
+from .retail_protocol import RETAIL_WRITE_TOOLS
+
+WRITE_TOOLS = set(RETAIL_WRITE_TOOLS)
 
 
 AUTH_TOOLS = {"find_user_id_by_email", "find_user_id_by_name_zip"}
@@ -71,24 +72,31 @@ class TaskAuditContract:
 
 
 def audit_contract_from_task(task: dict[str, Any]) -> TaskAuditContract | None:
-    """Recover the compiler-frozen semantic contract embedded in a task."""
+    """Recover an optional process contract from official or labeled task JSON."""
 
     provenance = task.get("provenance") or {}
+    criteria = task.get("evaluation_criteria") or {}
     structure_id = str(provenance.get("structure_id") or "")
-    if not structure_id:
-        return None
-    structures = {item.structure_id: item for item in m1_structure_catalog()}
-    structure = structures.get(structure_id)
-    if structure is None:
-        return None
+    expected_termination = str(
+        provenance.get("expected_termination")
+        or criteria.get("expected_termination")
+        or ""
+    )
+    confirmation_requirement = str(
+        provenance.get("confirmation_requirement")
+        or criteria.get("confirmation_requirement")
+        or ""
+    )
     actions = []
-    for action in (task.get("evaluation_criteria") or {}).get("actions") or []:
+    for action in criteria.get("actions") or []:
         actions.append((str(action.get("name") or ""), dict(action.get("arguments") or {})))
+    if not actions and not expected_termination:
+        return None
     return TaskAuditContract(
         task_id=str(task.get("id") or ""),
         structure_id=structure_id,
-        expected_termination=structure.expected_termination,
-        confirmation_requirement=structure.confirmation_requirement,
+        expected_termination=expected_termination,
+        confirmation_requirement=confirmation_requirement,
         expected_actions=tuple(actions),
     )
 
@@ -215,7 +223,7 @@ def audit_simulation(
 
         termination = contract.expected_termination
         wrote = any(name in WRITE_TOOLS for name, _ in successful_calls)
-        if termination != "success_write" and wrote:
+        if termination and termination != "success_write" and wrote:
             violations.append("write_for_no_write_contract")
         if termination == "handoff" and not any(
             name == "transfer_to_human_agents" for name, _ in successful_calls

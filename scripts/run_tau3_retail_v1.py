@@ -11,8 +11,11 @@ from pathlib import Path
 
 from ecommerce_rag.tau3_retail_v1 import (
     annotate_results,
-    build_tau2_command,
+    command_from_requested,
+    requested_config,
     validate_tau2_checkout,
+    verify_command_matches_requested,
+    verify_tau2_source,
 )
 
 
@@ -77,11 +80,18 @@ def _configure_provider_environment(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run the frozen tau3 Retail v1 protocol. Every experiment-control "
+            "variable must be given explicitly: this wrapper relies on no "
+            "default of its own and on no tau2 default."
+        )
+    )
     parser.add_argument(
         "--tau-root",
         type=Path,
-        default=Path(r"E:\cv_codex\external\tau2-bench"),
+        default=(Path(os.environ["TAU_ROOT"]) if os.environ.get("TAU_ROOT") else None),
+        help="tau2 checkout or vendored snapshot. Defaults to $TAU_ROOT.",
     )
     parser.add_argument(
         "--phase", choices=("smoke", "teacher", "base", "sft"), required=True
@@ -89,14 +99,39 @@ def main() -> None:
     parser.add_argument("--agent-model", required=True)
     parser.add_argument("--user-model", required=True)
     parser.add_argument("--nl-assertions-model", required=True)
-    parser.add_argument("--pass-k", type=int, default=1)
+    parser.add_argument(
+        "--agent-name", choices=("llm_agent", "ecommerce_native"), required=True
+    )
+    parser.add_argument(
+        "--agent-temperature",
+        type=float,
+        required=True,
+        help="Passed to tau2 as --agent-llm-args '{\"temperature\": ...}'.",
+    )
+    parser.add_argument(
+        "--user-temperature",
+        type=float,
+        required=True,
+        help="Passed to tau2 as --user-llm-args '{\"temperature\": ...}'.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        required=True,
+        help="Passed to tau2 as --seed. tau2's own default is never relied on.",
+    )
+    parser.add_argument("--pass-k", type=int, required=True)
     parser.add_argument("--max-steps", type=int, default=200)
     parser.add_argument(
-        "--agent-name",
-        choices=("llm_agent", "ecommerce_native"),
-        default="ecommerce_native",
+        "--compaction",
+        choices=("off", "on"),
+        default="off",
+        help=(
+            "Project-side runtime variable (ERAG_CONTEXT_COMPACTION). It is not "
+            "a tau2 CLI flag, so it cannot appear in tau2's native info; it is "
+            "recorded in the requested configuration instead."
+        ),
     )
-    parser.add_argument("--compaction", choices=("off", "on"), default="off")
     parser.add_argument("--save-to", required=True)
     parser.add_argument("--task-ids", nargs="+")
     parser.add_argument(
@@ -107,6 +142,10 @@ def main() -> None:
     parser.add_argument("--check-only", action="store_true")
     args = parser.parse_args()
 
+    if args.tau_root is None:
+        parser.error("--tau-root is required when TAU_ROOT is not set")
+
+    tau2_source = verify_tau2_source(args.tau_root)
     splits = validate_tau2_checkout(args.tau_root)
     tau_python_candidates = (
         args.tau_root / ".venv" / "Scripts" / "python.exe",
@@ -118,36 +157,37 @@ def main() -> None:
             "tau2 python not found in .venv/Scripts/python.exe or .venv/bin/python"
         )
     launcher_script = Path(__file__).with_name("_tau3_cli_with_frozen_judge.py")
-    command = build_tau2_command(
-        tau_python=tau_python,
-        launcher_script=launcher_script,
+
+    # requested -> command, then read the command back and compare.
+    requested = requested_config(
         phase=args.phase,
+        agent_name=args.agent_name,
         agent_model=args.agent_model,
         user_model=args.user_model,
+        nl_assertions_model=args.nl_assertions_model,
+        agent_temperature=args.agent_temperature,
+        user_temperature=args.user_temperature,
+        seed=args.seed,
         pass_k=args.pass_k,
-        save_to=args.save_to,
         max_steps=args.max_steps,
-        agent_name=args.agent_name,
+        compaction=args.compaction,
+        save_to=args.save_to,
         task_ids=args.task_ids,
         max_concurrency=args.max_concurrency,
     )
-    public_config = {
-        "protocol": "tau3_retail_posttraining_v1",
-        "phase": args.phase,
-        "agent_model": args.agent_model,
-        "user_simulator_model": args.user_model,
-        "nl_assertions_model": args.nl_assertions_model,
-        "pass_k": args.pass_k,
-        "max_steps": args.max_steps,
-        "agent_name": args.agent_name,
-        "compaction": args.compaction,
-        "save_to": args.save_to,
+    command = command_from_requested(
+        tau_python=tau_python, launcher_script=launcher_script, requested=requested
+    )
+    verify_command_matches_requested(command, requested)
+
+    manifest = {
+        "tau2_source": tau2_source,
         "splits": splits,
+        "requested": requested,
         "command": command,
-        "task_ids": args.task_ids,
     }
     if args.check_only:
-        print(json.dumps(public_config, ensure_ascii=False, indent=2))
+        print(json.dumps(manifest, ensure_ascii=False, indent=2))
         return
 
     environment = os.environ.copy()
@@ -172,21 +212,16 @@ def main() -> None:
     result_path = args.tau_root / "data" / "simulations" / args.save_to / "results.json"
     summary = annotate_results(
         result_path,
-        phase=args.phase,
-        agent_model=args.agent_model,
-        user_model=args.user_model,
-        nl_assertions_model=args.nl_assertions_model,
-        pass_k=args.pass_k,
+        requested=requested,
+        command=command,
+        tau2_source=tau2_source,
         wall_clock_seconds=elapsed,
-        expected_task_count=len(args.task_ids) if args.task_ids else None,
     )
     if not summary["valid"]:
         raise RuntimeError(
             f"invalid run: {summary['infrastructure_errors']} infrastructure errors"
         )
-    print(
-        json.dumps({**public_config, "summary": summary}, ensure_ascii=False, indent=2)
-    )
+    print(json.dumps({**manifest, "summary": summary}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

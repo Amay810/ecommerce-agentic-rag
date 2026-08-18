@@ -74,15 +74,19 @@ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false
 "$TAU2_ROOT/.venv/bin/python" -m scripts.run_tau3_retail_v1 \
   --tau-root "$TAU2_ROOT" \
   --phase base \
+  --agent-name llm_agent \
   --agent-model "hosted_vllm/${VLLM_MODEL_NAME}" \
   --user-model "$TAU3_USER_MODEL" \
   --nl-assertions-model "$TAU3_NL_ASSERTIONS_MODEL" \
+  --agent-temperature 0.0 \
+  --user-temperature 0.0 \
+  --seed 300 \
   --pass-k 3 \
   --max-steps 200 \
   --save-to "$SAVE_TO"
 
 RESULT="$TAU2_ROOT/data/simulations/$SAVE_TO/results.json"
 test -s "$RESULT"
-"$TAU2_ROOT/.venv/bin/python" -c "import json; p=json.load(open('$RESULT')); required=('tau2_commit','user_simulator_model','agent_model','pass_k'); assert all(p.get(k) is not None for k in required); assert p['pass_k']==3; assert p['experiment_summary']['valid'] is True"
+"$TAU2_ROOT/.venv/bin/python" -c "import json; p=json.load(open('$RESULT')); i=p['info']; a=i['agent_info']; u=i['user_info']; x=p['tau3_experiment']; assert a['implementation']=='llm_agent', a['implementation']; assert a['llm']=='hosted_vllm/${VLLM_MODEL_NAME}', a['llm']; assert a['llm_args']['temperature']==0.0, a['llm_args']; assert u['llm']=='$TAU3_USER_MODEL', u['llm']; assert u['llm_args']['temperature']==0.0, u['llm_args']; assert i['seed']==300, i['seed']; assert i['num_trials']==3, i['num_trials']; assert i['max_steps']==200, i['max_steps']; assert set(x['checks_passed'])>={'agent_name','agent_model','user_model','agent_temperature','user_temperature','seed','num_trials','max_steps'}, x['checks_passed']; assert p['experiment_summary']['valid'] is True"
 cp "$RESULT" "logs/tau3_retail_v1_base_results.json"
 

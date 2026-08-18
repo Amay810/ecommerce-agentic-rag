@@ -12,6 +12,7 @@ import os
 from typing import Any
 
 from .agent_runtime import AgentRuntime, RuntimeConfig, RuntimeGeneration
+from .context_compaction import context_compaction_enabled
 
 
 def _require_tau2():
@@ -134,7 +135,7 @@ def build_tau3_agent_class(tau: dict[str, Any] | None = None):
                     prompt_version=os.getenv(
                         "ERAG_PROMPT_VERSION", "ecommerce-native-v1"
                     ),
-                    compact_context=os.getenv("ERAG_CONTEXT_COMPACTION", "0") == "1",
+                    compact_context=context_compaction_enabled(default=False),
                     max_generation_retries=int(
                         os.getenv("ERAG_MAX_GENERATION_RETRIES", "1")
                     ),

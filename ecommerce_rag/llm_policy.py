@@ -456,7 +456,7 @@ class LLMPolicy:
         )
 
     def act(self, observation: AgentObservation) -> AgentAction:
-        system = SYSTEM_PROMPT.replace("{tools}", prompt_block())
+        system = SYSTEM_PROMPT.replace("{tools}", prompt_block(observation.tool_schemas))
         user = self._build_prompt(observation)
         allowed = {schema["name"] for schema in observation.tool_schemas}
         attempts: list[dict[str, Any]] = []

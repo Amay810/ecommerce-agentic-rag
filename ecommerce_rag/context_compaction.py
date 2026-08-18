@@ -9,8 +9,28 @@ provider-facing copy.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 from typing import Any
+
+
+CANONICAL_COMPACTION_ENV = "ERAG_CONTEXT_COMPACTION"
+LEGACY_COMPACTION_ENV = "ARAG_CONTEXT_COMPACTION"
+
+
+def context_compaction_enabled(*, default: bool) -> bool:
+    """Read the canonical switch with a backwards-compatible legacy fallback.
+
+    The callers retain their historical defaults: NativeToolPolicy defaults to
+    enabled while the tau3 adapter defaults to disabled.  An explicit canonical
+    value always wins over the older ARAG-prefixed variable.
+    """
+    raw = os.getenv(CANONICAL_COMPACTION_ENV)
+    if raw is None:
+        raw = os.getenv(LEGACY_COMPACTION_ENV)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
 _ORDER_FIELDS = (

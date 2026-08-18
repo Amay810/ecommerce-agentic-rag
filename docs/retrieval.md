@@ -2,6 +2,21 @@
 
 Hybrid retrieval supplies product and policy facts when the Agent selects a knowledge action. It combines multilingual dense retrieval, BM25 and reciprocal-rank fusion, then applies structured constraints such as category and budget.
 
+## Build a local index
+
+The repository ships a small product and policy corpus. Build the files consumed
+by `HybridRetriever` with:
+
+```bash
+python -m scripts.build_retrieval_index --output-dir ecommerce_rag/index
+```
+
+The command writes `embeddings.npy`, `chunks.jsonl`, and `parents.json`. The
+embedding model is controlled by `ERAG_EMBED_MODEL`; use `--products` and
+`--policies` to point at another corpus with the same JSONL source fields. Use
+`--dry-run` to inspect the resulting chunk counts without loading an embedding
+model.
+
 ## Results
 
 | Protocol | Recall@1 | Recall@5 | nDCG@5 | P95 |

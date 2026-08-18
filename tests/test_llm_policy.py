@@ -6,6 +6,7 @@ import unittest
 from ecommerce_rag.domain import AgentObservation
 from ecommerce_rag.harness import TOOL_SCHEMAS
 from ecommerce_rag.llm_policy import Generation, LLMPolicy
+from ecommerce_rag.tool_schema import SCHEMA_BY_NAME
 
 #: A fully specified action: all five envelope fields, nothing around it.
 GOOD = ('{"action_type":"tool_call","tool_name":"search_catalog","arguments":{"query":"camera"},'
@@ -28,6 +29,41 @@ def _scripted(*outputs):
 
 
 class ActionParsingTests(unittest.TestCase):
+    def test_system_prompt_and_allowed_actions_use_observation_tool_subset(self):
+        captured = {}
+
+        def generate(system, _user):
+            captured["system"] = system
+            return ('{"action_type":"tool_call","tool_name":"search_catalog",'
+                    '"arguments":{"query":"camera"},"content":"",'
+                    '"requires_user_response":false}')
+
+        offered = [SCHEMA_BY_NAME[name] for name in ("search_catalog", "get_policy", "get_order")]
+        observation = AgentObservation(
+            "camera", {"user_id": "U0001"},
+            [{"role": "user", "content": "camera"}], offered,
+        )
+        action = LLMPolicy(generate).act(observation)
+
+        self.assertEqual(action.tool_name, "search_catalog")
+        self.assertIn("- search_catalog(", captured["system"])
+        self.assertIn("- get_policy(", captured["system"])
+        self.assertIn("- get_order(", captured["system"])
+        self.assertNotIn("- cancel_pending_order(", captured["system"])
+
+    def test_tool_removed_from_observation_subset_is_not_accepted(self):
+        removed = ('{"action_type":"tool_call","tool_name":"cancel_pending_order",'
+                   '"arguments":{},"content":"","requires_user_response":false}')
+        offered = [SCHEMA_BY_NAME[name] for name in ("search_catalog", "get_policy", "get_order")]
+        observation = AgentObservation(
+            "cancel it", {"user_id": "U0001"},
+            [{"role": "user", "content": "cancel it"}], offered,
+        )
+        action = LLMPolicy(lambda _system, _user: removed).act(observation)
+
+        self.assertEqual(action.action_type, "handoff")
+        self.assertEqual(action.arguments["reason"], "model_action_parse_failure")
+
     def test_invalid_json_is_retried_once(self):
         policy = LLMPolicy(_scripted("not json", GOOD))
         action = policy.act(_observation())

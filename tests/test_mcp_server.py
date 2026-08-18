@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from ecommerce_rag.mcp_server import MCPRetailFacade, build_server
+from ecommerce_rag.mcp_server import MCP_TOOL_NAMES, MCPRetailFacade, _runtime_user_id, build_server
 from ecommerce_rag.orders import connect, seed_database
 from ecommerce_rag.tools import RetailTools
 
@@ -46,14 +46,7 @@ def test_mcp_server_discovers_exact_guarded_tool_surface():
             account = _account(db)
             server = build_server(RetailTools(db), account["user_id"])
             names = {tool.name for tool in await server.list_tools()}
-            assert names == {
-                "search_catalog", "get_product", "compare_products", "get_policy",
-                "get_order", "check_return_eligibility", "create_return_request",
-                "cancel_pending_order", "modify_pending_order_address",
-                "modify_pending_order_items", "modify_pending_order_payment",
-                "modify_user_address", "return_delivered_order_items",
-                "exchange_delivered_order_items", "escalate_to_human",
-            }
+            assert names == set(MCP_TOOL_NAMES)
             _content, result = await server.call_tool("get_order", {
                 "order_id": account["order_id"],
                 "verification_code": account["verification_code"],
@@ -83,3 +76,13 @@ def test_mcp_write_still_requires_confirmation():
         assert result["ok"] is False
         assert result["changed"] is False
         assert result["error"] == "confirmation_required"
+
+
+def test_mcp_surface_matches_retail_tools_registry():
+    assert set(MCP_TOOL_NAMES) == set(RetailTools(":memory:").executable_tool_names())
+
+
+def test_mcp_runtime_requires_server_side_user_id(monkeypatch):
+    monkeypatch.delenv("ERAG_MCP_USER_ID", raising=False)
+    with pytest.raises(RuntimeError, match="ERAG_MCP_USER_ID is required"):
+        _runtime_user_id()

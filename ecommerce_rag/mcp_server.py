@@ -18,6 +18,25 @@ if TYPE_CHECKING:
 from .tools import RetailTools
 
 
+MCP_TOOL_NAMES = (
+    "search_catalog",
+    "get_product",
+    "compare_products",
+    "get_policy",
+    "get_order",
+    "check_return_eligibility",
+    "create_return_request",
+    "cancel_pending_order",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items",
+    "exchange_delivered_order_items",
+    "escalate_to_human",
+)
+
+
 class MCPRetailFacade:
     def __init__(self, tools: RetailTools, user_id: str):
         self.tools = tools
@@ -214,24 +233,8 @@ def build_server(tools: RetailTools, user_id: str) -> "FastMCP":
         stateless_http=True,
         json_response=True,
     )
-    for function in (
-        facade.search_catalog,
-        facade.get_product,
-        facade.compare_products,
-        facade.get_policy,
-        facade.get_order,
-        facade.check_return_eligibility,
-        facade.create_return_request,
-        facade.cancel_pending_order,
-        facade.modify_pending_order_address,
-        facade.modify_pending_order_items,
-        facade.modify_pending_order_payment,
-        facade.modify_user_address,
-        facade.return_delivered_order_items,
-        facade.exchange_delivered_order_items,
-        facade.escalate_to_human,
-    ):
-        server.tool()(function)
+    for name in MCP_TOOL_NAMES:
+        server.tool()(getattr(facade, name))
     return server
 
 
@@ -245,8 +248,17 @@ def _runtime_tools() -> RetailTools:
     return RetailTools(db_path, retriever)
 
 
+def _runtime_user_id() -> str:
+    user_id = os.getenv("ERAG_MCP_USER_ID", "").strip()
+    if not user_id:
+        raise RuntimeError(
+            "ERAG_MCP_USER_ID is required: MCP identity is server-side configuration"
+        )
+    return user_id
+
+
 def main() -> None:
-    server = build_server(_runtime_tools(), os.getenv("ERAG_MCP_USER_ID", ""))
+    server = build_server(_runtime_tools(), _runtime_user_id())
     transport = os.getenv("ERAG_MCP_TRANSPORT", "stdio")
     if transport not in {"stdio", "streamable-http", "sse"}:
         raise ValueError("ERAG_MCP_TRANSPORT must be stdio, streamable-http, or sse")

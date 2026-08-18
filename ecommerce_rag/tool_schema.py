@@ -16,7 +16,7 @@ annotations and declared defaults, so the contract cannot silently drift.
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, Iterable
 
 TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
@@ -358,10 +358,16 @@ def validate_arguments(tool_name: str, arguments: dict[str, Any]) -> None:
                 raise ToolArgumentError(f"{tool_name}.{name}: items must be {item_type}")
 
 
-def prompt_block() -> str:
-    """Compact, deterministic rendering of the tool contract for a prompt."""
+def prompt_block(tool_schemas: Iterable[dict[str, Any]] | None = None) -> str:
+    """Compact, deterministic rendering of the offered tool contract.
+
+    ``None`` preserves the full-contract convenience used by static callers,
+    while policies that operate on an observation must pass the observation's
+    tool schemas explicitly.  This keeps the prompt-facing action space aligned
+    with the set that the policy will accept.
+    """
     lines = []
-    for schema in TOOL_SCHEMAS:
+    for schema in TOOL_SCHEMAS if tool_schemas is None else tool_schemas:
         parameters = schema["parameters"]
         required = set(parameters.get("required", []))
         fields = ", ".join(

@@ -193,6 +193,16 @@ class PromptBlockTests(unittest.TestCase):
             self.assertIn(schema["name"], block)
         self.assertEqual(block, prompt_block())
 
+    def test_prompt_block_can_render_an_offered_subset(self):
+        offered = [SCHEMA_BY_NAME[name] for name in ("search_catalog", "get_policy", "get_order")]
+        block = prompt_block(offered)
+
+        for name in ("search_catalog", "get_policy", "get_order"):
+            self.assertIn(name, block)
+        for schema in TOOL_SCHEMAS:
+            if schema["name"] not in {item["name"] for item in offered}:
+                self.assertNotIn(f"- {schema['name']}(", block)
+
 
 if __name__ == "__main__":
     unittest.main()

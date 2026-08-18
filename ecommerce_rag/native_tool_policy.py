@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from .agent_runtime import AgentRuntime, RuntimeConfig
+from .context_compaction import context_compaction_enabled
 from .domain import AgentAction, AgentObservation
 from .tool_schema import IDENTITY_TOOLS, ToolArgumentError, has_valid_verification_code, validate_arguments
 
@@ -179,7 +180,7 @@ class NativeToolPolicy:
         base_url = os.getenv("ARAG_LLM_BASE_URL", "https://api.openai.com/v1")
         model = os.getenv("ARAG_LLM_MODEL", "gpt-4o-mini")
         api_key = os.getenv("ARAG_LLM_API_KEY", "")
-        compact = os.getenv("ARAG_CONTEXT_COMPACTION", "1") == "1"
+        compact = context_compaction_enabled(default=True)
         return cls(
             cls._openai_generator(base_url, api_key, model),
             generator_meta={"backend": "openai_native_tools", "model": model, "base_url": base_url},

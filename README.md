@@ -127,6 +127,10 @@ The MCP server injects `ERAG_MCP_USER_ID` on the server side and delegates every
 call to `RetailTools.call()`. Identity, eligibility, explicit confirmation, and
 idempotency therefore remain enforced for MCP clients.
 
+`ERAG_MCP_USER_ID` is required at startup; it is never accepted as a client tool
+argument. `ERAG_MCP_INDEX` is optional for a transaction-only server and, when
+set, must point to an index built by `scripts.build_retrieval_index`.
+
 ```powershell
 $env:ERAG_MCP_DB = "logs/demo_agent.db"
 $env:ERAG_MCP_USER_ID = "U0001"

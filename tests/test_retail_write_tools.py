@@ -265,7 +265,7 @@ def test_return_and_exchange_delivered_guards():
 
 
 def test_refund_payment_method_invariant_allows_original_or_existing_gift_card_only():
-    cases = ("original", "gift_card", "other_user_payment_method")
+    cases = ("original", "gift_card", "other_user_payment_method", "foreign_gift_card")
     for case in cases:
         with tempfile.TemporaryDirectory() as directory:
             db = Path(directory) / "retail.db"
@@ -276,6 +276,8 @@ def test_refund_payment_method_invariant_allows_original_or_existing_gift_card_o
             methods = json.loads(user["payment_methods"])
             gift_card = next(method for method in methods if method.startswith("gift_card_"))
             other_payment = f"debit_card_{delivered['user_id']}"
+            foreign_user_id = "U0001" if delivered["user_id"] != "U0001" else "U0002"
+            foreign_gift_card = f"gift_card_{foreign_user_id}"
             if case == "other_user_payment_method":
                 conn = connect(db)
                 try:
@@ -290,6 +292,7 @@ def test_refund_payment_method_invariant_allows_original_or_existing_gift_card_o
                 "original": delivered["payment_method_id"],
                 "gift_card": gift_card,
                 "other_user_payment_method": other_payment,
+                "foreign_gift_card": foreign_gift_card,
             }[case]
             result = tools.call(
                 "return_delivered_order_items",
@@ -300,7 +303,7 @@ def test_refund_payment_method_invariant_allows_original_or_existing_gift_card_o
                 payment_method_id=payment_method_id,
                 confirmed=True,
             )
-            if case == "other_user_payment_method":
+            if case in ("other_user_payment_method", "foreign_gift_card"):
                 assert result["error"] == "payment_method_not_found"
                 assert result["changed"] is False
             else:

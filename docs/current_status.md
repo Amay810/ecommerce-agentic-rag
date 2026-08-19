@@ -117,13 +117,15 @@ This distribution exists; no GRPO-start threshold is asserted here.
 ```text
 P0                       CLOSED
 G0-E exploration         COMPLETE (592/592, valid)
-G0 GRPO code             PARTIALLY IMPLEMENTED; NEXT → NSCC preflight/smoke
+G0 GRPO code             PATCHED; NEXT → NSCC 1-step plumbing smoke
 ```
 
-The frozen tau3 retail GRPO integration layer is now implemented, including
-the VERL multi-turn adapter, official terminal reward boundary, K=8/P=2
-metadata, assistant-only mask contract, offline checks, and an NSCC launch
-recipe. The real VERL/τ²/DeepSeek/Qwen run remains unverified until the NSCC
-runtime smoke test; no pilot result is claimed here.
+The frozen tau3 retail GRPO integration layer is patched, including the VERL
+multi-turn adapter, the pinned AgentGymEnv/evaluator boundary, frozen NL-judge
+routing, K=8/P=2 metadata, assistant-only mask contract, synchronous
+`main_ppo_sync` launch modes, and offline checks. The real AgentLoop,
+VERL/τ²/DeepSeek/Qwen run remains unverified until the NSCC runtime smoke
+test; no pilot result is claimed here. The prior offline PASS labels are not
+runtime integration evidence.
 Closed compiler artifacts live in
 [`Amay810/ecommerce-agentic-rag-archive`](https://github.com/Amay810/ecommerce-agentic-rag-archive).

@@ -1,5 +1,5 @@
 #!/bin/bash
-# First G0 pilot: two-GPU separated VERL actor/update + vLLM rollout.
+# First G0 pilot: two-GPU synchronous VERL actor/rollout hybrid engine.
 # This script is a launch recipe only. Resource feasibility remains an NSCC
 # smoke-test question and must not be inferred from the configuration.
 #PBS -N tau3_grpo_v1
@@ -19,8 +19,10 @@ export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
 export PYTHONUNBUFFERED=1
 export TOKENIZERS_PARALLELISM=false
 export TAU_ROOT DEEPSEEK_BASE_URL DEEPSEEK_API_KEY
+export TAU3_NL_ASSERTIONS_MODEL="${TAU3_NL_ASSERTIONS_MODEL:-deepseek/deepseek-chat}"
 
 python -m scripts.train_tau3_grpo \
   --tau-root "$TAU_ROOT" \
   --output-dir "${GRPO_OUTPUT_DIR:-results/tau3_grpo_v1}" \
+  --optimizer-steps "${GRPO_OPTIMIZER_STEPS:-9}" \
   --launch

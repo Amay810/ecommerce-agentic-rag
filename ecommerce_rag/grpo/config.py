@@ -25,6 +25,7 @@ class FrozenTau3GRPOConfig:
     train_tasks: int = 74
     agent_model: str = "Qwen/Qwen3-4B-Instruct-2507"
     user_model: str = "deepseek-v4-flash"
+    nl_assertions_model: str = "deepseek/deepseek-chat"
     agent_temperature: float = 0.8
     user_temperature: float = 0.0
     seed: int = 300
@@ -53,6 +54,7 @@ class FrozenTau3GRPOConfig:
             "train_tasks": 74,
             "agent_model": "Qwen/Qwen3-4B-Instruct-2507",
             "user_model": "deepseek-v4-flash",
+            "nl_assertions_model": "deepseek/deepseek-chat",
             "agent_temperature": 0.8,
             "user_temperature": 0.0,
             "seed": 300,

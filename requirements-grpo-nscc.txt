@@ -1,6 +1,13 @@
 # Dedicated NSCC environment only; do not add these to the lightweight VM
-# requirements.txt. The adapter follows the VERL 0.8 AgentLoop API used by the
-# public multi-turn tau2 reference implementation.
-verl==0.8.0
-datasets
-gymnasium>=0.31.0
+# requirements.txt. The lock follows the pinned VERL v0.8.0 AgentLoop API and
+# its documented CUDA 12.6 / Torch 2.6 / vLLM 0.8.3 baseline.
+verl @ git+https://github.com/volcengine/verl.git@7aed6b230776f963fa09509c10d9c3a767d1102c
+torch==2.6.0
+torchvision==0.21.0
+torchaudio==2.6.0
+vllm==0.8.3
+ray==2.42.0
+transformers==4.51.3
+TransferQueue==0.1.7
+datasets==3.5.0
+gymnasium==1.2.2

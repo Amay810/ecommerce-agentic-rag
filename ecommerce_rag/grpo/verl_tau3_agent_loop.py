@@ -108,7 +108,17 @@ class Tau3AgentLoop(ToolAgentLoop):
                 ),
                 num_turns=agent_data.user_turns + agent_data.assistant_turns + 1,
                 metrics=agent_data.metrics,
-                extra_fields={"official_terminal_reward": session.terminal_reward.value if session.terminal_reward else 0.0},
+                extra_fields={
+                    "official_terminal_reward": (
+                        session.terminal_reward.value
+                        if session.terminal_reward
+                        else 0.0
+                    ),
+                    "reward_extra_info": {
+                        "source": "tau2.evaluator.evaluate_simulation",
+                        "evaluation_type": FROZEN_CONFIG.evaluation_type,
+                    },
+                },
             )
             if session.terminal_reward is None:
                 raise RuntimeError("VERL rollout completed without an official terminal reward")

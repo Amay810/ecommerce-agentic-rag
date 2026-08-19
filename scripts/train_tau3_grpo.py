@@ -158,13 +158,17 @@ def _build_dataset(tau_root: str, output_dir: Path) -> Path:
     return output
 
 
-def _verl_command(train_file: Path, output_dir: Path) -> list[str]:
+def _verl_command(
+    train_file: Path, output_dir: Path, *, optimizer_steps: int
+) -> list[str]:
     cfg = FROZEN_CONFIG
+    if optimizer_steps not in (1, cfg.total_steps):
+        raise ValueError("optimizer_steps must be 1 or the frozen 9-step count")
     model_path = os.environ.get("QWEN_MODEL_PATH", cfg.agent_model)
     return [
         sys.executable,
         "-m",
-        "verl.experimental.one_step_off_policy.main_ppo",
+        "verl.trainer.main_ppo_sync",
         "algorithm.adv_estimator=grpo",
         "algorithm.use_kl_in_reward=False",
         f"seed={cfg.seed}",
@@ -204,20 +208,18 @@ def _verl_command(train_file: Path, output_dir: Path) -> list[str]:
         "reward.num_workers=1",
         "trainer.project_name=tau3_grpo",
         "trainer.experiment_name=tau3_retail_grpo_v1",
-        "trainer.n_gpus_per_node=1",
+        "trainer.n_gpus_per_node=2",
         "trainer.nnodes=1",
         "trainer.val_before_train=False",
         "trainer.save_freq=3",
         "trainer.test_freq=-1",
         f"trainer.rollout_data_dir={output_dir / 'verl_rollouts'}",
-        f"trainer.total_training_steps={cfg.total_steps}",
+        f"trainer.total_training_steps={optimizer_steps}",
         f"trainer.default_local_dir={output_dir / 'checkpoints'}",
         'trainer.logger=["console"]',
-        "rollout.nnodes=1",
-        "rollout.n_gpus_per_node=1",
-        "actor_rollout_ref.hybrid_engine=False",
+        "actor_rollout_ref.rollout.mode=sync",
+        "actor_rollout_ref.hybrid_engine=True",
         "ray_kwargs.ray_init.num_cpus=16",
-        f"actor_rollout_ref.rollout.checkpoint_engine.backend={os.environ.get('CHECKPOINT_BACKEND', 'nccl')}",
     ]
 
 
@@ -227,6 +229,13 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, default=Path("results/tau3_grpo_pilot"))
     parser.add_argument("--check-only", action="store_true")
     parser.add_argument("--launch", action="store_true", help="launch VERL; NSCC-only")
+    parser.add_argument(
+        "--optimizer-steps",
+        type=int,
+        choices=(1, FROZEN_CONFIG.total_steps),
+        default=FROZEN_CONFIG.total_steps,
+        help="NSCC launch length: 1 for plumbing smoke or the frozen 9-step pilot.",
+    )
     args = parser.parse_args()
     if args.check_only == args.launch:
         parser.error("choose exactly one of --check-only or --launch")
@@ -253,7 +262,9 @@ def main() -> int:
         return 0
 
     train_file = _build_dataset(args.tau_root, args.output_dir)
-    command = _verl_command(train_file, args.output_dir)
+    command = _verl_command(
+        train_file, args.output_dir, optimizer_steps=args.optimizer_steps
+    )
     (args.output_dir / "launch_command.json").parent.mkdir(parents=True, exist_ok=True)
     (args.output_dir / "launch_command.json").write_text(
         json.dumps(command, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

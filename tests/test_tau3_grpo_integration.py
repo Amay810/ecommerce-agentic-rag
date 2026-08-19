@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from ecommerce_rag.grpo.config import FROZEN_CONFIG
 from ecommerce_rag.grpo.metrics import GroupArtifact
 from ecommerce_rag.grpo.reward_adapter import OfficialTerminalRewardAdapter, RewardAdapterError
 from ecommerce_rag.grpo.trajectory_schema import TokenSegment, assistant_only_loss_mask
+from scripts.train_tau3_grpo import _verl_command
 
 
 def test_frozen_pilot_shape_and_values():
@@ -45,3 +48,28 @@ def test_assistant_only_loss_mask_excludes_environment_tokens():
         TokenSegment("tool", (6,)),
     ]
     assert assistant_only_loss_mask(segments) == [0, 0, 0, 1, 1, 0]
+
+
+def test_nscc_launcher_is_synchronous_and_supports_both_step_modes(tmp_path):
+    command = _verl_command(
+        tmp_path / "train.parquet",
+        tmp_path,
+        optimizer_steps=1,
+    )
+    assert "verl.trainer.main_ppo_sync" in command
+    assert "verl.experimental.one_step_off_policy.main_ppo" not in command
+    assert "actor_rollout_ref.hybrid_engine=True" in command
+    assert "actor_rollout_ref.rollout.mode=sync" in command
+    assert "trainer.n_gpus_per_node=2" in command
+    assert "trainer.total_training_steps=1" in command
+
+    formal = _verl_command(
+        tmp_path / "train.parquet",
+        tmp_path,
+        optimizer_steps=FROZEN_CONFIG.total_steps,
+    )
+    assert f"trainer.total_training_steps={FROZEN_CONFIG.total_steps}" in formal
+
+
+def test_frozen_config_records_the_track_a_nl_judge():
+    assert FROZEN_CONFIG.nl_assertions_model == "deepseek/deepseek-chat"

@@ -83,6 +83,21 @@ def _import_tau2(root: Path) -> None:
         sys.path.insert(0, src)
 
 
+def _configure_frozen_nl_judge() -> None:
+    """Use the same NL-assertion judge selection as the frozen Track-A CLI.
+
+    The pinned evaluator imports this setting into
+    ``tau2.evaluator.evaluator_nl_assertions`` at module load time.  Track-A
+    explicitly overwrites that module global before launching the CLI; the
+    AgentGymEnv path must do the same before its first terminal evaluation.
+    """
+    from tau2.evaluator import evaluator_nl_assertions
+
+    evaluator_nl_assertions.DEFAULT_LLM_NL_ASSERTIONS = (
+        FROZEN_CONFIG.nl_assertions_model
+    )
+
+
 def _tool_schema(tool: Any) -> dict[str, Any]:
     schema = getattr(tool, "openai_schema", None)
     if schema is not None:
@@ -116,6 +131,7 @@ class Tau3RetailEpisode:
         try:
             from tau2.gym.gym_agent import AgentGymEnv
 
+            _configure_frozen_nl_judge()
             self._env = AgentGymEnv(
                 domain=FROZEN_CONFIG.domain,
                 task_id=self.task_id,

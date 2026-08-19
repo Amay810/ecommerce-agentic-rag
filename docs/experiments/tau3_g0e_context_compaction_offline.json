@@ -1,0 +1,78 @@
+{
+  "measurement_type": "offline counterfactual measurement on recorded trajectories",
+  "artifact": "data/simulations/tau3_g0e_train_qwen3_4b_temp08_k8/results.json",
+  "provenance": "No model was called, no provider request was made, no tool was executed, and no database was changed.",
+  "code_revision": "b09432ff568e6899f0af750707e7e5bb0b4c75f0",
+  "input": {
+    "official_retail_tasks": 74,
+    "simulations": 592,
+    "agent_provider": "Qwen3-4B-Instruct-2507",
+    "provider_facing_prefixes": 8207
+  },
+  "token_reduction": {
+    "status": "partial_off_only",
+    "unit": "one recorded Qwen agent provider request",
+    "off": {
+      "calls": 8207,
+      "total_input_tokens": 58311784,
+      "mean_input_tokens": 7105.127817716583,
+      "p95_input_tokens": 11344,
+      "p95_method": "nearest-rank: sorted_values[ceil(0.95*n)-1]",
+      "tokenizer": "Provider-recorded Qwen3-4B-Instruct-2507 tokenizer count from message.usage.prompt_tokens; tokenizer files are not present locally."
+    },
+    "on": {
+      "mean_input_tokens": null,
+      "p95_input_tokens": null,
+      "tokenizer": null,
+      "reason": "The VM has neither the Qwen3 tokenizer files nor a local transformers/tokenizers runtime, and the artifact has no paired compaction-ON provider usage. No character-ratio or alternate-tokenizer estimate was substituted."
+    },
+    "comparison": "Exact OFF/ON token reduction is not measurable from this artifact alone; only the recorded OFF baseline is reported."
+  },
+  "state_preservation": {
+    "unit": "provider-facing history prefix immediately before each recorded Qwen agent generation",
+    "prefixes": 8207,
+    "method": "Compare latest raw field value with compact_history(prefix) value; superseded read placeholders are not treated as losses when a later read remains.",
+    "fields": {
+      "order_id": {
+        "raw_observations": 4945,
+        "losses": 0
+      },
+      "user_id": {
+        "raw_observations": 5944,
+        "losses": 0
+      },
+      "order_status": {
+        "raw_observations": 4945,
+        "losses": 0
+      },
+      "eligibility": {
+        "structured_eligible_observations": 0,
+        "structured_losses": 0,
+        "textual_eligibility_observations": 220,
+        "textual_losses": 0,
+        "note": "The recorded official trajectories contain no structured eligible/eligibility field; non-tool text containing eligibility claims is preserved unchanged."
+      },
+      "confirmation_state": {
+        "textual_observations": 5606,
+        "losses": 0,
+        "note": "Confirmation markers in user/assistant text are outside tool-result compaction and remained unchanged."
+      },
+      "key_tool_result": {
+        "active_result_observations": 13769,
+        "observations_with_loss": 306,
+        "losses_by_subfield": {
+          "exchange_items": 306,
+          "exchange_new_items": 306,
+          "exchange_payment_method_id": 306,
+          "exchange_price_difference": 306
+        },
+        "return_result_subfields_lost": 0,
+        "note": "The 306 losses are in non-superseded exchange results or order snapshots. The current compactor does not retain these exchange-specific fields; this is a measured preservation loss, not a decision-equivalence claim."
+      }
+    }
+  },
+  "decision_equivalence": {
+    "measured": false,
+    "reason": "Excluded: it would require model inference."
+  }
+}

@@ -22,9 +22,18 @@ from ecommerce_rag.tau3_retail_v1 import (
     build_tau2_command,
     command_from_requested,
     requested_config,
+    resolve_tau2_data_dir,
     verify_tau2_source,
 )
 from scripts.run_tau3_retail_v1 import _configure_provider_environment, main
+
+
+def test_resolve_tau2_data_dir_prefers_env_override(tmp_path):
+    tau_root = tmp_path / "tau2"
+    tau_root.mkdir()
+    override = tmp_path / "custom-data"
+    assert resolve_tau2_data_dir(tau_root, {"TAU2_DATA_DIR": str(override)}) == override
+    assert resolve_tau2_data_dir(tau_root, {}) == tau_root / "data"
 
 
 # --------------------------------------------------------------------------

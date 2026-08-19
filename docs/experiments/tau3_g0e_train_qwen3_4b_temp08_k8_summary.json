@@ -1,0 +1,425 @@
+{
+  "artifact": "data/simulations/tau3_g0e_train_qwen3_4b_temp08_k8/results.json",
+  "protocol": "tau3_retail_posttraining_v1",
+  "generated_at": "2026-08-19T04:16:30+00:00",
+  "experiment_summary": {
+    "num_simulations": 592,
+    "passed": 260,
+    "infrastructure_errors": 0,
+    "valid": true,
+    "mean_reward": 0.4391891891891892,
+    "write_action_checks": 960,
+    "failed_write_action_checks": 406,
+    "db_mismatches": 300,
+    "wall_clock_seconds": 8015.192842700002,
+    "mean_wall_clock_seconds": 13.53917709915541,
+    "prompt_tokens": 62574729,
+    "completion_tokens": 895223,
+    "total_tokens": 63469952,
+    "mean_tokens": 107212.75675675676
+  },
+  "native_info": {
+    "git_commit": "unknown",
+    "num_trials": 8,
+    "max_steps": 200,
+    "seed": 300,
+    "agent_implementation": "llm_agent",
+    "agent_llm": "hosted_vllm/Qwen3-4B-Instruct-2507",
+    "agent_llm_args": {
+      "temperature": 0.8
+    },
+    "agent_temperature": 0.8,
+    "user_implementation": "user_simulator",
+    "user_llm": "deepseek/deepseek-chat",
+    "user_llm_args": {
+      "temperature": 0.0
+    },
+    "user_temperature": 0.0
+  },
+  "group_variance": {
+    "tasks": 74,
+    "classes": {
+      "mixed": 47,
+      "0/8": 17,
+      "8/8": 10
+    },
+    "non_zero_variance_groups": 57,
+    "s0_reference_classes": {
+      "0/8": 21,
+      "mixed": 37,
+      "8/8": 16
+    }
+  },
+  "per_task": {
+    "0": {
+      "nonzero_trials": 7,
+      "class": "mixed",
+      "mean_reward": 0.875
+    },
+    "1": {
+      "nonzero_trials": 5,
+      "class": "mixed",
+      "mean_reward": 0.625
+    },
+    "2": {
+      "nonzero_trials": 3,
+      "class": "mixed",
+      "mean_reward": 0.375
+    },
+    "3": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "4": {
+      "nonzero_trials": 3,
+      "class": "mixed",
+      "mean_reward": 0.375
+    },
+    "6": {
+      "nonzero_trials": 6,
+      "class": "mixed",
+      "mean_reward": 0.75
+    },
+    "7": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "8": {
+      "nonzero_trials": 6,
+      "class": "mixed",
+      "mean_reward": 0.75
+    },
+    "10": {
+      "nonzero_trials": 6,
+      "class": "mixed",
+      "mean_reward": 0.75
+    },
+    "11": {
+      "nonzero_trials": 7,
+      "class": "mixed",
+      "mean_reward": 0.875
+    },
+    "13": {
+      "nonzero_trials": 6,
+      "class": "mixed",
+      "mean_reward": 0.75
+    },
+    "14": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "15": {
+      "nonzero_trials": 7,
+      "class": "mixed",
+      "mean_reward": 0.875
+    },
+    "16": {
+      "nonzero_trials": 5,
+      "class": "mixed",
+      "mean_reward": 0.625
+    },
+    "19": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "20": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "21": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "22": {
+      "nonzero_trials": 4,
+      "class": "mixed",
+      "mean_reward": 0.5
+    },
+    "23": {
+      "nonzero_trials": 1,
+      "class": "mixed",
+      "mean_reward": 0.125
+    },
+    "24": {
+      "nonzero_trials": 4,
+      "class": "mixed",
+      "mean_reward": 0.5
+    },
+    "25": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    },
+    "28": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "29": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "30": {
+      "nonzero_trials": 3,
+      "class": "mixed",
+      "mean_reward": 0.375
+    },
+    "31": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "34": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "35": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "37": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "41": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "43": {
+      "nonzero_trials": 6,
+      "class": "mixed",
+      "mean_reward": 0.75
+    },
+    "44": {
+      "nonzero_trials": 3,
+      "class": "mixed",
+      "mean_reward": 0.375
+    },
+    "46": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "47": {
+      "nonzero_trials": 1,
+      "class": "mixed",
+      "mean_reward": 0.125
+    },
+    "48": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    },
+    "50": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    },
+    "52": {
+      "nonzero_trials": 7,
+      "class": "mixed",
+      "mean_reward": 0.875
+    },
+    "54": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "57": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "58": {
+      "nonzero_trials": 6,
+      "class": "mixed",
+      "mean_reward": 0.75
+    },
+    "59": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "63": {
+      "nonzero_trials": 5,
+      "class": "mixed",
+      "mean_reward": 0.625
+    },
+    "66": {
+      "nonzero_trials": 4,
+      "class": "mixed",
+      "mean_reward": 0.5
+    },
+    "67": {
+      "nonzero_trials": 7,
+      "class": "mixed",
+      "mean_reward": 0.875
+    },
+    "69": {
+      "nonzero_trials": 4,
+      "class": "mixed",
+      "mean_reward": 0.5
+    },
+    "72": {
+      "nonzero_trials": 1,
+      "class": "mixed",
+      "mean_reward": 0.125
+    },
+    "73": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    },
+    "75": {
+      "nonzero_trials": 7,
+      "class": "mixed",
+      "mean_reward": 0.875
+    },
+    "76": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "78": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    },
+    "80": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    },
+    "81": {
+      "nonzero_trials": 6,
+      "class": "mixed",
+      "mean_reward": 0.75
+    },
+    "82": {
+      "nonzero_trials": 1,
+      "class": "mixed",
+      "mean_reward": 0.125
+    },
+    "83": {
+      "nonzero_trials": 4,
+      "class": "mixed",
+      "mean_reward": 0.5
+    },
+    "84": {
+      "nonzero_trials": 5,
+      "class": "mixed",
+      "mean_reward": 0.625
+    },
+    "85": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "87": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    },
+    "88": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    },
+    "89": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    },
+    "91": {
+      "nonzero_trials": 3,
+      "class": "mixed",
+      "mean_reward": 0.375
+    },
+    "92": {
+      "nonzero_trials": 1,
+      "class": "mixed",
+      "mean_reward": 0.125
+    },
+    "93": {
+      "nonzero_trials": 6,
+      "class": "mixed",
+      "mean_reward": 0.75
+    },
+    "95": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "96": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "98": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "99": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "103": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "104": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "105": {
+      "nonzero_trials": 0,
+      "class": "0/8",
+      "mean_reward": 0.0
+    },
+    "106": {
+      "nonzero_trials": 5,
+      "class": "mixed",
+      "mean_reward": 0.625
+    },
+    "107": {
+      "nonzero_trials": 3,
+      "class": "mixed",
+      "mean_reward": 0.375
+    },
+    "109": {
+      "nonzero_trials": 1,
+      "class": "mixed",
+      "mean_reward": 0.125
+    },
+    "110": {
+      "nonzero_trials": 1,
+      "class": "mixed",
+      "mean_reward": 0.125
+    },
+    "112": {
+      "nonzero_trials": 2,
+      "class": "mixed",
+      "mean_reward": 0.25
+    },
+    "113": {
+      "nonzero_trials": 8,
+      "class": "8/8",
+      "mean_reward": 1.0
+    }
+  }
+}

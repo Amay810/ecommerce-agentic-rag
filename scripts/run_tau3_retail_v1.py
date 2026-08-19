@@ -13,6 +13,7 @@ from ecommerce_rag.tau3_retail_v1 import (
     annotate_results,
     command_from_requested,
     requested_config,
+    resolve_tau2_data_dir,
     validate_tau2_checkout,
     verify_command_matches_requested,
     verify_tau2_source,
@@ -206,10 +207,12 @@ def main() -> None:
         args.user_model,
         args.nl_assertions_model,
     )
+    tau_data_dir = resolve_tau2_data_dir(args.tau_root, environment)
+    environment["TAU2_DATA_DIR"] = str(tau_data_dir)
     started = time.perf_counter()
     subprocess.run(command, cwd=args.tau_root, env=environment, check=True)
     elapsed = time.perf_counter() - started
-    result_path = args.tau_root / "data" / "simulations" / args.save_to / "results.json"
+    result_path = tau_data_dir / "simulations" / args.save_to / "results.json"
     summary = annotate_results(
         result_path,
         requested=requested,

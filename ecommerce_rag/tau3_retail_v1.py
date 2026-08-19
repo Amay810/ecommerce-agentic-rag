@@ -41,6 +41,19 @@ SUPPORTED_COMPACTION = ("off", "on")
 MAX_TEMPERATURE = 2.0
 
 
+def resolve_tau2_data_dir(tau_root: Path, env: Mapping[str, str]) -> Path:
+    """Return tau2's DATA_DIR for a run.
+
+    tau2 reads simulations from ``TAU2_DATA_DIR`` when set; otherwise from the
+    installed package source tree, which may differ from ``--tau-root``. Callers
+    must set ``TAU2_DATA_DIR`` in the subprocess environment to this value.
+    """
+    override = env.get("TAU2_DATA_DIR")
+    if override:
+        return Path(override)
+    return tau_root / "data"
+
+
 def git_head(repository: Path) -> str:
     """Return the repository HEAD without changing the worktree."""
     return subprocess.run(

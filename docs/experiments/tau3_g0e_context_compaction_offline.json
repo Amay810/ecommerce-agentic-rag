@@ -10,7 +10,7 @@
     "provider_facing_prefixes": 8207
   },
   "token_reduction": {
-    "status": "partial_off_only",
+    "status": "baseline_established_reduction_not_measured",
     "unit": "one recorded Qwen agent provider request",
     "off": {
       "calls": 8207,
@@ -24,9 +24,9 @@
       "mean_input_tokens": null,
       "p95_input_tokens": null,
       "tokenizer": null,
-      "reason": "The VM has neither the Qwen3 tokenizer files nor a local transformers/tokenizers runtime, and the artifact has no paired compaction-ON provider usage. No character-ratio or alternate-tokenizer estimate was substituted."
+      "reason": "Track A's official llm_agent path does not execute this project's compaction, so the recorded artifact structurally cannot contain paired compaction-ON provider usage. The VM also lacks the Qwen3 tokenizer files and a local transformers/tokenizers runtime, which would only affect a future offline re-tokenization of the counterfactual. No estimate was substituted."
     },
-    "comparison": "Exact OFF/ON token reduction is not measurable from this artifact alone; only the recorded OFF baseline is reported."
+    "comparison": "Baseline established, reduction not measured: exact OFF/ON token reduction is unavailable because the official llm_agent artifact has no paired compaction-ON usage."
   },
   "state_preservation": {
     "unit": "provider-facing history prefix immediately before each recorded Qwen agent generation",
@@ -67,7 +67,49 @@
           "exchange_price_difference": 306
         },
         "return_result_subfields_lost": 0,
-        "note": "The 306 losses are in non-superseded exchange results or order snapshots. The current compactor does not retain these exchange-specific fields; this is a measured preservation loss, not a decision-equivalence claim."
+        "loss_distribution": {
+          "unique_tasks": 21,
+          "unique_simulations": 133,
+          "unique_task_trials": 133,
+          "by_tool": {
+            "exchange_delivered_order_items": 293,
+            "get_order_details": 13
+          },
+          "by_task": {
+            "0": 8,
+            "1": 8,
+            "6": 11,
+            "7": 8,
+            "8": 8,
+            "19": 3,
+            "23": 42,
+            "29": 13,
+            "30": 11,
+            "52": 8,
+            "58": 9,
+            "75": 7,
+            "80": 12,
+            "91": 5,
+            "93": 8,
+            "95": 13,
+            "98": 42,
+            "99": 45,
+            "105": 2,
+            "106": 7,
+            "107": 36
+          },
+          "interpretation": "Losses are distributed across 21 tasks; the highest task counts are task 99=45, task 98=42, task 23=42, and task 107=36."
+        },
+        "compaction_rule_diagnosis": {
+          "classification": "whitelist omission, not a generic droppable-result classification",
+          "rule": "_ORDER_FIELDS does not include exchange_items, exchange_new_items, exchange_payment_method_id, or exchange_price_difference.",
+          "locations": [
+            "ecommerce_rag/context_compaction.py:36-40 (_ORDER_FIELDS)",
+            "ecommerce_rag/context_compaction.py:138-148 (get_order_details and write-result routing through _compact_order)"
+          ],
+          "status": "known defect; not changed in this offline measurement"
+        },
+        "note": "The 306 losses are in non-superseded exchange results or order snapshots. The current compactor does not retain these exchange-specific fields; this is a measured preservation loss, not a decision-equivalence or causal decision-error claim."
       }
     }
   },

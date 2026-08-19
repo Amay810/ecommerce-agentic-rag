@@ -574,7 +574,9 @@ class RetailTools:
             if item_ids.count(item_id) > current_items.count(item_id):
                 return self._block("return_delivered_order_items", "item_not_found", order_id=order_id, item_id=item_id)
         methods = self._user_payment_methods(user_id)
-        if payment_method_id not in methods and payment_method_id != order.get("payment_method_id"):
+        is_original_payment = payment_method_id == order.get("payment_method_id")
+        is_existing_gift_card = payment_method_id in methods and payment_method_id.startswith("gift_card_")
+        if not is_original_payment and not is_existing_gift_card:
             return self._block("return_delivered_order_items", "payment_method_not_found", order_id=order_id)
         request_id = self._return_request_id(order_id)
         conn = orders.connect(self.db_path)

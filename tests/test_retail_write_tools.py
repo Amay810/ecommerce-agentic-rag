@@ -264,6 +264,49 @@ def test_return_and_exchange_delivered_guards():
         assert exchanged["ok"] and exchanged["changed"] and exchanged["exchange_status"] == "exchanged"
 
 
+def test_refund_payment_method_invariant_allows_original_or_existing_gift_card_only():
+    cases = ("original", "gift_card", "other_user_payment_method")
+    for case in cases:
+        with tempfile.TemporaryDirectory() as directory:
+            db = Path(directory) / "retail.db"
+            seed_database(db, users=40, orders=200)
+            tools = RetailTools(db)
+            delivered, code = _delivered_eligible(db)
+            user = _user_row(db, delivered["user_id"])
+            methods = json.loads(user["payment_methods"])
+            gift_card = next(method for method in methods if method.startswith("gift_card_"))
+            other_payment = f"debit_card_{delivered['user_id']}"
+            if case == "other_user_payment_method":
+                conn = connect(db)
+                try:
+                    conn.execute(
+                        "UPDATE users SET payment_methods=? WHERE user_id=?",
+                        (json.dumps(methods + [other_payment]), delivered["user_id"]),
+                    )
+                    conn.commit()
+                finally:
+                    conn.close()
+            payment_method_id = {
+                "original": delivered["payment_method_id"],
+                "gift_card": gift_card,
+                "other_user_payment_method": other_payment,
+            }[case]
+            result = tools.call(
+                "return_delivered_order_items",
+                order_id=delivered["order_id"],
+                user_id=delivered["user_id"],
+                verification_code=code,
+                item_ids=[delivered["product_id"]],
+                payment_method_id=payment_method_id,
+                confirmed=True,
+            )
+            if case == "other_user_payment_method":
+                assert result["error"] == "payment_method_not_found"
+                assert result["changed"] is False
+            else:
+                assert result["ok"] and result["changed"]
+
+
 def test_modify_user_address_requires_confirmation_and_is_idempotent():
     with tempfile.TemporaryDirectory() as directory:
         db = Path(directory) / "retail.db"

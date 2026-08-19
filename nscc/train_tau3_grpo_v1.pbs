@@ -39,10 +39,24 @@ QWEN_MODEL_PATH="${QWEN_MODEL_PATH:-${QWEN_MODEL:-}}"
 GRPO_OUTPUT_DIR="${GRPO_OUTPUT_DIR:-results/tau3_grpo_v1}"
 GRPO_OPTIMIZER_STEPS="${GRPO_OPTIMIZER_STEPS:-9}"
 
-: "${DEEPSEEK_BASE_URL:?set DEEPSEEK_BASE_URL to the reachable DeepSeek OpenAI-compatible endpoint}"
+: "${DEEPSEEK_BASE_URL:?set DEEPSEEK_BASE_URL to an OpenAI-compatible DeepSeek relay reachable from this allocated PBS compute node}"
 : "${DEEPSEEK_API_KEY:?set DEEPSEEK_API_KEY; never commit or print it}"
 : "${QWEN_MODEL_PATH:?set QWEN_MODEL_PATH, or QWEN_MODEL, to the local Qwen3-4B-Instruct-2507 directory}"
 test -s "$QWEN_MODEL_PATH/config.json"
+
+# G0-E verified Windows -> tunneled NSCC Qwen, not NSCC -> DeepSeek. GRPO moves
+# tau2 into this NSCC process, so DEEPSEEK_BASE_URL is a new external
+# connectivity prerequisite. Its exact value must be supplied and verified
+# from this allocated compute node; never infer login-node localhost reachability,
+# fall back to a public endpoint, or start a relay from PBS. tau2's user
+# simulator receives DEEPSEEK_BASE_URL explicitly; its LiteLLM NL-assertions
+# judge reads the provider-specific DEEPSEEK_API_BASE variable.
+case "$DEEPSEEK_BASE_URL" in
+  https://api.deepseek.com|https://api.deepseek.com/*|http://api.deepseek.com|http://api.deepseek.com/*)
+    echo "DEEPSEEK_BASE_URL must be the reachable relay endpoint, not public DeepSeek" >&2
+    exit 2
+    ;;
+esac
 
 case "$GRPO_OPTIMIZER_STEPS" in
   1|9) ;;
@@ -87,6 +101,7 @@ export TOKENIZERS_PARALLELISM=false
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 export TAU_ROOT QWEN_MODEL_PATH DEEPSEEK_BASE_URL DEEPSEEK_API_KEY
+export DEEPSEEK_API_BASE="$DEEPSEEK_BASE_URL"
 export TAU3_NL_ASSERTIONS_MODEL="${TAU3_NL_ASSERTIONS_MODEL:-deepseek/deepseek-chat}"
 export PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}"
 
@@ -112,6 +127,7 @@ import pathlib
 import sys
 
 tau_root, model_path, expected_gpus = sys.argv[1:]
+assert sys.version_info[:2] == (3, 12), sys.version
 for module_name in (
     "torch",
     "ray",
@@ -120,9 +136,39 @@ for module_name in (
     "transformers",
     "datasets",
     "gymnasium",
+    "pandas",
+    "litellm",
+    "tensordict",
+    "peft",
+    "torchdata",
+    "pyarrow",
+    "transfer_queue",
     "tau2",
 ):
     importlib.import_module(module_name)
+
+import json
+
+expected_versions = {
+    "torch": "2.8.0",
+    "vllm": "0.10.2",
+    "ray": "2.56.1",
+    "transformers": "4.57.6",
+    "numpy": "1.26.4",
+}
+observed_versions = {
+    name: importlib.metadata.version(name) for name in expected_versions
+}
+for name, expected in expected_versions.items():
+    observed = observed_versions[name].split("+", 1)[0]
+    assert observed == expected, f"{name}={observed!r}, expected {expected!r}"
+
+verl_dist = importlib.metadata.distribution("verl")
+direct_url = verl_dist.read_text("direct_url.json")
+assert direct_url, "VERL direct_url.json is missing; install the pinned git commit"
+verl_commit = json.loads(direct_url)["vcs_info"]["commit_id"]
+assert verl_commit == "7aed6b230776f963fa09509c10d9c3a767d1102c", verl_commit
+importlib.import_module("verl.trainer.main_ppo_sync")
 
 import torch
 
@@ -136,13 +182,26 @@ task_ids = retail_train_task_ids(tau_root)
 assert len(task_ids) == 74, len(task_ids)
 
 versions = {}
-for distribution in ("torch", "ray", "vllm", "transformers", "datasets", "gymnasium"):
+for distribution in (
+    "torch", "ray", "vllm", "transformers", "numpy", "datasets", "gymnasium",
+    "pandas", "litellm", "tensordict", "peft", "torchdata", "verl",
+):
     versions[distribution] = importlib.metadata.version(distribution)
-print({"python": sys.executable, "versions": versions, "retail_train_tasks": len(task_ids)})
+print({
+    "python": sys.executable,
+    "versions": versions,
+    "verl_commit": verl_commit,
+    "tau2_source": str(importlib.import_module("tau2").__file__),
+    "retail_train_tasks": len(task_ids),
+})
 PY
 
 mkdir -p "$GRPO_OUTPUT_DIR"
 test -w "$GRPO_OUTPUT_DIR"
+if [[ "${GRPO_PREFLIGHT_ONLY:-0}" == "1" ]]; then
+  echo "GRPO preflight passed; GRPO_PREFLIGHT_ONLY=1, stopping before VERL launch"
+  exit 0
+fi
 echo "GRPO_REPO=$PWD"
 echo "TAU_ROOT=$TAU_ROOT"
 echo "TAU_SOURCE_ROOT=$TAU_SOURCE_ROOT"

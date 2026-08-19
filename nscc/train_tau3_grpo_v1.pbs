@@ -1,0 +1,26 @@
+#!/bin/bash
+# First G0 pilot: two-GPU separated VERL actor/update + vLLM rollout.
+# This script is a launch recipe only. Resource feasibility remains an NSCC
+# smoke-test question and must not be inferred from the configuration.
+#PBS -N tau3_grpo_v1
+#PBS -l select=1:ncpus=16:ngpus=2
+#PBS -l walltime=24:00:00
+#PBS -j oe
+
+set -euo pipefail
+
+cd "${PBS_O_WORKDIR:?}"
+: "${TAU_ROOT:?set TAU_ROOT to the archive vendor/tau2-bench-fc0055dc snapshot}"
+: "${DEEPSEEK_BASE_URL:?set DEEPSEEK_BASE_URL to the DeepSeek OpenAI-compatible endpoint}"
+: "${DEEPSEEK_API_KEY:?set DEEPSEEK_API_KEY}"
+: "${QWEN_MODEL_PATH:?set QWEN_MODEL_PATH to Qwen3-4B-Instruct-2507}"
+
+export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
+export PYTHONUNBUFFERED=1
+export TOKENIZERS_PARALLELISM=false
+export TAU_ROOT DEEPSEEK_BASE_URL DEEPSEEK_API_KEY
+
+python -m scripts.train_tau3_grpo \
+  --tau-root "$TAU_ROOT" \
+  --output-dir "${GRPO_OUTPUT_DIR:-results/tau3_grpo_v1}" \
+  --launch

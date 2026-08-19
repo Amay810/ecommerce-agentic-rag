@@ -1,0 +1,6 @@
+# Dedicated NSCC environment only; do not add these to the lightweight VM
+# requirements.txt. The adapter follows the VERL 0.8 AgentLoop API used by the
+# public multi-turn tau2 reference implementation.
+verl==0.8.0
+datasets
+gymnasium>=0.31.0

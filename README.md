@@ -169,7 +169,7 @@ python -m scripts.measure_context_compaction <results.json>
 - `scripts/`、`nscc/`：数据、评测与集群复现入口；
 - `docs/`：当前状态、架构、安全、评测和检索。详见 [current status](docs/current_status.md)。
 
-当前主线是 Reliable Ecommerce Agent：runtime / tool use、RAG、Harness 与 failure attribution、官方 τ²/τ³ evaluation、context/memory、transactional guardrails、MCP。Post-training 方向是 on-policy rollout、rejection sampling / RFT 与 GRPO；这些训练循环尚未作为本仓库已完成能力宣称。
+当前主线是 Reliable Ecommerce Agent：runtime / tool use、RAG、Harness 与 failure attribution、官方 τ²/τ³ evaluation、context/memory、transactional guardrails、MCP。GRPO 目前有冻结 tau3 retail pilot 的 VERL 适配层和离线检查链；真实 VERL/τ²/DeepSeek/模型运行仍限定在 NSCC smoke test，不在本地宣称已跑通。
 
 ## Boundaries
 
@@ -177,7 +177,7 @@ python -m scripts.measure_context_compaction <results.json>
 - 自动操作评分不覆盖最终回答的全部事实、完整性和推荐质量；
 - 40 条审核样本不是随机总体样本，不外推为 360 条的人类成功率；
 - 确定性三次重复不解释为独立随机试验的 pass³；
-- 当前主线不宣称已完成 DPO、PPO、GRPO 或 Agent RL。
+- 当前主线不宣称已完成真实 DPO、PPO、GRPO 或 Agent RL 训练结果；GRPO pilot 代码 readiness 见 [tau3 GRPO pilot](docs/experiments/tau3_grpo_pilot.md)。
 
 ## Task Closure (legacy return-resolution)
 

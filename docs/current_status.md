@@ -117,9 +117,13 @@ This distribution exists; no GRPO-start threshold is asserted here.
 ```text
 P0                       CLOSED
 G0-E exploration         COMPLETE (592/592, valid)
-NEXT → decide whether to start GRPO from this group-variance snapshot
+G0 GRPO code             PARTIALLY IMPLEMENTED; NEXT → NSCC preflight/smoke
 ```
 
-RFT/GRPO training code is still not implemented.
+The frozen tau3 retail GRPO integration layer is now implemented, including
+the VERL multi-turn adapter, official terminal reward boundary, K=8/P=2
+metadata, assistant-only mask contract, offline checks, and an NSCC launch
+recipe. The real VERL/τ²/DeepSeek/Qwen run remains unverified until the NSCC
+runtime smoke test; no pilot result is claimed here.
 Closed compiler artifacts live in
 [`Amay810/ecommerce-agentic-rag-archive`](https://github.com/Amay810/ecommerce-agentic-rag-archive).

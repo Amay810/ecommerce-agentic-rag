@@ -3,26 +3,157 @@
 # This script is a launch recipe only. Resource feasibility remains an NSCC
 # smoke-test question and must not be inferred from the configuration.
 #PBS -N tau3_grpo_v1
-#PBS -l select=1:ncpus=16:ngpus=2
+#PBS -q normal
+#PBS -P personal
+#PBS -l select=1:ncpus=16:ngpus=2:mem=110gb
 #PBS -l walltime=24:00:00
 #PBS -j oe
+#PBS -o logs/tau3_grpo_v1.pbs.log
 
 set -euo pipefail
 
-cd "${PBS_O_WORKDIR:?}"
-: "${TAU_ROOT:?set TAU_ROOT to the archive vendor/tau2-bench-fc0055dc snapshot}"
-: "${DEEPSEEK_BASE_URL:?set DEEPSEEK_BASE_URL to the DeepSeek OpenAI-compatible endpoint}"
-: "${DEEPSEEK_API_KEY:?set DEEPSEEK_API_KEY}"
-: "${QWEN_MODEL_PATH:?set QWEN_MODEL_PATH to Qwen3-4B-Instruct-2507}"
+# The repository documents this checkout as the NSCC work directory. PBS_O_WORKDIR
+# remains authoritative when the job is submitted from that checkout.
+cd "${PBS_O_WORKDIR:-/scratch/users/ntu/s250045/ecommerce-agentic-rag-main}"
+test -s scripts/train_tau3_grpo.py
+mkdir -p logs
 
-export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
+module purge
+module load cuda/12.8.1
+module load miniforge3/25.3.1
+module load git/2.39.2
+
+# No package installation is performed in a training job. The repository has a
+# dedicated GRPO dependency lock but no confirmed existing GRPO env path, so
+# the prepared environment must be supplied explicitly at submission time.
+: "${GRPO_ENV_PREFIX:?set GRPO_ENV_PREFIX to the prepared VERL/vLLM conda environment}"
+source activate "$GRPO_ENV_PREFIX"
+GRPO_PYTHON="${GRPO_PYTHON:-$CONDA_PREFIX/bin/python}"
+test -x "$GRPO_PYTHON"
+
+# run_tau3_retail_base_v1.pbs is the existing successful convention for this
+# external pinned checkout. TAU_ROOT remains overrideable for an archive
+# snapshot that passes the same frozen-commit validation.
+TAU_ROOT="${TAU_ROOT:-${TAU2_ROOT:-/scratch/users/ntu/s250045/tau2-bench}}"
+QWEN_MODEL_PATH="${QWEN_MODEL_PATH:-${QWEN_MODEL:-}}"
+GRPO_OUTPUT_DIR="${GRPO_OUTPUT_DIR:-results/tau3_grpo_v1}"
+GRPO_OPTIMIZER_STEPS="${GRPO_OPTIMIZER_STEPS:-9}"
+
+: "${DEEPSEEK_BASE_URL:?set DEEPSEEK_BASE_URL to the reachable DeepSeek OpenAI-compatible endpoint}"
+: "${DEEPSEEK_API_KEY:?set DEEPSEEK_API_KEY; never commit or print it}"
+: "${QWEN_MODEL_PATH:?set QWEN_MODEL_PATH, or QWEN_MODEL, to the local Qwen3-4B-Instruct-2507 directory}"
+test -s "$QWEN_MODEL_PATH/config.json"
+
+case "$GRPO_OPTIMIZER_STEPS" in
+  1|9) ;;
+  *) echo "GRPO_OPTIMIZER_STEPS must be 1 or 9, got $GRPO_OPTIMIZER_STEPS" >&2; exit 2 ;;
+esac
+
+# Preserve the GPUs allocated by PBS. NSCC may expose UUIDs; the mapping
+# follows the already-used four-GPU vLLM PBS convention, generalized to this
+# job's allocated two GPUs.
+EXPECTED_GPUS=2
+: "${CUDA_VISIBLE_DEVICES:?PBS did not provide CUDA_VISIBLE_DEVICES}"
+if [[ "$CUDA_VISIBLE_DEVICES" == GPU-* ]]; then
+  PBS_GPU_UUIDS="$CUDA_VISIBLE_DEVICES"
+  IFS=',' read -r -a GPU_UUID_ARRAY <<< "$PBS_GPU_UUIDS"
+  GPU_INDEX_ARRAY=()
+  while IFS=',' read -r gpu_index gpu_uuid; do
+    gpu_index="${gpu_index//[[:space:]]/}"
+    gpu_uuid="${gpu_uuid//[[:space:]]/}"
+    for allocated_uuid in "${GPU_UUID_ARRAY[@]}"; do
+      allocated_uuid="${allocated_uuid//[[:space:]]/}"
+      if [[ "$gpu_uuid" == "$allocated_uuid" ]]; then
+        GPU_INDEX_ARRAY+=("$gpu_index")
+      fi
+    done
+  done < <(nvidia-smi --query-gpu=index,uuid --format=csv,noheader)
+  if [[ "${#GPU_INDEX_ARRAY[@]}" -ne "$EXPECTED_GPUS" ]]; then
+    echo "Expected $EXPECTED_GPUS PBS GPU UUIDs, mapped ${#GPU_INDEX_ARRAY[@]}: $PBS_GPU_UUIDS" >&2
+    exit 1
+  fi
+  export CUDA_VISIBLE_DEVICES="$(IFS=,; echo "${GPU_INDEX_ARRAY[*]}")"
+fi
+
+VISIBLE_GPU_COUNT="$(awk -F',' '{print NF}' <<< "$CUDA_VISIBLE_DEVICES")"
+if [[ "$VISIBLE_GPU_COUNT" -ne "$EXPECTED_GPUS" ]]; then
+  echo "Expected $EXPECTED_GPUS visible GPUs, got CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES" >&2
+  exit 1
+fi
+
 export PYTHONUNBUFFERED=1
+export PYTHONNOUSERSITE=1
 export TOKENIZERS_PARALLELISM=false
-export TAU_ROOT DEEPSEEK_BASE_URL DEEPSEEK_API_KEY
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export TAU_ROOT QWEN_MODEL_PATH DEEPSEEK_BASE_URL DEEPSEEK_API_KEY
 export TAU3_NL_ASSERTIONS_MODEL="${TAU3_NL_ASSERTIONS_MODEL:-deepseek/deepseek-chat}"
+export PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}"
 
-python -m scripts.train_tau3_grpo \
+# Validate either the direct tau2 checkout or an archive root containing the
+# vendor/tau2-bench-fc0055dc snapshot. The helper checks SNAPSHOT.json or the
+# git HEAD against the frozen fc0055dc commit.
+TAU_SOURCE_ROOT="$("$GRPO_PYTHON" - "$TAU_ROOT" <<'PY'
+import sys
+
+from ecommerce_rag.grpo.tau3_env_adapter import validate_snapshot
+
+print(validate_snapshot(sys.argv[1]))
+PY
+)"
+export PYTHONPATH="$TAU_SOURCE_ROOT/src${PYTHONPATH:+:$PYTHONPATH}"
+
+# Import/configuration preflight only: no model generation, vLLM server, Ray
+# worker, or DeepSeek request is started here.
+"$GRPO_PYTHON" - "$TAU_ROOT" "$QWEN_MODEL_PATH" "$EXPECTED_GPUS" <<'PY'
+import importlib
+import importlib.metadata
+import pathlib
+import sys
+
+tau_root, model_path, expected_gpus = sys.argv[1:]
+for module_name in (
+    "torch",
+    "ray",
+    "verl",
+    "vllm",
+    "transformers",
+    "datasets",
+    "gymnasium",
+    "tau2",
+):
+    importlib.import_module(module_name)
+
+import torch
+
+assert torch.cuda.is_available(), "PyTorch cannot see the allocated GPU"
+assert torch.cuda.device_count() == int(expected_gpus), torch.cuda.device_count()
+assert (pathlib.Path(model_path) / "config.json").is_file()
+
+from ecommerce_rag.grpo.tau3_env_adapter import retail_train_task_ids
+
+task_ids = retail_train_task_ids(tau_root)
+assert len(task_ids) == 74, len(task_ids)
+
+versions = {}
+for distribution in ("torch", "ray", "vllm", "transformers", "datasets", "gymnasium"):
+    versions[distribution] = importlib.metadata.version(distribution)
+print({"python": sys.executable, "versions": versions, "retail_train_tasks": len(task_ids)})
+PY
+
+mkdir -p "$GRPO_OUTPUT_DIR"
+test -w "$GRPO_OUTPUT_DIR"
+echo "GRPO_REPO=$PWD"
+echo "TAU_ROOT=$TAU_ROOT"
+echo "TAU_SOURCE_ROOT=$TAU_SOURCE_ROOT"
+echo "GRPO_PYTHON=$GRPO_PYTHON"
+echo "QWEN_MODEL_PATH=$QWEN_MODEL_PATH"
+echo "GRPO_OUTPUT_DIR=$GRPO_OUTPUT_DIR"
+echo "GRPO_OPTIMIZER_STEPS=$GRPO_OPTIMIZER_STEPS"
+echo "CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
+
+exec "$GRPO_PYTHON" -m scripts.train_tau3_grpo \
   --tau-root "$TAU_ROOT" \
-  --output-dir "${GRPO_OUTPUT_DIR:-results/tau3_grpo_v1}" \
-  --optimizer-steps "${GRPO_OPTIMIZER_STEPS:-9}" \
+  --output-dir "$GRPO_OUTPUT_DIR" \
+  --optimizer-steps "$GRPO_OPTIMIZER_STEPS" \
   --launch

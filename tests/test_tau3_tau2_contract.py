@@ -15,6 +15,8 @@ from types import SimpleNamespace
 
 import pytest
 
+from ecommerce_rag.grpo.reward_adapter import OfficialTerminalRewardAdapter
+
 
 def _tau2_src() -> Path:
     root = Path(
@@ -53,6 +55,43 @@ def test_pinned_agent_gym_reward_contract(monkeypatch):
     assert reward == 0.0
     assert calls and calls[0]["evaluation_type"] is EvaluationType.ALL
     assert calls[0]["domain"] == "retail"
+
+
+@pytest.mark.parametrize("termination_reason", ["MAX_STEPS", "AGENT_ERROR"])
+def test_complete_policy_termination_is_frozen_zero_and_valid_grpo_negative(
+    termination_reason,
+):
+    _tau2_src()
+    from tau2.data_model.simulation import SimulationRun, TerminationReason
+    from tau2.evaluator.evaluator import EvaluationType, evaluate_simulation
+
+    simulation = SimulationRun.model_construct(
+        id="valid-terminal",
+        task_id="17",
+        start_time="2026-01-01T00:00:00Z",
+        end_time="2026-01-01T00:00:01Z",
+        duration=1.0,
+        termination_reason=getattr(TerminationReason, termination_reason),
+    )
+    reward_info = evaluate_simulation(
+        simulation=simulation,
+        task=object(),
+        evaluation_type=EvaluationType.ALL,
+        solo_mode=False,
+        domain="retail",
+    )
+
+    assert reward_info.reward == 0.0
+    accepted = OfficialTerminalRewardAdapter().from_step(
+        terminated=True,
+        reward=reward_info.reward,
+        info={
+            "tau2_simulation_run_present": True,
+            "tau2_simulation_run_complete": True,
+            "tau2_official_evaluator_succeeded": True,
+        },
+    )
+    assert accepted.value == 0.0
 
 
 def test_project_adapter_uses_the_frozen_track_a_judge(monkeypatch):

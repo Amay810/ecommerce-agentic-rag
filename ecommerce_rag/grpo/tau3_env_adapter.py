@@ -7,6 +7,7 @@ it from the archive snapshot and passes its path through ``TAU_ROOT``.
 from __future__ import annotations
 
 import json
+import math
 import os
 import subprocess
 import sys
@@ -19,6 +20,39 @@ from .config import FROZEN_CONFIG, TAU2_COMMIT, TAU2_VERSION
 
 class Tau3EnvironmentError(RuntimeError):
     """The environment could not be created or advanced."""
+
+
+_REQUIRED_SIMULATION_RUN_FIELDS = (
+    "id",
+    "task_id",
+    "start_time",
+    "end_time",
+    "duration",
+    "termination_reason",
+)
+
+
+def _complete_simulation_run(simulation_run: Any) -> bool:
+    """Check the minimum pinned tau2 fields that make a run evaluable."""
+    if simulation_run is None:
+        return False
+    model_dump = getattr(simulation_run, "model_dump", None)
+    if not callable(model_dump):
+        return False
+    try:
+        payload = model_dump()
+    except Exception:
+        return False
+    return all(payload.get(field) is not None for field in _REQUIRED_SIMULATION_RUN_FIELDS)
+
+
+def _decode_reward_info(raw: Any) -> dict[str, Any] | None:
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except json.JSONDecodeError:
+            return None
+    return dict(raw) if isinstance(raw, dict) else None
 
 
 def _snapshot_root(tau_root: str | Path) -> Path:
@@ -165,16 +199,41 @@ class Tau3RetailEpisode:
             raise Tau3EnvironmentError("reset() must be called before step()")
         try:
             result = self._env.step(assistant_action)
-            # AgentGymEnv catches orchestrator-thread exceptions and returns a
-            # terminal zero. Preserve the distinction so this is not treated
-            # as a valid negative training example.
-            if result[2] and getattr(self._env, "_simulation_run", None) is None:
+            # AgentGymEnv._get_reward() returns a raw zero both for a valid
+            # evaluator result and when no SimulationRun exists.  Carry the
+            # two pieces of terminal evidence explicitly so the reward
+            # adapter cannot mistake infrastructure failure for a negative.
+            if result[2]:
                 observation, reward, terminated, truncated, info = result
                 info = dict(info or {})
-                info["interaction_error"] = (
-                    "AgentGymEnv terminated without a SimulationRun; "
-                    "tau2 likely failed inside its orchestrator thread"
-                )
+                simulation_run = getattr(self._env, "_simulation_run", None)
+                complete = _complete_simulation_run(simulation_run)
+                info["tau2_simulation_run_present"] = simulation_run is not None
+                info["tau2_simulation_run_complete"] = complete
+                info["tau2_official_evaluator_succeeded"] = False
+                if not complete:
+                    info["interaction_error"] = (
+                        "AgentGymEnv terminated without a complete SimulationRun; "
+                        "tau2 likely failed inside its orchestrator thread"
+                    )
+                else:
+                    reward_info = _decode_reward_info(info.get("reward_info"))
+                    try:
+                        evaluated_reward = float(reward_info["reward"] if reward_info else "nan")
+                        observed_reward = float(reward)
+                    except (KeyError, TypeError, ValueError):
+                        evaluated_reward = observed_reward = float("nan")
+                    if (
+                        reward_info is None
+                        or not math.isfinite(evaluated_reward)
+                        or not math.isfinite(observed_reward)
+                        or evaluated_reward != observed_reward
+                    ):
+                        info["evaluator_error"] = (
+                            "AgentGymEnv did not return a matching official RewardInfo"
+                        )
+                    else:
+                        info["tau2_official_evaluator_succeeded"] = True
                 result = (observation, reward, terminated, truncated, info)
             return result
         except Exception as exc:

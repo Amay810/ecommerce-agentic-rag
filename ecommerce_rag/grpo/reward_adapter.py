@@ -31,6 +31,18 @@ class OfficialTerminalRewardAdapter:
             raise RewardAdapterError(
                 "tau2 interaction failed; refusing to convert infrastructure failure into reward 0"
             )
+        if info.get("evaluator_error"):
+            raise RewardAdapterError(
+                "tau2 official evaluator failed; refusing to convert the failure into reward 0"
+            )
+        if not info.get("tau2_simulation_run_complete"):
+            raise RewardAdapterError(
+                "terminal tau2 step has no complete SimulationRun; refusing to convert it into reward 0"
+            )
+        if not info.get("tau2_official_evaluator_succeeded"):
+            raise RewardAdapterError(
+                "terminal tau2 step has no successful official RewardInfo; refusing to convert it into reward 0"
+            )
         try:
             value = float(reward)
         except (TypeError, ValueError) as exc:
@@ -40,12 +52,20 @@ class OfficialTerminalRewardAdapter:
         return TerminalReward(value=value)
 
     def from_episode(self, result: Any) -> TerminalReward:
-        """Map a Gymnasium result without accepting a non-terminal interim 0."""
+        """Map a result while classifying project/VERL truncation separately.
+
+        The pinned tau2 AgentGymEnv always returns ``truncated=False``.  Its
+        MAX_STEPS and other policy-side termination reasons are represented by
+        a complete SimulationRun and an official evaluator reward of 0, so
+        they are accepted by ``from_step``.
+        """
         if not isinstance(result, tuple) or len(result) != 5:
             raise RewardAdapterError("expected AgentGymEnv.step() five-tuple")
         _, reward, terminated, truncated, info = result
-        if truncated and not terminated:
-            raise RewardAdapterError("truncated episode has no official terminal reward")
+        if truncated:
+            raise RewardAdapterError(
+                "project/VERL rollout truncation has no official tau2 terminal reward"
+            )
         return self.from_step(
             terminated=bool(terminated), reward=reward, info=dict(info or {})
         )

@@ -12,6 +12,14 @@ Frozen variables are encoded in
 reward passed to GRPO is the pinned tau2 `EvaluationType.ALL` terminal binary
 reward.
 
+Episode validity is separate from the reward value: accept a rollout only
+when a complete tau2 `SimulationRun` exists and the frozen evaluator
+successfully returns `RewardInfo` with reward `0.0` or `1.0`. Thus tau2
+`MAX_STEPS`, `TOO_MANY_ERRORS`, and agent-side termination/error runs remain
+valid reward-0 GRPO negatives. The pinned tau2 Gymnasium `truncated` value is
+always false; project/VERL truncation is a separate incomplete-rollout
+failure and is not converted to reward 0.
+
 Run the VM-safe checks with:
 
 ```bash

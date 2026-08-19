@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from ecommerce_rag.grpo.config import FROZEN_CONFIG
 from ecommerce_rag.grpo.metrics import GroupArtifact
 from ecommerce_rag.grpo.reward_adapter import OfficialTerminalRewardAdapter, RewardAdapterError
+from ecommerce_rag.grpo.tau3_env_adapter import Tau3EnvironmentError, Tau3RetailEpisode
 from ecommerce_rag.grpo.trajectory_schema import TokenSegment, assistant_only_loss_mask
 from scripts.train_tau3_grpo import _verl_command
 
@@ -28,16 +29,67 @@ def test_group_artifact_keeps_all_eight_rollouts_and_population_variance():
     assert artifact.variance == 0.25
 
 
-def test_reward_adapter_rejects_nonterminal_and_infrastructure_zero():
+def _valid_official_zero_info():
+    return {
+        "tau2_simulation_run_present": True,
+        "tau2_simulation_run_complete": True,
+        "tau2_official_evaluator_succeeded": True,
+    }
+
+
+def test_max_steps_official_zero_is_a_valid_grpo_negative():
+    adapter = OfficialTerminalRewardAdapter()
+    result = adapter.from_step(
+        terminated=True, reward=0.0, info=_valid_official_zero_info()
+    )
+    assert result.value == 0.0
+
+
+def test_agent_failure_official_zero_is_a_valid_grpo_negative():
+    adapter = OfficialTerminalRewardAdapter()
+    result = adapter.from_step(
+        terminated=True,
+        reward=0.0,
+        info={**_valid_official_zero_info(), "termination_reason": "agent_error"},
+    )
+    assert result.value == 0.0
+
+
+def test_simulation_run_missing_rejects_raw_gym_zero():
+    episode = Tau3RetailEpisode.__new__(Tau3RetailEpisode)
+    episode.task_id = "missing-simulation"
+    episode._env = SimpleNamespace(
+        _simulation_run=None,
+        step=lambda _action: ("", 0.0, True, False, {}),
+    )
+    result = episode.step("{}")[1:]
+    with pytest.raises(RewardAdapterError, match="interaction failed"):
+        OfficialTerminalRewardAdapter().from_episode(("", *result))
+
+
+def test_evaluator_exception_is_rejected_and_not_converted_to_zero():
+    episode = Tau3RetailEpisode.__new__(Tau3RetailEpisode)
+    episode.task_id = "evaluator-failure"
+
+    def fail(_action):
+        raise RuntimeError("frozen evaluator failed")
+
+    episode._env = SimpleNamespace(step=fail)
+    with pytest.raises(Tau3EnvironmentError, match="frozen evaluator failed"):
+        episode.step("{}")
+
+
+def test_incomplete_k8_group_from_infrastructure_failure_fails_fast():
+    with pytest.raises(ValueError, match="K=8"):
+        GroupArtifact.create("incomplete", "17", [0.0] * 7)
+
+
+def test_reward_adapter_rejects_nonterminal_and_unproven_zero():
     adapter = OfficialTerminalRewardAdapter()
     with pytest.raises(RewardAdapterError):
         adapter.from_step(terminated=False, reward=0.0, info={})
     with pytest.raises(RewardAdapterError):
-        adapter.from_step(
-            terminated=True,
-            reward=0.0,
-            info={"interaction_error": "orchestrator failed"},
-        )
+        adapter.from_step(terminated=True, reward=0.0, info={})
 
 
 def test_assistant_only_loss_mask_excludes_environment_tokens():

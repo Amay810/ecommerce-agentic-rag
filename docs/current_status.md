@@ -107,7 +107,8 @@ Per-task group classes (74 train tasks × 8 trials):
 | `0/8` all-fail | 17 | 21 |
 | mixed (`1/8`–`7/8`) | 47 | 37 |
 | `8/8` all-pass | 10 | 16 |
-| non-zero-variance groups | **57 / 74** | 53 / 74 |
+| non-zero-variance / usable mixed groups | **47 / 74** | 37 / 74 |
+| non-all-zero groups | 57 / 74 | 53 / 74 |
 
 This distribution exists; no GRPO-start threshold is asserted here.
 

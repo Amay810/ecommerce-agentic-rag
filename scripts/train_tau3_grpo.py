@@ -127,6 +127,7 @@ def _build_dataset(tau_root: str, output_dir: Path) -> Path:
         from datasets import Dataset
     except ImportError as exc:  # pragma: no cover - NSCC dependency
         raise RuntimeError("datasets is required to build the VERL parquet") from exc
+    output_dir.mkdir(parents=True, exist_ok=True)
     task_ids = retail_train_task_ids(tau_root)
     rows = []
     for index, task_id in enumerate(task_ids):
@@ -171,7 +172,7 @@ def _verl_command(
         "verl.trainer.main_ppo_sync",
         "algorithm.adv_estimator=grpo",
         "algorithm.use_kl_in_reward=False",
-        f"seed={cfg.seed}",
+        f"+seed={cfg.seed}",
         f"data.train_files={train_file}",
         f"data.val_files={train_file}",
         "data.train_batch_size=2",
@@ -223,6 +224,19 @@ def _verl_command(
     ]
 
 
+def _run_runtime_preflight(tau_root: str, output_dir: Path) -> None:
+    """Validate launch inputs and generate the parquet without starting VERL."""
+    validated_root = validate_snapshot(tau_root)
+    task_ids = retail_train_task_ids(validated_root)
+    if len(task_ids) != FROZEN_CONFIG.train_tasks:
+        raise RuntimeError(
+            f"expected {FROZEN_CONFIG.train_tasks} retail train tasks, found {len(task_ids)}"
+        )
+    train_file = _build_dataset(str(validated_root), output_dir)
+    if not train_file.is_file() or train_file.stat().st_size == 0:
+        raise RuntimeError(f"parquet generation failed: {train_file}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--tau-root", default=os.environ.get("TAU_ROOT"))
@@ -237,21 +251,12 @@ def main() -> int:
         help="NSCC launch length: 1 for plumbing smoke or the frozen 9-step pilot.",
     )
     args = parser.parse_args()
-    if args.check_only == args.launch:
+    if args.check_only and args.launch:
+        parser.error("choose only one of --check-only or --launch")
+    if not args.check_only and not args.launch:
         parser.error("choose exactly one of --check-only or --launch")
 
     FROZEN_CONFIG.validate()
-    if args.tau_root:
-        validate_snapshot(args.tau_root)
-        task_ids = retail_train_task_ids(args.tau_root)
-        print(json.dumps({"tau_root": str(args.tau_root), "retail_train_tasks": len(task_ids)}))
-    elif args.launch:
-        parser.error("--launch requires --tau-root or TAU_ROOT")
-
-    if args.launch and not os.environ.get("DEEPSEEK_BASE_URL"):
-        parser.error("--launch requires DEEPSEEK_BASE_URL")
-    if args.launch and not os.environ.get("DEEPSEEK_API_KEY"):
-        parser.error("--launch requires DEEPSEEK_API_KEY")
 
     if args.check_only:
         result = {
@@ -260,6 +265,23 @@ def main() -> int:
         }
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 0
+
+    if not args.tau_root:
+        parser.error("--launch requires --tau-root or TAU_ROOT")
+
+    preflight_only = os.environ.get("GRPO_PREFLIGHT_ONLY") == "1"
+    if preflight_only:
+        _run_runtime_preflight(args.tau_root, args.output_dir)
+        print(json.dumps({"status": "PREFLIGHT_ONLY_PASS"}))
+        return 0
+
+    validate_snapshot(args.tau_root)
+    task_ids = retail_train_task_ids(args.tau_root)
+    print(json.dumps({"tau_root": str(args.tau_root), "retail_train_tasks": len(task_ids)}))
+    if not os.environ.get("DEEPSEEK_BASE_URL"):
+        parser.error("--launch requires DEEPSEEK_BASE_URL")
+    if not os.environ.get("DEEPSEEK_API_KEY"):
+        parser.error("--launch requires DEEPSEEK_API_KEY")
 
     train_file = _build_dataset(args.tau_root, args.output_dir)
     command = _verl_command(

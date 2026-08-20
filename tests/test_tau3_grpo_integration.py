@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import sys
 from types import SimpleNamespace
 
 import pytest
 
+import scripts.train_tau3_grpo as grpo_launcher
 from ecommerce_rag.grpo.config import FROZEN_CONFIG
 from ecommerce_rag.grpo.metrics import GroupArtifact
-from ecommerce_rag.grpo.reward_adapter import OfficialTerminalRewardAdapter, RewardAdapterError
+from ecommerce_rag.grpo.reward_adapter import (
+    OfficialTerminalRewardAdapter,
+    RewardAdapterError,
+)
 from ecommerce_rag.grpo.tau3_env_adapter import Tau3EnvironmentError, Tau3RetailEpisode
 from ecommerce_rag.grpo.trajectory_schema import TokenSegment, assistant_only_loss_mask
 from scripts.train_tau3_grpo import _verl_command
@@ -121,6 +126,73 @@ def test_nscc_launcher_is_synchronous_and_supports_both_step_modes(tmp_path):
         optimizer_steps=FROZEN_CONFIG.total_steps,
     )
     assert f"trainer.total_training_steps={FROZEN_CONFIG.total_steps}" in formal
+
+
+def test_preflight_only_short_circuits_before_verl(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("GRPO_PREFLIGHT_ONLY", "1")
+    monkeypatch.setattr(sys, "argv", [
+        "train_tau3_grpo",
+        "--tau-root",
+        str(tmp_path / "tau2"),
+        "--output-dir",
+        str(tmp_path / "preflight"),
+        "--launch",
+    ])
+    monkeypatch.setattr(grpo_launcher, "validate_snapshot", lambda root: root)
+    monkeypatch.setattr(
+        grpo_launcher,
+        "retail_train_task_ids",
+        lambda _root: [str(index) for index in range(FROZEN_CONFIG.train_tasks)],
+    )
+
+    generated = tmp_path / "preflight" / "tau3_retail_train.parquet"
+
+    def fake_build_dataset(_tau_root, output_dir):
+        generated.parent.mkdir(parents=True, exist_ok=True)
+        generated.write_bytes(b"parquet-preflight")
+        return generated
+
+    monkeypatch.setattr(grpo_launcher, "_build_dataset", fake_build_dataset)
+    monkeypatch.setattr(
+        grpo_launcher.subprocess,
+        "call",
+        lambda *_args, **_kwargs: pytest.fail("preflight launched VERL"),
+    )
+
+    assert grpo_launcher.main() == 0
+    output = capsys.readouterr().out
+    assert "PREFLIGHT_ONLY_PASS" in output
+    assert "Launching VERL" not in output
+
+
+def test_check_only_short_circuits_before_verl(tmp_path, monkeypatch, capsys):
+    monkeypatch.delenv("GRPO_PREFLIGHT_ONLY", raising=False)
+    monkeypatch.setattr(sys, "argv", [
+        "train_tau3_grpo",
+        "--output-dir",
+        str(tmp_path / "checks"),
+        "--check-only",
+    ])
+    monkeypatch.setattr(
+        grpo_launcher,
+        "_check_artifact_chain",
+        lambda _output_dir, *, steps: {"status": "PASS", "steps": steps},
+    )
+    monkeypatch.setattr(
+        grpo_launcher.subprocess,
+        "call",
+        lambda *_args, **_kwargs: pytest.fail("check-only launched VERL"),
+    )
+
+    assert grpo_launcher.main() == 0
+    assert "Launching VERL" not in capsys.readouterr().out
+
+
+def test_verl_seed_override_uses_hydra_append_syntax(tmp_path):
+    command = _verl_command(tmp_path / "train.parquet", tmp_path, optimizer_steps=1)
+
+    assert "seed=300" not in command
+    assert "+seed=300" in command
 
 
 def test_frozen_config_records_the_track_a_nl_judge():

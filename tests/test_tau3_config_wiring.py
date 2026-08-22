@@ -22,7 +22,7 @@ def _overrides(tmp_path):
     }
 
 
-def test_cpu_resolved_hydra_config_audit_passes(tmp_path):
+def test_cpu_resolved_hydra_config_audit_passes():
     _require_verl_hydra()
     report = run_audit()
     assert report["status"] == "PASS"
@@ -78,7 +78,7 @@ def test_launcher_contains_frozen_and_memory_wiring(tmp_path):
     )
 
 
-def test_cpu_memory_provenance_covers_resolved_fields(tmp_path):
+def test_cpu_memory_provenance_covers_resolved_fields():
     _require_verl_hydra()
     report = run_audit()
     sources = report["memory_config_sources"]
@@ -101,7 +101,7 @@ def test_cpu_memory_provenance_covers_resolved_fields(tmp_path):
     assert all(isinstance(value, str) and value for value in sources.values())
 
 
-def test_cpu_source_wiring_keeps_mask_and_official_reward_separate(tmp_path):
+def test_cpu_source_wiring_keeps_mask_and_official_reward_separate():
     root = Path(__file__).parents[1]
     loop = (root / "ecommerce_rag/grpo/verl_tau3_agent_loop.py").read_text()
     bridge = (root / "ecommerce_rag/grpo/rollout_bridge.py").read_text()
@@ -109,5 +109,7 @@ def test_cpu_source_wiring_keeps_mask_and_official_reward_separate(tmp_path):
     assert "agent_data.response_mask += [0] * len(observation_ids)" in loop
     assert "response_mask=agent_data.response_mask" in loop
     assert "output.reward_score = float(session.terminal_reward.value)" in loop
+    assert "agent_data._active_tool_schemas = tool_schemas" in loop
+    assert "render_tools_for_prompt" not in loop
     assert "OfficialTerminalRewardAdapter" in bridge
     assert "tau2.evaluator.evaluate_simulation" in reward

@@ -86,12 +86,3 @@ class Tau3RolloutSession:
                 )
         finally:
             self.episode.close()
-
-
-def render_tools_for_prompt(tools: tuple[dict[str, Any], ...]) -> str:
-    """Render the tau2-provided schemas without creating a second tool system."""
-    if not tools:
-        return ""
-    return "\n\n# Available tools\n" + "\n".join(
-        json.dumps(tool, ensure_ascii=False, sort_keys=True) for tool in tools
-    )

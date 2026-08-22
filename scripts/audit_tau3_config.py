@@ -134,6 +134,8 @@ def run_audit() -> dict[str, object]:
     assert "agent_data.response_mask += [0] * len(observation_ids)" in loop_source
     assert "response_mask=agent_data.response_mask" in loop_source
     assert "output.reward_score = float(session.terminal_reward.value)" in loop_source
+    assert "agent_data._active_tool_schemas = tool_schemas" in loop_source
+    assert "render_tools_for_prompt" not in loop_source
     assert "OfficialTerminalRewardAdapter" in bridge_source
     assert "tau2.evaluator.evaluate_simulation" in reward_source
 

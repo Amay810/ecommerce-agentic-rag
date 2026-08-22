@@ -7,11 +7,16 @@ loading.  The latter remain VERL/vLLM responsibilities.
 
 from __future__ import annotations
 
-import json
 from uuid import uuid4
 
 from .config import FROZEN_CONFIG
-from .rollout_bridge import Tau3RolloutSession, render_tools_for_prompt
+from .rollout_bridge import Tau3RolloutSession
+from .tool_channel import (
+    assistant_message_from_function_call,
+    gym_action_from_function_call,
+    initial_agent_messages,
+    messages_from_gym_observation,
+)
 
 try:  # Keep offline VM checks importable without the NSCC training stack.
     from verl.experimental.agent_loop.agent_loop import AgentLoopOutput, register
@@ -64,13 +69,15 @@ class Tau3AgentLoop(ToolAgentLoop):
             tau_root=tau_root, task_id=task_id, user_base_url=user_base_url
         )
         reset_result = session.start()
-        messages = [
-            {
-                "role": "system",
-                "content": reset_result.system_prompt + render_tools_for_prompt(reset_result.tools),
-            },
-            {"role": "user", "content": reset_result.observation},
-        ]
+        tool_schemas = list(reset_result.tools)
+        if not tool_schemas:
+            raise RuntimeError(
+                "tau2 reset returned no tool schemas; Qwen chat template "
+                "cannot take the tools= branch"
+            )
+        messages = initial_agent_messages(
+            reset_result.system_prompt, reset_result.observation
+        )
         request_id = uuid4().hex
         agent_data = AgentData(
             messages=messages,
@@ -82,6 +89,10 @@ class Tau3AgentLoop(ToolAgentLoop):
             request_id=request_id,
             tools_kwargs={},
         )
+        # Parent pending applies apply_chat_template(..., tools=schemas).
+        # These are schema dicts for the Qwen template only — not VERL BaseTool
+        # executors. Gym remains the only tool runtime.
+        agent_data._active_tool_schemas = tool_schemas
         state = AgentState.PENDING
         try:
             while state != AgentState.TERMINATED:
@@ -135,37 +146,41 @@ class Tau3AgentLoop(ToolAgentLoop):
             used_tokens=len(agent_data.response_mask),
             response_length=self.response_length,
         )
-        state = await super()._handle_generating_state(
+        await super()._handle_generating_state(
             agent_data, sampling_params, ignore_termination=ignore_termination
         )
         if agent_data.tool_calls:
             call = agent_data.tool_calls[0]
-            arguments = call.arguments
-            if isinstance(arguments, str):
-                try:
-                    arguments = json.loads(arguments)
-                except json.JSONDecodeError:
-                    pass
-            assistant_message = json.dumps(
-                {"name": call.name, "arguments": arguments}, ensure_ascii=False
+            gym_action = gym_action_from_function_call(call.name, call.arguments)
+            assistant_message = assistant_message_from_function_call(
+                call.name, call.arguments
             )
         else:
-            assistant_message = await self.loop.run_in_executor(
+            gym_action = await self.loop.run_in_executor(
                 None,
                 lambda: self.tokenizer.decode(agent_data.response_ids, skip_special_tokens=True),
             )
-        agent_data.messages.append({"role": "assistant", "content": assistant_message})
+            assistant_message = {"role": "assistant", "content": gym_action}
+        agent_data._pending_gym_action = gym_action
+        agent_data.messages.append(assistant_message)
         agent_data.tool_calls = []
         return _INTERACTING
 
     async def _handle_interacting_state(self, agent_data, session):
-        assistant_message = agent_data.messages[-1]["content"]
-        result = session.submit(assistant_message)
+        gym_action = getattr(agent_data, "_pending_gym_action", None)
+        if not gym_action:
+            raise RuntimeError("Tau3AgentLoop interacting without a gym action")
+        result = session.submit(gym_action)
         agent_data.turn_scores.append(result.reward or 0.0)
-        if result.observation:
-            agent_data.messages.append({"role": "user", "content": result.observation})
+        new_messages = messages_from_gym_observation(result.observation)
+        if new_messages:
+            agent_data.messages.extend(new_messages)
+            # Do not pass tools= here: the Qwen template would re-inject the
+            # # Tools system block. Parent ToolAgentLoop tokenizes tool
+            # responses the same way. Sampled assistant tokens stay as-is;
+            # retokenizing them would replace GRPO tokens with template tokens.
             observation_ids = await self.apply_chat_template(
-                [{"role": "user", "content": result.observation}],
+                new_messages,
                 remove_system_prompt=True,
             )
             agent_data.prompt_ids += observation_ids
@@ -173,6 +188,7 @@ class Tau3AgentLoop(ToolAgentLoop):
             agent_data.response_mask += [0] * len(observation_ids)
             if agent_data.response_logprobs:
                 agent_data.response_logprobs += [0.0] * len(observation_ids)
+            agent_data.user_turns += 1
         if result.terminated or result.truncated:
             return AgentState.TERMINATED
         return AgentState.GENERATING

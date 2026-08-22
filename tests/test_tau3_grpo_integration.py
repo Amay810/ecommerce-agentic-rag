@@ -116,7 +116,7 @@ def test_nscc_launcher_is_synchronous_and_supports_both_step_modes(tmp_path):
     assert "verl.trainer.main_ppo_sync" in command
     assert "verl.experimental.one_step_off_policy.main_ppo" not in command
     assert "actor_rollout_ref.hybrid_engine=True" in command
-    assert "actor_rollout_ref.rollout.mode=sync" in command
+    assert "actor_rollout_ref.rollout.mode=sync" not in command
     assert "trainer.n_gpus_per_node=2" in command
     assert "trainer.total_training_steps=1" in command
 
